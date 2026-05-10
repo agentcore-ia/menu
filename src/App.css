@@ -107,9 +107,6 @@
   margin: 0 0.25rem;
   padding: 0.85rem 0.75rem;
   border-radius: 0.8rem;
-  position: sticky;
-  top: 0;
-  z-index: 5;
 }
 
 .tabs-row {
@@ -160,7 +157,7 @@
 .items-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.7rem;
+  gap: 0.55rem;
 }
 
 .dish-card {
@@ -173,12 +170,12 @@
 
 .media-wrap {
   position: relative;
-  min-height: 24rem;
+  min-height: 22rem;
 }
 
 .dish-media {
   width: 100%;
-  height: 24rem;
+  height: 22rem;
   object-fit: cover;
   display: block;
 }
@@ -268,7 +265,7 @@
 .media-side-actions {
   position: absolute;
   left: 0.55rem;
-  bottom: 0.7rem;
+  bottom: 5.8rem;
   display: grid;
   gap: 0.55rem;
 }
@@ -311,6 +308,7 @@
   font-size: 0.84rem;
   line-height: 1.22;
   text-wrap: balance;
+  min-height: 2.1rem;
 }
 
 .dish-caption strong {
@@ -429,7 +427,7 @@ button:focus-visible {
 
   .media-wrap,
   .dish-media {
-    height: 26rem;
-    min-height: 26rem;
+    height: 24rem;
+    min-height: 24rem;
   }
 }

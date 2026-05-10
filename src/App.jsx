@@ -16,8 +16,7 @@ const menuItems = [
     description:
       'Pan brioche tostado, ragout de hongos, aceite de trufa y brotes frescos.',
     price: '$12',
-    image:
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80',
+    image: '/dishes/brioche.svg',
     badge: 'Nuevo',
     dietary: ['vegetarian'],
   },
@@ -28,8 +27,7 @@ const menuItems = [
     description:
       'Croquetas doradas con crema de limon, hierbas y terminacion ahumada.',
     price: '$11',
-    image:
-      'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80',
+    image: '/dishes/croquetas.svg',
     video:
       'https://www.w3schools.com/html/mov_bbb.mp4',
     badge: 'Video',
@@ -42,8 +40,7 @@ const menuItems = [
     description:
       'Coccion lenta, pure de coliflor, zanahorias baby y salsa de vino tinto.',
     price: '$26',
-    image:
-      'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80',
+    image: '/dishes/lomo.svg',
     video:
       'https://www.w3schools.com/html/mov_bbb.mp4',
     badge: 'Chef pick',
@@ -56,8 +53,7 @@ const menuItems = [
     description:
       'Pasta fresca con manteca de salvia, pistachos y ralladura citrica.',
     price: '$21',
-    image:
-      'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=900&q=80',
+    image: '/dishes/ravioles.svg',
     badge: 'Top',
     dietary: ['vegetarian'],
   },
@@ -68,8 +64,7 @@ const menuItems = [
     description:
       'Centro tibio de chocolate, helado artesanal y caramelo especiado.',
     price: '$9',
-    image:
-      'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=900&q=80',
+    image: '/dishes/volcan.svg',
     dietary: ['vegetarian'],
   },
   {
@@ -79,8 +74,7 @@ const menuItems = [
     description:
       'Pepino, lima, romero y burbujas suaves para maridar platos frescos.',
     price: '$7',
-    image:
-      'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=900&q=80',
+    image: '/dishes/tonica.svg',
     dietary: ['vegan', 'glutenfree', 'light'],
   },
 ]
