@@ -12,10 +12,10 @@ const menuItems = [
   {
     id: 1,
     category: 'entrantes',
-    name: 'Brioche de hongos al jerez',
+    name: 'Pan turco a la Lena',
     description:
       'Pan brioche tostado, ragout de hongos, aceite de trufa y brotes frescos.',
-    price: '$12',
+    price: '$5',
     image: '/dishes/brioche.svg',
     badge: 'Nuevo',
     dietary: ['vegetarian'],
@@ -23,10 +23,10 @@ const menuItems = [
   {
     id: 2,
     category: 'entrantes',
-    name: 'Croquetas de quinoa crocante',
+    name: 'Mini Falafels con Salsa de Yogur y Hierbabuena',
     description:
       'Croquetas doradas con crema de limon, hierbas y terminacion ahumada.',
-    price: '$11',
+    price: '$8',
     image: '/dishes/croquetas.svg',
     video:
       'https://www.w3schools.com/html/mov_bbb.mp4',
@@ -166,7 +166,6 @@ function App() {
           <nav className="topbar">
             <div className="brand-lockup">
               <span className="brand-script">NeuroRest</span>
-              <span className="brand-subtitle">menu digital</span>
             </div>
 
             <div className="topbar-actions">
