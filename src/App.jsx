@@ -1,104 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
-const categories = [
-  { id: 'entrantes', label: 'Entrantes' },
-  { id: 'principales', label: 'Platos Principales' },
-  { id: 'postres', label: 'Postres' },
-  { id: 'bebidas', label: 'Bebidas' },
-]
-
-const menuItems = [
-  {
-    id: 1,
-    category: 'entrantes',
-    name: 'Pan turco a la Lena',
-    description:
-      'Pan brioche tostado, ragout de hongos, aceite de trufa y brotes frescos.',
-    price: '$5',
-    image: '/dishes/brioche.svg',
-    badge: 'Nuevo',
-    dietary: ['vegetarian'],
-  },
-  {
-    id: 2,
-    category: 'entrantes',
-    name: 'Mini Falafels con Salsa de Yogur y Hierbabuena',
-    description:
-      'Croquetas doradas con crema de limon, hierbas y terminacion ahumada.',
-    price: '$8',
-    image: '/dishes/croquetas.svg',
-    video:
-      'https://www.w3schools.com/html/mov_bbb.mp4',
-    badge: 'Video',
-    dietary: ['vegetarian', 'glutenfree'],
-  },
-  {
-    id: 7,
-    category: 'entrantes',
-    name: 'Hummus tibio con aceite verde',
-    description:
-      'Garbanzos cremosos, pan de masa madre y oliva especiada.',
-    price: '$10',
-    image: '/dishes/hummus.svg',
-    badge: 'Top',
-    dietary: ['vegan', 'glutenfree'],
-  },
-  {
-    id: 8,
-    category: 'entrantes',
-    name: 'Pan de ajo con queso suave',
-    description: 'Horneado al momento con manteca de hierbas.',
-    price: '$9',
-    image: '/dishes/panajo.svg',
-    badge: 'Chef',
-    dietary: ['vegetarian'],
-  },
-  {
-    id: 3,
-    category: 'principales',
-    name: 'Lomo glaseado NeuroRest',
-    description:
-      'Coccion lenta, pure de coliflor, zanahorias baby y salsa de vino tinto.',
-    price: '$26',
-    image: '/dishes/lomo.svg',
-    video:
-      'https://www.w3schools.com/html/mov_bbb.mp4',
-    badge: 'Chef pick',
-    dietary: [],
-  },
-  {
-    id: 4,
-    category: 'principales',
-    name: 'Ravioles verdes de ricota',
-    description:
-      'Pasta fresca con manteca de salvia, pistachos y ralladura citrica.',
-    price: '$21',
-    image: '/dishes/ravioles.svg',
-    badge: 'Top',
-    dietary: ['vegetarian'],
-  },
-  {
-    id: 5,
-    category: 'postres',
-    name: 'Volcan de cacao amargo',
-    description:
-      'Centro tibio de chocolate, helado artesanal y caramelo especiado.',
-    price: '$9',
-    image: '/dishes/volcan.svg',
-    dietary: ['vegetarian'],
-  },
-  {
-    id: 6,
-    category: 'bebidas',
-    name: 'Tonica botanica de la casa',
-    description:
-      'Pepino, lima, romero y burbujas suaves para maridar platos frescos.',
-    price: '$7',
-    image: '/dishes/tonica.svg',
-    dietary: ['vegan', 'glutenfree', 'light'],
-  },
-]
+const emptyCategories = []
 
 function IconLeaf() {
   return (
@@ -148,16 +51,66 @@ function IconClose() {
   )
 }
 
+function getInitialAccountId() {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('account') ?? 'sandras-rose'
+}
+
 function App() {
-  const [selectedCategory, setSelectedCategory] = useState('entrantes')
+  const [accountId] = useState(getInitialAccountId)
+  const [menu, setMenu] = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedDish, setSelectedDish] = useState(null)
+  const [status, setStatus] = useState('loading')
+  const [errorMessage, setErrorMessage] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadMenu() {
+      setStatus('loading')
+      setErrorMessage('')
+
+      try {
+        const response = await fetch(`/api/accounts/${accountId}/menu`)
+        const payload = await response.json()
+
+        if (!response.ok) {
+          throw new Error(payload.message ?? 'No se pudo cargar el menu.')
+        }
+
+        if (cancelled) {
+          return
+        }
+
+        setMenu(payload)
+        setSelectedCategory(payload.categories[0]?.id ?? '')
+        setStatus('ready')
+      } catch (error) {
+        if (cancelled) {
+          return
+        }
+
+        setStatus('error')
+        setErrorMessage(
+          error instanceof Error ? error.message : 'No se pudo cargar el menu.',
+        )
+      }
+    }
+
+    loadMenu()
+
+    return () => {
+      cancelled = true
+    }
+  }, [accountId])
+
+  const categories = menu?.categories ?? emptyCategories
 
   const filteredItems = useMemo(() => {
-    return menuItems.filter((item) => {
-      if (item.category !== selectedCategory) return false
-      return true
-    })
-  }, [selectedCategory])
+    const category = categories.find((item) => item.id === selectedCategory)
+    return category?.items ?? []
+  }, [categories, selectedCategory])
 
   return (
     <>
@@ -165,17 +118,17 @@ function App() {
         <header className="hero-panel">
           <nav className="topbar">
             <div className="brand-lockup">
-              <span className="brand-script">NeuroRest</span>
+              <span className="brand-script">{menu?.accountName ?? 'NeuroRest'}</span>
             </div>
 
             <div className="topbar-actions">
               <button type="button" className="ghost-pill">
-                USD
+                {menu?.currency ?? 'USD'}
               </button>
               <button type="button" className="ghost-pill">
-                ES
+                {(menu?.locale ?? 'es').toUpperCase()}
               </button>
-              <button type="button" className="ghost-icon">
+              <button type="button" className="ghost-icon" aria-label="Configuracion">
                 <span />
                 <span />
                 <span />
@@ -202,64 +155,81 @@ function App() {
             </div>
           </section>
 
-          <section className="items-section">
-            <div className="items-grid">
-              {filteredItems.map((item) => (
-                <article key={item.id} className="dish-card glass-card">
-                  <div className="media-wrap">
-                    <img className="dish-media" src={item.image} alt={item.name} />
+          {status === 'loading' ? (
+            <section className="state-card glass-card">
+              <p>Cargando menu digital...</p>
+            </section>
+          ) : null}
 
-                    <div className="media-top">
-                      <div className="badge-cluster">
-                        <span className="media-badge">{item.badge}</span>
-                        {item.dietary.slice(0, 3).map((tag) => (
-                          <span key={tag} className="dietary-dot">
-                            {tag === 'vegetarian' ? (
-                              <IconSpark />
-                            ) : tag === 'vegan' ? (
-                              <IconLeaf />
-                            ) : (
-                              <IconGrid />
-                            )}
-                          </span>
-                        ))}
+          {status === 'error' ? (
+            <section className="state-card glass-card">
+              <p>{errorMessage}</p>
+              <code>?account=sandras-rose</code>
+            </section>
+          ) : null}
+
+          {status === 'ready' ? (
+            <section className="items-section">
+              <div className="items-grid">
+                {filteredItems.map((item) => (
+                  <article key={item.id} className="dish-card glass-card">
+                    <div className="media-wrap">
+                      <img className="dish-media" src={item.image} alt={item.name} />
+
+                      <div className="media-top">
+                        <div className="badge-cluster">
+                          {item.badge ? (
+                            <span className="media-badge">{item.badge}</span>
+                          ) : null}
+                          {item.dietary.slice(0, 3).map((tag) => (
+                            <span key={tag} className="dietary-dot">
+                              {tag === 'vegetarian' ? (
+                                <IconSpark />
+                              ) : tag === 'vegan' ? (
+                                <IconLeaf />
+                              ) : (
+                                <IconGrid />
+                              )}
+                            </span>
+                          ))}
+                        </div>
+                        {item.video ? (
+                          <button
+                            type="button"
+                            className="round-action"
+                            onClick={() => setSelectedDish(item)}
+                            aria-label={`Ver video de ${item.name}`}
+                          >
+                            <IconPlay />
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="round-action"
+                            onClick={() => setSelectedDish(item)}
+                            aria-label={`Ver detalle de ${item.name}`}
+                          >
+                            <IconPlus />
+                          </button>
+                        )}
                       </div>
-                      {item.video ? (
-                        <button
-                          type="button"
-                          className="round-action"
-                          onClick={() => setSelectedDish(item)}
-                          aria-label={`Ver video de ${item.name}`}
-                        >
-                          <IconPlay />
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          className="round-action"
-                          onClick={() => setSelectedDish(item)}
-                          aria-label={`Ver detalle de ${item.name}`}
-                        >
-                          <IconPlus />
-                        </button>
-                      )}
                     </div>
-                  </div>
 
-                  <div className="dish-content">
-                    <button
-                      type="button"
-                      className="dish-caption"
-                      onClick={() => setSelectedDish(item)}
-                    >
-                      <h3>{item.name}</h3>
-                      <strong>{item.price}</strong>
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
+                    <div className="dish-content">
+                      <button
+                        type="button"
+                        className="dish-caption"
+                        onClick={() => setSelectedDish(item)}
+                      >
+                        <h3>{item.name}</h3>
+                        <strong>{item.price}</strong>
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </main>
       </div>
 
@@ -301,12 +271,14 @@ function App() {
             </div>
 
             <div className="modal-copy">
-              <p className="eyebrow">NeuroRest showcase</p>
+              <p className="eyebrow">{menu?.accountName ?? 'NeuroRest'}</p>
               <h3 id="dish-title">{selectedDish.name}</h3>
               <p>{selectedDish.description}</p>
               <div className="modal-meta">
                 <span>{selectedDish.price}</span>
-                <span>{selectedDish.video ? 'Incluye video corto' : 'Imagen premium'}</span>
+                <span>
+                  {selectedDish.video ? 'Incluye video corto' : 'Imagen premium'}
+                </span>
               </div>
             </div>
           </section>
