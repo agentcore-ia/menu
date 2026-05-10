@@ -2,9 +2,11 @@ import { useMemo, useState } from 'react'
 import './App.css'
 
 const dietaryOptions = [
-  { id: 'allergens', label: 'Alergenos' },
+  { id: 'glutenfree', label: 'Sin TACC' },
   { id: 'vegetarian', label: 'Vegetariano' },
   { id: 'vegan', label: 'Vegano' },
+  { id: 'light', label: 'Liviano' },
+  { id: 'spicy', label: 'Picante' },
 ]
 
 const categories = [
@@ -39,7 +41,7 @@ const menuItems = [
     video:
       'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
     badge: 'Video',
-    dietary: ['vegetarian'],
+    dietary: ['vegetarian', 'glutenfree'],
   },
   {
     id: 3,
@@ -87,16 +89,15 @@ const menuItems = [
     price: '$7',
     image:
       'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=900&q=80',
-    dietary: ['vegan'],
+    dietary: ['vegan', 'glutenfree', 'light'],
   },
 ]
 
 const heroSlides = [
   {
     id: 1,
-    title: 'Una experiencia digital para menus que venden mejor',
-    description:
-      'Visual premium, filtros utiles y contenido corto en video para despertar apetito.',
+    title: 'Sabores que invitan a pedir uno mas',
+    description: 'Explora el menu y elegi rapido.',
     image:
       'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80',
   },
@@ -200,7 +201,6 @@ function App() {
           <nav className="topbar">
             <div className="brand-lockup">
               <span className="brand-script">NeuroRest</span>
-              <span className="brand-mark">Digital Menu</span>
             </div>
 
             <div className="topbar-actions">
@@ -226,7 +226,6 @@ function App() {
             >
               <div className="hero-overlay" />
               <div className="hero-copy">
-                <p className="eyebrow">Menu principal</p>
                 <h1>{slide.title}</h1>
                 <p>{slide.description}</p>
               </div>
@@ -254,14 +253,13 @@ function App() {
           <section className="filter-panel glass-card">
             <div className="section-heading">
               <h2>Filtra tus opciones dieteticas</h2>
-              <p>Ayuda a cada cliente a encontrar su plato ideal en segundos.</p>
             </div>
 
-            <div className="chip-row">
+            <div className="chip-row" aria-label="Filtros dieteticos">
               {dietaryOptions.map((option) => {
                 const isActive = activeFilters.includes(option.id)
                 const Icon =
-                  option.id === 'allergens'
+                  option.id === 'glutenfree'
                     ? IconFilter
                     : option.id === 'vegetarian'
                       ? IconSpark

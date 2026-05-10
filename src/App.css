@@ -4,7 +4,7 @@
 
 .hero-panel {
   position: relative;
-  padding-bottom: 1.25rem;
+  padding-bottom: 1rem;
 }
 
 .hero-panel::before {
@@ -29,32 +29,29 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem 1rem 0.8rem;
+  padding: 0.55rem 0.8rem 0.55rem;
 }
 
 .brand-lockup {
-  display: grid;
-  gap: 0.15rem;
+  display: flex;
+  align-items: center;
 }
 
 .brand-script {
   font-family: var(--font-display);
-  font-size: 1.8rem;
+  font-size: 1.3rem;
   line-height: 0.95;
   color: var(--text-strong);
 }
 
 .brand-mark {
-  font-size: 0.72rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--text-soft);
+  display: none;
 }
 
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.45rem;
 }
 
 .ghost-pill,
@@ -67,14 +64,14 @@
 }
 
 .ghost-pill {
-  padding: 0.55rem 0.85rem;
-  font-size: 0.88rem;
+  padding: 0.42rem 0.72rem;
+  font-size: 0.82rem;
   font-weight: 600;
 }
 
 .ghost-icon {
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   display: grid;
   place-items: center;
   gap: 0.2rem;
@@ -89,7 +86,7 @@
 }
 
 .hero-card {
-  min-height: 24rem;
+  min-height: 13.5rem;
   margin: 0 0.5rem;
   border-top: 1px solid rgba(88, 210, 134, 0.55);
   border-bottom: 1px solid rgba(88, 210, 134, 0.55);
@@ -109,9 +106,9 @@
 
 .hero-copy {
   position: absolute;
-  inset-inline: 1.1rem;
-  bottom: 1.25rem;
-  max-width: 21rem;
+  inset-inline: 0.9rem;
+  bottom: 0.9rem;
+  max-width: 14rem;
 }
 
 .eyebrow {
@@ -125,14 +122,15 @@
 .hero-copy h1 {
   margin: 0;
   font-family: var(--font-title);
-  font-size: clamp(2rem, 8vw, 3.7rem);
-  line-height: 0.96;
-  max-width: 11ch;
+  font-size: clamp(1.1rem, 4.8vw, 1.65rem);
+  line-height: 1.05;
+  max-width: 14ch;
 }
 
 .hero-copy p:last-child {
-  margin-top: 0.75rem;
-  max-width: 28ch;
+  margin-top: 0.35rem;
+  max-width: 18ch;
+  font-size: 0.82rem;
   color: rgba(247, 240, 229, 0.78);
 }
 
@@ -231,7 +229,18 @@
 .tabs-row {
   display: flex;
   gap: 0.75rem;
-  flex-wrap: wrap;
+}
+
+.chip-row {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  padding-bottom: 0.2rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.chip-row::-webkit-scrollbar {
+  display: none;
 }
 
 .chip,
@@ -251,6 +260,8 @@
   align-items: center;
   gap: 0.55rem;
   padding: 0.9rem 1rem;
+  flex: 0 0 auto;
+  white-space: nowrap;
   border-radius: 999px;
   border: 1px solid rgba(231, 204, 171, 0.15);
   background: rgba(255, 255, 255, 0.03);
@@ -497,7 +508,7 @@ input:focus-visible {
 
 @media (min-width: 760px) {
   .hero-card {
-    min-height: 30rem;
+    min-height: 18rem;
     margin: 0 1rem;
     border-radius: 0 0 1.6rem 1.6rem;
   }
@@ -517,6 +528,6 @@ input:focus-visible {
   }
 
   .topbar {
-    padding: 1.15rem 1.25rem 1rem;
+    padding: 0.7rem 1rem 0.7rem;
   }
 }
