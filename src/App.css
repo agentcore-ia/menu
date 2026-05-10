@@ -155,7 +155,7 @@
 .items-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.6rem;
+  gap: 0.45rem;
 }
 
 .dish-card {
@@ -168,12 +168,12 @@
 
 .media-wrap {
   position: relative;
-  min-height: 20.5rem;
+  min-height: 18.6rem;
 }
 
 .dish-media {
   width: 100%;
-  height: 20.5rem;
+  height: 18.6rem;
   object-fit: cover;
   display: block;
 }
@@ -244,7 +244,6 @@
 }
 
 .round-action,
-.mini-action,
 .modal-close {
   border: 0;
   color: #f7f2e8;
@@ -258,28 +257,6 @@
   box-shadow: 0 10px 22px rgba(20, 50, 25, 0.28);
 }
 
-.media-side-actions {
-  position: absolute;
-  left: -0.22rem;
-  bottom: 4.9rem;
-  display: grid;
-  gap: 0.45rem;
-}
-
-.mini-action {
-  width: 2.55rem;
-  height: 2.55rem;
-  border-radius: 999px;
-}
-
-.mini-action.violet {
-  background: rgba(111, 77, 255, 0.92);
-}
-
-.mini-action.muted {
-  background: rgba(132, 155, 82, 0.84);
-}
-
 .dish-content {
   position: absolute;
   inset: auto 0.48rem 0.58rem;
@@ -290,7 +267,7 @@
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.8rem;
-  padding: 0.82rem 0.62rem;
+  padding: 0.72rem 0.56rem;
   background: rgba(57, 41, 28, 0.85);
   color: var(--text-strong);
   text-align: center;
@@ -300,16 +277,16 @@
 .dish-caption h3 {
   margin: 0;
   font-family: var(--font-title);
-  font-size: 0.78rem;
-  line-height: 1.24;
-  min-height: 1.95rem;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  min-height: 1.7rem;
   text-wrap: balance;
 }
 
 .dish-caption strong {
   display: block;
-  margin-top: 0.36rem;
-  font-size: 0.95rem;
+  margin-top: 0.28rem;
+  font-size: 0.88rem;
   color: #49ce69;
 }
 
@@ -408,7 +385,7 @@ button:focus-visible {
 
   .media-wrap,
   .dish-media {
-    height: 23rem;
-    min-height: 23rem;
+    height: 21.5rem;
+    min-height: 21.5rem;
   }
 }

@@ -245,15 +245,6 @@ function App() {
                         </button>
                       )}
                     </div>
-
-                    <div className="media-side-actions">
-                      <button type="button" className="mini-action violet">
-                        <IconSpark />
-                      </button>
-                      <button type="button" className="mini-action muted">
-                        <IconGrid />
-                      </button>
-                    </div>
                   </div>
 
                   <div className="dish-content">
