@@ -25,12 +25,14 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top, rgba(124, 83, 43, 0.22), transparent 30%),
     linear-gradient(180deg, #24170e 0%, #1d120b 50%, #24150c 100%);
@@ -60,4 +62,5 @@ video {
 #root {
   width: min(100%, 1024px);
   margin: 0 auto;
+  overflow-x: clip;
 }

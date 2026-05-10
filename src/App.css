@@ -1,5 +1,6 @@
 .app-shell {
   min-height: 100vh;
+  overflow-x: clip;
 }
 
 .hero-panel {
@@ -151,6 +152,7 @@
   padding: 0.75rem 0.5rem 2rem;
   display: grid;
   gap: 1rem;
+  overflow-x: clip;
 }
 
 .glass-card {
@@ -164,6 +166,7 @@
 .filter-panel,
 .tabs-panel {
   padding: 1rem;
+  overflow: hidden;
 }
 
 .searchbar {
@@ -229,6 +232,7 @@
 .tabs-row {
   display: flex;
   gap: 0.75rem;
+  min-width: 0;
 }
 
 .chip-row {
@@ -240,6 +244,18 @@
 }
 
 .chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs-row {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  padding-bottom: 0.2rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabs-row::-webkit-scrollbar {
   display: none;
 }
 
@@ -278,6 +294,8 @@
 
 .tab-pill {
   padding: 0.85rem 1rem;
+  flex: 0 0 auto;
+  white-space: nowrap;
   border-radius: 1rem;
   border: 1px solid rgba(231, 204, 171, 0.16);
   background: rgba(255, 255, 255, 0.03);
