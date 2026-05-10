@@ -34,6 +34,27 @@ const menuItems = [
     dietary: ['vegetarian', 'glutenfree'],
   },
   {
+    id: 7,
+    category: 'entrantes',
+    name: 'Hummus tibio con aceite verde',
+    description:
+      'Garbanzos cremosos, pan de masa madre y oliva especiada.',
+    price: '$10',
+    image: '/dishes/hummus.svg',
+    badge: 'Top',
+    dietary: ['vegan', 'glutenfree'],
+  },
+  {
+    id: 8,
+    category: 'entrantes',
+    name: 'Pan de ajo con queso suave',
+    description: 'Horneado al momento con manteca de hierbas.',
+    price: '$9',
+    image: '/dishes/panajo.svg',
+    badge: 'Chef',
+    dietary: ['vegetarian'],
+  },
+  {
     id: 3,
     category: 'principales',
     name: 'Lomo glaseado NeuroRest',
@@ -145,6 +166,7 @@ function App() {
           <nav className="topbar">
             <div className="brand-lockup">
               <span className="brand-script">NeuroRest</span>
+              <span className="brand-subtitle">menu digital</span>
             </div>
 
             <div className="topbar-actions">
