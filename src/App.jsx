@@ -31,7 +31,7 @@ const menuItems = [
     image:
       'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80',
     video:
-      'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+      'https://www.w3schools.com/html/mov_bbb.mp4',
     badge: 'Video',
     dietary: ['vegetarian', 'glutenfree'],
   },
@@ -192,19 +192,7 @@ function App() {
               {filteredItems.map((item) => (
                 <article key={item.id} className="dish-card glass-card">
                   <div className="media-wrap">
-                    {item.video ? (
-                      <video
-                        className="dish-media"
-                        src={item.video}
-                        poster={item.image}
-                        muted
-                        loop
-                        playsInline
-                        autoPlay
-                      />
-                    ) : (
-                      <img className="dish-media" src={item.image} alt={item.name} />
-                    )}
+                    <img className="dish-media" src={item.image} alt={item.name} />
 
                     <div className="media-top">
                       <div className="badge-cluster">
