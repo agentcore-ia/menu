@@ -1,14 +1,6 @@
 import { useMemo, useState } from 'react'
 import './App.css'
 
-const dietaryOptions = [
-  { id: 'glutenfree', label: 'Sin TACC' },
-  { id: 'vegetarian', label: 'Vegetariano' },
-  { id: 'vegan', label: 'Vegano' },
-  { id: 'light', label: 'Liviano' },
-  { id: 'spicy', label: 'Picante' },
-]
-
 const categories = [
   { id: 'entrantes', label: 'Entrantes' },
   { id: 'principales', label: 'Platos Principales' },
@@ -93,33 +85,6 @@ const menuItems = [
   },
 ]
 
-const heroSlides = [
-  {
-    id: 1,
-    title: 'Sabores que invitan a pedir uno mas',
-    description: 'Explora el menu y elegi rapido.',
-    image:
-      'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80',
-  },
-]
-
-function IconSearch() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="11" cy="11" r="7" />
-      <path d="M20 20l-3.6-3.6" />
-    </svg>
-  )
-}
-
-function IconFilter() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4 6h16l-6 7v5l-4 2v-7z" />
-    </svg>
-  )
-}
-
 function IconLeaf() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -170,29 +135,14 @@ function IconClose() {
 
 function App() {
   const [selectedCategory, setSelectedCategory] = useState('entrantes')
-  const [query, setQuery] = useState('')
-  const [activeFilters, setActiveFilters] = useState([])
   const [selectedDish, setSelectedDish] = useState(null)
 
   const filteredItems = useMemo(() => {
     return menuItems.filter((item) => {
       if (item.category !== selectedCategory) return false
-
-      const searchTarget = `${item.name} ${item.description}`.toLowerCase()
-      if (query && !searchTarget.includes(query.toLowerCase())) return false
-
-      if (activeFilters.length === 0) return true
-      return activeFilters.every((filter) => item.dietary.includes(filter))
+      return true
     })
-  }, [activeFilters, query, selectedCategory])
-
-  const toggleFilter = (filterId) => {
-    setActiveFilters((current) =>
-      current.includes(filterId)
-        ? current.filter((item) => item !== filterId)
-        : [...current, filterId],
-    )
-  }
+  }, [selectedCategory])
 
   return (
     <>
@@ -217,69 +167,9 @@ function App() {
               </button>
             </div>
           </nav>
-
-          {heroSlides.map((slide) => (
-            <article
-              key={slide.id}
-              className="hero-card"
-              style={{ '--hero-image': `url(${slide.image})` }}
-            >
-              <div className="hero-overlay" />
-              <div className="hero-copy">
-                <h1>{slide.title}</h1>
-                <p>{slide.description}</p>
-              </div>
-              <button type="button" className="hero-info">
-                i
-              </button>
-            </article>
-          ))}
         </header>
 
         <main className="menu-layout">
-          <section className="search-panel glass-card">
-            <label className="searchbar" htmlFor="menu-search">
-              <IconSearch />
-              <input
-                id="menu-search"
-                type="search"
-                placeholder="Buscar en el menu"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-            </label>
-          </section>
-
-          <section className="filter-panel glass-card">
-            <div className="section-heading">
-              <h2>Filtra tus opciones dieteticas</h2>
-            </div>
-
-            <div className="chip-row" aria-label="Filtros dieteticos">
-              {dietaryOptions.map((option) => {
-                const isActive = activeFilters.includes(option.id)
-                const Icon =
-                  option.id === 'glutenfree'
-                    ? IconFilter
-                    : option.id === 'vegetarian'
-                      ? IconSpark
-                      : IconLeaf
-
-                return (
-                  <button
-                    key={option.id}
-                    type="button"
-                    className={`chip ${isActive ? 'active' : ''}`}
-                    onClick={() => toggleFilter(option.id)}
-                  >
-                    <Icon />
-                    <span>{option.label}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </section>
-
           <section className="tabs-panel glass-card">
             <div className="tabs-row">
               {categories.map((category) => (
@@ -298,14 +188,6 @@ function App() {
           </section>
 
           <section className="items-section">
-            <div className="section-heading large">
-              <h2>
-                {categories.find((category) => category.id === selectedCategory)
-                  ?.label ?? 'Menu'}
-              </h2>
-              <p>Cards grandes, visuales y listas para convertir desde mobile.</p>
-            </div>
-
             <div className="items-grid">
               {filteredItems.map((item) => (
                 <article key={item.id} className="dish-card glass-card">
@@ -325,7 +207,20 @@ function App() {
                     )}
 
                     <div className="media-top">
-                      <span className="media-badge">{item.badge}</span>
+                      <div className="badge-cluster">
+                        <span className="media-badge">{item.badge}</span>
+                        {item.dietary.slice(0, 3).map((tag) => (
+                          <span key={tag} className="dietary-dot">
+                            {tag === 'vegetarian' ? (
+                              <IconSpark />
+                            ) : tag === 'vegan' ? (
+                              <IconLeaf />
+                            ) : (
+                              <IconGrid />
+                            )}
+                          </span>
+                        ))}
+                      </div>
                       {item.video ? (
                         <button
                           type="button"
@@ -358,20 +253,13 @@ function App() {
                   </div>
 
                   <div className="dish-content">
-                    <div className="dish-header">
-                      <div>
-                        <h3>{item.name}</h3>
-                        <p>{item.description}</p>
-                      </div>
-                      <strong>{item.price}</strong>
-                    </div>
-
                     <button
                       type="button"
-                      className="detail-link"
+                      className="dish-caption"
                       onClick={() => setSelectedDish(item)}
                     >
-                      {item.video ? 'Ver video del plato' : 'Ver detalle'}
+                      <h3>{item.name}</h3>
+                      <strong>{item.price}</strong>
                     </button>
                   </div>
                 </article>
