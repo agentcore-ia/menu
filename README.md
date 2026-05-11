@@ -44,6 +44,26 @@ El backend lee:
 
 Agrupa automaticamente por `category`.
 
+## Vercel
+
+Si en Vercel ves un error como:
+
+- `Unexpected token '<'`
+- `is not valid JSON`
+
+significa que estaba publicado solo el frontend y no habia endpoint `/api/...`.
+
+Este repo ahora ya incluye funciones serverless en:
+
+- `api/health.js`
+- `api/accounts/[accountId]/menu.js`
+
+En Vercel solo necesitas cargar estas variables de entorno y redeploy:
+
+- `NEUROREST_DATA_PROVIDER=supabase`
+- `NEUROREST_SUPABASE_URL=https://eqnjyygokjinmsfvogxi.supabase.co`
+- `NEUROREST_SUPABASE_API_KEY=...`
+
 Alternativa:
 
 - puedes seguir usando `NEUROREST_DATA_PROVIDER=sql` si en el futuro quieres leer directo desde Postgres/MySQL sin pasar por Supabase REST
