@@ -1,12 +1,12 @@
 const fallbackImages = [
-  '/dishes/brioche.svg',
-  '/dishes/croquetas.svg',
-  '/dishes/hummus.svg',
-  '/dishes/panajo.svg',
-  '/dishes/lomo.svg',
-  '/dishes/ravioles.svg',
-  '/dishes/volcan.svg',
-  '/dishes/tonica.svg',
+  '/dishes/hero-steak.jpg',
+  '/dishes/bruschetta.jpg',
+  '/dishes/carpaccio.jpg',
+  '/dishes/burrata.jpg',
+  '/dishes/salmon.jpg',
+  '/dishes/pasta.jpg',
+  '/dishes/pizza.jpg',
+  '/dishes/lemonade.jpg',
 ]
 
 export class SupabaseMenuRepository {

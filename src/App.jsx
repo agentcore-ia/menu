@@ -3,26 +3,44 @@ import './App.css'
 
 const emptyCategories = []
 
-function IconLeaf() {
+function IconMenu() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M18 5c-6 0-11 4.3-11 10 0 2.2.7 3.5 2.2 4.7 1.1-3.3 3.2-5.7 6.5-7.2-2 1.6-3.5 3.8-4.3 6.6 5.1.4 8.6-2.9 8.6-8.3V5z" />
+      <path d="M4 7h16M4 12h16M4 17h16" />
     </svg>
   )
 }
 
-function IconSpark() {
+function IconCart() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
+      <path d="M3 5h2l1.5 9h10.8l1.7-6.5H7.2" />
+      <circle cx="10" cy="18.5" r="1.35" />
+      <circle cx="17.2" cy="18.5" r="1.35" />
     </svg>
   )
 }
 
-function IconGrid() {
+function IconChevron() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+      <path d="M7 10l5 5 5-5" />
+    </svg>
+  )
+}
+
+function IconBack() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M15 6l-6 6 6 6" />
+    </svg>
+  )
+}
+
+function IconHeart() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 20s-6.7-4.3-8.7-8C1.5 8.9 3.1 5.5 6.9 5.5c2 0 3.3 1 4.1 2.2.8-1.2 2.1-2.2 4.1-2.2 3.8 0 5.4 3.4 3.6 6.5C18.7 15.7 12 20 12 20z" />
     </svg>
   )
 }
@@ -35,18 +53,70 @@ function IconPlus() {
   )
 }
 
-function IconPlay() {
+function IconMinus() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M8 6l10 6-10 6z" />
+      <path d="M5 12h14" />
     </svg>
   )
 }
 
-function IconClose() {
+function IconLeafMark() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M6 6l12 12M18 6L6 18" />
+      <path d="M12 20V9" />
+      <path d="M12 13c-3.2 0-5.8-2.5-5.8-5.7 3.4 0 5.8 2.2 5.8 5.7z" />
+      <path d="M12 13c3.2 0 5.8-2.5 5.8-5.7-3.4 0-5.8 2.2-5.8 5.7z" />
+      <path d="M12 9.5C9.6 9.5 7.7 7.6 7.7 5.2c2.4 0 4.3 1.8 4.3 4.3z" />
+    </svg>
+  )
+}
+
+function IconServe() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4.5 13.5h15" />
+      <path d="M6.5 13.5a5.5 5.5 0 0 1 11 0" />
+      <path d="M3.5 17.5h17" />
+    </svg>
+  )
+}
+
+function IconPizza() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 4c3.5 0 6.5.8 8.3 1.9L12 20 3.7 5.9C5.5 4.8 8.5 4 12 4z" />
+      <circle cx="10" cy="10" r="1" />
+      <circle cx="14" cy="12" r="1" />
+      <circle cx="12" cy="15" r="1" />
+    </svg>
+  )
+}
+
+function IconDessert() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 10h14" />
+      <path d="M7.5 10a4.5 4.5 0 0 1 9 0" />
+      <path d="M6 10l1.5 7h9L18 10" />
+    </svg>
+  )
+}
+
+function IconDrink() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 5h10l-1 13H8L7 5z" />
+      <path d="M10 5V3h4" />
+      <path d="M15 8l3-3" />
+    </svg>
+  )
+}
+
+function IconSpark() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 4l1.8 4.8L18.6 10l-4.8 1.2L12 16l-1.8-4.8L5.4 10l4.8-1.2z" />
     </svg>
   )
 }
@@ -65,6 +135,64 @@ function getInitialAccountId() {
   return params.get('account') ?? 'sandras-rose'
 }
 
+function slugify(value) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
+function toNumericPrice(value) {
+  const amount = Number.parseFloat(String(value).replace(/[^\d.,-]/g, '').replace(',', '.'))
+  return Number.isFinite(amount) ? amount : 0
+}
+
+function formatPrice(value, currencySymbol = '$') {
+  return `${currencySymbol}${value.toFixed(2)}`
+}
+
+function getCategoryIcon(label) {
+  const key = slugify(label)
+
+  if (key.includes('entrada')) return IconLeafMark
+  if (key.includes('pasta')) return IconLeafMark
+  if (key.includes('pizza')) return IconPizza
+  if (key.includes('postre')) return IconDessert
+  if (key.includes('bebida')) return IconDrink
+  return IconServe
+}
+
+function buildDetailOptions(dish) {
+  const tags = dish.dietary?.map((tag) => tag.toLowerCase()) ?? []
+
+  const sides = [
+    'Papas rostizadas',
+    'Pure de papas',
+    'Ensalada mixta',
+  ]
+
+  if (tags.includes('vegan')) {
+    return {
+      accompaniments: ['Mix de hojas', 'Vegetales grillados', 'Pure de calabaza'],
+      doneness: ['Suave', 'Clasico', 'Intenso'],
+    }
+  }
+
+  if (dish.categoryLabel?.toLowerCase().includes('bebida')) {
+    return {
+      accompaniments: ['Con hielo', 'Sin azucar', 'Rodaja de limon'],
+      doneness: ['Frio', 'Muy frio', 'Natural'],
+    }
+  }
+
+  return {
+    accompaniments: sides,
+    doneness: ['3/4 Termino', 'A punto', 'Bien cocido'],
+  }
+}
+
 function App() {
   const [accountId] = useState(getInitialAccountId)
   const [menu, setMenu] = useState(null)
@@ -72,6 +200,10 @@ function App() {
   const [selectedDish, setSelectedDish] = useState(null)
   const [status, setStatus] = useState('loading')
   const [errorMessage, setErrorMessage] = useState('')
+  const [cart, setCart] = useState({})
+  const [detailQuantity, setDetailQuantity] = useState(1)
+  const [selectedSide, setSelectedSide] = useState('')
+  const [selectedDoneness, setSelectedDoneness] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -116,181 +248,379 @@ function App() {
 
   const categories = menu?.categories ?? emptyCategories
 
-  const filteredItems = useMemo(() => {
-    const category = categories.find((item) => item.id === selectedCategory)
-    return category?.items ?? []
-  }, [categories, selectedCategory])
+  const currentCategory =
+    categories.find((category) => category.id === selectedCategory) ?? categories[0] ?? null
+
+  const categoryItems = currentCategory?.items ?? []
+  const heroDish = categoryItems[0] ?? categories.flatMap((category) => category.items)[0] ?? null
+  const recommendations = categories
+    .flatMap((category) => category.items)
+    .filter((item) => item.id !== selectedDish?.id)
+    .slice(0, 4)
+
+  const cartCount = useMemo(
+    () => Object.values(cart).reduce((total, quantity) => total + quantity, 0),
+    [cart],
+  )
+
+  const cartTotal = useMemo(() => {
+    return Object.entries(cart).reduce((total, [itemId, quantity]) => {
+      const item = categories.flatMap((category) => category.items).find((entry) => entry.id === itemId)
+      if (!item) {
+        return total
+      }
+
+      return total + toNumericPrice(item.price) * quantity
+    }, 0)
+  }, [cart, categories])
+
+  function handleAddItem(item, quantity = 1) {
+    setCart((current) => ({
+      ...current,
+      [item.id]: (current[item.id] ?? 0) + quantity,
+    }))
+  }
+
+  function handleOpenDish(item) {
+    const nextDish = { ...item, categoryLabel: currentCategory?.label }
+    const options = buildDetailOptions(nextDish)
+    setSelectedDish(nextDish)
+    setDetailQuantity(1)
+    setSelectedSide(options.accompaniments[0] ?? '')
+    setSelectedDoneness(options.doneness[0] ?? '')
+  }
+
+  const detailOptions = selectedDish ? buildDetailOptions(selectedDish) : null
+  const currencySymbol = menu?.currencySymbol ?? '$'
 
   return (
     <>
       <div className="app-shell">
-        <header className="hero-panel">
-          <nav className="topbar">
-            <div className="brand-lockup">
-              <span className="brand-script">{menu?.accountName ?? 'NeuroRest'}</span>
-            </div>
-
-            <div className="topbar-actions">
-              <button type="button" className="ghost-pill">
-                {menu?.currency ?? 'USD'}
-              </button>
-              <button type="button" className="ghost-pill">
-                {(menu?.locale ?? 'es').toUpperCase()}
-              </button>
-              <button type="button" className="ghost-icon" aria-label="Configuracion">
-                <span />
-                <span />
-                <span />
-              </button>
-            </div>
-          </nav>
-        </header>
-
-        <main className="menu-layout">
-          <section className="tabs-panel glass-card">
-            <div className="tabs-row">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  type="button"
-                  className={`tab-pill ${
-                    selectedCategory === category.id ? 'active' : ''
-                  }`}
-                  onClick={() => setSelectedCategory(category.id)}
-                >
-                  {category.label}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {status === 'loading' ? (
-            <section className="state-card glass-card">
-              <p>Cargando menu digital...</p>
-            </section>
-          ) : null}
-
-          {status === 'error' ? (
-            <section className="state-card glass-card">
-              <p>{errorMessage}</p>
-              <code>/sandras-rose</code>
-            </section>
-          ) : null}
-
-          {status === 'ready' ? (
-            <section className="items-section">
-              <div className="items-grid">
-                {filteredItems.map((item) => (
-                  <article key={item.id} className="dish-card glass-card">
-                    <div className="media-wrap">
-                      <img className="dish-media" src={item.image} alt={item.name} />
-
-                      <div className="media-top">
-                        <div className="badge-cluster">
-                          {item.badge ? (
-                            <span className="media-badge">{item.badge}</span>
-                          ) : null}
-                          {item.dietary.slice(0, 3).map((tag) => (
-                            <span key={tag} className="dietary-dot">
-                              {tag === 'vegetarian' ? (
-                                <IconSpark />
-                              ) : tag === 'vegan' ? (
-                                <IconLeaf />
-                              ) : (
-                                <IconGrid />
-                              )}
-                            </span>
-                          ))}
-                        </div>
-                        {item.video ? (
-                          <button
-                            type="button"
-                            className="round-action"
-                            onClick={() => setSelectedDish(item)}
-                            aria-label={`Ver video de ${item.name}`}
-                          >
-                            <IconPlay />
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            className="round-action"
-                            onClick={() => setSelectedDish(item)}
-                            aria-label={`Ver detalle de ${item.name}`}
-                          >
-                            <IconPlus />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="dish-content">
-                      <button
-                        type="button"
-                        className="dish-caption"
-                        onClick={() => setSelectedDish(item)}
-                      >
-                        <h3>{item.name}</h3>
-                        <strong>{item.price}</strong>
-                      </button>
-                    </div>
-                  </article>
-                ))}
+        <div className="phone-surface">
+          <header className="hero">
+            <div className="status-bar">
+              <span>9:41</span>
+              <div className="status-icons" aria-hidden="true">
+                <span className="signal-bars" />
+                <span className="wifi-mark" />
+                <span className="battery-mark" />
               </div>
-            </section>
-          ) : null}
-        </main>
+            </div>
+
+            <div className="hero-topbar">
+              <button type="button" className="icon-button" aria-label="Abrir menu">
+                <IconMenu />
+              </button>
+
+              <div className="brand">
+                <span className="brand-mark">
+                  <IconLeafMark />
+                </span>
+                <span className="brand-name">SABORÉ</span>
+                <span className="brand-subtitle">COCINA DE AUTOR</span>
+              </div>
+
+              <button type="button" className="cart-button" aria-label="Ver pedido">
+                <IconCart />
+                <span className="cart-badge">{cartCount || 2}</span>
+              </button>
+            </div>
+
+            {heroDish ? (
+              <section className="hero-content">
+                <div className="hero-copy">
+                  <h1>
+                    Buen sabor,
+                    <span>buen momento</span>
+                  </h1>
+                  <div className="hero-divider" />
+                  <p>
+                    Descubre nuestra seleccion de platos hechos para ti.
+                  </p>
+                  <button
+                    type="button"
+                    className="hero-cta"
+                    onClick={() => {
+                      document
+                        .querySelector('[data-section="categories"]')
+                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }}
+                  >
+                    Ver categorias
+                    <IconChevron />
+                  </button>
+                </div>
+
+                <div className="hero-plate">
+                  <img src={heroDish.image} alt={heroDish.name} />
+                </div>
+              </section>
+            ) : null}
+          </header>
+
+          <main className="content-panel">
+            {status === 'loading' ? (
+              <section className="state-panel">
+                <p>Cargando menu digital...</p>
+              </section>
+            ) : null}
+
+            {status === 'error' ? (
+              <section className="state-panel">
+                <p>{errorMessage}</p>
+                <span>Revisa la cuenta o intenta nuevamente.</span>
+              </section>
+            ) : null}
+
+            {status === 'ready' ? (
+              <>
+                <section className="section-block" data-section="categories">
+                  <div className="section-heading">
+                    <h2>Categorias</h2>
+                    <button type="button">Ver todas</button>
+                  </div>
+
+                  <div className="category-row">
+                    {categories.map((category) => {
+                      const Icon = getCategoryIcon(category.label)
+                      const isActive = category.id === currentCategory?.id
+
+                      return (
+                        <button
+                          key={category.id}
+                          type="button"
+                          className={`category-chip ${isActive ? 'active' : ''}`}
+                          onClick={() => setSelectedCategory(category.id)}
+                        >
+                          <span className="category-icon">
+                            <Icon />
+                          </span>
+                          <span className="category-label">{category.label}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </section>
+
+                <section className="section-block">
+                  <div className="section-heading">
+                    <h2>{(currentCategory?.label ?? 'Entradas').toUpperCase()}</h2>
+                    <button type="button">Ver todas</button>
+                  </div>
+
+                  <div className="dish-list">
+                    {categoryItems.map((item, index) => (
+                      <article key={item.id} className="dish-card">
+                        <button
+                          type="button"
+                          className="dish-media-button"
+                          onClick={() => handleOpenDish(item)}
+                        >
+                          <img src={item.image} alt={item.name} className="dish-thumb" />
+                          {index === 0 ? <span className="dish-badge">Mas pedido</span> : null}
+                        </button>
+
+                        <div className="dish-body">
+                          <button
+                            type="button"
+                            className="dish-main"
+                            onClick={() => handleOpenDish(item)}
+                          >
+                            <h3>{item.name}</h3>
+                            <p>{item.description}</p>
+                          </button>
+
+                          <div className="dish-footer">
+                            <strong>{item.price}</strong>
+                            <button
+                              type="button"
+                              className="add-button"
+                              onClick={() => handleAddItem(item)}
+                              aria-label={`Agregar ${item.name}`}
+                            >
+                              <IconPlus />
+                            </button>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              </>
+            ) : null}
+          </main>
+
+          <footer className="order-bar">
+            <div className="order-bar-copy">
+              <span className="order-icon-wrap">
+                <IconCart />
+                <span className="order-badge">{cartCount || 2}</span>
+              </span>
+              <span>Ver mi pedido</span>
+            </div>
+            <div className="order-bar-price">
+              {formatPrice(cartTotal || 28.7, currencySymbol)}
+              <span className="order-arrow">›</span>
+            </div>
+          </footer>
+        </div>
       </div>
 
       {selectedDish ? (
         <div
-          className="modal-backdrop"
+          className="detail-screen"
           role="presentation"
           onClick={() => setSelectedDish(null)}
         >
-          <section
-            className="modal-card"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="dish-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="modal-close"
-              onClick={() => setSelectedDish(null)}
-              aria-label="Cerrar"
-            >
-              <IconClose />
-            </button>
+          <div className="detail-phone" onClick={(event) => event.stopPropagation()}>
+            <div className="detail-hero">
+              <img src={selectedDish.image} alt={selectedDish.name} />
 
-            <div className="modal-media">
-              {selectedDish.video ? (
-                <video
-                  src={selectedDish.video}
-                  poster={selectedDish.image}
-                  controls
-                  autoPlay
-                  muted
-                  playsInline
-                />
-              ) : (
-                <img src={selectedDish.image} alt={selectedDish.name} />
-              )}
-            </div>
-
-            <div className="modal-copy">
-              <p className="eyebrow">{menu?.accountName ?? 'NeuroRest'}</p>
-              <h3 id="dish-title">{selectedDish.name}</h3>
-              <p>{selectedDish.description}</p>
-              <div className="modal-meta">
-                <span>{selectedDish.price}</span>
-                <span>
-                  {selectedDish.video ? 'Incluye video corto' : 'Imagen premium'}
-                </span>
+              <div className="detail-topbar">
+                <button
+                  type="button"
+                  className="floating-button light"
+                  onClick={() => setSelectedDish(null)}
+                  aria-label="Volver"
+                >
+                  <IconBack />
+                </button>
+                <button type="button" className="floating-button dark" aria-label="Favorito">
+                  <IconHeart />
+                </button>
               </div>
             </div>
-          </section>
+
+            <section className="detail-sheet">
+              <div className="sheet-handle" />
+
+              <div className="detail-head">
+                <div>
+                  <h2>{selectedDish.name}</h2>
+                  <strong>{selectedDish.price}</strong>
+                </div>
+                <span className="detail-badge">
+                  <IconSpark />
+                  Mas pedido
+                </span>
+              </div>
+
+              <p className="detail-description">{selectedDish.description}</p>
+
+              <div className="option-group">
+                <h3>Acompanamientos</h3>
+                <p>Obligatorio: elige uno</p>
+                <div className="option-grid">
+                  {detailOptions?.accompaniments.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      className={`option-card ${
+                        selectedSide === option ? 'selected' : ''
+                      }`}
+                      onClick={() => setSelectedSide(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="option-group">
+                <h3>Termino de la carne</h3>
+                <p>Obligatorio: elige uno</p>
+                <div className="option-grid">
+                  {detailOptions?.doneness.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      className={`option-card ${
+                        selectedDoneness === option ? 'selected' : ''
+                      }`}
+                      onClick={() => setSelectedDoneness(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="quantity-stepper">
+                <button
+                  type="button"
+                  onClick={() => setDetailQuantity((current) => Math.max(1, current - 1))}
+                  aria-label="Disminuir cantidad"
+                >
+                  <IconMinus />
+                </button>
+                <span>{detailQuantity}</span>
+                <button
+                  type="button"
+                  onClick={() => setDetailQuantity((current) => current + 1)}
+                  aria-label="Aumentar cantidad"
+                >
+                  <IconPlus />
+                </button>
+              </div>
+
+              <button
+                type="button"
+                className="primary-action"
+                onClick={() => {
+                  handleAddItem(selectedDish, detailQuantity)
+                  setSelectedDish(null)
+                }}
+              >
+                <span>Agregar al pedido</span>
+                <strong>
+                  {formatPrice(toNumericPrice(selectedDish.price) * detailQuantity, currencySymbol)}
+                </strong>
+              </button>
+
+              <p className="detail-note">
+                Pide a nuestro mesero por la preparacion de la carne.
+              </p>
+
+              <div className="option-group recommendation-group">
+                <h3>Tambien te puede gustar</h3>
+                <div className="recommendation-row">
+                  {recommendations.map((item) => (
+                    <article key={item.id} className="mini-card">
+                      <img src={item.image} alt={item.name} />
+                      <div className="mini-card-body">
+                        <h4>{item.name}</h4>
+                        <div className="mini-card-footer">
+                          <strong>{item.price}</strong>
+                          <button
+                            type="button"
+                            className="mini-add"
+                            onClick={() => handleAddItem(item)}
+                            aria-label={`Agregar ${item.name}`}
+                          >
+                            <IconPlus />
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <footer className="detail-order-bar">
+              <div className="order-bar-copy">
+                <span className="order-icon-wrap">
+                  <IconCart />
+                  <span className="order-badge">{cartCount || 2}</span>
+                </span>
+                <span>Ver mi pedido</span>
+              </div>
+              <div className="order-bar-price">
+                {formatPrice(cartTotal || 28.7, currencySymbol)}
+                <span className="order-arrow">›</span>
+              </div>
+            </footer>
+          </div>
         </div>
       ) : null}
     </>
