@@ -21,14 +21,6 @@ function IconCart() {
   )
 }
 
-function IconChevron() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M7 10l5 5 5-5" />
-    </svg>
-  )
-}
-
 function IconBack() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -151,6 +143,14 @@ function toNumericPrice(value) {
 
 function formatPrice(value, currencySymbol = '$') {
   return `${currencySymbol}${value.toFixed(2)}`
+}
+
+function getHeroImage(dish) {
+  if (!dish) {
+    return '/dishes/hero-premium.jpg'
+  }
+
+  return dish.image || '/dishes/hero-premium.jpg'
 }
 
 function getCategoryIcon(label) {
@@ -319,22 +319,10 @@ function App() {
                   </h1>
                   <div className="hero-divider" />
                   <p>Descubre nuestra seleccion de platos hechos para ti.</p>
-                  <button
-                    type="button"
-                    className="hero-cta"
-                    onClick={() => {
-                      document
-                        .querySelector('[data-section="categories"]')
-                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                    }}
-                  >
-                    Ver categorias
-                    <IconChevron />
-                  </button>
                 </div>
 
                 <div className="hero-plate">
-                  <img src={heroDish.image} alt={heroDish.name} />
+                  <img src={getHeroImage(heroDish)} alt={heroDish.name} />
                 </div>
               </section>
             ) : null}
