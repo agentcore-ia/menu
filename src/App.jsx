@@ -167,12 +167,6 @@ function getCategoryIcon(label) {
 function buildDetailOptions(dish) {
   const tags = dish.dietary?.map((tag) => tag.toLowerCase()) ?? []
 
-  const sides = [
-    'Papas rostizadas',
-    'Pure de papas',
-    'Ensalada mixta',
-  ]
-
   if (tags.includes('vegan')) {
     return {
       accompaniments: ['Mix de hojas', 'Vegetales grillados', 'Pure de calabaza'],
@@ -188,7 +182,7 @@ function buildDetailOptions(dish) {
   }
 
   return {
-    accompaniments: sides,
+    accompaniments: ['Papas rostizadas', 'Pure de papas', 'Ensalada mixta'],
     doneness: ['3/4 Termino', 'A punto', 'Bien cocido'],
   }
 }
@@ -247,10 +241,8 @@ function App() {
   }, [accountId])
 
   const categories = menu?.categories ?? emptyCategories
-
   const currentCategory =
     categories.find((category) => category.id === selectedCategory) ?? categories[0] ?? null
-
   const categoryItems = currentCategory?.items ?? []
   const heroDish = categoryItems[0] ?? categories.flatMap((category) => category.items)[0] ?? null
   const recommendations = categories
@@ -266,6 +258,7 @@ function App() {
   const cartTotal = useMemo(() => {
     return Object.entries(cart).reduce((total, [itemId, quantity]) => {
       const item = categories.flatMap((category) => category.items).find((entry) => entry.id === itemId)
+
       if (!item) {
         return total
       }
@@ -298,32 +291,23 @@ function App() {
       <div className="app-shell">
         <div className="phone-surface">
           <header className="hero">
-            <div className="status-bar">
-              <span>9:41</span>
-              <div className="status-icons" aria-hidden="true">
-                <span className="signal-bars" />
-                <span className="wifi-mark" />
-                <span className="battery-mark" />
-              </div>
-            </div>
-
             <div className="hero-topbar">
               <button type="button" className="icon-button" aria-label="Abrir menu">
                 <IconMenu />
               </button>
 
-              <div className="brand">
-                <span className="brand-mark">
-                  <IconLeafMark />
-                </span>
-                <span className="brand-name">SABORÉ</span>
-                <span className="brand-subtitle">COCINA DE AUTOR</span>
-              </div>
-
               <button type="button" className="cart-button" aria-label="Ver pedido">
                 <IconCart />
                 <span className="cart-badge">{cartCount || 2}</span>
               </button>
+            </div>
+
+            <div className="brand hero-brand">
+              <span className="brand-mark">
+                <IconLeafMark />
+              </span>
+              <span className="brand-name">SABORE</span>
+              <span className="brand-subtitle">COCINA DE AUTOR</span>
             </div>
 
             {heroDish ? (
@@ -334,9 +318,7 @@ function App() {
                     <span>buen momento</span>
                   </h1>
                   <div className="hero-divider" />
-                  <p>
-                    Descubre nuestra seleccion de platos hechos para ti.
-                  </p>
+                  <p>Descubre nuestra seleccion de platos hechos para ti.</p>
                   <button
                     type="button"
                     className="hero-cta"
@@ -460,7 +442,7 @@ function App() {
             </div>
             <div className="order-bar-price">
               {formatPrice(cartTotal || 28.7, currencySymbol)}
-              <span className="order-arrow">›</span>
+              <span className="order-arrow">{'>'}</span>
             </div>
           </footer>
         </div>
@@ -515,9 +497,7 @@ function App() {
                     <button
                       key={option}
                       type="button"
-                      className={`option-card ${
-                        selectedSide === option ? 'selected' : ''
-                      }`}
+                      className={`option-card ${selectedSide === option ? 'selected' : ''}`}
                       onClick={() => setSelectedSide(option)}
                     >
                       {option}
@@ -577,9 +557,7 @@ function App() {
                 </strong>
               </button>
 
-              <p className="detail-note">
-                Pide a nuestro mesero por la preparacion de la carne.
-              </p>
+              <p className="detail-note">Pide a nuestro mesero por la preparacion de la carne.</p>
 
               <div className="option-group recommendation-group">
                 <h3>Tambien te puede gustar</h3>
@@ -617,7 +595,7 @@ function App() {
               </div>
               <div className="order-bar-price">
                 {formatPrice(cartTotal || 28.7, currencySymbol)}
-                <span className="order-arrow">›</span>
+                <span className="order-arrow">{'>'}</span>
               </div>
             </footer>
           </div>
