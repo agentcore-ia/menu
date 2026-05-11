@@ -157,16 +157,16 @@
 
 .hero-content {
   position: relative;
-  min-height: 21.6rem;
-  padding: 1.15rem 1.35rem 1rem;
+  min-height: 21.8rem;
+  padding: 1.15rem 1.35rem 0.7rem;
 }
 
 .hero-copy {
   position: relative;
   z-index: 1;
-  width: 13.7rem;
-  max-width: calc(100% - 11.75rem);
-  padding-top: 2.4rem;
+  width: 12.5rem;
+  max-width: calc(100% - 12.2rem);
+  padding-top: 2.5rem;
 }
 
 .hero-copy h1 {
@@ -200,7 +200,7 @@
 
 .hero-copy p {
   margin: 0;
-  max-width: 11rem;
+  max-width: 10rem;
   font-size: 0.84rem;
   line-height: 1.72;
   color: rgba(27, 27, 24, 0.88);
@@ -208,25 +208,24 @@
 
 .hero-plate {
   position: absolute;
-  right: -5.5rem;
-  bottom: -1.95rem;
-  width: 21.8rem;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  overflow: hidden;
-  box-shadow: 0 24px 48px rgba(22, 16, 9, 0.14);
+  right: -7.6rem;
+  bottom: -0.55rem;
+  width: 24.5rem;
+  aspect-ratio: auto;
+  overflow: visible;
+  box-shadow: none;
 }
 
 .hero-plate img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   display: block;
 }
 
 .content-panel {
   position: relative;
-  margin-top: -0.85rem;
+  margin-top: -0.15rem;
   padding: 1.7rem 1rem 7rem;
   background:
     radial-gradient(circle at top, rgba(212, 203, 186, 0.18), transparent 28%),
@@ -783,13 +782,13 @@ button:focus-visible {
 
 @media (max-width: 410px) {
   .hero-content {
-    min-height: 20.4rem;
+    min-height: 20.6rem;
   }
 
   .hero-copy {
-    width: 12.2rem;
-    max-width: calc(100% - 10.3rem);
-    padding-top: 2rem;
+    width: 10.7rem;
+    max-width: calc(100% - 10.8rem);
+    padding-top: 2.2rem;
   }
 
   .hero-copy h1 {
@@ -797,13 +796,13 @@ button:focus-visible {
   }
 
   .hero-plate {
-    right: -5.8rem;
-    bottom: -1.5rem;
-    width: 19.4rem;
+    right: -6.55rem;
+    bottom: -0.15rem;
+    width: 21rem;
   }
 
   .hero-copy p {
-    max-width: 9.6rem;
+    max-width: 8.8rem;
     font-size: 0.8rem;
   }
 

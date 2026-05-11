@@ -302,7 +302,7 @@ function App() {
               <span className="brand-mark">
                 <IconLeafMark />
               </span>
-              <span className="brand-name">SABORÉ</span>
+              <span className="brand-name">SABORE</span>
               <span className="brand-subtitle">COCINA DE AUTOR</span>
             </div>
 
@@ -318,7 +318,7 @@ function App() {
                 </div>
 
                 <div className="hero-plate">
-                  <img src={getHeroImage(heroDish)} alt={heroDish.name} />
+                  <img src={getHeroImage()} alt={heroDish.name} />
                 </div>
               </section>
             ) : null}
