@@ -2,6 +2,8 @@ export function getServerConfig() {
   return {
     port: Number(process.env.PORT ?? 8787),
     dataProvider: process.env.NEUROREST_DATA_PROVIDER ?? 'mock',
+    supabaseUrl: process.env.NEUROREST_SUPABASE_URL ?? '',
+    supabaseApiKey: process.env.NEUROREST_SUPABASE_API_KEY ?? '',
     databaseProvider: process.env.NEUROREST_DB_PROVIDER ?? 'postgres',
     databaseUrl: process.env.DATABASE_URL ?? '',
     mysqlHost: process.env.MYSQL_HOST ?? '',

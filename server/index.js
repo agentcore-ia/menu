@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import { getServerConfig } from './config.js'
 import { createMenuRepository } from './repositories/menuRepository.js'

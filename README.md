@@ -6,8 +6,8 @@ Menu digital responsive inspirado en BioMenus, preparado para trabajar por cuent
 
 - cada cuenta tiene su propio menu digital
 - el frontend carga categorias y productos desde `GET /api/accounts/:accountId/menu`
-- puedes abrir cuentas distintas con `?account=sandras-rose` o `?account=neurorest-demo`
-- incluye modo `mock` para probar ya y modo `sql` para conectar la base real de NeuroRest
+- puedes abrir cuentas distintas con `?account=totta`, `?account=bruder`, `?account=sandras-rose`
+- incluye modo `mock`, `supabase` y `sql`
 
 ## Desarrollo
 
@@ -25,13 +25,28 @@ Esto levanta:
 
 - `http://127.0.0.1:5173/?account=sandras-rose`
 - `http://127.0.0.1:5173/?account=neurorest-demo`
+- `http://127.0.0.1:5173/?account=totta`
+- `http://127.0.0.1:5173/?account=bruder`
 
 ## Conectar la base real de NeuroRest
 
+Modo actual recomendado:
+
 1. copia `.env.example` a `.env`
-2. cambia `NEUROREST_DATA_PROVIDER=sql`
-3. completa la conexion `postgres` o `mysql`
-4. ajusta los nombres de tablas si tu esquema usa otros nombres
+2. usa `NEUROREST_DATA_PROVIDER=supabase`
+3. completa `NEUROREST_SUPABASE_URL`
+4. completa `NEUROREST_SUPABASE_API_KEY` con una key de backend de solo lectura para la API
+
+El backend lee:
+
+- `restaurants` para resolver la cuenta por `slug`
+- `products` para traer los productos activos de ese restaurante
+
+Agrupa automaticamente por `category`.
+
+Alternativa:
+
+- puedes seguir usando `NEUROREST_DATA_PROVIDER=sql` si en el futuro quieres leer directo desde Postgres/MySQL sin pasar por Supabase REST
 
 El adaptador SQL espera este modelo base:
 
