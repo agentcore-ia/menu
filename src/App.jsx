@@ -146,7 +146,7 @@ function formatPrice(value, currencySymbol = '$') {
 }
 
 function getHeroImage() {
-  return '/dishes/hero-clean.png'
+  return '/dishes/hero-clean-cut.png'
 }
 
 function getCategoryIcon(label) {

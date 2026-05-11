@@ -208,12 +208,13 @@
 
 .hero-plate {
   position: absolute;
-  right: -7.6rem;
-  bottom: -0.55rem;
-  width: 24.5rem;
+  right: -8.8rem;
+  bottom: -0.8rem;
+  width: 26.5rem;
   aspect-ratio: auto;
   overflow: visible;
   box-shadow: none;
+  pointer-events: none;
 }
 
 .hero-plate img {
@@ -796,9 +797,9 @@ button:focus-visible {
   }
 
   .hero-plate {
-    right: -6.55rem;
-    bottom: -0.15rem;
-    width: 21rem;
+    right: -7.4rem;
+    bottom: -0.25rem;
+    width: 22.4rem;
   }
 
   .hero-copy p {
