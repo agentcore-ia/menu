@@ -31,7 +31,10 @@ export class SupabaseMenuRepository {
       return null
     }
 
-    const products = await this.fetchProducts(restaurant.id)
+    const [products, presentationConfig] = await Promise.all([
+      this.fetchProducts(restaurant.id),
+      this.fetchPresentationConfig(restaurant.id),
+    ])
     const categories = this.groupProductsByCategory(products)
 
     return {
@@ -39,6 +42,7 @@ export class SupabaseMenuRepository {
       accountName: restaurant.name,
       currency: 'USD',
       locale: 'es',
+      presentationConfig,
       categories,
     }
   }
@@ -55,6 +59,27 @@ export class SupabaseMenuRepository {
     return this.request(
       `/products?restaurant_id=eq.${restaurantId}&available=eq.true&select=*&order=category.asc,name.asc`,
     )
+  }
+
+  async fetchPresentationConfig(restaurantId) {
+    try {
+      const rows = await this.request(
+        `/restaurant_menu_presentations?restaurant_id=eq.${restaurantId}&select=*&limit=1`,
+      )
+
+      return this.mapPresentationConfig(rows[0] ?? null)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      if (
+        message.includes('restaurant_menu_presentations') ||
+        message.includes('PGRST') ||
+        message.includes('42P01')
+      ) {
+        return null
+      }
+
+      throw error
+    }
   }
 
   groupProductsByCategory(products) {
@@ -94,6 +119,45 @@ export class SupabaseMenuRepository {
 
     const normalized = Number.isInteger(price) ? price : Number(price.toFixed(2))
     return `$${normalized.toLocaleString('es-AR')}`
+  }
+
+  mapPresentationConfig(config) {
+    if (!config) {
+      return null
+    }
+
+    const themeOverrides =
+      config.theme_overrides && typeof config.theme_overrides === 'object'
+        ? config.theme_overrides
+        : {}
+
+    return {
+      layout: config.layout || undefined,
+      branding: {
+        wordmark: config.branding_wordmark || undefined,
+        subtitle: config.branding_subtitle || undefined,
+      },
+      theme: {
+        ...themeOverrides,
+        id: config.theme_id || themeOverrides.id || undefined,
+      },
+      hero: {
+        image: config.hero_image_url || undefined,
+        title: config.hero_title || undefined,
+        accent: config.hero_accent || undefined,
+        description: config.hero_description || undefined,
+      },
+      cards: {
+        style: config.cards_style || undefined,
+      },
+      preview: {
+        productMedia: config.preview_mode || undefined,
+        autoplayVideos:
+          typeof config.autoplay_videos === 'boolean' ? config.autoplay_videos : undefined,
+        mutedVideos:
+          typeof config.muted_videos === 'boolean' ? config.muted_videos : undefined,
+      },
+    }
   }
 
   slugify(value) {

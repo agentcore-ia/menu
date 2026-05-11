@@ -8,6 +8,8 @@ Menu digital responsive inspirado en BioMenus, preparado para trabajar por cuent
 - el frontend carga categorias y productos desde `GET /api/accounts/:accountId/menu`
 - puedes abrir cuentas distintas con `?account=totta`, `?account=bruder`, `?account=sandras-rose`
 - incluye modo `mock`, `supabase` y `sql`
+- cada cuenta puede tener su propio `theme`, `layout`, `hero`, `branding` y estilo de cards
+- los productos soportan `video_url` para vista previa
 
 ## Desarrollo
 
@@ -43,6 +45,84 @@ El backend lee:
 - `products` para traer los productos activos de ese restaurante
 
 Agrupa automaticamente por `category`.
+
+## Arquitectura de presentacion por cuenta
+
+La API ahora devuelve:
+
+- `categories`: contenido del menu
+- `presentation`: configuracion visual por cuenta
+
+La presentacion soporta:
+
+- `layout`: `editorial`, `bistro`, `luxe`
+- `branding.wordmark`
+- `branding.subtitle`
+- `theme`
+- `hero.image`
+- `hero.title`
+- `hero.accent`
+- `hero.description`
+- `cards.style`
+- `preview.productMedia`
+- `preview.autoplayVideos`
+- `preview.mutedVideos`
+
+Esto permite que cada restaurante tenga una identidad distinta sin duplicar el frontend.
+
+## Modelo Supabase recomendado
+
+Se agrego una migracion lista para aplicar:
+
+- [supabase/migrations/20260511_menu_presentations.sql](C:/Users/matii/Documents/menu/supabase/migrations/20260511_menu_presentations.sql)
+
+La migracion crea:
+
+- `restaurant_menu_presentations`
+- `products.video_url` si todavia no existe
+
+### Tabla `restaurant_menu_presentations`
+
+Campos principales:
+
+- `restaurant_id`
+- `layout`
+- `theme_id`
+- `theme_overrides` (`jsonb`)
+- `branding_wordmark`
+- `branding_subtitle`
+- `hero_image_url`
+- `hero_title`
+- `hero_accent`
+- `hero_description`
+- `cards_style`
+- `preview_mode`
+- `autoplay_videos`
+- `muted_videos`
+
+### `products.video_url`
+
+Si un producto tiene `video_url`, el frontend ya puede:
+
+- mostrar badge de video en la card
+- usar autoplay muted en cuentas configuradas con `video-first`
+- abrir el detalle con preview real en video
+
+## Templates listos
+
+Quedaron tres presets listos para usar como base:
+
+- `premium claro`
+- `bistro calido`
+- `nocturno elegante`
+
+Hoy se resuelven desde:
+
+- [server/presentation/menuPresentation.js](C:/Users/matii/Documents/menu/server/presentation/menuPresentation.js)
+
+Y se mezclan con overrides de base desde:
+
+- [server/presentation/enrichMenu.js](C:/Users/matii/Documents/menu/server/presentation/enrichMenu.js)
 
 ## Vercel
 
