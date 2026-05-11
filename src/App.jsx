@@ -306,7 +306,7 @@ function App() {
               <span className="brand-mark">
                 <IconLeafMark />
               </span>
-              <span className="brand-name">SABORE</span>
+              <span className="brand-name">SABORÉ</span>
               <span className="brand-subtitle">COCINA DE AUTOR</span>
             </div>
 
@@ -314,8 +314,8 @@ function App() {
               <section className="hero-content">
                 <div className="hero-copy">
                   <h1>
-                    Buen sabor,
-                    <span>buen momento</span>
+                    <span className="hero-line">Buen sabor,</span>
+                    <span className="hero-accent">buen momento</span>
                   </h1>
                   <div className="hero-divider" />
                   <p>Descubre nuestra seleccion de platos hechos para ti.</p>
