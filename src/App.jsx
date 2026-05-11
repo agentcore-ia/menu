@@ -3,6 +3,43 @@ import './App.css'
 
 const emptyCategories = []
 
+const defaultPresentation = {
+  layout: 'editorial',
+  branding: {
+    wordmark: 'NEUROREST',
+    subtitle: 'DIGITAL MENU',
+  },
+  theme: {
+    id: 'ivory-olive',
+    background: '#f4efe6',
+    surface: '#fffdfa',
+    surfaceAlt: '#f8f4ec',
+    text: '#1b1b18',
+    muted: 'rgba(27, 27, 24, 0.72)',
+    primary: '#445d39',
+    primaryText: '#fffdf8',
+    accent: '#4f6546',
+    border: 'rgba(96, 91, 74, 0.12)',
+    shadow: 'rgba(45, 38, 24, 0.08)',
+    displayFont: 'Cormorant Garamond',
+    bodyFont: 'Manrope',
+  },
+  hero: {
+    image: '/dishes/hero-clean-cut.png',
+    title: 'Buen sabor,',
+    accent: 'buen momento',
+    description: 'Descubre nuestra seleccion de platos hechos para ti.',
+  },
+  cards: {
+    style: 'editorial-list',
+  },
+  preview: {
+    productMedia: 'image-with-video-chip',
+    autoplayVideos: false,
+    mutedVideos: true,
+  },
+}
+
 function IconMenu() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -113,6 +150,14 @@ function IconSpark() {
   )
 }
 
+function IconPlay() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8 6l10 6-10 6z" />
+    </svg>
+  )
+}
+
 function getInitialAccountId() {
   const pathAccount = window.location.pathname
     .split('/')
@@ -145,8 +190,8 @@ function formatPrice(value, currencySymbol = '$') {
   return `${currencySymbol}${value.toFixed(2)}`
 }
 
-function getHeroImage() {
-  return '/dishes/hero-clean-cut.png'
+function getHeroImage(presentation, heroDish) {
+  return presentation.hero?.image ?? heroDish?.image ?? '/dishes/hero-clean-cut.png'
 }
 
 function getCategoryIcon(label) {
@@ -181,6 +226,33 @@ function buildDetailOptions(dish) {
     accompaniments: ['Papas rostizadas', 'Pure de papas', 'Ensalada mixta'],
     doneness: ['3/4 Termino', 'A punto', 'Bien cocido'],
   }
+}
+
+function getPresentationStyles(presentation) {
+  const theme = presentation.theme
+
+  return {
+    '--theme-bg': theme.background,
+    '--theme-surface': theme.surface,
+    '--theme-surface-alt': theme.surfaceAlt,
+    '--theme-text': theme.text,
+    '--theme-muted': theme.muted,
+    '--theme-primary': theme.primary,
+    '--theme-primary-text': theme.primaryText,
+    '--theme-accent': theme.accent,
+    '--theme-border': theme.border,
+    '--theme-shadow': theme.shadow,
+    '--font-display': `"${theme.displayFont}", serif`,
+    '--font-body': `"${theme.bodyFont}", sans-serif`,
+  }
+}
+
+function shouldAutoplayPreview(item, presentation) {
+  return Boolean(
+    item.video &&
+      presentation.preview?.productMedia === 'video-first' &&
+      presentation.preview?.autoplayVideos,
+  )
 }
 
 function App() {
@@ -236,6 +308,7 @@ function App() {
     }
   }, [accountId])
 
+  const presentation = menu?.presentation ?? defaultPresentation
   const categories = menu?.categories ?? emptyCategories
   const currentCategory =
     categories.find((category) => category.id === selectedCategory) ?? categories[0] ?? null
@@ -279,13 +352,37 @@ function App() {
     setSelectedDoneness(options.doneness[0] ?? '')
   }
 
+  function renderProductMedia(item) {
+    if (shouldAutoplayPreview(item, presentation)) {
+      return (
+        <video
+          className="dish-thumb"
+          src={item.video}
+          poster={item.image}
+          autoPlay
+          muted={presentation.preview?.mutedVideos ?? true}
+          loop
+          playsInline
+        />
+      )
+    }
+
+    return <img src={item.image} alt={item.name} className="dish-thumb" />
+  }
+
   const detailOptions = selectedDish ? buildDetailOptions(selectedDish) : null
   const currencySymbol = menu?.currencySymbol ?? '$'
+  const appClassName = [
+    'menu-app',
+    `layout-${presentation.layout}`,
+    `cards-${presentation.cards?.style ?? 'editorial-list'}`,
+    `theme-${presentation.theme.id}`,
+  ].join(' ')
 
   return (
     <>
       <div className="app-shell">
-        <div className="phone-surface">
+        <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation)}>
           <header className="hero">
             <div className="hero-topbar">
               <button type="button" className="icon-button" aria-label="Abrir menu">
@@ -302,23 +399,30 @@ function App() {
               <span className="brand-mark">
                 <IconLeafMark />
               </span>
-              <span className="brand-name">SABORE</span>
-              <span className="brand-subtitle">COCINA DE AUTOR</span>
+              <span className="brand-name">{presentation.branding?.wordmark ?? menu?.accountName}</span>
+              <span className="brand-subtitle">
+                {presentation.branding?.subtitle ?? 'DIGITAL MENU'}
+              </span>
             </div>
 
             {heroDish ? (
               <section className="hero-content">
                 <div className="hero-copy">
                   <h1>
-                    <span className="hero-line">Buen sabor,</span>
-                    <span className="hero-accent">buen momento</span>
+                    <span className="hero-line">{presentation.hero?.title ?? 'Buen sabor,'}</span>
+                    <span className="hero-accent">
+                      {presentation.hero?.accent ?? 'buen momento'}
+                    </span>
                   </h1>
                   <div className="hero-divider" />
-                  <p>Descubre nuestra seleccion de platos hechos para ti.</p>
+                  <p>
+                    {presentation.hero?.description ??
+                      'Descubre nuestra seleccion de platos hechos para ti.'}
+                  </p>
                 </div>
 
                 <div className="hero-plate">
-                  <img src={getHeroImage()} alt={heroDish.name} />
+                  <img src={getHeroImage(presentation, heroDish)} alt={heroDish.name} />
                 </div>
               </section>
             ) : null}
@@ -382,8 +486,14 @@ function App() {
                           className="dish-media-button"
                           onClick={() => handleOpenDish(item)}
                         >
-                          <img src={item.image} alt={item.name} className="dish-thumb" />
+                          {renderProductMedia(item)}
                           {index === 0 ? <span className="dish-badge">Mas pedido</span> : null}
+                          {item.video && presentation.preview?.productMedia === 'image-with-video-chip' ? (
+                            <span className="video-badge">
+                              <IconPlay />
+                              Video
+                            </span>
+                          ) : null}
                         </button>
 
                         <div className="dish-body">
@@ -433,14 +543,26 @@ function App() {
       </div>
 
       {selectedDish ? (
-        <div
-          className="detail-screen"
-          role="presentation"
-          onClick={() => setSelectedDish(null)}
-        >
-          <div className="detail-phone" onClick={(event) => event.stopPropagation()}>
+        <div className="detail-screen" role="presentation" onClick={() => setSelectedDish(null)}>
+          <div
+            className={`detail-phone ${appClassName}`}
+            style={getPresentationStyles(presentation)}
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="detail-hero">
-              <img src={selectedDish.image} alt={selectedDish.name} />
+              {selectedDish.video ? (
+                <video
+                  src={selectedDish.video}
+                  poster={selectedDish.image}
+                  autoPlay={presentation.preview?.autoplayVideos ?? false}
+                  muted={presentation.preview?.mutedVideos ?? true}
+                  controls
+                  loop={presentation.preview?.autoplayVideos ?? false}
+                  playsInline
+                />
+              ) : (
+                <img src={selectedDish.image} alt={selectedDish.name} />
+              )}
 
               <div className="detail-topbar">
                 <button
@@ -465,10 +587,17 @@ function App() {
                   <h2>{selectedDish.name}</h2>
                   <strong>{selectedDish.price}</strong>
                 </div>
-                <span className="detail-badge">
-                  <IconSpark />
-                  Mas pedido
-                </span>
+                {selectedDish.video ? (
+                  <span className="detail-badge">
+                    <IconPlay />
+                    Vista previa
+                  </span>
+                ) : (
+                  <span className="detail-badge">
+                    <IconSpark />
+                    Mas pedido
+                  </span>
+                )}
               </div>
 
               <p className="detail-description">{selectedDish.description}</p>
@@ -548,7 +677,19 @@ function App() {
                 <div className="recommendation-row">
                   {recommendations.map((item) => (
                     <article key={item.id} className="mini-card">
-                      <img src={item.image} alt={item.name} />
+                      {item.video && presentation.preview?.productMedia === 'video-first' ? (
+                        <video
+                          src={item.video}
+                          poster={item.image}
+                          autoPlay
+                          muted={presentation.preview?.mutedVideos ?? true}
+                          loop
+                          playsInline
+                        />
+                      ) : (
+                        <img src={item.image} alt={item.name} />
+                      )}
+
                       <div className="mini-card-body">
                         <h4>{item.name}</h4>
                         <div className="mini-card-footer">

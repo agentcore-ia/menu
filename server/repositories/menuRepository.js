@@ -1,15 +1,23 @@
 import { MockMenuRepository } from './mockMenuRepository.js'
 import { SqlMenuRepository } from './sqlMenuRepository.js'
 import { SupabaseMenuRepository } from './supabaseMenuRepository.js'
+import { enrichMenu } from '../presentation/enrichMenu.js'
 
 export function createMenuRepository(config) {
+  let repository
+
   if (config.dataProvider === 'supabase') {
-    return new SupabaseMenuRepository(config)
+    repository = new SupabaseMenuRepository(config)
+  } else if (config.dataProvider === 'sql') {
+    repository = new SqlMenuRepository(config)
+  } else {
+    repository = new MockMenuRepository()
   }
 
-  if (config.dataProvider === 'sql') {
-    return new SqlMenuRepository(config)
+  return {
+    async getMenuByAccountId(accountId) {
+      const menu = await repository.getMenuByAccountId(accountId)
+      return menu ? enrichMenu(menu) : null
+    },
   }
-
-  return new MockMenuRepository()
 }

@@ -9,6 +9,16 @@ const fallbackImages = [
   '/dishes/lemonade.jpg',
 ]
 
+function getProductVideo(product) {
+  return (
+    product.video_url ||
+    product.preview_video_url ||
+    product.media_video_url ||
+    product.video ||
+    null
+  )
+}
+
 export class SupabaseMenuRepository {
   constructor(config) {
     this.config = config
@@ -68,7 +78,7 @@ export class SupabaseMenuRepository {
         description: product.description ?? '',
         price: this.formatPrice(product.price),
         image: product.image_url || fallbackImages[index % fallbackImages.length],
-        video: null,
+        video: getProductVideo(product),
         badge: categoryName,
         dietary: [],
       })
