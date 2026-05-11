@@ -52,6 +52,15 @@ function IconClose() {
 }
 
 function getInitialAccountId() {
+  const pathAccount = window.location.pathname
+    .split('/')
+    .filter(Boolean)
+    .at(0)
+
+  if (pathAccount) {
+    return decodeURIComponent(pathAccount)
+  }
+
   const params = new URLSearchParams(window.location.search)
   return params.get('account') ?? 'sandras-rose'
 }
@@ -164,7 +173,7 @@ function App() {
           {status === 'error' ? (
             <section className="state-card glass-card">
               <p>{errorMessage}</p>
-              <code>?account=sandras-rose</code>
+              <code>/sandras-rose</code>
             </section>
           ) : null}
 

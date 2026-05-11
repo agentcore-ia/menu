@@ -1,3 +1,9 @@
 {
-  "framework": "vite"
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/:account((?!api|assets|dishes|favicon\\.svg|icons\\.svg).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
