@@ -145,12 +145,8 @@ function formatPrice(value, currencySymbol = '$') {
   return `${currencySymbol}${value.toFixed(2)}`
 }
 
-function getHeroImage(dish) {
-  if (!dish) {
-    return '/dishes/hero-premium.jpg'
-  }
-
-  return dish.image || '/dishes/hero-premium.jpg'
+function getHeroImage() {
+  return '/dishes/hero-clean.png'
 }
 
 function getCategoryIcon(label) {
