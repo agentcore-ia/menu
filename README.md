@@ -81,6 +81,11 @@ La migracion crea:
 - `restaurant_menu_presentations`
 - `products.video_url` si todavia no existe
 
+Seeds incluidos:
+
+- [supabase/seeds/restaurant_menu_presentations.sql](C:/Users/matii/Documents/menu/supabase/seeds/restaurant_menu_presentations.sql)
+- [supabase/seeds/product_video_url_examples.sql](C:/Users/matii/Documents/menu/supabase/seeds/product_video_url_examples.sql)
+
 ### Tabla `restaurant_menu_presentations`
 
 Campos principales:
@@ -107,6 +112,11 @@ Si un producto tiene `video_url`, el frontend ya puede:
 - mostrar badge de video en la card
 - usar autoplay muted en cuentas configuradas con `video-first`
 - abrir el detalle con preview real en video
+
+Nota:
+
+- `totta` y `bruder` ya quedaron cargados en la base real con presentacion propia
+- `sandras-rose` sigue existiendo como preset en código, pero hoy no aparece como restaurante en Supabase
 
 ## Templates listos
 
