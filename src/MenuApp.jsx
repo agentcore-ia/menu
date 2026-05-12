@@ -464,8 +464,8 @@ function getGelatoFormats() {
       description: 'Elegi tu tamano y combina tus sabores favoritos.',
       accent: '#ff5a92',
       tint: '#ffe8f0',
-      icon: '🍨',
-      image: '/gelato/card-kilo.png',
+      icon: '⚖',
+      image: '/gelato/hero-kilo.png',
       action: 'Abrir formato',
       enabled: true,
     },
@@ -476,7 +476,8 @@ function getGelatoFormats() {
       accent: '#b96ed8',
       tint: '#f4eaff',
       icon: '🍦',
-      image: '/gelato/card-conos.png',
+      image: '/gelato/hero-cone.png',
+      secondaryImage: '/gelato/hero-copa.png',
       action: 'Abrir formato',
       enabled: true,
     },
@@ -487,11 +488,33 @@ function getGelatoFormats() {
       accent: '#ff9e1b',
       tint: '#fff5dc',
       icon: '✨',
-      image: '/gelato/card-promos.png',
+      image: '/gelato/hero-promos.png',
       action: 'Abrir formato',
       enabled: true,
     },
   ]
+}
+
+function getGelatoFlavorAsset(flavorName) {
+  const key = slugify(flavorName ?? '')
+
+  if (key.includes('frut') || key.includes('fresa') || key.includes('frutilla')) {
+    return '/gelato/flavor-fresa.png'
+  }
+
+  if (key.includes('cookie') || key.includes('oreo') || key.includes('cream')) {
+    return '/gelato/flavor-cookies.png'
+  }
+
+  if (key.includes('menta')) {
+    return '/gelato/flavor-menta.png'
+  }
+
+  if (key.includes('vainilla') || key.includes('americana') || key.includes('crema')) {
+    return '/gelato/flavor-vainilla.png'
+  }
+
+  return '/gelato/flavor-chocolate.png'
 }
 
 function getPresentationStyles(presentation) {
@@ -714,7 +737,28 @@ function TemplateMenuCollection({
               onClick={() => format.enabled && onOpenGelatoBuilder(format.id, 2)}
               disabled={!format.enabled}
             >
-              <img src={format.image} alt={format.title} />
+              <div className="gelato-format-copy">
+                <span className="gelato-format-badge">{format.icon}</span>
+                <h3>
+                  {format.title.split(' ').slice(0, 1).join(' ')}
+                  <br />
+                  {format.title.split(' ').slice(1).join(' ')}
+                </h3>
+                <p>{format.description}</p>
+                <span className="gelato-format-button">{'>'}</span>
+              </div>
+
+              <div className={`gelato-format-visual gelato-format-visual-${format.id}`}>
+                <img className="gelato-format-image gelato-format-image-main" src={format.image} alt={format.title} />
+                {format.secondaryImage ? (
+                  <img
+                    className="gelato-format-image gelato-format-image-secondary"
+                    src={format.secondaryImage}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                ) : null}
+              </div>
             </button>
           ))}
         </div>
@@ -1506,8 +1550,12 @@ export default function MenuApp() {
                           className={`gelato-flavor-card ${isSelected ? 'selected' : ''}`}
                           onClick={() => handleToggleGelatoFlavor(flavor.id)}
                         >
-                          <span className="gelato-flavor-plus">{isSelected ? '?' : '+'}</span>
-                          <div className="gelato-flavor-ball" />
+                          <span className="gelato-flavor-plus">{isSelected ? '' : '+'}</span>
+                          <img
+                            className="gelato-flavor-image"
+                            src={getGelatoFlavorAsset(flavor.name)}
+                            alt={flavor.name}
+                          />
                           <strong>{flavor.name}</strong>
                           <p>{flavor.description}</p>
                           <small>{flavor.flavorCategory}</small>
