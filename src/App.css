@@ -1068,6 +1068,7 @@
   grid-template-columns: 1.2rem minmax(0, 1fr);
   gap: 0.72rem;
   align-items: start;
+  position: relative;
 }
 
 .confirmation-step > span {
@@ -1078,6 +1079,24 @@
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--theme-primary) 24%, var(--theme-border));
   background: color-mix(in srgb, var(--theme-surface-alt) 70%, white);
+}
+
+.confirmation-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 0.56rem;
+  top: 1.5rem;
+  bottom: -0.95rem;
+  width: 1px;
+  background: color-mix(in srgb, var(--theme-primary) 18%, var(--theme-border));
+}
+
+.confirmation-step.active:not(:last-child)::after {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--theme-primary) 48%, white) 0%,
+    color-mix(in srgb, var(--theme-primary) 18%, var(--theme-border)) 100%
+  );
 }
 
 .confirmation-step.active > span {
