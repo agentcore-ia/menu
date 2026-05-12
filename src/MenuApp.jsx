@@ -554,7 +554,7 @@ function TemplateHero({ templateId, presentation, heroDish }) {
       <section className="hero-content hero-content-gelato">
         <img
           className="gelato-brand-image"
-          src="/gelato/brand.png"
+          src="/gelato/logo-dolce.png"
           alt={presentation.branding?.wordmark ?? 'Dolce Heladeria'}
         />
 
@@ -1379,7 +1379,7 @@ export default function MenuApp() {
                 </button>
 
                 <div className="gelato-builder-brand">
-                  <img className="gelato-builder-brand-image" src="/gelato/brand.png" alt="Dolce Heladeria" />
+                  <img className="gelato-builder-brand-image" src="/gelato/logo-dolce.png" alt="Dolce Heladeria" />
                 </div>
 
                 <button type="button" className="cart-button" onClick={() => setIsCartOpen(true)}>
@@ -2063,7 +2063,7 @@ export default function MenuApp() {
             <div className="confirmation-hero" aria-hidden="true">
               {templateId === 'gelato' ? (
                 <div className="confirmation-gelato-top">
-                  <img className="confirmation-gelato-brand" src="/gelato/brand.png" alt="" />
+                  <img className="confirmation-gelato-brand" src="/gelato/logo-dolce.png" alt="" />
                   <span className="confirmation-gelato-pill">Pedido enviado</span>
                   <img className="confirmation-gelato-scoop" src="/gelato/flavor-fresa.png" alt="" />
                 </div>
