@@ -533,18 +533,6 @@ export default function MenuApp() {
     }
   }, [accountId])
 
-  useEffect(() => {
-    if (!showConfirmation) {
-      return undefined
-    }
-
-    const timer = window.setTimeout(() => {
-      setShowConfirmation(false)
-    }, 3200)
-
-    return () => window.clearTimeout(timer)
-  }, [showConfirmation])
-
   const presentation = menu?.presentation ?? defaultPresentation
   const categories = menu?.categories ?? emptyCategories
   const currentCategory =
@@ -1225,7 +1213,7 @@ export default function MenuApp() {
                 </button>
                 <div>
                   <h2>Confirmar pedido</h2>
-                  <p>Completa tus datos y lo enviamos al dashboard de NeuroRest.</p>
+                  <p>Completa tus datos para terminar el pedido.</p>
                 </div>
               </div>
 
@@ -1366,7 +1354,6 @@ export default function MenuApp() {
         <div
           className="confirmation-overlay"
           role="presentation"
-          onClick={() => setShowConfirmation(false)}
         >
           <div className="confirmation-card" onClick={(event) => event.stopPropagation()}>
             <div className="confirmation-hero" aria-hidden="true">
@@ -1384,7 +1371,7 @@ export default function MenuApp() {
             </div>
             <span className="confirmation-kicker">Pedido enviado</span>
             <h3>Pedido #{lastOrder.orderNumber} confirmado</h3>
-            <p>Ya lo recibimos y entro al dashboard de NeuroRest para preparacion.</p>
+            <p>Ya recibimos tu pedido y vamos a seguir informandote por WhatsApp.</p>
             <div className="confirmation-meta">
               <div>
                 <span>Total</span>

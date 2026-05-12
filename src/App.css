@@ -906,8 +906,7 @@
   display: grid;
   place-items: center;
   padding: 1.4rem;
-  background: rgba(21, 22, 20, 0.38);
-  backdrop-filter: blur(10px);
+  background: rgba(20, 20, 18, 0.22);
 }
 
 .confirmation-card {
