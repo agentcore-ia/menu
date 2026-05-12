@@ -990,15 +990,11 @@
 }
 
 .confirmation-ticket-status {
-  display: inline-flex;
-  align-items: center;
   align-self: flex-start;
-  min-height: 2rem;
-  padding: 0.22rem 0.72rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  font-size: 0.84rem;
+  font-size: 0.9rem;
   font-weight: 700;
+  letter-spacing: 0.01em;
+  color: rgba(255, 253, 248, 0.9);
 }
 
 .confirmation-kicker {
