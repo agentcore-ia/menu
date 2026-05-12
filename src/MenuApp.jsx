@@ -439,6 +439,58 @@ function buildCartPairingSuggestions(cartItems) {
   return [...new Set(suggestions)].slice(0, 4)
 }
 
+function getGelatoFlavorLimit(sizeName) {
+  const text = String(sizeName ?? '').toLowerCase()
+  if (text.includes('1 kilo') || text === '1 kg' || text.includes('1kg')) return 5
+  if (text.includes('3/4')) return 4
+  if (text.includes('1/2')) return 3
+  if (text.includes('1/4')) return 2
+  return 3
+}
+
+function getGelatoFlavorCategory(flavorName) {
+  const text = String(flavorName ?? '').toLowerCase()
+  if (/(frutilla|limon|frutos|fruta)/.test(text)) return 'Frutales'
+  if (/chocolate/.test(text)) return 'Chocolate'
+  if (/(dulce de leche|tramontana|cookies|menta)/.test(text)) return 'Especiales'
+  return 'Clasicos'
+}
+
+function getGelatoFormats() {
+  return [
+    {
+      id: 'kilo',
+      title: 'Helado por kilo',
+      description: 'Elegi tu tamano y combina tus sabores favoritos.',
+      accent: '#ff5a92',
+      tint: '#ffe8f0',
+      icon: '🍨',
+      action: 'Elegir',
+      enabled: true,
+    },
+    {
+      id: 'conos',
+      title: 'Conos y copas',
+      description: 'Clasicos, irresistibles y perfectos para cualquier momento.',
+      accent: '#b96ed8',
+      tint: '#f4eaff',
+      icon: '🍦',
+      action: 'Proximamente',
+      enabled: false,
+    },
+    {
+      id: 'promos',
+      title: 'Promos y combos',
+      description: 'Descubri nuestras promociones y ahorra mas.',
+      accent: '#ff9e1b',
+      tint: '#fff5dc',
+      icon: '✨',
+      action: 'Proximamente',
+      enabled: false,
+    },
+  ]
+}
+
 function getPresentationStyles(presentation) {
   const theme = presentation.theme
 
@@ -469,6 +521,25 @@ function shouldAutoplayPreview(item, presentation) {
 function TemplateHero({ templateId, presentation, heroDish }) {
   if (!heroDish) {
     return null
+  }
+
+  if (templateId === 'gelato') {
+    return (
+      <section className="hero-content hero-content-gelato">
+        <div className="gelato-brand-lockup">
+          <span className="gelato-brand-icon">🍦</span>
+          <div className="brand hero-brand gelato-brand">
+            <span className="brand-name">{presentation.branding?.wordmark ?? 'Dolce'}</span>
+            <span className="brand-subtitle">{presentation.branding?.subtitle ?? 'HELADERIA'}</span>
+          </div>
+        </div>
+
+        <div className="gelato-welcome">
+          <h1>{presentation.hero?.title ?? 'Hola!'}</h1>
+          <p>{presentation.hero?.accent ?? 'Que se te antoja hoy?'}</p>
+        </div>
+      </section>
+    )
   }
 
   if (templateId === 'bistro') {
@@ -544,6 +615,10 @@ function TemplateCategorySelector({
   currentCategory,
   onSelectCategory,
 }) {
+  if (templateId === 'gelato') {
+    return null
+  }
+
   if (templateId === 'bistro') {
     return (
       <div className="bistro-category-row">
@@ -623,7 +698,48 @@ function TemplateMenuCollection({
   renderProductMedia,
   onOpenDish,
   onAddItem,
+  gelatoFormats,
+  onOpenGelatoBuilder,
 }) {
+  if (templateId === 'gelato') {
+    return (
+      <section className="section-block">
+        <div className="gelato-format-stack">
+          {gelatoFormats.map((format) => (
+            <article
+              key={format.id}
+              className={`gelato-format-card ${format.enabled ? 'active' : 'disabled'}`}
+              style={{
+                '--gelato-card-accent': format.accent,
+                '--gelato-card-tint': format.tint,
+              }}
+            >
+              <div className="gelato-format-copy">
+                <span className="gelato-format-icon">{format.icon}</span>
+                <h3>{format.title}</h3>
+                <p>{format.description}</p>
+                <button
+                  type="button"
+                  className="gelato-format-button"
+                  onClick={() => format.enabled && onOpenGelatoBuilder(format.id)}
+                  disabled={!format.enabled}
+                >
+                  {format.enabled ? 'Elegir' : format.action}
+                </button>
+              </div>
+              <div className="gelato-format-visual">
+                <div className="gelato-scoop gelato-scoop-a" />
+                <div className="gelato-scoop gelato-scoop-b" />
+                <div className="gelato-scoop gelato-scoop-c" />
+                <div className="gelato-cup" />
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
   if (templateId === 'bistro') {
     const featuredItem = categoryItems[0]
     const secondaryItems = categoryItems.slice(1)
@@ -793,6 +909,12 @@ export default function MenuApp() {
   const [checkoutMessage, setCheckoutMessage] = useState('')
   const [lastOrder, setLastOrder] = useState(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const [gelatoBuilderOpen, setGelatoBuilderOpen] = useState(false)
+  const [gelatoStep, setGelatoStep] = useState(1)
+  const [gelatoFormat, setGelatoFormat] = useState('kilo')
+  const [gelatoSizeId, setGelatoSizeId] = useState('')
+  const [gelatoFlavorFilter, setGelatoFlavorFilter] = useState('Todos')
+  const [gelatoSelectedFlavors, setGelatoSelectedFlavors] = useState([])
   const [orderForm, setOrderForm] = useState({
     name: '',
     phone: '',
@@ -857,6 +979,23 @@ export default function MenuApp() {
       categoryLabel: category.label,
     })),
   )
+  const gelatoFormats = getGelatoFormats()
+  const gelatoSizeOptions = [
+    ...(categories.find((category) => slugify(category.label).includes('formato-tamano'))?.items ?? []),
+  ].sort((a, b) => a.unitPrice - b.unitPrice)
+  const gelatoFlavorOptions =
+    categories.find((category) => slugify(category.label).includes('sabores'))?.items.map((item) => ({
+      ...item,
+      flavorCategory: getGelatoFlavorCategory(item.name),
+    })) ?? []
+  const selectedGelatoSize =
+    gelatoSizeOptions.find((item) => item.id === gelatoSizeId) ?? gelatoSizeOptions[0] ?? null
+  const gelatoFlavorLimit = getGelatoFlavorLimit(selectedGelatoSize?.name)
+  const gelatoFlavorCategories = ['Todos', 'Frutales', 'Clasicos', 'Chocolate', 'Especiales']
+  const filteredGelatoFlavors =
+    gelatoFlavorFilter === 'Todos'
+      ? gelatoFlavorOptions
+      : gelatoFlavorOptions.filter((item) => item.flavorCategory === gelatoFlavorFilter)
   const recommendations = allItems
     .filter((item) => item.id !== selectedDish?.id)
     .slice(0, 4)
@@ -931,6 +1070,54 @@ export default function MenuApp() {
     setSelectedDish(nextDish)
     setDetailQuantity(1)
     setSelectedOptions(buildInitialSelections(groups))
+  }
+
+  function handleOpenGelatoBuilder(formatId = 'kilo') {
+    setGelatoFormat(formatId)
+    setGelatoStep(2)
+    setGelatoSizeId(gelatoSizeOptions[0]?.id ?? '')
+    setGelatoFlavorFilter('Todos')
+    setGelatoSelectedFlavors([])
+    setGelatoBuilderOpen(true)
+  }
+
+  function handleToggleGelatoFlavor(flavorId) {
+    setGelatoSelectedFlavors((current) => {
+      if (current.includes(flavorId)) {
+        return current.filter((entry) => entry !== flavorId)
+      }
+
+      if (current.length >= gelatoFlavorLimit) {
+        return current
+      }
+
+      return [...current, flavorId]
+    })
+  }
+
+  function handleAddGelatoOrder() {
+    if (!selectedGelatoSize || !gelatoSelectedFlavors.length) {
+      return
+    }
+
+    const selectedFlavorNames = gelatoFlavorOptions
+      .filter((item) => gelatoSelectedFlavors.includes(item.id))
+      .map((item) => item.name)
+
+    handleAddItem(
+      {
+        ...selectedGelatoSize,
+        categoryLabel: 'Helados',
+      },
+      1,
+      {
+        summary: `Formato: ${gelatoFormat} | Sabores: ${selectedFlavorNames.join(', ')}`,
+      },
+    )
+
+    setGelatoBuilderOpen(false)
+    setGelatoStep(1)
+    setGelatoSelectedFlavors([])
   }
 
   function renderProductMedia(item) {
@@ -1054,15 +1241,17 @@ export default function MenuApp() {
               </button>
             </div>
 
-            <div className="brand hero-brand">
-              <span className="brand-mark">
-                <IconLeafMark />
-              </span>
-              <span className="brand-name">{presentation.branding?.wordmark ?? menu?.accountName}</span>
-              <span className="brand-subtitle">
-                {presentation.branding?.subtitle ?? 'DIGITAL MENU'}
-              </span>
-            </div>
+            {templateId !== 'gelato' ? (
+              <div className="brand hero-brand">
+                <span className="brand-mark">
+                  <IconLeafMark />
+                </span>
+                <span className="brand-name">{presentation.branding?.wordmark ?? menu?.accountName}</span>
+                <span className="brand-subtitle">
+                  {presentation.branding?.subtitle ?? 'DIGITAL MENU'}
+                </span>
+              </div>
+            ) : null}
 
             <TemplateHero templateId={templateId} presentation={presentation} heroDish={heroDish} />
           </header>
@@ -1083,19 +1272,21 @@ export default function MenuApp() {
 
             {status === 'ready' ? (
               <>
-                <section className="section-block" data-section="categories">
-                  <div className="section-heading">
-                    <h2>Categorias</h2>
-                    <button type="button">Ver todas</button>
-                  </div>
+                {templateId !== 'gelato' ? (
+                  <section className="section-block" data-section="categories">
+                    <div className="section-heading">
+                      <h2>Categorias</h2>
+                      <button type="button">Ver todas</button>
+                    </div>
 
-                  <TemplateCategorySelector
-                    templateId={templateId}
-                    categories={categories}
-                    currentCategory={currentCategory}
-                    onSelectCategory={setSelectedCategory}
-                  />
-                </section>
+                    <TemplateCategorySelector
+                      templateId={templateId}
+                      categories={categories}
+                      currentCategory={currentCategory}
+                      onSelectCategory={setSelectedCategory}
+                    />
+                  </section>
+                ) : null}
 
                 <TemplateMenuCollection
                   templateId={templateId}
@@ -1105,28 +1296,205 @@ export default function MenuApp() {
                   renderProductMedia={renderProductMedia}
                   onOpenDish={handleOpenDish}
                   onAddItem={handleAddItem}
+                  gelatoFormats={gelatoFormats}
+                  onOpenGelatoBuilder={handleOpenGelatoBuilder}
                 />
               </>
             ) : null}
           </main>
 
-          <footer className="order-bar">
-            <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
-              <div className="order-bar-copy">
-                <span className="order-icon-wrap">
-                  <IconCart />
-                  {cartCount > 0 ? <span className="order-badge">{cartCount}</span> : null}
-                </span>
-                <span>Ver mi pedido</span>
-              </div>
-              <div className="order-bar-price">
-                {cartCount > 0 ? formatPrice(cartTotal, currencySymbol) : 'Sin productos'}
-                <span className="order-arrow">{'>'}</span>
-              </div>
-            </button>
-          </footer>
+          {templateId !== 'gelato' || cartCount > 0 ? (
+            <footer className="order-bar">
+              <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
+                <div className="order-bar-copy">
+                  <span className="order-icon-wrap">
+                    <IconCart />
+                    {cartCount > 0 ? <span className="order-badge">{cartCount}</span> : null}
+                  </span>
+                  <span>Ver mi pedido</span>
+                </div>
+                <div className="order-bar-price">
+                  {cartCount > 0 ? formatPrice(cartTotal, currencySymbol) : 'Sin productos'}
+                  <span className="order-arrow">{'>'}</span>
+                </div>
+              </button>
+            </footer>
+          ) : null}
         </div>
       </div>
+
+      {templateId === 'gelato' && gelatoBuilderOpen ? (
+        <div className="detail-screen" role="presentation" onClick={() => setGelatoBuilderOpen(false)}>
+          <div
+            className={`detail-phone ${appClassName}`}
+            style={getPresentationStyles(presentation)}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <section className="gelato-builder">
+              <div className="gelato-builder-top">
+                <button
+                  type="button"
+                  className="floating-button light"
+                  onClick={() => {
+                    if (gelatoStep === 2) {
+                      setGelatoBuilderOpen(false)
+                      return
+                    }
+
+                    setGelatoStep(2)
+                  }}
+                  aria-label="Volver"
+                >
+                  <IconBack />
+                </button>
+
+                <div className="gelato-builder-brand">
+                  <span className="gelato-brand-icon">🍦</span>
+                  <div className="brand gelato-brand">
+                    <span className="brand-name">{presentation.branding?.wordmark ?? 'Dolce'}</span>
+                    <span className="brand-subtitle">{presentation.branding?.subtitle ?? 'HELADERIA'}</span>
+                  </div>
+                </div>
+
+                <button type="button" className="cart-button" onClick={() => setIsCartOpen(true)}>
+                  <IconCart />
+                  {cartCount > 0 ? <span className="cart-badge">{cartCount}</span> : null}
+                </button>
+              </div>
+
+              <div className="gelato-stepper">
+                {[
+                  ['1', 'Elegi tipo'],
+                  ['2', 'Elegi tamano'],
+                  ['3', 'Elegi sabores'],
+                ].map(([number, label], index) => {
+                  const stepNumber = index + 1
+                  const isActive = stepNumber === gelatoStep
+                  const isDone = stepNumber < gelatoStep
+
+                  return (
+                    <div key={label} className={`gelato-step ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`}>
+                      <span>{number}</span>
+                      <small>{label}</small>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {gelatoStep === 2 ? (
+                <div className="gelato-builder-section">
+                  <div className="gelato-builder-copy">
+                    <span className="gelato-builder-icon">⚖️</span>
+                    <h2>Elegi tu tamano</h2>
+                    <p>Todos nuestros helados son artesanales y hechos con amor.</p>
+                  </div>
+
+                  <div className="gelato-size-list">
+                    {gelatoSizeOptions.map((item, index) => {
+                      const isSelected = item.id === selectedGelatoSize?.id
+                      const tones = [
+                        ['#ff5a92', '#fff0f5'],
+                        ['#b96ed8', '#f6efff'],
+                        ['#65d5c8', '#eefdfa'],
+                      ]
+                      const [accent, tint] = tones[index % tones.length]
+
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className={`gelato-size-card ${isSelected ? 'selected' : ''}`}
+                          style={{ '--gelato-size-accent': accent, '--gelato-size-tint': tint }}
+                          onClick={() => setGelatoSizeId(item.id)}
+                        >
+                          <div className="gelato-size-visual">
+                            <span className="gelato-size-scoop" />
+                          </div>
+                          <div className="gelato-size-copy">
+                            <strong>{item.name}</strong>
+                            <span>{item.price}</span>
+                            <small>Hasta {getGelatoFlavorLimit(item.name)} sabores</small>
+                          </div>
+                          <span className="gelato-size-check">{isSelected ? '✓' : ''}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="primary-action gelato-continue"
+                    onClick={() => setGelatoStep(3)}
+                  >
+                    <span>Continuar</span>
+                    <strong>{selectedGelatoSize?.price ?? ''}</strong>
+                  </button>
+                </div>
+              ) : null}
+
+              {gelatoStep === 3 ? (
+                <div className="gelato-builder-section">
+                  <div className="gelato-builder-copy">
+                    <span className="gelato-builder-icon">🍓</span>
+                    <h2>Elegi tus sabores</h2>
+                    <p>
+                      Puedes elegir hasta <strong>{gelatoFlavorLimit}</strong> sabores para{' '}
+                      <strong>{selectedGelatoSize?.name}</strong>.
+                    </p>
+                  </div>
+
+                  <div className="gelato-flavor-filters">
+                    {gelatoFlavorCategories.map((category) => (
+                      <button
+                        key={category}
+                        type="button"
+                        className={`gelato-filter-chip ${gelatoFlavorFilter === category ? 'active' : ''}`}
+                        onClick={() => setGelatoFlavorFilter(category)}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="gelato-flavor-grid">
+                    {filteredGelatoFlavors.map((flavor) => {
+                      const isSelected = gelatoSelectedFlavors.includes(flavor.id)
+
+                      return (
+                        <button
+                          key={flavor.id}
+                          type="button"
+                          className={`gelato-flavor-card ${isSelected ? 'selected' : ''}`}
+                          onClick={() => handleToggleGelatoFlavor(flavor.id)}
+                        >
+                          <span className="gelato-flavor-plus">{isSelected ? '✓' : '+'}</span>
+                          <div className="gelato-flavor-ball" />
+                          <strong>{flavor.name}</strong>
+                          <p>{flavor.description}</p>
+                          <small>{flavor.flavorCategory}</small>
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  <div className="gelato-builder-footer">
+                    <span>{gelatoSelectedFlavors.length} / {gelatoFlavorLimit} sabores elegidos</span>
+                    <button
+                      type="button"
+                      className="primary-action gelato-continue"
+                      onClick={handleAddGelatoOrder}
+                      disabled={!gelatoSelectedFlavors.length}
+                    >
+                      <span>Agregar al pedido</span>
+                      <strong>{selectedGelatoSize?.price ?? ''}</strong>
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </section>
+          </div>
+        </div>
+      ) : null}
 
       {selectedDish ? (
         <div className="detail-screen" role="presentation" onClick={() => setSelectedDish(null)}>

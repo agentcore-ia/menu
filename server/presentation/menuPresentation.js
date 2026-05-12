@@ -110,12 +110,50 @@ const presentationPresets = {
       mutedVideos: true,
     },
   },
+  gelato: {
+    template: 'gelato',
+    layout: 'gelato',
+    branding: {
+      wordmark: 'Dolce',
+      subtitle: 'HELADERIA',
+    },
+    theme: {
+      id: 'gelato-candy',
+      background: '#fff8fb',
+      surface: '#ffffff',
+      surfaceAlt: '#fff6fa',
+      text: '#22183b',
+      muted: 'rgba(34, 24, 59, 0.68)',
+      primary: '#ff5a92',
+      primaryText: '#fffafc',
+      accent: '#b96ed8',
+      border: 'rgba(255, 113, 166, 0.12)',
+      shadow: 'rgba(226, 102, 149, 0.12)',
+      displayFont: 'Baloo 2',
+      bodyFont: 'Manrope',
+    },
+    hero: {
+      image: '/dishes/hero-clean-cut.png',
+      title: 'Hola!',
+      accent: 'Que se te antoja hoy?',
+      description: 'Elegi formato, tamano y sabores en pocos pasos.',
+    },
+    cards: {
+      style: 'gelato-cards',
+    },
+    preview: {
+      productMedia: 'image-with-video-chip',
+      autoplayVideos: false,
+      mutedVideos: true,
+    },
+  },
 }
 
 const accountPresentations = {
   totta: presentationPresets.default,
   'sandras-rose': presentationPresets.luxe,
   bruder: presentationPresets.bistro,
+  heladeria: presentationPresets.gelato,
   'neurorest-demo': presentationPresets.default,
 }
 
