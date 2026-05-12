@@ -1369,16 +1369,22 @@ export default function MenuApp() {
           onClick={() => setShowConfirmation(false)}
         >
           <div className="confirmation-card" onClick={(event) => event.stopPropagation()}>
-            <div className="confirmation-orbit" aria-hidden="true">
-              <span className="confirmation-orbit-ring" />
-              <span className="confirmation-orbit-ring confirmation-orbit-ring-delay" />
-              <div className="confirmation-check">
-                <span />
+            <div className="confirmation-hero" aria-hidden="true">
+              <div className="confirmation-ticket">
+                <span className="confirmation-ticket-dot confirmation-ticket-dot-left" />
+                <span className="confirmation-ticket-dot confirmation-ticket-dot-right" />
+                <span className="confirmation-ticket-icon">
+                  <IconCart />
+                </span>
+                <span className="confirmation-ticket-status">
+                  <IconSpark />
+                  Listo
+                </span>
               </div>
             </div>
             <span className="confirmation-kicker">Pedido enviado</span>
-            <h3>Ya lo estamos preparando</h3>
-            <p>El pedido <strong>#{lastOrder.orderNumber}</strong> ya entro a NeuroRest.</p>
+            <h3>Pedido #{lastOrder.orderNumber} confirmado</h3>
+            <p>Ya lo recibimos y entro al dashboard de NeuroRest para preparacion.</p>
             <div className="confirmation-meta">
               <div>
                 <span>Total</span>
@@ -1389,12 +1395,28 @@ export default function MenuApp() {
                 <strong>{buildWhatsappNumberPreview(lastOrder.customer?.phone)}</strong>
               </div>
             </div>
+            <div className="confirmation-timeline">
+              <div className="confirmation-step active">
+                <span />
+                <div>
+                  <strong>Pedido recibido</strong>
+                  <small>Ya quedo cargado correctamente.</small>
+                </div>
+              </div>
+              <div className="confirmation-step">
+                <span />
+                <div>
+                  <strong>Confirmacion por WhatsApp</strong>
+                  <small>Te avisaremos el estado del pedido por ese canal.</small>
+                </div>
+              </div>
+            </div>
             <button
               type="button"
               className="confirmation-button"
               onClick={() => setShowConfirmation(false)}
             >
-              Seguir viendo el menu
+              Volver al menu
             </button>
           </div>
         </div>

@@ -912,15 +912,96 @@
 
 .confirmation-card {
   width: min(100%, 23rem);
-  padding: 2.2rem 1.45rem 1.45rem;
+  padding: 1.2rem 1.2rem 1.3rem;
   border-radius: 2rem;
   background:
-    radial-gradient(circle at top, color-mix(in srgb, var(--theme-primary) 12%, white), transparent 42%),
+    radial-gradient(circle at top, color-mix(in srgb, var(--theme-primary) 10%, white), transparent 38%),
     var(--theme-surface);
   color: var(--theme-text);
-  text-align: center;
+  text-align: left;
   box-shadow: 0 24px 46px rgba(23, 21, 18, 0.2);
   border: 1px solid color-mix(in srgb, var(--theme-primary) 12%, white);
+}
+
+.confirmation-hero {
+  padding: 0.2rem 0 0.6rem;
+}
+
+.confirmation-ticket {
+  position: relative;
+  overflow: hidden;
+  min-height: 7.6rem;
+  padding: 1.15rem;
+  border-radius: 1.5rem;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--theme-primary) 96%, #111) 0%, color-mix(in srgb, var(--theme-primary) 72%, #0f1710) 100%);
+  color: #fffdf8;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 18px 28px color-mix(in srgb, var(--theme-primary) 24%, transparent);
+}
+
+.confirmation-ticket::after {
+  content: '';
+  position: absolute;
+  inset: auto -1.4rem -2.6rem auto;
+  width: 7rem;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.confirmation-ticket-dot {
+  position: absolute;
+  top: 50%;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  background: var(--theme-surface);
+  transform: translateY(-50%);
+}
+
+.confirmation-ticket-dot-left {
+  left: -0.58rem;
+}
+
+.confirmation-ticket-dot-right {
+  right: -0.58rem;
+}
+
+.confirmation-ticket-icon {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.confirmation-ticket-icon svg,
+.confirmation-ticket-status svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.confirmation-ticket-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  align-self: flex-start;
+  min-height: 2rem;
+  padding: 0.22rem 0.72rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 0.84rem;
+  font-weight: 700;
 }
 
 .confirmation-kicker {
@@ -938,9 +1019,9 @@
 }
 
 .confirmation-card h3 {
-  margin: 1rem 0 0;
-  font-size: 1.9rem;
-  line-height: 1;
+  margin: 0.95rem 0 0;
+  font-size: 1.85rem;
+  line-height: 1.02;
 }
 
 .confirmation-card p {
@@ -951,46 +1032,6 @@
 
 .confirmation-card strong {
   color: var(--theme-text);
-}
-
-.confirmation-orbit {
-  position: relative;
-  width: 6.6rem;
-  height: 6.6rem;
-  margin: 0 auto;
-}
-
-.confirmation-orbit-ring {
-  position: absolute;
-  inset: 0.35rem;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--theme-primary) 22%, white);
-  animation: confirmation-pulse 2.1s ease-out infinite;
-}
-
-.confirmation-orbit-ring-delay {
-  inset: 0;
-  animation-delay: 0.45s;
-}
-
-.confirmation-check {
-  position: absolute;
-  inset: 1rem;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, var(--theme-primary) 0%, color-mix(in srgb, var(--theme-primary) 84%, #0e150f) 100%);
-  box-shadow: 0 18px 30px color-mix(in srgb, var(--theme-primary) 28%, transparent);
-  animation: confirmation-pop 420ms ease-out;
-}
-
-.confirmation-check span {
-  width: 1.3rem;
-  height: 0.7rem;
-  border-left: 0.24rem solid #fffdf8;
-  border-bottom: 0.24rem solid #fffdf8;
-  transform: rotate(-45deg);
-  margin-top: -0.12rem;
 }
 
 .confirmation-meta {
@@ -1022,49 +1063,73 @@
   font-size: 1rem;
 }
 
+.confirmation-timeline {
+  margin-top: 1.1rem;
+  padding: 0.4rem 0 0.2rem;
+  display: grid;
+  gap: 0.82rem;
+}
+
+.confirmation-step {
+  display: grid;
+  grid-template-columns: 1.2rem minmax(0, 1fr);
+  gap: 0.72rem;
+  align-items: start;
+}
+
+.confirmation-step > span {
+  position: relative;
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: 0.12rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 24%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-surface-alt) 70%, white);
+}
+
+.confirmation-step.active > span {
+  border-color: transparent;
+  background: var(--theme-primary);
+  box-shadow: 0 10px 18px color-mix(in srgb, var(--theme-primary) 18%, transparent);
+}
+
+.confirmation-step.active > span::after {
+  content: '';
+  position: absolute;
+  left: 0.32rem;
+  top: 0.26rem;
+  width: 0.42rem;
+  height: 0.22rem;
+  border-left: 0.12rem solid #fffdf8;
+  border-bottom: 0.12rem solid #fffdf8;
+  transform: rotate(-45deg);
+}
+
+.confirmation-step strong,
+.confirmation-step small {
+  display: block;
+}
+
+.confirmation-step strong {
+  font-size: 0.97rem;
+}
+
+.confirmation-step small {
+  margin-top: 0.18rem;
+  color: var(--theme-muted);
+  line-height: 1.5;
+}
+
 .confirmation-button {
   width: 100%;
-  min-height: 3.4rem;
-  margin-top: 1.3rem;
+  min-height: 3.55rem;
+  margin-top: 1.25rem;
   border: 0;
   border-radius: 1rem;
   background: var(--theme-primary);
   color: var(--theme-primary-text);
   font-weight: 700;
   cursor: pointer;
-}
-
-@keyframes confirmation-pulse {
-  0% {
-    opacity: 0;
-    transform: scale(0.82);
-  }
-
-  35% {
-    opacity: 0.4;
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(1.12);
-  }
-}
-
-@keyframes confirmation-pop {
-  0% {
-    opacity: 0;
-    transform: scale(0.72);
-  }
-
-  70% {
-    opacity: 1;
-    transform: scale(1.06);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 .recommendation-group {
