@@ -229,9 +229,19 @@ export default function AdminApp() {
       return
     }
 
-    setAccounts((current) => [...current, payload].sort((a, b) => a.name.localeCompare(b.name)))
+    setAccounts((current) => {
+      const next = current.some((account) => account.slug === payload.slug)
+        ? current.map((account) => (account.slug === payload.slug ? { ...account, ...payload } : account))
+        : [...current, payload]
+
+      return next.sort((a, b) => a.name.localeCompare(b.name))
+    })
     setSelectedAccount(payload.slug)
-    setMessage(`Cuenta creada: ${payload.name}`)
+    setMessage(
+      payload.linkedExisting
+        ? `Cuenta enlazada a NeuroRest: ${payload.name}. Se mostraran sus productos cargados.`
+        : `Cuenta creada: ${payload.name}`,
+    )
   }
 
   async function handleSavePresentation() {

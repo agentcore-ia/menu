@@ -96,6 +96,7 @@ Endpoints disponibles:
 Con eso ya puedes:
 
 - crear una cuenta nueva en `restaurants`
+- enlazar por `slug` una cuenta ya existente de NeuroRest sin duplicarla
 - editar `layout`, `theme`, `branding`, `hero` y `preview`
 - guardar `video_url` por producto
 - subir videos directo a Supabase Storage desde el panel

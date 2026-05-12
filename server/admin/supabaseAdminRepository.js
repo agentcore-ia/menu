@@ -105,6 +105,15 @@ export class SupabaseAdminRepository {
   }
 
   async createAccount(payload) {
+    const existingRestaurant = await this.fetchRestaurantBySlug(payload.slug)
+
+    if (existingRestaurant) {
+      return {
+        ...existingRestaurant,
+        linkedExisting: true,
+      }
+    }
+
     const [restaurant] = await this.request('/restaurants', {
       method: 'POST',
       headers: {
@@ -119,7 +128,10 @@ export class SupabaseAdminRepository {
       }),
     })
 
-    return restaurant
+    return {
+      ...restaurant,
+      linkedExisting: false,
+    }
   }
 
   async savePresentation(accountId, input) {
