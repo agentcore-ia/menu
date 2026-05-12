@@ -1,6 +1,6 @@
-import { getServerConfig } from '../../../../server/config.js'
-import { createAdminRepository } from '../../../../server/admin/createAdminRepository.js'
-import { assertAdminToken } from '../../../../server/admin/requireAdminToken.js'
+import { getServerConfig } from '../../../server/config.js'
+import { createAdminRepository } from '../../../server/admin/createAdminRepository.js'
+import { assertAdminToken } from '../../../server/admin/requireAdminToken.js'
 
 export default async function handler(req, res) {
   const config = getServerConfig()
