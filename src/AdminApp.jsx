@@ -41,6 +41,17 @@ function authHeaders(token) {
   }
 }
 
+async function readApiPayload(response) {
+  const contentType = response.headers.get('content-type') ?? ''
+
+  if (contentType.includes('application/json')) {
+    return response.json()
+  }
+
+  const text = await response.text()
+  return { message: text || 'La respuesta del servidor no fue JSON.' }
+}
+
 export default function AdminApp() {
   const [token, setToken] = useState(readSavedToken)
   const [accounts, setAccounts] = useState([])
@@ -82,7 +93,7 @@ export default function AdminApp() {
         const response = await fetch('/api/admin/accounts', {
           headers: authHeaders(token),
         })
-        const payload = await response.json()
+        const payload = await readApiPayload(response)
 
         if (!response.ok) {
           throw new Error(payload.message ?? 'No se pudieron cargar las cuentas.')
@@ -129,7 +140,7 @@ export default function AdminApp() {
         const response = await fetch(`/api/admin/accounts/${selectedAccount}/editor`, {
           headers: authHeaders(token),
         })
-        const payload = await response.json()
+        const payload = await readApiPayload(response)
 
         if (!response.ok) {
           throw new Error(payload.message ?? 'No se pudo cargar el editor.')
@@ -211,7 +222,7 @@ export default function AdminApp() {
       headers: authHeaders(token),
       body: JSON.stringify(createForm),
     })
-    const payload = await response.json()
+    const payload = await readApiPayload(response)
 
     if (!response.ok) {
       setMessage(payload.message ?? 'No se pudo crear la cuenta.')
@@ -231,7 +242,7 @@ export default function AdminApp() {
       headers: authHeaders(token),
       body: JSON.stringify(presentation),
     })
-    const payload = await response.json()
+    const payload = await readApiPayload(response)
 
     if (!response.ok) {
       setMessage(payload.message ?? 'No se pudo guardar la presentacion.')
@@ -253,7 +264,7 @@ export default function AdminApp() {
       headers: authHeaders(token),
       body: JSON.stringify({ video_url: videoUrl || null }),
     })
-    const payload = await response.json()
+    const payload = await readApiPayload(response)
 
     if (!response.ok) {
       setMessage(payload.message ?? 'No se pudo guardar el video.')
@@ -267,6 +278,39 @@ export default function AdminApp() {
       ),
     }))
     setMessage('Video guardado para el producto.')
+  }
+
+  async function handleUploadProductVideo(productId, file) {
+    if (!file) {
+      setMessage('Selecciona un archivo .mp4 antes de subirlo.')
+      return
+    }
+
+    setMessage(`Subiendo ${file.name}...`)
+
+    const response = await fetch(`/api/admin/products/${productId}/video-upload`, {
+      method: 'POST',
+      headers: {
+        'x-admin-token': token,
+        'content-type': file.type || 'video/mp4',
+        'x-file-name': file.name,
+      },
+      body: await file.arrayBuffer(),
+    })
+    const payload = await readApiPayload(response)
+
+    if (!response.ok) {
+      setMessage(payload.message ?? 'No se pudo subir el video al storage.')
+      return
+    }
+
+    setEditor((current) => ({
+      ...current,
+      products: current.products.map((product) =>
+        product.id === productId ? { ...product, video_url: payload.video_url ?? null } : product,
+      ),
+    }))
+    setMessage('Video subido a Supabase Storage y vinculado al producto.')
   }
 
   return (
@@ -540,6 +584,7 @@ export default function AdminApp() {
                     key={`${product.id}:${product.video_url ?? ''}`}
                     product={product}
                     onSave={handleSaveProductVideo}
+                    onUpload={handleUploadProductVideo}
                   />
                 ))}
               </div>
@@ -551,8 +596,9 @@ export default function AdminApp() {
   )
 }
 
-function ProductMediaRow({ product, onSave }) {
+function ProductMediaRow({ product, onSave, onUpload }) {
   const [videoUrl, setVideoUrl] = useState(product.video_url ?? '')
+  const [file, setFile] = useState(null)
 
   return (
     <div className="admin-product-row">
@@ -568,9 +614,24 @@ function ProductMediaRow({ product, onSave }) {
         placeholder="https://.../preview.mp4"
       />
 
-      <button type="button" className="admin-secondary" onClick={() => onSave(product.id, videoUrl)}>
-        Guardar video
-      </button>
+      <div className="admin-product-actions">
+        <button type="button" className="admin-secondary" onClick={() => onSave(product.id, videoUrl)}>
+          Guardar URL
+        </button>
+
+        <label className="admin-upload">
+          <input
+            type="file"
+            accept="video/mp4,video/webm,video/quicktime"
+            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+          />
+          <span>{file ? file.name : 'Elegir video'}</span>
+        </label>
+
+        <button type="button" className="admin-primary" onClick={() => onUpload(product.id, file)}>
+          Subir a Storage
+        </button>
+      </div>
     </div>
   )
 }

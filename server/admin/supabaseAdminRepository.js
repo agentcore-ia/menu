@@ -67,6 +67,15 @@ function normalizePresentationInput(input) {
   }
 }
 
+function slugify(value) {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
 export class SupabaseAdminRepository {
   constructor(config) {
     this.config = config
@@ -155,9 +164,54 @@ export class SupabaseAdminRepository {
     return row
   }
 
+  async uploadProductVideo(productId, file) {
+    const product = await this.fetchProductById(productId)
+
+    if (!product) {
+      return null
+    }
+
+    const restaurant = await this.fetchRestaurantById(product.restaurant_id)
+    const extension = file.fileName?.split('.').pop()?.toLowerCase() || 'mp4'
+    const safeName = slugify(product.name) || 'product'
+    const folder = slugify(restaurant?.slug || 'general')
+    const path = `products/${folder}/${product.id}-${safeName}-${Date.now()}.${extension}`
+
+    const uploadResponse = await fetch(
+      `${this.config.supabaseUrl}/storage/v1/object/${this.config.storageBucket}/${path}`,
+      {
+        method: 'POST',
+        headers: {
+          apikey: this.config.supabaseStorageApiKey,
+          Authorization: `Bearer ${this.config.supabaseStorageApiKey}`,
+          'Content-Type': file.contentType || 'video/mp4',
+          'x-upsert': 'true',
+        },
+        body: file.buffer,
+      },
+    )
+
+    if (!uploadResponse.ok) {
+      const detail = await uploadResponse.text()
+      throw new Error(
+        `Supabase storage error: ${uploadResponse.status} ${detail || 'No se pudo subir el video.'}`,
+      )
+    }
+
+    const publicUrl = `${this.config.supabaseUrl}/storage/v1/object/public/${this.config.storageBucket}/${path}`
+    return this.updateProductMedia(productId, { video_url: publicUrl })
+  }
+
   async fetchRestaurantBySlug(accountId) {
     const rows = await this.request(
       `/restaurants?slug=eq.${encodeURIComponent(accountId)}&select=id,slug,name,city,business_type,address&limit=1`,
+    )
+    return rows[0] ?? null
+  }
+
+  async fetchRestaurantById(restaurantId) {
+    const rows = await this.request(
+      `/restaurants?id=eq.${restaurantId}&select=id,slug,name&limit=1`,
     )
     return rows[0] ?? null
   }
@@ -186,6 +240,13 @@ export class SupabaseAdminRepository {
     return this.request(
       `/products?restaurant_id=eq.${restaurantId}&select=id,name,category,image_url,video_url,available&order=category.asc,name.asc`,
     )
+  }
+
+  async fetchProductById(productId) {
+    const rows = await this.request(
+      `/products?id=eq.${productId}&select=id,name,restaurant_id,video_url,image_url&limit=1`,
+    )
+    return rows[0] ?? null
   }
 
   async request(path, options = {}) {

@@ -41,6 +41,8 @@ Modo actual recomendado:
 3. completa `NEUROREST_SUPABASE_URL`
 4. completa `NEUROREST_SUPABASE_API_KEY` con una key de backend de solo lectura para la API
 5. define `NEUROREST_ADMIN_TOKEN` para habilitar el panel interno
+6. define `NEUROREST_SUPABASE_STORAGE_BUCKET=menu-videos` para uploads de preview
+7. para uploads seguros, define `NEUROREST_SUPABASE_STORAGE_API_KEY` con una key de backend para Storage
 
 El backend lee:
 
@@ -96,6 +98,36 @@ Con eso ya puedes:
 - crear una cuenta nueva en `restaurants`
 - editar `layout`, `theme`, `branding`, `hero` y `preview`
 - guardar `video_url` por producto
+- subir videos directo a Supabase Storage desde el panel
+
+## Preparar Supabase Storage para videos
+
+Bucket recomendado:
+
+- `menu-videos`
+
+Requisitos:
+
+- bucket publico
+- videos cortos en `.mp4`
+- ideal: usar `NEUROREST_SUPABASE_STORAGE_API_KEY` para que el upload salga desde backend y no abrir permisos publicos de escritura
+
+Variables:
+
+- `NEUROREST_SUPABASE_STORAGE_BUCKET=menu-videos`
+- `NEUROREST_SUPABASE_STORAGE_API_KEY=...`
+
+Flujo en `/admin`:
+
+1. elegir cuenta
+2. ir a `Videos por producto`
+3. seleccionar un archivo
+4. click en `Subir a Storage`
+5. el panel sube el archivo al bucket y guarda `video_url` en `products`
+
+Ruta interna usada:
+
+- `POST /api/admin/products/:productId/video-upload`
 
 ## Modelo Supabase recomendado
 
