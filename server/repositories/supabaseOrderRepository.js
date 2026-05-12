@@ -15,6 +15,7 @@ export class SupabaseOrderRepository {
     }
 
     const customer = await this.upsertCustomer(restaurant, payload.customer)
+    const conversation = await this.ensureWhatsappConversation(restaurant, customer)
     const subtotal = payload.items.reduce(
       (total, item) => total + Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0),
       0,
@@ -32,6 +33,7 @@ export class SupabaseOrderRepository {
         {
           restaurant_id: restaurant.id,
           cliente_id: customer.id,
+          conversacion_id: conversation.id,
           status: 'new',
           delivery_type: payload.deliveryType,
           payment_method: payload.paymentMethod,
@@ -68,6 +70,21 @@ export class SupabaseOrderRepository {
         })),
       ),
     })
+
+    const confirmationMessage = this.buildWhatsappConfirmation({
+      orderNumber: pedido.order_number,
+      restaurant,
+      customer,
+      items: payload.items,
+      total,
+      deliveryType: payload.deliveryType,
+      paymentMethod: payload.paymentMethod,
+      address: payload.customer.address,
+      notes: payload.notes,
+    })
+
+    await this.createOutgoingWhatsappMessage(conversation.id, confirmationMessage)
+    await this.touchConversation(conversation.id)
 
     return {
       id: pedido.id,
@@ -128,6 +145,113 @@ export class SupabaseOrderRepository {
     })
 
     return created
+  }
+
+  buildWhatsappConfirmation({ orderNumber, restaurant, customer, items, total, deliveryType, paymentMethod, address, notes }) {
+    const lines = items.map((item) => {
+      const itemTotal = Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0)
+      const noteText = item.notes ? ` (${item.notes})` : ''
+      return `- ${item.quantity} x ${item.name}${noteText}: $${this.formatMoney(itemTotal)}`
+    })
+
+    const deliveryLine =
+      deliveryType === 'delivery'
+        ? `Entrega: Delivery${address ? ` a ${address}` : ''}`
+        : 'Entrega: Retiro en local'
+
+    const paymentLabel = this.getPaymentLabel(paymentMethod)
+
+    return [
+      `Hola ${customer.name || 'cliente'}, recibimos tu pedido #${orderNumber} en ${restaurant.name}.`,
+      '',
+      'Detalle:',
+      ...lines,
+      '',
+      deliveryLine,
+      `Pago: ${paymentLabel}`,
+      notes ? `Notas: ${notes}` : null,
+      `Total: $${this.formatMoney(total)}`,
+      '',
+      'Te avisamos por este medio cuando avance.',
+    ]
+      .filter(Boolean)
+      .join('\n')
+  }
+
+  getPaymentLabel(value) {
+    if (value === 'mercado_pago') return 'Mercado Pago'
+    if (value === 'transferencia') return 'Transferencia'
+    if (value === 'cash') return 'Efectivo'
+    return value || 'No informado'
+  }
+
+  formatMoney(value) {
+    return Number(value ?? 0).toLocaleString('es-AR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    })
+  }
+
+  async ensureWhatsappConversation(restaurant, customer) {
+    const rows = await this.request(
+      `/conversaciones?restaurant_id=eq.${restaurant.id}&cliente_id=eq.${customer.id}&source=eq.whatsapp&select=*&limit=1`,
+    )
+    const existing = rows[0] ?? null
+
+    if (existing) {
+      return existing
+    }
+
+    const [created] = await this.request('/conversaciones', {
+      method: 'POST',
+      headers: {
+        Prefer: 'return=representation',
+      },
+      body: JSON.stringify([
+        {
+          restaurant_id: restaurant.id,
+          cliente_id: customer.id,
+          status: 'active',
+          ai_active: true,
+          ai_mode: 'normal',
+          source: 'whatsapp',
+          last_message_at: new Date().toISOString(),
+        },
+      ]),
+    })
+
+    return created
+  }
+
+  async createOutgoingWhatsappMessage(conversationId, content) {
+    await this.request('/mensajes', {
+      method: 'POST',
+      headers: {
+        Prefer: 'return=representation',
+      },
+      body: JSON.stringify([
+        {
+          conversacion_id: conversationId,
+          content,
+          type: 'text',
+          sender: 'ai',
+          read: false,
+          pending_approval: false,
+        },
+      ]),
+    })
+  }
+
+  async touchConversation(conversationId) {
+    await this.request(`/conversaciones?id=eq.${conversationId}`, {
+      method: 'PATCH',
+      headers: {
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify({
+        last_message_at: new Date().toISOString(),
+      }),
+    })
   }
 
   async request(path, options = {}) {

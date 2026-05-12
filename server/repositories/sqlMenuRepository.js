@@ -35,6 +35,7 @@ export class SqlMenuRepository {
             id: product.id,
             name: product.name,
             description: product.description ?? '',
+            unitPrice: Number(product.price ?? 0),
             price: product.price_display ?? `$${product.price ?? ''}`,
             image: product.image_url ?? '/dishes/hero-steak.jpg',
             video: product.video_url ?? null,

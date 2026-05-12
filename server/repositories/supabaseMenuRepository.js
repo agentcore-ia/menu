@@ -101,6 +101,7 @@ export class SupabaseMenuRepository {
         id: product.id,
         name: product.name,
         description: product.description ?? '',
+        unitPrice: Number(product.price ?? 0),
         price: this.formatPrice(product.price),
         image: product.image_url || fallbackImages[index % fallbackImages.length],
         video: getProductVideo(product),

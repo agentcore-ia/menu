@@ -182,12 +182,38 @@ function slugify(value) {
 }
 
 function toNumericPrice(value) {
-  const amount = Number.parseFloat(String(value).replace(/[^\d.,-]/g, '').replace(',', '.'))
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value
+  }
+
+  const raw = String(value ?? '').replace(/[^\d.,-]/g, '').trim()
+
+  if (!raw) {
+    return 0
+  }
+
+  let normalized = raw
+
+  if (raw.includes('.') && raw.includes(',')) {
+    normalized = raw.replace(/\./g, '').replace(',', '.')
+  } else if (raw.includes(',')) {
+    normalized = raw.replace(',', '.')
+  } else if (/\.\d{3}(\.|$)/.test(raw)) {
+    normalized = raw.replace(/\./g, '')
+  }
+
+  const amount = Number.parseFloat(normalized)
   return Number.isFinite(amount) ? amount : 0
 }
 
 function formatPrice(value, currencySymbol = '$') {
-  return `${currencySymbol}${value.toFixed(2)}`
+  const amount = Number(value ?? 0)
+  const hasDecimals = Math.abs(amount % 1) > 0.001
+
+  return `${currencySymbol}${amount.toLocaleString('es-AR', {
+    minimumFractionDigits: hasDecimals ? 2 : 0,
+    maximumFractionDigits: 2,
+  })}`
 }
 
 function getHeroImage(presentation, heroDish) {
@@ -205,27 +231,169 @@ function getCategoryIcon(label) {
   return IconServe
 }
 
-function buildDetailOptions(dish) {
-  const tags = dish.dietary?.map((tag) => tag.toLowerCase()) ?? []
+function buildProductOptionGroups(dish) {
+  const text = `${dish.categoryLabel ?? ''} ${dish.name ?? ''} ${dish.description ?? ''}`.toLowerCase()
 
-  if (tags.includes('vegan')) {
-    return {
-      accompaniments: ['Mix de hojas', 'Vegetales grillados', 'Pure de calabaza'],
-      doneness: ['Suave', 'Clasico', 'Intenso'],
-    }
+  if (/(bebida|agua|gaseosa|jugo|limonada|cerveza|vino|cafe|té|te)/.test(text)) {
+    return [
+      {
+        id: 'temperatura',
+        title: 'Temperatura',
+        required: true,
+        options: ['Fria', 'Natural', 'Con hielo'],
+      },
+      {
+        id: 'extra',
+        title: 'Extra',
+        required: false,
+        options: ['Sin azucar', 'Rodaja de limon', 'Sin extra'],
+      },
+    ]
   }
 
-  if (dish.categoryLabel?.toLowerCase().includes('bebida')) {
-    return {
-      accompaniments: ['Con hielo', 'Sin azucar', 'Rodaja de limon'],
-      doneness: ['Frio', 'Muy frio', 'Natural'],
-    }
+  if (/(pizza|muzza|mozzarella|fugazza)/.test(text)) {
+    return [
+      {
+        id: 'tamano',
+        title: 'Tamano',
+        required: true,
+        options: ['Individual', 'Mediana', 'Grande'],
+      },
+      {
+        id: 'masa',
+        title: 'Tipo de masa',
+        required: true,
+        options: ['Clasica', 'Fina', 'Extra crocante'],
+      },
+    ]
   }
 
-  return {
-    accompaniments: ['Papas rostizadas', 'Pure de papas', 'Ensalada mixta'],
-    doneness: ['3/4 Termino', 'A punto', 'Bien cocido'],
+  if (/empanada/.test(text)) {
+    return [
+      {
+        id: 'salsa',
+        title: 'Salsa',
+        required: true,
+        options: ['Sin salsa', 'Criolla', 'Picante'],
+      },
+      {
+        id: 'coccion',
+        title: 'Punto',
+        required: true,
+        options: ['Normal', 'Bien cocida', 'Suave'],
+      },
+    ]
   }
+
+  if (/(pasta|fideo|raviol|sorrentino|noqui|ñoqui)/.test(text)) {
+    return [
+      {
+        id: 'salsa',
+        title: 'Salsa',
+        required: true,
+        options: ['Crema', 'Fileto', 'Mixta'],
+      },
+      {
+        id: 'terminacion',
+        title: 'Terminacion',
+        required: false,
+        options: ['Queso extra', 'Pimienta', 'Sin extra'],
+      },
+    ]
+  }
+
+  if (/(postre|torta|helado|brownie|flan)/.test(text)) {
+    return [
+      {
+        id: 'topping',
+        title: 'Topping',
+        required: true,
+        options: ['Sin topping', 'Chocolate', 'Dulce de leche'],
+      },
+      {
+        id: 'servicio',
+        title: 'Servicio',
+        required: false,
+        options: ['Para llevar', 'Consumir en salon', 'Con cubiertos'],
+      },
+    ]
+  }
+
+  if (/(vegano|vegan|falafel|ensalada)/.test(text)) {
+    return [
+      {
+        id: 'acompanamiento',
+        title: 'Acompanamiento',
+        required: true,
+        options: ['Mix de hojas', 'Vegetales grillados', 'Pure de calabaza'],
+      },
+      {
+        id: 'salsa',
+        title: 'Salsa',
+        required: false,
+        options: ['Tahini', 'Limon y oliva', 'Sin salsa'],
+      },
+    ]
+  }
+
+  if (/(carne|bife|filete|lomo|burger|hamburguesa|milanesa|pollo)/.test(text)) {
+    return [
+      {
+        id: 'acompanamiento',
+        title: 'Acompanamientos',
+        required: true,
+        options: ['Papas rostizadas', 'Pure de papas', 'Ensalada mixta'],
+      },
+      {
+        id: 'punto',
+        title: 'Termino de la carne',
+        required: true,
+        options: ['3/4 Termino', 'A punto', 'Bien cocido'],
+      },
+    ]
+  }
+
+  return [
+    {
+      id: 'preferencia',
+      title: 'Preferencia',
+      required: true,
+      options: ['Receta original', 'Suave', 'Intenso'],
+    },
+  ]
+}
+
+function buildInitialSelections(groups) {
+  return Object.fromEntries(groups.map((group) => [group.id, group.options[0] ?? '']))
+}
+
+function buildSelectionSummary(groups, selections) {
+  return groups
+    .map((group) => {
+      const value = selections[group.id]
+      return value ? `${group.title}: ${value}` : null
+    })
+    .filter(Boolean)
+    .join(' | ')
+}
+
+function getDetailNote(dish) {
+  const text = `${dish.categoryLabel ?? ''} ${dish.name ?? ''} ${dish.description ?? ''}`.toLowerCase()
+
+  if (/(carne|bife|filete|lomo|burger|hamburguesa|milanesa|pollo)/.test(text)) {
+    return 'Vamos a enviar tu punto de coccion y acompanamientos tal como los elegiste.'
+  }
+
+  if (/(bebida|agua|gaseosa|jugo|limonada|cerveza|vino|cafe|te)/.test(text)) {
+    return 'Tu preferencia de temperatura y extras se suma al pedido.'
+  }
+
+  return 'Las preferencias que elijas se guardan en el detalle del pedido.'
+}
+
+function buildWhatsappNumberPreview(phone) {
+  const digits = String(phone ?? '').replace(/\D/g, '')
+  return digits ? `+${digits}` : ''
 }
 
 function getPresentationStyles(presentation) {
@@ -262,14 +430,14 @@ export default function MenuApp() {
   const [selectedDish, setSelectedDish] = useState(null)
   const [status, setStatus] = useState('loading')
   const [errorMessage, setErrorMessage] = useState('')
-  const [cart, setCart] = useState({})
+  const [cart, setCart] = useState([])
   const [detailQuantity, setDetailQuantity] = useState(1)
-  const [selectedSide, setSelectedSide] = useState('')
-  const [selectedDoneness, setSelectedDoneness] = useState('')
+  const [selectedOptions, setSelectedOptions] = useState({})
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
   const [checkoutStatus, setCheckoutStatus] = useState('idle')
   const [checkoutMessage, setCheckoutMessage] = useState('')
   const [lastOrder, setLastOrder] = useState(null)
+  const [showConfirmation, setShowConfirmation] = useState(false)
   const [orderForm, setOrderForm] = useState({
     name: '',
     phone: '',
@@ -322,82 +490,101 @@ export default function MenuApp() {
     }
   }, [accountId])
 
+  useEffect(() => {
+    if (!showConfirmation) {
+      return undefined
+    }
+
+    const timer = window.setTimeout(() => {
+      setShowConfirmation(false)
+    }, 3200)
+
+    return () => window.clearTimeout(timer)
+  }, [showConfirmation])
+
   const presentation = menu?.presentation ?? defaultPresentation
   const categories = menu?.categories ?? emptyCategories
   const currentCategory =
     categories.find((category) => category.id === selectedCategory) ?? categories[0] ?? null
   const categoryItems = currentCategory?.items ?? []
   const heroDish = categoryItems[0] ?? categories.flatMap((category) => category.items)[0] ?? null
-  const recommendations = categories
-    .flatMap((category) => category.items)
+  const allItems = categories.flatMap((category) =>
+    category.items.map((item) => ({
+      ...item,
+      categoryLabel: category.label,
+    })),
+  )
+  const recommendations = allItems
     .filter((item) => item.id !== selectedDish?.id)
     .slice(0, 4)
-  const allItems = categories.flatMap((category) => category.items)
 
-  const cartCount = useMemo(
-    () => Object.values(cart).reduce((total, quantity) => total + quantity, 0),
+  const cartCount = useMemo(() => cart.reduce((total, line) => total + line.quantity, 0), [cart])
+
+  const cartTotal = useMemo(
+    () => cart.reduce((total, line) => total + line.unitPrice * line.quantity, 0),
     [cart],
   )
 
-  const cartTotal = useMemo(() => {
-    return Object.entries(cart).reduce((total, [itemId, quantity]) => {
-      const item = allItems.find((entry) => entry.id === itemId)
+  const cartItems = cart
 
-      if (!item) {
-        return total
+  function handleAddItem(item, quantity = 1, configuration = null) {
+    const unitPrice = item.unitPrice ?? toNumericPrice(item.price)
+    const notes = configuration?.summary ?? ''
+    const lineId = `${item.id}::${notes || 'default'}`
+
+    setCart((current) => {
+      const existingIndex = current.findIndex((line) => line.lineId === lineId)
+
+      if (existingIndex >= 0) {
+        return current.map((line, index) =>
+          index === existingIndex
+            ? {
+                ...line,
+                quantity: line.quantity + quantity,
+              }
+            : line,
+        )
       }
 
-      return total + toNumericPrice(item.price) * quantity
-    }, 0)
-  }, [allItems, cart])
-
-  const cartItems = useMemo(() => {
-    return Object.entries(cart)
-      .map(([itemId, quantity]) => {
-        const item = allItems.find((entry) => entry.id === itemId)
-
-        if (!item) {
-          return null
-        }
-
-        return {
-          ...item,
+      return [
+        ...current,
+        {
+          lineId,
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          unitPrice,
           quantity,
-          total: toNumericPrice(item.price) * quantity,
-        }
-      })
-      .filter(Boolean)
-  }, [allItems, cart])
-
-  function handleAddItem(item, quantity = 1) {
-    setCart((current) => ({
-      ...current,
-      [item.id]: (current[item.id] ?? 0) + quantity,
-    }))
+          notes,
+          image: item.image,
+        },
+      ]
+    })
   }
 
-  function handleSetItemQuantity(itemId, quantity) {
+  function handleSetItemQuantity(lineId, quantity) {
     setCart((current) => {
       if (quantity <= 0) {
-        const next = { ...current }
-        delete next[itemId]
-        return next
+        return current.filter((line) => line.lineId !== lineId)
       }
 
-      return {
-        ...current,
-        [itemId]: quantity,
-      }
+      return current.map((line) =>
+        line.lineId === lineId
+          ? {
+              ...line,
+              quantity,
+            }
+          : line,
+      )
     })
   }
 
   function handleOpenDish(item) {
-    const nextDish = { ...item, categoryLabel: currentCategory?.label }
-    const options = buildDetailOptions(nextDish)
+    const nextDish = { ...item, categoryLabel: item.categoryLabel ?? currentCategory?.label }
+    const groups = buildProductOptionGroups(nextDish)
     setSelectedDish(nextDish)
     setDetailQuantity(1)
-    setSelectedSide(options.accompaniments[0] ?? '')
-    setSelectedDoneness(options.doneness[0] ?? '')
+    setSelectedOptions(buildInitialSelections(groups))
   }
 
   function renderProductMedia(item) {
@@ -450,8 +637,9 @@ export default function MenuApp() {
       items: cartItems.map((item) => ({
         productId: item.id,
         name: item.name,
-        unitPrice: toNumericPrice(item.price),
+        unitPrice: item.unitPrice,
         quantity: item.quantity,
+        notes: item.notes || '',
       })),
     }
 
@@ -472,15 +660,17 @@ export default function MenuApp() {
       setLastOrder(result)
       setCheckoutStatus('success')
       setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
-      setCart({})
+      setCart([])
       setIsCheckoutOpen(false)
+      setSelectedDish(null)
+      setShowConfirmation(true)
     } catch (error) {
       setCheckoutStatus('error')
       setCheckoutMessage(error instanceof Error ? error.message : 'No se pudo enviar el pedido.')
     }
   }
 
-  const detailOptions = selectedDish ? buildDetailOptions(selectedDish) : null
+  const detailOptionGroups = selectedDish ? buildProductOptionGroups(selectedDish) : []
   const currencySymbol = menu?.currencySymbol ?? '$'
   const appClassName = [
     'menu-app',
@@ -506,7 +696,7 @@ export default function MenuApp() {
                 onClick={() => setIsCheckoutOpen(true)}
               >
                 <IconCart />
-                <span className="cart-badge">{cartCount || 2}</span>
+                {cartCount > 0 ? <span className="cart-badge">{cartCount}</span> : null}
               </button>
             </div>
 
@@ -646,12 +836,12 @@ export default function MenuApp() {
               <div className="order-bar-copy">
                 <span className="order-icon-wrap">
                   <IconCart />
-                  <span className="order-badge">{cartCount || 2}</span>
+                  {cartCount > 0 ? <span className="order-badge">{cartCount}</span> : null}
                 </span>
                 <span>Ver mi pedido</span>
               </div>
               <div className="order-bar-price">
-                {formatPrice(cartTotal || 28.7, currencySymbol)}
+                {cartCount > 0 ? formatPrice(cartTotal, currencySymbol) : 'Sin productos'}
                 <span className="order-arrow">{'>'}</span>
               </div>
             </button>
@@ -701,7 +891,12 @@ export default function MenuApp() {
               <div className="detail-head">
                 <div>
                   <h2>{selectedDish.name}</h2>
-                  <strong>{selectedDish.price}</strong>
+                  <strong>
+                    {formatPrice(
+                      selectedDish.unitPrice ?? toNumericPrice(selectedDish.price),
+                      currencySymbol,
+                    )}
+                  </strong>
                 </div>
                 {selectedDish.video ? (
                   <span className="detail-badge">
@@ -718,41 +913,31 @@ export default function MenuApp() {
 
               <p className="detail-description">{selectedDish.description}</p>
 
-              <div className="option-group">
-                <h3>Acompanamientos</h3>
-                <p>Obligatorio: elige uno</p>
-                <div className="option-grid">
-                  {detailOptions?.accompaniments.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      className={`option-card ${selectedSide === option ? 'selected' : ''}`}
-                      onClick={() => setSelectedSide(option)}
-                    >
-                      {option}
-                    </button>
-                  ))}
+              {detailOptionGroups.map((group) => (
+                <div key={group.id} className="option-group">
+                  <h3>{group.title}</h3>
+                  <p>{group.required ? 'Obligatorio: elige uno' : 'Opcional'}</p>
+                  <div className="option-grid">
+                    {group.options.map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        className={`option-card ${
+                          selectedOptions[group.id] === option ? 'selected' : ''
+                        }`}
+                        onClick={() =>
+                          setSelectedOptions((current) => ({
+                            ...current,
+                            [group.id]: option,
+                          }))
+                        }
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-
-              <div className="option-group">
-                <h3>Termino de la carne</h3>
-                <p>Obligatorio: elige uno</p>
-                <div className="option-grid">
-                  {detailOptions?.doneness.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      className={`option-card ${
-                        selectedDoneness === option ? 'selected' : ''
-                      }`}
-                      onClick={() => setSelectedDoneness(option)}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              ))}
 
               <div className="quantity-stepper">
                 <button
@@ -776,17 +961,22 @@ export default function MenuApp() {
                 type="button"
                 className="primary-action"
                 onClick={() => {
-                  handleAddItem(selectedDish, detailQuantity)
+                  handleAddItem(selectedDish, detailQuantity, {
+                    summary: buildSelectionSummary(detailOptionGroups, selectedOptions),
+                  })
                   setSelectedDish(null)
                 }}
               >
                 <span>Agregar al pedido</span>
                 <strong>
-                  {formatPrice(toNumericPrice(selectedDish.price) * detailQuantity, currencySymbol)}
+                  {formatPrice(
+                    (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) * detailQuantity,
+                    currencySymbol,
+                  )}
                 </strong>
               </button>
 
-              <p className="detail-note">Pide a nuestro mesero por la preparacion de la carne.</p>
+              <p className="detail-note">{getDetailNote(selectedDish)}</p>
 
               <div className="option-group recommendation-group">
                 <h3>Tambien te puede gustar</h3>
@@ -831,12 +1021,12 @@ export default function MenuApp() {
                 <div className="order-bar-copy">
                   <span className="order-icon-wrap">
                     <IconCart />
-                    <span className="order-badge">{cartCount || 2}</span>
+                    {cartCount > 0 ? <span className="order-badge">{cartCount}</span> : null}
                   </span>
                   <span>Ver mi pedido</span>
                 </div>
                 <div className="order-bar-price">
-                  {formatPrice(cartTotal || 28.7, currencySymbol)}
+                  {cartCount > 0 ? formatPrice(cartTotal, currencySymbol) : 'Sin productos'}
                   <span className="order-arrow">{'>'}</span>
                 </div>
               </button>
@@ -870,17 +1060,24 @@ export default function MenuApp() {
 
               <div className="checkout-summary">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="checkout-item">
+                  <div key={item.lineId} className="checkout-item">
                     <div>
                       <strong>{item.name}</strong>
-                      <span>{formatPrice(toNumericPrice(item.price), currencySymbol)} c/u</span>
+                      <span>{formatPrice(item.unitPrice, currencySymbol)} c/u</span>
+                      {item.notes ? <span className="checkout-item-notes">{item.notes}</span> : null}
                     </div>
                     <div className="checkout-item-controls">
-                      <button type="button" onClick={() => handleSetItemQuantity(item.id, item.quantity - 1)}>
+                      <button
+                        type="button"
+                        onClick={() => handleSetItemQuantity(item.lineId, item.quantity - 1)}
+                      >
                         <IconMinus />
                       </button>
                       <span>{item.quantity}</span>
-                      <button type="button" onClick={() => handleSetItemQuantity(item.id, item.quantity + 1)}>
+                      <button
+                        type="button"
+                        onClick={() => handleSetItemQuantity(item.lineId, item.quantity + 1)}
+                      >
                         <IconPlus />
                       </button>
                     </div>
@@ -990,6 +1187,35 @@ export default function MenuApp() {
                 </button>
               </form>
             </section>
+          </div>
+        </div>
+      ) : null}
+
+      {showConfirmation && lastOrder ? (
+        <div
+          className="confirmation-overlay"
+          role="presentation"
+          onClick={() => setShowConfirmation(false)}
+        >
+          <div className="confirmation-card" onClick={(event) => event.stopPropagation()}>
+            <div className="confirmation-check" aria-hidden="true">
+              <span />
+            </div>
+            <h3>Pedido confirmado</h3>
+            <p>
+              Tu pedido <strong>#{lastOrder.orderNumber}</strong> ya entro a NeuroRest.
+            </p>
+            <p>
+              Enviaremos la confirmacion a WhatsApp{' '}
+              <strong>{buildWhatsappNumberPreview(lastOrder.customer?.phone)}</strong>.
+            </p>
+            <button
+              type="button"
+              className="confirmation-button"
+              onClick={() => setShowConfirmation(false)}
+            >
+              Seguir viendo el menu
+            </button>
           </div>
         </div>
       ) : null}
