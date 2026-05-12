@@ -465,6 +465,7 @@ function getGelatoFormats() {
       accent: '#ff5a92',
       tint: '#ffe8f0',
       icon: '🍨',
+      visual: 'cup',
       action: 'Elegir',
       enabled: true,
     },
@@ -475,6 +476,7 @@ function getGelatoFormats() {
       accent: '#b96ed8',
       tint: '#f4eaff',
       icon: '🍦',
+      visual: 'cone',
       action: 'Proximamente',
       enabled: false,
     },
@@ -485,6 +487,7 @@ function getGelatoFormats() {
       accent: '#ff9e1b',
       tint: '#fff5dc',
       icon: '✨',
+      visual: 'promo',
       action: 'Proximamente',
       enabled: false,
     },
@@ -736,6 +739,17 @@ function TemplateMenuCollection({
             </article>
           ))}
         </div>
+
+        <article className="gelato-loyalty-banner">
+          <span className="gelato-loyalty-icon">🍦</span>
+          <div>
+            <strong>¡Acumulá puntos!</strong>
+            <p>Por cada compra ganas puntos canjeables por helados gratis.</p>
+          </div>
+          <button type="button" className="gelato-loyalty-action">
+            →
+          </button>
+        </article>
       </section>
     )
   }
@@ -1074,7 +1088,7 @@ export default function MenuApp() {
 
   function handleOpenGelatoBuilder(formatId = 'kilo') {
     setGelatoFormat(formatId)
-    setGelatoStep(2)
+    setGelatoStep(1)
     setGelatoSizeId(gelatoSizeOptions[0]?.id ?? '')
     setGelatoFlavorFilter('Todos')
     setGelatoSelectedFlavors([])
@@ -1336,12 +1350,12 @@ export default function MenuApp() {
                   type="button"
                   className="floating-button light"
                   onClick={() => {
-                    if (gelatoStep === 2) {
+                    if (gelatoStep === 1) {
                       setGelatoBuilderOpen(false)
                       return
                     }
 
-                    setGelatoStep(2)
+                    setGelatoStep((current) => Math.max(1, current - 1))
                   }}
                   aria-label="Volver"
                 >
@@ -1380,6 +1394,55 @@ export default function MenuApp() {
                   )
                 })}
               </div>
+
+              {gelatoStep === 1 ? (
+                <div className="gelato-builder-section">
+                  <div className="gelato-builder-copy">
+                    <span className="gelato-builder-icon">🍦</span>
+                    <h2>Elegi el formato</h2>
+                    <p>Escoge como quieres disfrutar tu helado antes de seguir.</p>
+                  </div>
+
+                  <div className="gelato-size-list gelato-format-select-list">
+                    {gelatoFormats.map((format) => (
+                      <button
+                        key={format.id}
+                        type="button"
+                        className={`gelato-size-card gelato-format-select-card ${
+                          gelatoFormat === format.id ? 'selected' : ''
+                        }`}
+                        style={{
+                          '--gelato-size-accent': format.accent,
+                          '--gelato-size-tint': format.tint,
+                        }}
+                        onClick={() => format.enabled && setGelatoFormat(format.id)}
+                        disabled={!format.enabled}
+                      >
+                        <div className="gelato-size-visual">
+                          <span className="gelato-size-scoop">{format.icon}</span>
+                        </div>
+                        <div className="gelato-size-copy">
+                          <strong>{format.title}</strong>
+                          <span>{format.enabled ? 'Disponible ahora' : 'Muy pronto'}</span>
+                          <small>{format.description}</small>
+                        </div>
+                        <span className="gelato-size-check">
+                          {gelatoFormat === format.id && format.enabled ? '✓' : ''}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="primary-action gelato-continue"
+                    onClick={() => setGelatoStep(2)}
+                  >
+                    <span>Continuar</span>
+                    <strong>→</strong>
+                  </button>
+                </div>
+              ) : null}
 
               {gelatoStep === 2 ? (
                 <div className="gelato-builder-section">

@@ -700,6 +700,43 @@
   border: 1px solid rgba(255, 112, 162, 0.14);
 }
 
+.gelato-loyalty-banner {
+  margin-top: 1.35rem;
+  padding: 1rem 1rem 1rem 0.95rem;
+  border-radius: 1.7rem;
+  background: linear-gradient(135deg, #ffe8f0 0%, #fff4f8 100%);
+  border: 1px solid rgba(255, 113, 166, 0.1);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.gelato-loyalty-icon {
+  font-size: 2.6rem;
+}
+
+.gelato-loyalty-banner strong {
+  display: block;
+  font-size: 1.2rem;
+}
+
+.gelato-loyalty-banner p {
+  margin: 0.25rem 0 0;
+  line-height: 1.45;
+  color: var(--theme-muted);
+}
+
+.gelato-loyalty-action {
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 999px;
+  border: 0;
+  background: #ff5a92;
+  color: white;
+  font-size: 1.2rem;
+}
+
 .gelato-builder {
   min-height: 100dvh;
   padding: 1.15rem 1.2rem 2rem;
