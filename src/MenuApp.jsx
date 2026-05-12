@@ -556,7 +556,6 @@ export default function MenuApp() {
                   poster={selectedDish.image}
                   autoPlay={presentation.preview?.autoplayVideos ?? false}
                   muted={presentation.preview?.mutedVideos ?? true}
-                  controls
                   loop={presentation.preview?.autoplayVideos ?? false}
                   playsInline
                 />
