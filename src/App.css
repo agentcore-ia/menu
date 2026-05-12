@@ -1855,8 +1855,61 @@
   border: 1px solid rgba(68, 93, 57, 0.1);
 }
 
+.confirmation-card-gelato {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, #fff8fb 100%);
+  border: 1px solid rgba(255, 123, 173, 0.12);
+  box-shadow: 0 26px 46px rgba(226, 102, 149, 0.18);
+}
+
 .confirmation-hero {
   padding: 0.2rem 0 0.6rem;
+}
+
+.confirmation-gelato-top {
+  position: relative;
+  overflow: hidden;
+  min-height: 10rem;
+  padding: 1.15rem 1.1rem 0.8rem;
+  border-radius: 1.65rem;
+  background:
+    url('/superior.png') top center / cover no-repeat,
+    linear-gradient(180deg, #ffffff 0%, #fff6fa 100%);
+  border: 1px solid rgba(255, 123, 173, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.confirmation-gelato-brand {
+  width: min(11rem, 66%);
+  position: relative;
+  z-index: 1;
+}
+
+.confirmation-gelato-pill {
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  background: #ff5a92;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+.confirmation-gelato-scoop {
+  width: 6rem;
+  margin-top: auto;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 12px 18px rgba(255, 123, 173, 0.18));
 }
 
 .confirmation-ticket {
@@ -1946,10 +1999,21 @@
   text-transform: uppercase;
 }
 
+.confirmation-card-gelato .confirmation-kicker {
+  background: #fff0f6;
+  color: #ff5a92;
+}
+
 .confirmation-card h3 {
   margin: 0.95rem 0 0;
   font-size: 1.85rem;
   line-height: 1.02;
+}
+
+.confirmation-card-gelato h3 {
+  font-family: 'Poppins', var(--font-body, sans-serif);
+  font-size: 2rem;
+  letter-spacing: -0.04em;
 }
 
 .confirmation-card p {
@@ -1974,6 +2038,11 @@
   border-radius: 1rem;
   background: #f6f1e8;
   border: 1px solid rgba(68, 93, 57, 0.08);
+}
+
+.confirmation-card-gelato .confirmation-meta div {
+  background: linear-gradient(180deg, #fff5f9 0%, #fffdfd 100%);
+  border-color: rgba(255, 123, 173, 0.12);
 }
 
 .confirmation-meta span {
@@ -2040,6 +2109,11 @@
   box-shadow: 0 10px 18px color-mix(in srgb, var(--theme-primary) 18%, transparent);
 }
 
+.confirmation-card-gelato .confirmation-step.active > span {
+  background: #ff5a92;
+  box-shadow: 0 10px 18px rgba(255, 90, 146, 0.18);
+}
+
 .confirmation-step.active > span::after {
   content: '';
   position: absolute;
@@ -2077,6 +2151,12 @@
   color: var(--theme-primary-text);
   font-weight: 700;
   cursor: pointer;
+}
+
+.confirmation-card-gelato .confirmation-button {
+  background: linear-gradient(90deg, #ff5a92 0%, #ff7daf 100%);
+  color: #fff;
+  box-shadow: 0 16px 28px rgba(255, 90, 146, 0.22);
 }
 
 .recommendation-group {

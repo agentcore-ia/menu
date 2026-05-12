@@ -2056,19 +2056,30 @@ export default function MenuApp() {
           className="confirmation-overlay"
           role="presentation"
         >
-          <div className="confirmation-card" onClick={(event) => event.stopPropagation()}>
+          <div
+            className={`confirmation-card ${templateId === 'gelato' ? 'confirmation-card-gelato' : ''}`}
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="confirmation-hero" aria-hidden="true">
-              <div className="confirmation-ticket">
-                <span className="confirmation-ticket-dot confirmation-ticket-dot-left" />
-                <span className="confirmation-ticket-dot confirmation-ticket-dot-right" />
-                <div className="confirmation-ticket-mark">
-                  <span className="confirmation-ticket-mark-line" />
-                  <span className="confirmation-ticket-mark-line confirmation-ticket-mark-line-short" />
+              {templateId === 'gelato' ? (
+                <div className="confirmation-gelato-top">
+                  <img className="confirmation-gelato-brand" src="/gelato/brand.png" alt="" />
+                  <span className="confirmation-gelato-pill">Pedido enviado</span>
+                  <img className="confirmation-gelato-scoop" src="/gelato/flavor-fresa.png" alt="" />
                 </div>
-                <span className="confirmation-ticket-status">Confirmado</span>
-              </div>
+              ) : (
+                <div className="confirmation-ticket">
+                  <span className="confirmation-ticket-dot confirmation-ticket-dot-left" />
+                  <span className="confirmation-ticket-dot confirmation-ticket-dot-right" />
+                  <div className="confirmation-ticket-mark">
+                    <span className="confirmation-ticket-mark-line" />
+                    <span className="confirmation-ticket-mark-line confirmation-ticket-mark-line-short" />
+                  </div>
+                  <span className="confirmation-ticket-status">Confirmado</span>
+                </div>
+              )}
             </div>
-            <span className="confirmation-kicker">Pedido enviado</span>
+            <span className="confirmation-kicker">{templateId === 'gelato' ? 'Listo para preparar' : 'Pedido enviado'}</span>
             <h3>Pedido #{lastOrder.orderNumber} confirmado</h3>
             <p>Ya recibimos tu pedido y vamos a seguir informandote por WhatsApp.</p>
             <div className="confirmation-meta">
