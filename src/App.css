@@ -43,7 +43,9 @@
 }
 
 .hero-gelato {
-  display: none;
+  background:
+    url('/superior.png') top center / 100% auto no-repeat,
+    linear-gradient(180deg, #ffffff 0%, #fff8fb 100%);
 }
 
 .hero-gelato::before {
@@ -327,52 +329,10 @@
 
 .template-gelato .content-panel {
   margin-top: 0;
-  padding: 0 0 7rem;
+  padding-top: 0.4rem;
   background: transparent;
   box-shadow: none;
   border-radius: 0;
-}
-
-.gelato-home-reference {
-  position: relative;
-  width: 100%;
-}
-
-.gelato-home-reference-image {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.gelato-home-hotspot {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.gelato-home-hotspot-kilo {
-  top: 20.6%;
-  height: 22.7%;
-}
-
-.gelato-home-hotspot-conos {
-  top: 46.2%;
-  height: 22.7%;
-}
-
-.gelato-home-hotspot-promos {
-  top: 71.9%;
-  height: 21.8%;
-}
-
-.gelato-home-hotspot-puntos {
-  top: 91.3%;
-  left: 5.5%;
-  width: 89%;
-  height: 8%;
 }
 
 .hero-content-bistro {

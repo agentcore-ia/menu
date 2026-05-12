@@ -550,7 +550,20 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   }
 
   if (templateId === 'gelato') {
-    return null
+    return (
+      <section className="hero-content hero-content-gelato">
+        <img
+          className="gelato-brand-image"
+          src="/gelato/brand.png"
+          alt={presentation.branding?.wordmark ?? 'Dolce Heladeria'}
+        />
+
+        <div className="gelato-welcome">
+          <h1>{presentation.hero?.title ?? 'Hola!'}</h1>
+          <p>{presentation.hero?.accent ?? 'Que se te antoja hoy?'}</p>
+        </div>
+      </section>
+    )
   }
 
   if (templateId === 'bistro') {
@@ -709,37 +722,50 @@ function TemplateMenuCollection({
   renderProductMedia,
   onOpenDish,
   onAddItem,
+  gelatoFormats,
   onOpenGelatoBuilder,
 }) {
   if (templateId === 'gelato') {
     return (
-      <section className="gelato-home-reference">
-        <img src="/gelato/home-reference.jpeg" alt="Dolce Heladeria" className="gelato-home-reference-image" />
+      <section className="section-block">
+        <div className="gelato-format-stack">
+          {gelatoFormats.map((format) => (
+            <button
+              key={format.id}
+              type="button"
+              className={`gelato-format-card ${format.enabled ? 'active' : 'disabled'}`}
+              onClick={() => format.enabled && onOpenGelatoBuilder(format.id, 2)}
+              disabled={!format.enabled}
+            >
+              <div className="gelato-format-copy">
+                <span className="gelato-format-badge">{format.icon}</span>
+                <h3>
+                  {format.title.split(' ').slice(0, 1).join(' ')}
+                  <br />
+                  {format.title.split(' ').slice(1).join(' ')}
+                </h3>
+                <p>{format.description}</p>
+                <span className="gelato-format-button">{'>'}</span>
+              </div>
 
-        <button
-          type="button"
-          className="gelato-home-hotspot gelato-home-hotspot-kilo"
-          onClick={() => onOpenGelatoBuilder('kilo', 2)}
-          aria-label="Helado por kilo"
-        />
-        <button
-          type="button"
-          className="gelato-home-hotspot gelato-home-hotspot-conos"
-          onClick={() => onOpenGelatoBuilder('conos', 2)}
-          aria-label="Conos y copas"
-        />
-        <button
-          type="button"
-          className="gelato-home-hotspot gelato-home-hotspot-promos"
-          onClick={() => onOpenGelatoBuilder('promos', 2)}
-          aria-label="Promos y combos"
-        />
-        <button
-          type="button"
-          className="gelato-home-hotspot gelato-home-hotspot-puntos"
-          onClick={() => onOpenGelatoBuilder('kilo', 2)}
-          aria-label="Acumula puntos"
-        />
+              <div className={`gelato-format-visual gelato-format-visual-${format.id}`}>
+                <img className="gelato-format-image gelato-format-image-main" src={format.image} alt={format.title} />
+                {format.secondaryImage ? (
+                  <img
+                    className="gelato-format-image gelato-format-image-secondary"
+                    src={format.secondaryImage}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                ) : null}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <article className="gelato-loyalty-banner">
+          <img src="/gelato/banner-puntos.png" alt="Acumula puntos" />
+        </article>
       </section>
     )
   }
@@ -1228,24 +1254,24 @@ export default function MenuApp() {
     <>
       <div className="app-shell">
         <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation)}>
-          {templateId !== 'gelato' ? (
-            <header className={`hero hero-${templateId}`}>
-              <div className="hero-topbar">
-                <button type="button" className="icon-button" aria-label="Abrir menu">
-                  <IconMenu />
-                </button>
+          <header className={`hero hero-${templateId}`}>
+            <div className="hero-topbar">
+              <button type="button" className="icon-button" aria-label="Abrir menu">
+                <IconMenu />
+              </button>
 
-                <button
-                  type="button"
-                  className="cart-button"
-                  aria-label="Ver pedido"
-                  onClick={() => setIsCartOpen(true)}
-                >
-                  <IconCart />
-                  {cartCount > 0 ? <span className="cart-badge">{cartCount}</span> : null}
-                </button>
-              </div>
+              <button
+                type="button"
+                className="cart-button"
+                aria-label="Ver pedido"
+                onClick={() => setIsCartOpen(true)}
+              >
+                <IconCart />
+                {cartCount > 0 ? <span className="cart-badge">{cartCount}</span> : null}
+              </button>
+            </div>
 
+            {templateId !== 'gelato' ? (
               <div className="brand hero-brand">
                 <span className="brand-mark">
                   <IconLeafMark />
@@ -1255,10 +1281,10 @@ export default function MenuApp() {
                   {presentation.branding?.subtitle ?? 'DIGITAL MENU'}
                 </span>
               </div>
+            ) : null}
 
-              <TemplateHero templateId={templateId} presentation={presentation} heroDish={heroDish} />
-            </header>
-          ) : null}
+            <TemplateHero templateId={templateId} presentation={presentation} heroDish={heroDish} />
+          </header>
 
           <main className="content-panel">
             {status === 'loading' ? (
