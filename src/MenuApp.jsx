@@ -1360,13 +1360,11 @@ export default function MenuApp() {
               <div className="confirmation-ticket">
                 <span className="confirmation-ticket-dot confirmation-ticket-dot-left" />
                 <span className="confirmation-ticket-dot confirmation-ticket-dot-right" />
-                <span className="confirmation-ticket-icon">
-                  <IconCart />
-                </span>
-                <span className="confirmation-ticket-status">
-                  <IconSpark />
-                  Listo
-                </span>
+                <div className="confirmation-ticket-mark">
+                  <span className="confirmation-ticket-mark-line" />
+                  <span className="confirmation-ticket-mark-line confirmation-ticket-mark-line-short" />
+                </div>
+                <span className="confirmation-ticket-status">Confirmado</span>
               </div>
             </div>
             <span className="confirmation-kicker">Pedido enviado</span>

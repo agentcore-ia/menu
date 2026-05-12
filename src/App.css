@@ -927,7 +927,7 @@
 .confirmation-ticket {
   position: relative;
   overflow: hidden;
-  min-height: 7.6rem;
+  min-height: 6.6rem;
   padding: 1.15rem;
   border-radius: 1.5rem;
   background: linear-gradient(135deg, #425b38 0%, #2f4329 100%);
@@ -966,30 +966,32 @@
   right: -0.58rem;
 }
 
-.confirmation-ticket-icon {
-  width: 3rem;
-  height: 3rem;
-  display: grid;
-  place-items: center;
+.confirmation-ticket-mark {
+  width: 3.1rem;
+  height: 3.1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.78rem;
   border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.14);
 }
 
-.confirmation-ticket-icon svg,
-.confirmation-ticket-status svg {
-  width: 1.15rem;
-  height: 1.15rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.confirmation-ticket-mark-line {
+  width: 100%;
+  height: 0.18rem;
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.9);
+}
+
+.confirmation-ticket-mark-line-short {
+  width: 58%;
 }
 
 .confirmation-ticket-status {
   display: inline-flex;
   align-items: center;
-  gap: 0.42rem;
   align-self: flex-start;
   min-height: 2rem;
   padding: 0.22rem 0.72rem;
