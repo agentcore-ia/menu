@@ -929,3 +929,199 @@ button:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+.admin-shell {
+  min-height: 100vh;
+  padding: 1.25rem;
+  background:
+    radial-gradient(circle at top, rgba(197, 181, 151, 0.2), transparent 26%),
+    linear-gradient(180deg, #f2ecdf 0%, #e8dfd1 100%);
+  color: #1f241b;
+  font-family: var(--font-body, 'Manrope', sans-serif);
+}
+
+.admin-container {
+  max-width: 72rem;
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-header h1,
+.admin-card h2 {
+  margin: 0;
+}
+
+.admin-header p {
+  margin: 0.35rem 0 0;
+  color: rgba(31, 36, 27, 0.7);
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-card {
+  padding: 1.2rem;
+  border-radius: 1.5rem;
+  background: rgba(255, 251, 245, 0.88);
+  border: 1px solid rgba(84, 73, 45, 0.12);
+  box-shadow: 0 18px 42px rgba(64, 51, 30, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.admin-form,
+.admin-form-grid,
+.admin-products {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.admin-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-field,
+.admin-checkbox {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.admin-field span,
+.admin-checkbox span {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(31, 36, 27, 0.72);
+}
+
+.admin-field input,
+.admin-field select,
+.admin-field textarea,
+.admin-product-input {
+  width: 100%;
+  min-height: 2.95rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(84, 73, 45, 0.14);
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f241b;
+}
+
+.admin-field textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.admin-field-wide {
+  grid-column: 1 / -1;
+}
+
+.admin-checkbox {
+  align-items: center;
+  grid-auto-flow: column;
+  justify-content: start;
+  gap: 0.7rem;
+  min-height: 2.95rem;
+}
+
+.admin-checkbox input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #445d39;
+}
+
+.admin-primary,
+.admin-secondary {
+  min-height: 2.95rem;
+  padding: 0.8rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.admin-primary {
+  background: #445d39;
+  color: #fffdf8;
+  box-shadow: 0 14px 24px rgba(68, 93, 57, 0.18);
+}
+
+.admin-secondary {
+  background: rgba(68, 93, 57, 0.12);
+  color: #2d4126;
+}
+
+.admin-message {
+  margin: 0.85rem 0 0;
+  color: #445d39;
+  font-weight: 700;
+}
+
+.admin-meta {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.2rem;
+  color: rgba(31, 36, 27, 0.72);
+}
+
+.admin-meta strong {
+  color: #1f241b;
+}
+
+.admin-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-product-row {
+  display: grid;
+  grid-template-columns: minmax(0, 16rem) minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.85rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(84, 73, 45, 0.12);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.admin-product-info {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.admin-product-info strong,
+.admin-product-info span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-product-info span {
+  color: rgba(31, 36, 27, 0.64);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 760px) {
+  .admin-shell {
+    padding: 0.9rem;
+  }
+
+  .admin-grid,
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-section-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-product-row {
+    grid-template-columns: 1fr;
+  }
+}

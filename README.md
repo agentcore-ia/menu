@@ -7,9 +7,11 @@ Menu digital responsive inspirado en BioMenus, preparado para trabajar por cuent
 - cada cuenta tiene su propio menu digital
 - el frontend carga categorias y productos desde `GET /api/accounts/:accountId/menu`
 - puedes abrir cuentas distintas con `?account=totta`, `?account=bruder`, `?account=sandras-rose`
+- tambien soporta rutas limpias como `/totta` y `/bruder`
 - incluye modo `mock`, `supabase` y `sql`
 - cada cuenta puede tener su propio `theme`, `layout`, `hero`, `branding` y estilo de cards
 - los productos soportan `video_url` para vista previa
+- incluye panel interno en `/admin` para crear cuentas y editar presentacion/video sin SQL
 
 ## Desarrollo
 
@@ -38,6 +40,7 @@ Modo actual recomendado:
 2. usa `NEUROREST_DATA_PROVIDER=supabase`
 3. completa `NEUROREST_SUPABASE_URL`
 4. completa `NEUROREST_SUPABASE_API_KEY` con una key de backend de solo lectura para la API
+5. define `NEUROREST_ADMIN_TOKEN` para habilitar el panel interno
 
 El backend lee:
 
@@ -69,6 +72,30 @@ La presentacion soporta:
 - `preview.mutedVideos`
 
 Esto permite que cada restaurante tenga una identidad distinta sin duplicar el frontend.
+
+## Panel interno `/admin`
+
+Rutas:
+
+- `http://127.0.0.1:5173/admin`
+- `https://menu-five-red.vercel.app/admin`
+
+Requiere enviar un token en el header `x-admin-token` o `Authorization: Bearer ...`.
+La UI ya lo hace automaticamente cuando completas el campo `Token admin`.
+
+Endpoints disponibles:
+
+- `GET /api/admin/accounts`
+- `POST /api/admin/accounts`
+- `GET /api/admin/accounts/:accountId/editor`
+- `PATCH /api/admin/accounts/:accountId/presentation`
+- `PATCH /api/admin/products/:productId/media`
+
+Con eso ya puedes:
+
+- crear una cuenta nueva en `restaurants`
+- editar `layout`, `theme`, `branding`, `hero` y `preview`
+- guardar `video_url` por producto
 
 ## Modelo Supabase recomendado
 
@@ -115,8 +142,7 @@ Si un producto tiene `video_url`, el frontend ya puede:
 
 Nota:
 
-- `totta` y `bruder` ya quedaron cargados en la base real con presentacion propia
-- `sandras-rose` sigue existiendo como preset en código, pero hoy no aparece como restaurante en Supabase
+- `totta`, `bruder` y `sandras-rose` ya quedaron cargados en la base real con presentacion propia
 
 ## Templates listos
 
@@ -153,6 +179,7 @@ En Vercel solo necesitas cargar estas variables de entorno y redeploy:
 - `NEUROREST_DATA_PROVIDER=supabase`
 - `NEUROREST_SUPABASE_URL=https://eqnjyygokjinmsfvogxi.supabase.co`
 - `NEUROREST_SUPABASE_API_KEY=...`
+- `NEUROREST_ADMIN_TOKEN=...`
 
 Alternativa:
 

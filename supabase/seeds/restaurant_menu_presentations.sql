@@ -46,6 +46,22 @@ values
   'image-with-video-chip',
   false,
   true
+),
+(
+  'ff532a5d-44fd-4143-9221-977598e8d183',
+  'luxe',
+  'night-gold',
+  '{"background":"#161311","surface":"#221c18","surfaceAlt":"#1b1613","text":"#f7f0e4","muted":"rgba(247, 240, 228, 0.72)","primary":"#b88c54","primaryText":"#1a1410","accent":"#d3b17a","border":"rgba(211, 177, 122, 0.18)","shadow":"rgba(0, 0, 0, 0.24)","displayFont":"Playfair Display","bodyFont":"Manrope"}'::jsonb,
+  'SANDRA''S',
+  'DINING EXPERIENCE',
+  '/dishes/hero-steak.jpg',
+  'Una carta',
+  'con atmosfera',
+  'Experiencia nocturna, tipografia elegante y foco total en el producto.',
+  'glass-list',
+  'video-first',
+  true,
+  true
 )
 on conflict (restaurant_id)
 do update set

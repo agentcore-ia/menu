@@ -4,6 +4,7 @@ export function getServerConfig() {
     dataProvider: process.env.NEUROREST_DATA_PROVIDER ?? 'mock',
     supabaseUrl: process.env.NEUROREST_SUPABASE_URL ?? '',
     supabaseApiKey: process.env.NEUROREST_SUPABASE_API_KEY ?? '',
+    adminToken: process.env.NEUROREST_ADMIN_TOKEN ?? '',
     databaseProvider: process.env.NEUROREST_DB_PROVIDER ?? 'postgres',
     databaseUrl: process.env.DATABASE_URL ?? '',
     mysqlHost: process.env.MYSQL_HOST ?? '',

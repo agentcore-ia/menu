@@ -1,0 +1,214 @@
+function mapPresentationConfig(config) {
+  if (!config) {
+    return null
+  }
+
+  const themeOverrides =
+    config.theme_overrides && typeof config.theme_overrides === 'object'
+      ? config.theme_overrides
+      : {}
+
+  return {
+    layout: config.layout || undefined,
+    branding: {
+      wordmark: config.branding_wordmark || undefined,
+      subtitle: config.branding_subtitle || undefined,
+    },
+    theme: {
+      ...themeOverrides,
+      id: config.theme_id || themeOverrides.id || undefined,
+    },
+    hero: {
+      image: config.hero_image_url || undefined,
+      title: config.hero_title || undefined,
+      accent: config.hero_accent || undefined,
+      description: config.hero_description || undefined,
+    },
+    cards: {
+      style: config.cards_style || undefined,
+    },
+    preview: {
+      productMedia: config.preview_mode || undefined,
+      autoplayVideos:
+        typeof config.autoplay_videos === 'boolean' ? config.autoplay_videos : undefined,
+      mutedVideos:
+        typeof config.muted_videos === 'boolean' ? config.muted_videos : undefined,
+    },
+  }
+}
+
+function normalizePresentationInput(input) {
+  return {
+    layout: input.layout ?? 'editorial',
+    theme_id: input.theme?.id ?? 'ivory-olive',
+    theme_overrides: {
+      primary: input.theme?.primary,
+      accent: input.theme?.accent,
+      displayFont: input.theme?.displayFont,
+      bodyFont: input.theme?.bodyFont,
+      surface: input.theme?.surface,
+      surfaceAlt: input.theme?.surfaceAlt,
+      text: input.theme?.text,
+      muted: input.theme?.muted,
+      primaryText: input.theme?.primaryText,
+      border: input.theme?.border,
+      shadow: input.theme?.shadow,
+    },
+    branding_wordmark: input.branding?.wordmark ?? null,
+    branding_subtitle: input.branding?.subtitle ?? null,
+    hero_image_url: input.hero?.image ?? null,
+    hero_title: input.hero?.title ?? null,
+    hero_accent: input.hero?.accent ?? null,
+    hero_description: input.hero?.description ?? null,
+    cards_style: input.cards?.style ?? 'editorial-list',
+    preview_mode: input.preview?.productMedia ?? 'image-with-video-chip',
+    autoplay_videos: Boolean(input.preview?.autoplayVideos),
+    muted_videos: input.preview?.mutedVideos !== false,
+  }
+}
+
+export class SupabaseAdminRepository {
+  constructor(config) {
+    this.config = config
+  }
+
+  async listAccounts() {
+    return this.request('/restaurants?select=id,slug,name,city,business_type&order=name.asc')
+  }
+
+  async getAccountEditorData(accountId) {
+    const restaurant = await this.fetchRestaurantBySlug(accountId)
+
+    if (!restaurant) {
+      return null
+    }
+
+    const [presentationRow, products] = await Promise.all([
+      this.fetchPresentationByRestaurantId(restaurant.id),
+      this.fetchProductsByRestaurantId(restaurant.id),
+    ])
+
+    return {
+      restaurant,
+      presentation: mapPresentationConfig(presentationRow),
+      products,
+    }
+  }
+
+  async createAccount(payload) {
+    const [restaurant] = await this.request('/restaurants', {
+      method: 'POST',
+      headers: {
+        Prefer: 'return=representation',
+      },
+      body: JSON.stringify({
+        name: payload.name,
+        slug: payload.slug,
+        business_type: payload.business_type ?? 'restaurant',
+        city: payload.city ?? null,
+        address: payload.address ?? null,
+      }),
+    })
+
+    return restaurant
+  }
+
+  async savePresentation(accountId, input) {
+    const restaurant = await this.fetchRestaurantBySlug(accountId)
+
+    if (!restaurant) {
+      return null
+    }
+
+    const payload = normalizePresentationInput(input)
+    const [row] = await this.request(
+      '/restaurant_menu_presentations?on_conflict=restaurant_id',
+      {
+        method: 'POST',
+        headers: {
+          Prefer: 'resolution=merge-duplicates,return=representation',
+        },
+        body: JSON.stringify([
+          {
+            restaurant_id: restaurant.id,
+            ...payload,
+          },
+        ]),
+      },
+    )
+
+    return mapPresentationConfig(row)
+  }
+
+  async updateProductMedia(productId, media) {
+    const [row] = await this.request(`/products?id=eq.${productId}`, {
+      method: 'PATCH',
+      headers: {
+        Prefer: 'return=representation',
+      },
+      body: JSON.stringify({
+        video_url: media.video_url ?? null,
+        image_url: media.image_url ?? undefined,
+      }),
+    })
+
+    return row
+  }
+
+  async fetchRestaurantBySlug(accountId) {
+    const rows = await this.request(
+      `/restaurants?slug=eq.${encodeURIComponent(accountId)}&select=id,slug,name,city,business_type,address&limit=1`,
+    )
+    return rows[0] ?? null
+  }
+
+  async fetchPresentationByRestaurantId(restaurantId) {
+    try {
+      const rows = await this.request(
+        `/restaurant_menu_presentations?restaurant_id=eq.${restaurantId}&select=*&limit=1`,
+      )
+      return rows[0] ?? null
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      if (
+        message.includes('restaurant_menu_presentations') ||
+        message.includes('PGRST') ||
+        message.includes('42P01')
+      ) {
+        return null
+      }
+
+      throw error
+    }
+  }
+
+  async fetchProductsByRestaurantId(restaurantId) {
+    return this.request(
+      `/products?restaurant_id=eq.${restaurantId}&select=id,name,category,image_url,video_url,available&order=category.asc,name.asc`,
+    )
+  }
+
+  async request(path, options = {}) {
+    const response = await fetch(`${this.config.supabaseUrl}/rest/v1${path}`, {
+      method: options.method ?? 'GET',
+      headers: {
+        apikey: this.config.supabaseApiKey,
+        Authorization: `Bearer ${this.config.supabaseApiKey}`,
+        'Content-Type': 'application/json',
+        ...(options.headers ?? {}),
+      },
+      body: options.body,
+    })
+
+    if (!response.ok) {
+      const detail = await response.text()
+      throw new Error(`Supabase admin error: ${response.status} ${detail}`)
+    }
+
+    if (response.status === 204) {
+      return []
+    }
+
+    return response.json()
+  }
+}
