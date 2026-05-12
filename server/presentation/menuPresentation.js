@@ -1,5 +1,6 @@
 const presentationPresets = {
   default: {
+    template: 'editorial',
     layout: 'editorial',
     branding: {
       wordmark: 'SABORE',
@@ -36,6 +37,7 @@ const presentationPresets = {
     },
   },
   bistro: {
+    template: 'bistro',
     layout: 'bistro',
     branding: {
       wordmark: 'BRUDER',
@@ -72,6 +74,7 @@ const presentationPresets = {
     },
   },
   luxe: {
+    template: 'luxe',
     layout: 'luxe',
     branding: {
       wordmark: "SANDRA'S",

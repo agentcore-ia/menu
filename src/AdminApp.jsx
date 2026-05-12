@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
 const defaultPresentation = {
+  template: 'editorial',
   layout: 'editorial',
   branding: { wordmark: '', subtitle: '' },
   theme: {

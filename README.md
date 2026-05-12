@@ -10,7 +10,7 @@ Menu digital responsive inspirado en BioMenus, preparado para trabajar por cuent
 - puedes abrir cuentas distintas con `?account=totta`, `?account=bruder`, `?account=sandras-rose`
 - tambien soporta rutas limpias como `/totta` y `/bruder`
 - incluye modo `mock`, `supabase` y `sql`
-- cada cuenta puede tener su propio `theme`, `layout`, `hero`, `branding` y estilo de cards
+- cada cuenta puede tener su propio `template`, `theme`, `layout`, `hero`, `branding` y estilo de cards
 - los productos soportan `video_url` para vista previa
 - incluye panel interno en `/admin` para crear cuentas y editar presentacion/video sin SQL
 
@@ -70,6 +70,7 @@ La API ahora devuelve:
 
 La presentacion soporta:
 
+- `template`: `editorial`, `bistro`, `luxe`
 - `layout`: `editorial`, `bistro`, `luxe`
 - `branding.wordmark`
 - `branding.subtitle`
@@ -84,6 +85,7 @@ La presentacion soporta:
 - `preview.mutedVideos`
 
 Esto permite que cada restaurante tenga una identidad distinta sin duplicar el frontend.
+Ahora `template` define la estructura del menu y `theme` define el look.
 
 ## Panel interno `/admin`
 

@@ -4,6 +4,7 @@ import './App.css'
 const emptyCategories = []
 
 const defaultPresentation = {
+  template: 'editorial',
   layout: 'editorial',
   branding: {
     wordmark: 'NEUROREST',
@@ -465,6 +466,317 @@ function shouldAutoplayPreview(item, presentation) {
   )
 }
 
+function TemplateHero({ templateId, presentation, heroDish }) {
+  if (!heroDish) {
+    return null
+  }
+
+  if (templateId === 'bistro') {
+    return (
+      <section className="hero-content hero-content-bistro">
+        <div className="hero-copy hero-copy-bistro">
+          <span className="hero-kicker">MENU DESTACADO</span>
+          <h1>
+            <span className="hero-line">{presentation.hero?.title ?? 'Cocina honesta,'}</span>
+            <span className="hero-accent">{presentation.hero?.accent ?? 'mesa vibrante'}</span>
+          </h1>
+          <p>
+            {presentation.hero?.description ??
+              'Platos directos, producto fuerte y una carta pensada para convertir.'}
+          </p>
+        </div>
+
+        <div className="hero-bistro-media">
+          <img src={getHeroImage(presentation, heroDish)} alt={heroDish.name} />
+          <div className="hero-bistro-caption">
+            <strong>{heroDish.name}</strong>
+            <span>{heroDish.price}</span>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (templateId === 'luxe') {
+    return (
+      <section className="hero-content hero-content-luxe">
+        <div className="hero-luxe-media">
+          <img src={getHeroImage(presentation, heroDish)} alt={heroDish.name} />
+        </div>
+        <div className="hero-copy hero-copy-luxe">
+          <span className="hero-kicker">EXPERIENCIA</span>
+          <h1>
+            <span className="hero-line">{presentation.hero?.title ?? 'Una carta'}</span>
+            <span className="hero-accent">{presentation.hero?.accent ?? 'con atmosfera'}</span>
+          </h1>
+          <p>
+            {presentation.hero?.description ??
+              'Visual nocturno, foco en el producto y una experiencia mas cinematica.'}
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section className="hero-content">
+      <div className="hero-copy">
+        <h1>
+          <span className="hero-line">{presentation.hero?.title ?? 'Buen sabor,'}</span>
+          <span className="hero-accent">{presentation.hero?.accent ?? 'buen momento'}</span>
+        </h1>
+        <div className="hero-divider" />
+        <p>
+          {presentation.hero?.description ?? 'Descubre nuestra seleccion de platos hechos para ti.'}
+        </p>
+      </div>
+
+      <div className="hero-plate">
+        <img src={getHeroImage(presentation, heroDish)} alt={heroDish.name} />
+      </div>
+    </section>
+  )
+}
+
+function TemplateCategorySelector({
+  templateId,
+  categories,
+  currentCategory,
+  onSelectCategory,
+}) {
+  if (templateId === 'bistro') {
+    return (
+      <div className="bistro-category-row">
+        {categories.map((category) => {
+          const Icon = getCategoryIcon(category.label)
+          const isActive = category.id === currentCategory?.id
+
+          return (
+            <button
+              key={category.id}
+              type="button"
+              className={`bistro-category-chip ${isActive ? 'active' : ''}`}
+              onClick={() => onSelectCategory(category.id)}
+            >
+              <span className="bistro-category-icon">
+                <Icon />
+              </span>
+              <span>{category.label}</span>
+              <small>{category.items.length}</small>
+            </button>
+          )
+        })}
+      </div>
+    )
+  }
+
+  if (templateId === 'luxe') {
+    return (
+      <div className="luxe-category-row">
+        {categories.map((category) => {
+          const isActive = category.id === currentCategory?.id
+
+          return (
+            <button
+              key={category.id}
+              type="button"
+              className={`luxe-category-pill ${isActive ? 'active' : ''}`}
+              onClick={() => onSelectCategory(category.id)}
+            >
+              {category.label}
+            </button>
+          )
+        })}
+      </div>
+    )
+  }
+
+  return (
+    <div className="category-row">
+      {categories.map((category) => {
+        const Icon = getCategoryIcon(category.label)
+        const isActive = category.id === currentCategory?.id
+
+        return (
+          <button
+            key={category.id}
+            type="button"
+            className={`category-chip ${isActive ? 'active' : ''}`}
+            onClick={() => onSelectCategory(category.id)}
+          >
+            <span className="category-icon">
+              <Icon />
+            </span>
+            <span className="category-label">{category.label}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function TemplateMenuCollection({
+  templateId,
+  currentCategory,
+  categoryItems,
+  presentation,
+  renderProductMedia,
+  onOpenDish,
+  onAddItem,
+}) {
+  if (templateId === 'bistro') {
+    const featuredItem = categoryItems[0]
+    const secondaryItems = categoryItems.slice(1)
+
+    return (
+      <section className="section-block">
+        <div className="section-heading">
+          <h2>{(currentCategory?.label ?? 'Seleccion').toUpperCase()}</h2>
+          <button type="button">Ver todo</button>
+        </div>
+
+        {featuredItem ? (
+          <article className="bistro-feature-card">
+            <button type="button" className="bistro-feature-media" onClick={() => onOpenDish(featuredItem)}>
+              {renderProductMedia(featuredItem)}
+            </button>
+            <div className="bistro-feature-body">
+              <span className="bistro-feature-badge">DESTACADO</span>
+              <button type="button" className="dish-main" onClick={() => onOpenDish(featuredItem)}>
+                <h3>{featuredItem.name}</h3>
+                <p>{featuredItem.description}</p>
+              </button>
+              <div className="dish-footer">
+                <strong>{featuredItem.price}</strong>
+                <button
+                  type="button"
+                  className="add-button"
+                  onClick={() => onAddItem(featuredItem)}
+                  aria-label={`Agregar ${featuredItem.name}`}
+                >
+                  <IconPlus />
+                </button>
+              </div>
+            </div>
+          </article>
+        ) : null}
+
+        <div className="bistro-stack">
+          {secondaryItems.map((item) => (
+            <article key={item.id} className="bistro-stack-card">
+              <button type="button" className="bistro-stack-main" onClick={() => onOpenDish(item)}>
+                <h3>{item.name}</h3>
+                <p>{item.description}</p>
+              </button>
+              <div className="bistro-stack-side">
+                <strong>{item.price}</strong>
+                <button
+                  type="button"
+                  className="mini-add"
+                  onClick={() => onAddItem(item)}
+                  aria-label={`Agregar ${item.name}`}
+                >
+                  <IconPlus />
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  if (templateId === 'luxe') {
+    return (
+      <section className="section-block">
+        <div className="section-heading">
+          <h2>{(currentCategory?.label ?? 'Seleccion').toUpperCase()}</h2>
+          <button type="button">Explorar</button>
+        </div>
+
+        <div className="luxe-card-grid">
+          {categoryItems.map((item, index) => (
+            <article key={item.id} className="luxe-card">
+              <button type="button" className="luxe-card-media" onClick={() => onOpenDish(item)}>
+                {renderProductMedia(item)}
+                {index === 0 ? <span className="dish-badge">Signature</span> : null}
+                {item.video && presentation.preview?.productMedia === 'image-with-video-chip' ? (
+                  <span className="video-badge">
+                    <IconPlay />
+                    Video
+                  </span>
+                ) : null}
+              </button>
+              <div className="luxe-card-body">
+                <button type="button" className="dish-main" onClick={() => onOpenDish(item)}>
+                  <h3>{item.name}</h3>
+                  <p>{item.description}</p>
+                </button>
+                <div className="dish-footer">
+                  <strong>{item.price}</strong>
+                  <button
+                    type="button"
+                    className="mini-add"
+                    onClick={() => onAddItem(item)}
+                    aria-label={`Agregar ${item.name}`}
+                  >
+                    <IconPlus />
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section className="section-block">
+      <div className="section-heading">
+        <h2>{(currentCategory?.label ?? 'Entradas').toUpperCase()}</h2>
+        <button type="button">Ver todas</button>
+      </div>
+
+      <div className="dish-list">
+        {categoryItems.map((item, index) => (
+          <article key={item.id} className="dish-card">
+            <button type="button" className="dish-media-button" onClick={() => onOpenDish(item)}>
+              {renderProductMedia(item)}
+              {index === 0 ? <span className="dish-badge">Mas pedido</span> : null}
+              {item.video && presentation.preview?.productMedia === 'image-with-video-chip' ? (
+                <span className="video-badge">
+                  <IconPlay />
+                  Video
+                </span>
+              ) : null}
+            </button>
+
+            <div className="dish-body">
+              <button type="button" className="dish-main" onClick={() => onOpenDish(item)}>
+                <h3>{item.name}</h3>
+                <p>{item.description}</p>
+              </button>
+
+              <div className="dish-footer">
+                <strong>{item.price}</strong>
+                <button
+                  type="button"
+                  className="add-button"
+                  onClick={() => onAddItem(item)}
+                  aria-label={`Agregar ${item.name}`}
+                >
+                  <IconPlus />
+                </button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function MenuApp() {
   const [accountId] = useState(getInitialAccountId)
   const [menu, setMenu] = useState(null)
@@ -712,8 +1024,10 @@ export default function MenuApp() {
 
   const detailOptionGroups = selectedDish ? buildProductOptionGroups(selectedDish) : []
   const currencySymbol = menu?.currencySymbol ?? '$'
+  const templateId = presentation.template ?? presentation.layout ?? 'editorial'
   const appClassName = [
     'menu-app',
+    `template-${templateId}`,
     `layout-${presentation.layout}`,
     `cards-${presentation.cards?.style ?? 'editorial-list'}`,
     `theme-${presentation.theme.id}`,
@@ -723,7 +1037,7 @@ export default function MenuApp() {
     <>
       <div className="app-shell">
         <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation)}>
-          <header className="hero">
+          <header className={`hero hero-${templateId}`}>
             <div className="hero-topbar">
               <button type="button" className="icon-button" aria-label="Abrir menu">
                 <IconMenu />
@@ -750,27 +1064,7 @@ export default function MenuApp() {
               </span>
             </div>
 
-            {heroDish ? (
-              <section className="hero-content">
-                <div className="hero-copy">
-                  <h1>
-                    <span className="hero-line">{presentation.hero?.title ?? 'Buen sabor,'}</span>
-                    <span className="hero-accent">
-                      {presentation.hero?.accent ?? 'buen momento'}
-                    </span>
-                  </h1>
-                  <div className="hero-divider" />
-                  <p>
-                    {presentation.hero?.description ??
-                      'Descubre nuestra seleccion de platos hechos para ti.'}
-                  </p>
-                </div>
-
-                <div className="hero-plate">
-                  <img src={getHeroImage(presentation, heroDish)} alt={heroDish.name} />
-                </div>
-              </section>
-            ) : null}
+            <TemplateHero templateId={templateId} presentation={presentation} heroDish={heroDish} />
           </header>
 
           <main className="content-panel">
@@ -795,78 +1089,23 @@ export default function MenuApp() {
                     <button type="button">Ver todas</button>
                   </div>
 
-                  <div className="category-row">
-                    {categories.map((category) => {
-                      const Icon = getCategoryIcon(category.label)
-                      const isActive = category.id === currentCategory?.id
-
-                      return (
-                        <button
-                          key={category.id}
-                          type="button"
-                          className={`category-chip ${isActive ? 'active' : ''}`}
-                          onClick={() => setSelectedCategory(category.id)}
-                        >
-                          <span className="category-icon">
-                            <Icon />
-                          </span>
-                          <span className="category-label">{category.label}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
+                  <TemplateCategorySelector
+                    templateId={templateId}
+                    categories={categories}
+                    currentCategory={currentCategory}
+                    onSelectCategory={setSelectedCategory}
+                  />
                 </section>
 
-                <section className="section-block">
-                  <div className="section-heading">
-                    <h2>{(currentCategory?.label ?? 'Entradas').toUpperCase()}</h2>
-                    <button type="button">Ver todas</button>
-                  </div>
-
-                  <div className="dish-list">
-                    {categoryItems.map((item, index) => (
-                      <article key={item.id} className="dish-card">
-                        <button
-                          type="button"
-                          className="dish-media-button"
-                          onClick={() => handleOpenDish(item)}
-                        >
-                          {renderProductMedia(item)}
-                          {index === 0 ? <span className="dish-badge">Mas pedido</span> : null}
-                          {item.video && presentation.preview?.productMedia === 'image-with-video-chip' ? (
-                            <span className="video-badge">
-                              <IconPlay />
-                              Video
-                            </span>
-                          ) : null}
-                        </button>
-
-                        <div className="dish-body">
-                          <button
-                            type="button"
-                            className="dish-main"
-                            onClick={() => handleOpenDish(item)}
-                          >
-                            <h3>{item.name}</h3>
-                            <p>{item.description}</p>
-                          </button>
-
-                          <div className="dish-footer">
-                            <strong>{item.price}</strong>
-                            <button
-                              type="button"
-                              className="add-button"
-                              onClick={() => handleAddItem(item)}
-                              aria-label={`Agregar ${item.name}`}
-                            >
-                              <IconPlus />
-                            </button>
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </section>
+                <TemplateMenuCollection
+                  templateId={templateId}
+                  currentCategory={currentCategory}
+                  categoryItems={categoryItems}
+                  presentation={presentation}
+                  renderProductMedia={renderProductMedia}
+                  onOpenDish={handleOpenDish}
+                  onAddItem={handleAddItem}
+                />
               </>
             ) : null}
           </main>

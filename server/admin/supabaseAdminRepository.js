@@ -9,6 +9,7 @@ function mapPresentationConfig(config) {
       : {}
 
   return {
+    template: config.layout || undefined,
     layout: config.layout || undefined,
     branding: {
       wordmark: config.branding_wordmark || undefined,
