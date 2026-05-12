@@ -848,6 +848,57 @@
   color: var(--theme-accent);
 }
 
+.cart-panel {
+  margin-top: 1.45rem;
+}
+
+.section-heading.compact {
+  margin-bottom: 0.8rem;
+}
+
+.section-heading.compact h2 {
+  font-size: 0.88rem;
+}
+
+.pairing-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.pairing-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-primary) 10%, white);
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 18%, white);
+  color: var(--theme-accent);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.cart-summary-card {
+  margin-top: 1.45rem;
+  padding: 1rem 1.05rem;
+  border-radius: 1.2rem;
+  background: color-mix(in srgb, var(--theme-surface-alt) 70%, white);
+  border: 1px solid var(--theme-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cart-summary-card span {
+  color: var(--theme-muted);
+}
+
+.cart-summary-card strong {
+  font-size: 1.12rem;
+}
+
 .confirmation-overlay {
   position: fixed;
   inset: 0;
@@ -861,21 +912,39 @@
 
 .confirmation-card {
   width: min(100%, 23rem);
-  padding: 2rem 1.45rem 1.35rem;
-  border-radius: 1.8rem;
-  background: var(--theme-surface);
+  padding: 2.2rem 1.45rem 1.45rem;
+  border-radius: 2rem;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--theme-primary) 12%, white), transparent 42%),
+    var(--theme-surface);
   color: var(--theme-text);
   text-align: center;
   box-shadow: 0 24px 46px rgba(23, 21, 18, 0.2);
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 12%, white);
+}
+
+.confirmation-kicker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.3rem 0.72rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-primary) 10%, white);
+  color: var(--theme-accent);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .confirmation-card h3 {
   margin: 1rem 0 0;
-  font-size: 1.65rem;
+  font-size: 1.9rem;
+  line-height: 1;
 }
 
 .confirmation-card p {
-  margin: 0.7rem 0 0;
+  margin: 0.8rem 0 0;
   line-height: 1.6;
   color: var(--theme-muted);
 }
@@ -884,24 +953,73 @@
   color: var(--theme-text);
 }
 
-.confirmation-check {
-  width: 4.9rem;
-  height: 4.9rem;
+.confirmation-orbit {
+  position: relative;
+  width: 6.6rem;
+  height: 6.6rem;
   margin: 0 auto;
+}
+
+.confirmation-orbit-ring {
+  position: absolute;
+  inset: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 22%, white);
+  animation: confirmation-pulse 2.1s ease-out infinite;
+}
+
+.confirmation-orbit-ring-delay {
+  inset: 0;
+  animation-delay: 0.45s;
+}
+
+.confirmation-check {
+  position: absolute;
+  inset: 1rem;
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--theme-primary) 14%, white);
+  background: linear-gradient(135deg, var(--theme-primary) 0%, color-mix(in srgb, var(--theme-primary) 84%, #0e150f) 100%);
+  box-shadow: 0 18px 30px color-mix(in srgb, var(--theme-primary) 28%, transparent);
   animation: confirmation-pop 420ms ease-out;
 }
 
 .confirmation-check span {
   width: 1.3rem;
   height: 0.7rem;
-  border-left: 0.22rem solid var(--theme-primary);
-  border-bottom: 0.22rem solid var(--theme-primary);
+  border-left: 0.24rem solid #fffdf8;
+  border-bottom: 0.24rem solid #fffdf8;
   transform: rotate(-45deg);
   margin-top: -0.12rem;
+}
+
+.confirmation-meta {
+  margin-top: 1.2rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.confirmation-meta div {
+  padding: 0.9rem 0.75rem;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--theme-surface-alt) 72%, white);
+  border: 1px solid var(--theme-border);
+}
+
+.confirmation-meta span {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--theme-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.confirmation-meta strong {
+  display: block;
+  margin-top: 0.32rem;
+  font-size: 1rem;
 }
 
 .confirmation-button {
@@ -914,6 +1032,22 @@
   color: var(--theme-primary-text);
   font-weight: 700;
   cursor: pointer;
+}
+
+@keyframes confirmation-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  35% {
+    opacity: 0.4;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
 }
 
 @keyframes confirmation-pop {

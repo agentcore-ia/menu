@@ -396,6 +396,48 @@ function buildWhatsappNumberPreview(phone) {
   return digits ? `+${digits}` : ''
 }
 
+function buildCartRecommendations(cartItems, allItems) {
+  const cartIds = new Set(cartItems.map((item) => item.id))
+  const cartCategories = new Set(cartItems.map((item) => item.categoryLabel).filter(Boolean))
+
+  const crossSell = allItems.filter(
+    (item) => !cartIds.has(item.id) && !cartCategories.has(item.categoryLabel),
+  )
+  const sameFlow = allItems.filter((item) => !cartIds.has(item.id))
+
+  return (crossSell.length ? crossSell : sameFlow).slice(0, 4)
+}
+
+function buildCartPairingSuggestions(cartItems) {
+  const text = cartItems
+    .map((item) => `${item.categoryLabel ?? ''} ${item.name ?? ''} ${item.notes ?? ''}`.toLowerCase())
+    .join(' ')
+
+  const suggestions = []
+
+  if (/(carne|bife|filete|lomo|burger|hamburguesa|milanesa|pollo)/.test(text)) {
+    suggestions.push('Papas rostizadas', 'Ensalada fresca', 'Gaseosa fria')
+  }
+
+  if (/pizza/.test(text)) {
+    suggestions.push('Faina crocante', 'Dip picante', 'Limonada de la casa')
+  }
+
+  if (/(pasta|raviol|sorrentino|fideo|ñoqui|noqui)/.test(text)) {
+    suggestions.push('Queso extra', 'Pan de ajo', 'Tonica botanica')
+  }
+
+  if (/(postre|torta|helado|brownie|flan)/.test(text)) {
+    suggestions.push('Cafe espresso', 'Agua con gas')
+  }
+
+  if (!suggestions.length) {
+    suggestions.push('Bebida fresca', 'Postre del dia', 'Extra de salsa')
+  }
+
+  return [...new Set(suggestions)].slice(0, 4)
+}
+
 function getPresentationStyles(presentation) {
   const theme = presentation.theme
 
@@ -433,6 +475,7 @@ export default function MenuApp() {
   const [cart, setCart] = useState([])
   const [detailQuantity, setDetailQuantity] = useState(1)
   const [selectedOptions, setSelectedOptions] = useState({})
+  const [isCartOpen, setIsCartOpen] = useState(false)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
   const [checkoutStatus, setCheckoutStatus] = useState('idle')
   const [checkoutMessage, setCheckoutMessage] = useState('')
@@ -526,6 +569,8 @@ export default function MenuApp() {
   )
 
   const cartItems = cart
+  const cartRecommendations = buildCartRecommendations(cartItems, allItems)
+  const cartPairings = buildCartPairingSuggestions(cartItems)
 
   function handleAddItem(item, quantity = 1, configuration = null) {
     const unitPrice = item.unitPrice ?? toNumericPrice(item.price)
@@ -557,6 +602,7 @@ export default function MenuApp() {
           quantity,
           notes,
           image: item.image,
+          categoryLabel: item.categoryLabel ?? currentCategory?.label ?? '',
         },
       ]
     })
@@ -693,7 +739,7 @@ export default function MenuApp() {
                 type="button"
                 className="cart-button"
                 aria-label="Ver pedido"
-                onClick={() => setIsCheckoutOpen(true)}
+                onClick={() => setIsCartOpen(true)}
               >
                 <IconCart />
                 {cartCount > 0 ? <span className="cart-badge">{cartCount}</span> : null}
@@ -832,7 +878,7 @@ export default function MenuApp() {
           </main>
 
           <footer className="order-bar">
-            <button type="button" className="order-bar-button" onClick={() => setIsCheckoutOpen(true)}>
+            <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
               <div className="order-bar-copy">
                 <span className="order-icon-wrap">
                   <IconCart />
@@ -1017,7 +1063,7 @@ export default function MenuApp() {
             </section>
 
             <footer className="detail-order-bar">
-              <button type="button" className="order-bar-button" onClick={() => setIsCheckoutOpen(true)}>
+              <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                 <div className="order-bar-copy">
                   <span className="order-icon-wrap">
                     <IconCart />
@@ -1035,6 +1081,128 @@ export default function MenuApp() {
         </div>
       ) : null}
 
+      {isCartOpen ? (
+        <div className="detail-screen" role="presentation" onClick={() => setIsCartOpen(false)}>
+          <div
+            className={`detail-phone ${appClassName}`}
+            style={getPresentationStyles(presentation)}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <section className="checkout-sheet">
+              <div className="checkout-head">
+                <button
+                  type="button"
+                  className="floating-button light"
+                  onClick={() => setIsCartOpen(false)}
+                  aria-label="Cerrar pedido"
+                >
+                  <IconBack />
+                </button>
+                <div>
+                  <h2>Tu pedido</h2>
+                  <p>Revisa el carrito y suma algo mas antes de confirmar.</p>
+                </div>
+              </div>
+
+              <div className="checkout-summary">
+                {cartItems.length ? (
+                  cartItems.map((item) => (
+                    <div key={item.lineId} className="checkout-item">
+                      <div>
+                        <strong>{item.name}</strong>
+                        <span>{formatPrice(item.unitPrice, currencySymbol)} c/u</span>
+                        {item.notes ? <span className="checkout-item-notes">{item.notes}</span> : null}
+                      </div>
+                      <div className="checkout-item-controls">
+                        <button
+                          type="button"
+                          onClick={() => handleSetItemQuantity(item.lineId, item.quantity - 1)}
+                        >
+                          <IconMinus />
+                        </button>
+                        <span>{item.quantity}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleSetItemQuantity(item.lineId, item.quantity + 1)}
+                        >
+                          <IconPlus />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <section className="state-panel">
+                    <p>Tu carrito esta vacio.</p>
+                    <span>Agrega productos del menu para empezar tu pedido.</span>
+                  </section>
+                )}
+              </div>
+
+              {cartItems.length ? (
+                <>
+                  <section className="cart-panel">
+                    <div className="section-heading compact">
+                      <h2>Recomendados para sumar</h2>
+                    </div>
+                    <div className="recommendation-row">
+                      {cartRecommendations.map((item) => (
+                        <article key={item.id} className="mini-card">
+                          <img src={item.image} alt={item.name} />
+                          <div className="mini-card-body">
+                            <h4>{item.name}</h4>
+                            <div className="mini-card-footer">
+                              <strong>{item.price}</strong>
+                              <button
+                                type="button"
+                                className="mini-add"
+                                onClick={() => handleAddItem(item)}
+                                aria-label={`Agregar ${item.name}`}
+                              >
+                                <IconPlus />
+                              </button>
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section className="cart-panel">
+                    <div className="section-heading compact">
+                      <h2>Acompanamientos sugeridos</h2>
+                    </div>
+                    <div className="pairing-grid">
+                      {cartPairings.map((pairing) => (
+                        <span key={pairing} className="pairing-chip">
+                          {pairing}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+
+                  <div className="cart-summary-card">
+                    <span>Total actual</span>
+                    <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="primary-action"
+                    onClick={() => {
+                      setIsCartOpen(false)
+                      setIsCheckoutOpen(true)
+                    }}
+                  >
+                    <span>Continuar con tus datos</span>
+                    <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
+                  </button>
+                </>
+              ) : null}
+            </section>
+          </div>
+        </div>
+      ) : null}
+
       {isCheckoutOpen ? (
         <div className="detail-screen" role="presentation" onClick={() => setIsCheckoutOpen(false)}>
           <div
@@ -1047,14 +1215,17 @@ export default function MenuApp() {
                 <button
                   type="button"
                   className="floating-button light"
-                  onClick={() => setIsCheckoutOpen(false)}
+                  onClick={() => {
+                    setIsCheckoutOpen(false)
+                    setIsCartOpen(true)
+                  }}
                   aria-label="Cerrar pedido"
                 >
                   <IconBack />
                 </button>
                 <div>
                   <h2>Confirmar pedido</h2>
-                  <p>Se envia directo al dashboard de NeuroRest.</p>
+                  <p>Completa tus datos y lo enviamos al dashboard de NeuroRest.</p>
                 </div>
               </div>
 
@@ -1198,17 +1369,26 @@ export default function MenuApp() {
           onClick={() => setShowConfirmation(false)}
         >
           <div className="confirmation-card" onClick={(event) => event.stopPropagation()}>
-            <div className="confirmation-check" aria-hidden="true">
-              <span />
+            <div className="confirmation-orbit" aria-hidden="true">
+              <span className="confirmation-orbit-ring" />
+              <span className="confirmation-orbit-ring confirmation-orbit-ring-delay" />
+              <div className="confirmation-check">
+                <span />
+              </div>
             </div>
-            <h3>Pedido confirmado</h3>
-            <p>
-              Tu pedido <strong>#{lastOrder.orderNumber}</strong> ya entro a NeuroRest.
-            </p>
-            <p>
-              Enviaremos la confirmacion a WhatsApp{' '}
-              <strong>{buildWhatsappNumberPreview(lastOrder.customer?.phone)}</strong>.
-            </p>
+            <span className="confirmation-kicker">Pedido enviado</span>
+            <h3>Ya lo estamos preparando</h3>
+            <p>El pedido <strong>#{lastOrder.orderNumber}</strong> ya entro a NeuroRest.</p>
+            <div className="confirmation-meta">
+              <div>
+                <span>Total</span>
+                <strong>{formatPrice(lastOrder.total ?? 0, currencySymbol)}</strong>
+              </div>
+              <div>
+                <span>WhatsApp</span>
+                <strong>{buildWhatsappNumberPreview(lastOrder.customer?.phone)}</strong>
+              </div>
+            </div>
             <button
               type="button"
               className="confirmation-button"
