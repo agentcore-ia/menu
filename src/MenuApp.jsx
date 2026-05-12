@@ -654,6 +654,12 @@ export default function MenuApp() {
       return
     }
 
+    if (orderForm.deliveryType === 'delivery' && !orderForm.address.trim()) {
+      setCheckoutStatus('error')
+      setCheckoutMessage('Si eliges delivery, debes ingresar la direccion.')
+      return
+    }
+
     setCheckoutStatus('submitting')
     setCheckoutMessage('')
 
@@ -1298,6 +1304,7 @@ export default function MenuApp() {
                         value={orderForm.address}
                         onChange={(event) => updateOrderForm('address', event.target.value)}
                         placeholder="Calle 123"
+                        required={orderForm.deliveryType === 'delivery'}
                       />
                     </label>
 
