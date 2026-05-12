@@ -2,11 +2,13 @@ import 'dotenv/config'
 import express from 'express'
 import { getServerConfig } from './config.js'
 import { createMenuRepository } from './repositories/menuRepository.js'
+import { createOrderRepository } from './repositories/orderRepository.js'
 import { createAdminRepository } from './admin/createAdminRepository.js'
 import { assertAdminToken } from './admin/requireAdminToken.js'
 
 const config = getServerConfig()
 const repository = createMenuRepository(config)
+const orderRepository = createOrderRepository(config)
 const adminRepository = createAdminRepository(config)
 const app = express()
 
@@ -74,6 +76,45 @@ app.get('/api/accounts/:accountId/menu', async (req, res) => {
       message:
         'No se pudo cargar el menu. Revisa la configuracion de la base de datos de NeuroRest.',
       detail: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
+app.post('/api/accounts/:accountId/orders', async (req, res) => {
+  try {
+    const payload = req.body ?? {}
+
+    if (!payload.customer?.phone || !payload.customer?.name) {
+      res.status(400).json({
+        error: 'CUSTOMER_REQUIRED',
+        message: 'Nombre y celular son obligatorios para enviar el pedido.',
+      })
+      return
+    }
+
+    if (!Array.isArray(payload.items) || payload.items.length === 0) {
+      res.status(400).json({
+        error: 'ITEMS_REQUIRED',
+        message: 'Agrega al menos un producto al pedido.',
+      })
+      return
+    }
+
+    const order = await orderRepository.createOrder(req.params.accountId, payload)
+
+    if (!order) {
+      res.status(404).json({
+        error: 'ACCOUNT_NOT_FOUND',
+        message: 'No se encontro la cuenta para crear el pedido.',
+      })
+      return
+    }
+
+    res.status(201).json(order)
+  } catch (error) {
+    res.status(500).json({
+      error: 'ORDER_CREATE_FAILED',
+      message: error instanceof Error ? error.message : 'No se pudo crear el pedido.',
     })
   }
 })

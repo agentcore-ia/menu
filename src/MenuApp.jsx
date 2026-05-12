@@ -266,6 +266,20 @@ export default function MenuApp() {
   const [detailQuantity, setDetailQuantity] = useState(1)
   const [selectedSide, setSelectedSide] = useState('')
   const [selectedDoneness, setSelectedDoneness] = useState('')
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+  const [checkoutStatus, setCheckoutStatus] = useState('idle')
+  const [checkoutMessage, setCheckoutMessage] = useState('')
+  const [lastOrder, setLastOrder] = useState(null)
+  const [orderForm, setOrderForm] = useState({
+    name: '',
+    phone: '',
+    address: '',
+    neighborhood: '',
+    city: '',
+    deliveryType: 'delivery',
+    paymentMethod: 'cash',
+    notes: '',
+  })
 
   useEffect(() => {
     let cancelled = false
@@ -318,6 +332,7 @@ export default function MenuApp() {
     .flatMap((category) => category.items)
     .filter((item) => item.id !== selectedDish?.id)
     .slice(0, 4)
+  const allItems = categories.flatMap((category) => category.items)
 
   const cartCount = useMemo(
     () => Object.values(cart).reduce((total, quantity) => total + quantity, 0),
@@ -326,7 +341,7 @@ export default function MenuApp() {
 
   const cartTotal = useMemo(() => {
     return Object.entries(cart).reduce((total, [itemId, quantity]) => {
-      const item = categories.flatMap((category) => category.items).find((entry) => entry.id === itemId)
+      const item = allItems.find((entry) => entry.id === itemId)
 
       if (!item) {
         return total
@@ -334,13 +349,46 @@ export default function MenuApp() {
 
       return total + toNumericPrice(item.price) * quantity
     }, 0)
-  }, [cart, categories])
+  }, [allItems, cart])
+
+  const cartItems = useMemo(() => {
+    return Object.entries(cart)
+      .map(([itemId, quantity]) => {
+        const item = allItems.find((entry) => entry.id === itemId)
+
+        if (!item) {
+          return null
+        }
+
+        return {
+          ...item,
+          quantity,
+          total: toNumericPrice(item.price) * quantity,
+        }
+      })
+      .filter(Boolean)
+  }, [allItems, cart])
 
   function handleAddItem(item, quantity = 1) {
     setCart((current) => ({
       ...current,
       [item.id]: (current[item.id] ?? 0) + quantity,
     }))
+  }
+
+  function handleSetItemQuantity(itemId, quantity) {
+    setCart((current) => {
+      if (quantity <= 0) {
+        const next = { ...current }
+        delete next[itemId]
+        return next
+      }
+
+      return {
+        ...current,
+        [itemId]: quantity,
+      }
+    })
   }
 
   function handleOpenDish(item) {
@@ -370,6 +418,68 @@ export default function MenuApp() {
     return <img src={item.image} alt={item.name} className="dish-thumb" />
   }
 
+  function updateOrderForm(field, value) {
+    setOrderForm((current) => ({
+      ...current,
+      [field]: value,
+    }))
+  }
+
+  async function handleSubmitOrder(event) {
+    event.preventDefault()
+
+    if (!cartItems.length) {
+      setCheckoutMessage('Agrega productos antes de enviar el pedido.')
+      return
+    }
+
+    setCheckoutStatus('submitting')
+    setCheckoutMessage('')
+
+    const payload = {
+      customer: {
+        name: orderForm.name.trim(),
+        phone: orderForm.phone.trim(),
+        address: orderForm.address.trim(),
+        neighborhood: orderForm.neighborhood.trim(),
+        city: orderForm.city.trim(),
+      },
+      deliveryType: orderForm.deliveryType,
+      paymentMethod: orderForm.paymentMethod,
+      notes: orderForm.notes.trim(),
+      items: cartItems.map((item) => ({
+        productId: item.id,
+        name: item.name,
+        unitPrice: toNumericPrice(item.price),
+        quantity: item.quantity,
+      })),
+    }
+
+    try {
+      const response = await fetch(`/api/accounts/${accountId}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.message ?? 'No se pudo enviar el pedido.')
+      }
+
+      setLastOrder(result)
+      setCheckoutStatus('success')
+      setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
+      setCart({})
+      setIsCheckoutOpen(false)
+    } catch (error) {
+      setCheckoutStatus('error')
+      setCheckoutMessage(error instanceof Error ? error.message : 'No se pudo enviar el pedido.')
+    }
+  }
+
   const detailOptions = selectedDish ? buildDetailOptions(selectedDish) : null
   const currencySymbol = menu?.currencySymbol ?? '$'
   const appClassName = [
@@ -389,7 +499,12 @@ export default function MenuApp() {
                 <IconMenu />
               </button>
 
-              <button type="button" className="cart-button" aria-label="Ver pedido">
+              <button
+                type="button"
+                className="cart-button"
+                aria-label="Ver pedido"
+                onClick={() => setIsCheckoutOpen(true)}
+              >
                 <IconCart />
                 <span className="cart-badge">{cartCount || 2}</span>
               </button>
@@ -527,17 +642,19 @@ export default function MenuApp() {
           </main>
 
           <footer className="order-bar">
-            <div className="order-bar-copy">
-              <span className="order-icon-wrap">
-                <IconCart />
-                <span className="order-badge">{cartCount || 2}</span>
-              </span>
-              <span>Ver mi pedido</span>
-            </div>
-            <div className="order-bar-price">
-              {formatPrice(cartTotal || 28.7, currencySymbol)}
-              <span className="order-arrow">{'>'}</span>
-            </div>
+            <button type="button" className="order-bar-button" onClick={() => setIsCheckoutOpen(true)}>
+              <div className="order-bar-copy">
+                <span className="order-icon-wrap">
+                  <IconCart />
+                  <span className="order-badge">{cartCount || 2}</span>
+                </span>
+                <span>Ver mi pedido</span>
+              </div>
+              <div className="order-bar-price">
+                {formatPrice(cartTotal || 28.7, currencySymbol)}
+                <span className="order-arrow">{'>'}</span>
+              </div>
+            </button>
           </footer>
         </div>
       </div>
@@ -710,18 +827,169 @@ export default function MenuApp() {
             </section>
 
             <footer className="detail-order-bar">
-              <div className="order-bar-copy">
-                <span className="order-icon-wrap">
-                  <IconCart />
-                  <span className="order-badge">{cartCount || 2}</span>
-                </span>
-                <span>Ver mi pedido</span>
-              </div>
-              <div className="order-bar-price">
-                {formatPrice(cartTotal || 28.7, currencySymbol)}
-                <span className="order-arrow">{'>'}</span>
-              </div>
+              <button type="button" className="order-bar-button" onClick={() => setIsCheckoutOpen(true)}>
+                <div className="order-bar-copy">
+                  <span className="order-icon-wrap">
+                    <IconCart />
+                    <span className="order-badge">{cartCount || 2}</span>
+                  </span>
+                  <span>Ver mi pedido</span>
+                </div>
+                <div className="order-bar-price">
+                  {formatPrice(cartTotal || 28.7, currencySymbol)}
+                  <span className="order-arrow">{'>'}</span>
+                </div>
+              </button>
             </footer>
+          </div>
+        </div>
+      ) : null}
+
+      {isCheckoutOpen ? (
+        <div className="detail-screen" role="presentation" onClick={() => setIsCheckoutOpen(false)}>
+          <div
+            className={`detail-phone ${appClassName}`}
+            style={getPresentationStyles(presentation)}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <section className="checkout-sheet">
+              <div className="checkout-head">
+                <button
+                  type="button"
+                  className="floating-button light"
+                  onClick={() => setIsCheckoutOpen(false)}
+                  aria-label="Cerrar pedido"
+                >
+                  <IconBack />
+                </button>
+                <div>
+                  <h2>Confirmar pedido</h2>
+                  <p>Se envia directo al dashboard de NeuroRest.</p>
+                </div>
+              </div>
+
+              <div className="checkout-summary">
+                {cartItems.map((item) => (
+                  <div key={item.id} className="checkout-item">
+                    <div>
+                      <strong>{item.name}</strong>
+                      <span>{formatPrice(toNumericPrice(item.price), currencySymbol)} c/u</span>
+                    </div>
+                    <div className="checkout-item-controls">
+                      <button type="button" onClick={() => handleSetItemQuantity(item.id, item.quantity - 1)}>
+                        <IconMinus />
+                      </button>
+                      <span>{item.quantity}</span>
+                      <button type="button" onClick={() => handleSetItemQuantity(item.id, item.quantity + 1)}>
+                        <IconPlus />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <form className="checkout-form" onSubmit={handleSubmitOrder}>
+                <label className="checkout-field">
+                  <span>Nombre</span>
+                  <input
+                    value={orderForm.name}
+                    onChange={(event) => updateOrderForm('name', event.target.value)}
+                    placeholder="Tu nombre"
+                    required
+                  />
+                </label>
+
+                <label className="checkout-field">
+                  <span>Celular</span>
+                  <input
+                    value={orderForm.phone}
+                    onChange={(event) => updateOrderForm('phone', event.target.value)}
+                    placeholder="549..."
+                    required
+                  />
+                </label>
+
+                <div className="checkout-grid">
+                  <label className="checkout-field">
+                    <span>Entrega</span>
+                    <select
+                      value={orderForm.deliveryType}
+                      onChange={(event) => updateOrderForm('deliveryType', event.target.value)}
+                    >
+                      <option value="delivery">Delivery</option>
+                      <option value="retiro">Retiro</option>
+                    </select>
+                  </label>
+
+                  <label className="checkout-field">
+                    <span>Pago</span>
+                    <select
+                      value={orderForm.paymentMethod}
+                      onChange={(event) => updateOrderForm('paymentMethod', event.target.value)}
+                    >
+                      <option value="cash">Efectivo</option>
+                      <option value="transferencia">Transferencia</option>
+                      <option value="mercado_pago">Mercado Pago</option>
+                    </select>
+                  </label>
+                </div>
+
+                {orderForm.deliveryType === 'delivery' ? (
+                  <>
+                    <label className="checkout-field">
+                      <span>Direccion</span>
+                      <input
+                        value={orderForm.address}
+                        onChange={(event) => updateOrderForm('address', event.target.value)}
+                        placeholder="Calle 123"
+                      />
+                    </label>
+
+                    <div className="checkout-grid">
+                      <label className="checkout-field">
+                        <span>Barrio</span>
+                        <input
+                          value={orderForm.neighborhood}
+                          onChange={(event) => updateOrderForm('neighborhood', event.target.value)}
+                          placeholder="Barrio"
+                        />
+                      </label>
+
+                      <label className="checkout-field">
+                        <span>Ciudad</span>
+                        <input
+                          value={orderForm.city}
+                          onChange={(event) => updateOrderForm('city', event.target.value)}
+                          placeholder="Ciudad"
+                        />
+                      </label>
+                    </div>
+                  </>
+                ) : null}
+
+                <label className="checkout-field">
+                  <span>Notas</span>
+                  <textarea
+                    rows="3"
+                    value={orderForm.notes}
+                    onChange={(event) => updateOrderForm('notes', event.target.value)}
+                    placeholder="Aclaraciones del pedido"
+                  />
+                </label>
+
+                {checkoutMessage ? <p className={`checkout-message ${checkoutStatus}`}>{checkoutMessage}</p> : null}
+                {lastOrder ? <p className="checkout-message success">Ultimo pedido confirmado: #{lastOrder.orderNumber}</p> : null}
+
+                <button
+                  type="submit"
+                  className="primary-action"
+                  disabled={checkoutStatus === 'submitting'}
+                >
+                  <span>{checkoutStatus === 'submitting' ? 'Enviando pedido...' : 'Enviar pedido'}</span>
+                  <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
+                </button>
+              </form>
+            </section>
           </div>
         </div>
       ) : null}

@@ -4,6 +4,11 @@ export function getServerConfig() {
     dataProvider: process.env.NEUROREST_DATA_PROVIDER ?? 'mock',
     supabaseUrl: process.env.NEUROREST_SUPABASE_URL ?? '',
     supabaseApiKey: process.env.NEUROREST_SUPABASE_API_KEY ?? '',
+    supabaseWriteApiKey:
+      process.env.NEUROREST_SUPABASE_WRITE_API_KEY ??
+      process.env.NEUROREST_SUPABASE_STORAGE_API_KEY ??
+      process.env.NEUROREST_SUPABASE_API_KEY ??
+      '',
     supabaseStorageApiKey:
       process.env.NEUROREST_SUPABASE_STORAGE_API_KEY ??
       process.env.NEUROREST_SUPABASE_API_KEY ??

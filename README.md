@@ -6,6 +6,7 @@ Menu digital responsive inspirado en BioMenus, preparado para trabajar por cuent
 
 - cada cuenta tiene su propio menu digital
 - el frontend carga categorias y productos desde `GET /api/accounts/:accountId/menu`
+- el frontend puede enviar pedidos reales a NeuroRest desde `POST /api/accounts/:accountId/orders`
 - puedes abrir cuentas distintas con `?account=totta`, `?account=bruder`, `?account=sandras-rose`
 - tambien soporta rutas limpias como `/totta` y `/bruder`
 - incluye modo `mock`, `supabase` y `sql`
@@ -43,6 +44,7 @@ Modo actual recomendado:
 5. define `NEUROREST_ADMIN_TOKEN` para habilitar el panel interno
 6. define `NEUROREST_SUPABASE_STORAGE_BUCKET=menu-videos` para uploads de preview
 7. para uploads seguros, define `NEUROREST_SUPABASE_STORAGE_API_KEY` con una key de backend para Storage
+8. para crear pedidos reales, define `NEUROREST_SUPABASE_WRITE_API_KEY` con una key de backend con permisos de escritura
 
 El backend lee:
 
@@ -50,6 +52,14 @@ El backend lee:
 - `products` para traer los productos activos de ese restaurante
 
 Agrupa automaticamente por `category`.
+
+Para pedidos reales, el backend escribe en:
+
+- `clientes`
+- `pedidos`
+- `items_pedido`
+
+Asi el pedido aparece en el dashboard de NeuroRest y queda historial por cliente usando `phone`.
 
 ## Arquitectura de presentacion por cuenta
 
