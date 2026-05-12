@@ -64,66 +64,83 @@
   transform: rotate(-3deg);
 }
 
+.hero-gelato::after {
+  content: '';
+  position: absolute;
+  right: -1.3rem;
+  top: -1.1rem;
+  width: 8.8rem;
+  height: 5.9rem;
+  border-radius: 0 0 2.6rem 2.6rem;
+  background: linear-gradient(180deg, #8ae9dd 0%, #6dded1 100%);
+  box-shadow:
+    -2.2rem 4.3rem 0 -2rem #8ae9dd,
+    -4.7rem 3.4rem 0 -2rem #8ae9dd;
+  transform: rotate(4deg);
+}
+
 .template-gelato .hero-topbar {
-  padding-top: 1.35rem;
+  padding: 1.55rem 1.4rem 0;
 }
 
 .template-gelato .hero-topbar .icon-button,
 .template-gelato .hero-topbar .cart-button {
+  width: 3.35rem;
+  height: 3.35rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
   background: #ffffff;
   color: #ff5a92;
   box-shadow: 0 10px 22px rgba(255, 109, 162, 0.14);
 }
 
 .hero-content-gelato {
-  min-height: 13rem;
-  padding: 1rem 1.35rem 1.3rem;
+  min-height: 11.75rem;
+  padding: 0.55rem 1.55rem 1.3rem;
 }
 
-.gelato-brand-lockup {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.65rem;
+.gelato-brand-image {
+  display: block;
+  width: min(18rem, 80vw);
+  margin: 0 auto;
 }
 
-.gelato-brand {
-  margin-top: 0;
-}
-
-.gelato-brand .brand-name {
-  font-family: var(--font-display, 'Baloo 2', serif);
-  letter-spacing: 0;
-  font-size: 3rem;
-  line-height: 0.9;
-  margin-left: 0;
-}
-
-.gelato-brand .brand-subtitle {
-  color: #ff6ea6;
-  letter-spacing: 0.3em;
-}
-
+.gelato-brand-lockup,
 .gelato-brand-icon {
-  font-size: 2.7rem;
-  line-height: 1;
+  display: none;
 }
 
 .gelato-welcome {
-  margin-top: 2rem;
+  margin-top: 1.7rem;
 }
 
 .gelato-welcome h1 {
   margin: 0;
-  font-size: 2.8rem;
-  line-height: 0.95;
-  font-family: var(--font-display, 'Baloo 2', serif);
+  font-size: 3rem;
+  line-height: 0.94;
+  font-family: 'Poppins', var(--font-body, sans-serif);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.gelato-heart {
+  display: none;
+}
+
+.gelato-welcome h1::after {
+  content: '♥';
+  margin-left: 0.35rem;
+  color: #ff8aaf;
+  font-size: 0.42em;
+  vertical-align: top;
 }
 
 .gelato-welcome p {
-  margin: 0.7rem 0 0;
-  font-size: 1.1rem;
-  color: var(--theme-muted);
+  margin: 0.9rem 0 0;
+  font-size: 1.08rem;
+  color: #5d6074;
+  font-weight: 500;
 }
 
 .hero-topbar {
@@ -594,25 +611,28 @@
 .gelato-format-card {
   position: relative;
   overflow: hidden;
-  min-height: 13.8rem;
-  padding: 1.25rem;
+  min-height: 0;
+  padding: 0;
   border-radius: 2rem;
-  background: linear-gradient(135deg, var(--gelato-card-tint) 0%, #ffffff 100%);
-  border: 1px solid rgba(255, 113, 166, 0.08);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 9.4rem;
-  gap: 0.9rem;
-  box-shadow: 0 16px 28px rgba(255, 120, 171, 0.08);
+  background: transparent;
+  border: 0;
+  display: block;
+  box-shadow: none;
 }
 
 .gelato-format-card.disabled {
-  opacity: 0.88;
+  opacity: 1;
+}
+
+.gelato-format-card img {
+  display: block;
+  width: 100%;
+  border-radius: 2rem;
+  box-shadow: 0 18px 30px rgba(255, 120, 171, 0.1);
 }
 
 .gelato-format-copy {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  display: none;
 }
 
 .gelato-format-copy h3 {
@@ -640,14 +660,7 @@
 }
 
 .gelato-format-button {
-  margin-top: auto;
-  border: 0;
-  min-height: 2.9rem;
-  padding: 0 1rem;
-  border-radius: 999px;
-  background: var(--gelato-card-accent);
-  color: white;
-  font-weight: 800;
+  display: none;
 }
 
 .gelato-format-button:disabled {
@@ -656,7 +669,11 @@
 }
 
 .gelato-format-visual {
-  position: relative;
+  display: none;
+}
+
+.gelato-format-badge {
+  display: none;
 }
 
 .gelato-scoop {
@@ -700,41 +717,64 @@
   border: 1px solid rgba(255, 112, 162, 0.14);
 }
 
+.gelato-format-visual-cone .gelato-cup {
+  width: 5.4rem;
+  height: 4rem;
+  right: 0.2rem;
+  bottom: 1rem;
+}
+
+.gelato-cone {
+  position: absolute;
+  left: 2rem;
+  bottom: 0.9rem;
+  width: 2.8rem;
+  height: 6.6rem;
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+  background: linear-gradient(180deg, #d6a05e 0%, #c2813f 100%);
+  transform: rotate(14deg);
+}
+
+.gelato-format-visual-promo .gelato-promo-scoop {
+  position: absolute;
+  right: 3rem;
+  top: 0.5rem;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 999px;
+  background: #ff8fb7;
+}
+
 .gelato-loyalty-banner {
   margin-top: 1.35rem;
-  padding: 1rem 1rem 1rem 0.95rem;
+  padding: 0;
   border-radius: 1.7rem;
-  background: linear-gradient(135deg, #ffe8f0 0%, #fff4f8 100%);
-  border: 1px solid rgba(255, 113, 166, 0.1);
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.85rem;
+  background: transparent;
+  border: 0;
+  display: block;
+}
+
+.gelato-loyalty-banner img {
+  display: block;
+  width: 100%;
+  border-radius: 1.7rem;
+  box-shadow: 0 16px 28px rgba(255, 120, 171, 0.08);
 }
 
 .gelato-loyalty-icon {
-  font-size: 2.6rem;
+  display: none;
 }
 
 .gelato-loyalty-banner strong {
-  display: block;
-  font-size: 1.2rem;
+  display: none;
 }
 
 .gelato-loyalty-banner p {
-  margin: 0.25rem 0 0;
-  line-height: 1.45;
-  color: var(--theme-muted);
+  display: none;
 }
 
 .gelato-loyalty-action {
-  width: 2.7rem;
-  height: 2.7rem;
-  border-radius: 999px;
-  border: 0;
-  background: #ff5a92;
-  color: white;
-  font-size: 1.2rem;
+  display: none;
 }
 
 .gelato-builder {
@@ -757,7 +797,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
+}
+
+.gelato-builder-brand-image {
+  display: block;
+  width: min(10.6rem, 44vw);
 }
 
 .gelato-stepper {
@@ -815,7 +859,7 @@
 }
 
 .gelato-builder-icon {
-  font-size: 2rem;
+  display: none;
 }
 
 .gelato-builder-copy h2 {
@@ -903,8 +947,49 @@
   background: var(--gelato-size-accent);
 }
 
+.gelato-size-card.selected .gelato-size-check::after,
+.gelato-format-select-card.selected .gelato-size-check::after {
+  content: '✓';
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
 .gelato-continue {
   margin-top: 1.5rem;
+}
+
+.gelato-info-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 1.45rem;
+  background: #ffffff;
+  border: 1px solid rgba(34, 24, 59, 0.08);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+}
+
+.gelato-info-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #fff1f6;
+  color: #ff5a92;
+  font-weight: 800;
+}
+
+.gelato-info-card strong {
+  display: block;
+}
+
+.gelato-info-card p {
+  margin: 0.28rem 0 0;
+  color: var(--theme-muted);
+  line-height: 1.5;
 }
 
 .gelato-flavor-filters {
@@ -975,6 +1060,15 @@
 
 .gelato-flavor-card.selected .gelato-flavor-plus {
   background: #ff5a92;
+  color: transparent;
+}
+
+.gelato-flavor-card.selected .gelato-flavor-plus::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
   color: white;
 }
 

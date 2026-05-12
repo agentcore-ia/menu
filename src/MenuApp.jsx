@@ -465,8 +465,8 @@ function getGelatoFormats() {
       accent: '#ff5a92',
       tint: '#ffe8f0',
       icon: '🍨',
-      visual: 'cup',
-      action: 'Elegir',
+      image: '/gelato/card-kilo.png',
+      action: 'Abrir formato',
       enabled: true,
     },
     {
@@ -476,9 +476,9 @@ function getGelatoFormats() {
       accent: '#b96ed8',
       tint: '#f4eaff',
       icon: '🍦',
-      visual: 'cone',
-      action: 'Proximamente',
-      enabled: false,
+      image: '/gelato/card-conos.png',
+      action: 'Abrir formato',
+      enabled: true,
     },
     {
       id: 'promos',
@@ -487,9 +487,9 @@ function getGelatoFormats() {
       accent: '#ff9e1b',
       tint: '#fff5dc',
       icon: '✨',
-      visual: 'promo',
-      action: 'Proximamente',
-      enabled: false,
+      image: '/gelato/card-promos.png',
+      action: 'Abrir formato',
+      enabled: true,
     },
   ]
 }
@@ -529,13 +529,11 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   if (templateId === 'gelato') {
     return (
       <section className="hero-content hero-content-gelato">
-        <div className="gelato-brand-lockup">
-          <span className="gelato-brand-icon">🍦</span>
-          <div className="brand hero-brand gelato-brand">
-            <span className="brand-name">{presentation.branding?.wordmark ?? 'Dolce'}</span>
-            <span className="brand-subtitle">{presentation.branding?.subtitle ?? 'HELADERIA'}</span>
-          </div>
-        </div>
+        <img
+          className="gelato-brand-image"
+          src="/gelato/brand.png"
+          alt={presentation.branding?.wordmark ?? 'Dolce Heladeria'}
+        />
 
         <div className="gelato-welcome">
           <h1>{presentation.hero?.title ?? 'Hola!'}</h1>
@@ -709,46 +707,20 @@ function TemplateMenuCollection({
       <section className="section-block">
         <div className="gelato-format-stack">
           {gelatoFormats.map((format) => (
-            <article
+            <button
               key={format.id}
+              type="button"
               className={`gelato-format-card ${format.enabled ? 'active' : 'disabled'}`}
-              style={{
-                '--gelato-card-accent': format.accent,
-                '--gelato-card-tint': format.tint,
-              }}
+              onClick={() => format.enabled && onOpenGelatoBuilder(format.id, 2)}
+              disabled={!format.enabled}
             >
-              <div className="gelato-format-copy">
-                <span className="gelato-format-icon">{format.icon}</span>
-                <h3>{format.title}</h3>
-                <p>{format.description}</p>
-                <button
-                  type="button"
-                  className="gelato-format-button"
-                  onClick={() => format.enabled && onOpenGelatoBuilder(format.id)}
-                  disabled={!format.enabled}
-                >
-                  {format.enabled ? 'Elegir' : format.action}
-                </button>
-              </div>
-              <div className="gelato-format-visual">
-                <div className="gelato-scoop gelato-scoop-a" />
-                <div className="gelato-scoop gelato-scoop-b" />
-                <div className="gelato-scoop gelato-scoop-c" />
-                <div className="gelato-cup" />
-              </div>
-            </article>
+              <img src={format.image} alt={format.title} />
+            </button>
           ))}
         </div>
 
         <article className="gelato-loyalty-banner">
-          <span className="gelato-loyalty-icon">🍦</span>
-          <div>
-            <strong>¡Acumulá puntos!</strong>
-            <p>Por cada compra ganas puntos canjeables por helados gratis.</p>
-          </div>
-          <button type="button" className="gelato-loyalty-action">
-            →
-          </button>
+          <img src="/gelato/banner-puntos.png" alt="Acumula puntos" />
         </article>
       </section>
     )
@@ -1086,9 +1058,9 @@ export default function MenuApp() {
     setSelectedOptions(buildInitialSelections(groups))
   }
 
-  function handleOpenGelatoBuilder(formatId = 'kilo') {
+  function handleOpenGelatoBuilder(formatId = 'kilo', initialStep = 1) {
     setGelatoFormat(formatId)
-    setGelatoStep(1)
+    setGelatoStep(initialStep)
     setGelatoSizeId(gelatoSizeOptions[0]?.id ?? '')
     setGelatoFlavorFilter('Todos')
     setGelatoSelectedFlavors([])
@@ -1363,11 +1335,7 @@ export default function MenuApp() {
                 </button>
 
                 <div className="gelato-builder-brand">
-                  <span className="gelato-brand-icon">🍦</span>
-                  <div className="brand gelato-brand">
-                    <span className="brand-name">{presentation.branding?.wordmark ?? 'Dolce'}</span>
-                    <span className="brand-subtitle">{presentation.branding?.subtitle ?? 'HELADERIA'}</span>
-                  </div>
+                  <img className="gelato-builder-brand-image" src="/gelato/brand.png" alt="Dolce Heladeria" />
                 </div>
 
                 <button type="button" className="cart-button" onClick={() => setIsCartOpen(true)}>
@@ -1398,7 +1366,7 @@ export default function MenuApp() {
               {gelatoStep === 1 ? (
                 <div className="gelato-builder-section">
                   <div className="gelato-builder-copy">
-                    <span className="gelato-builder-icon">🍦</span>
+                    <span className="gelato-builder-icon" aria-hidden="true" />
                     <h2>Elegi el formato</h2>
                     <p>Escoge como quieres disfrutar tu helado antes de seguir.</p>
                   </div>
@@ -1426,9 +1394,7 @@ export default function MenuApp() {
                           <span>{format.enabled ? 'Disponible ahora' : 'Muy pronto'}</span>
                           <small>{format.description}</small>
                         </div>
-                        <span className="gelato-size-check">
-                          {gelatoFormat === format.id && format.enabled ? '✓' : ''}
-                        </span>
+                        <span className="gelato-size-check" />
                       </button>
                     ))}
                   </div>
@@ -1439,7 +1405,7 @@ export default function MenuApp() {
                     onClick={() => setGelatoStep(2)}
                   >
                     <span>Continuar</span>
-                    <strong>→</strong>
+                    <strong>{'>'}</strong>
                   </button>
                 </div>
               ) : null}
@@ -1447,7 +1413,7 @@ export default function MenuApp() {
               {gelatoStep === 2 ? (
                 <div className="gelato-builder-section">
                   <div className="gelato-builder-copy">
-                    <span className="gelato-builder-icon">⚖️</span>
+                    <span className="gelato-builder-icon" aria-hidden="true" />
                     <h2>Elegi tu tamano</h2>
                     <p>Todos nuestros helados son artesanales y hechos con amor.</p>
                   </div>
@@ -1478,7 +1444,7 @@ export default function MenuApp() {
                             <span>{item.price}</span>
                             <small>Hasta {getGelatoFlavorLimit(item.name)} sabores</small>
                           </div>
-                          <span className="gelato-size-check">{isSelected ? '✓' : ''}</span>
+                          <span className="gelato-size-check" />
                         </button>
                       )
                     })}
@@ -1490,15 +1456,25 @@ export default function MenuApp() {
                     onClick={() => setGelatoStep(3)}
                   >
                     <span>Continuar</span>
-                    <strong>{selectedGelatoSize?.price ?? ''}</strong>
+                    <strong>{'>'}</strong>
                   </button>
+
+                  <article className="gelato-info-card">
+                    <span className="gelato-info-icon">!</span>
+                    <div>
+                      <strong>Importante</strong>
+                      <p>
+                        Puedes elegir diferentes sabores dentro del limite permitido para cada tamano.
+                      </p>
+                    </div>
+                  </article>
                 </div>
               ) : null}
 
               {gelatoStep === 3 ? (
                 <div className="gelato-builder-section">
                   <div className="gelato-builder-copy">
-                    <span className="gelato-builder-icon">🍓</span>
+                    <span className="gelato-builder-icon" aria-hidden="true" />
                     <h2>Elegi tus sabores</h2>
                     <p>
                       Puedes elegir hasta <strong>{gelatoFlavorLimit}</strong> sabores para{' '}
@@ -1530,7 +1506,7 @@ export default function MenuApp() {
                           className={`gelato-flavor-card ${isSelected ? 'selected' : ''}`}
                           onClick={() => handleToggleGelatoFlavor(flavor.id)}
                         >
-                          <span className="gelato-flavor-plus">{isSelected ? '✓' : '+'}</span>
+                          <span className="gelato-flavor-plus">{isSelected ? '?' : '+'}</span>
                           <div className="gelato-flavor-ball" />
                           <strong>{flavor.name}</strong>
                           <p>{flavor.description}</p>
