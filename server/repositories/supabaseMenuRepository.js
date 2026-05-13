@@ -25,12 +25,28 @@ function getProductVideo(product) {
   )
 }
 
+function getPizzeriaFallbackImage(accountId, product, index) {
+  if (!['la-esquina', 'laesquina', 'laesquinacba'].includes(accountId)) {
+    return null
+  }
+
+  const category = String(product.category ?? '').toLowerCase()
+
+  if (category.includes('pizza')) return '/dishes/pizza.jpg'
+  if (category.includes('empanada')) return '/dishes/bruschetta.jpg'
+  if (category.includes('hamburg')) return '/dishes/hero-steak.jpg'
+  if (category.includes('bebida')) return '/dishes/lemonade.jpg'
+
+  return fallbackImages[index % fallbackImages.length]
+}
+
 export class SupabaseMenuRepository {
   constructor(config) {
     this.config = config
   }
 
   async getMenuByAccountId(accountId) {
+    this.accountIdForFallback = accountId
     const restaurant = await this.fetchRestaurant(accountId)
 
     if (!restaurant) {
@@ -162,7 +178,10 @@ export class SupabaseMenuRepository {
         description: product.description ?? '',
         unitPrice: Number(product.price ?? 0),
         price: this.formatPrice(product.price),
-        image: product.image_url || fallbackImages[index % fallbackImages.length],
+        image:
+          product.image_url ||
+          getPizzeriaFallbackImage(this.accountIdForFallback, product, index) ||
+          fallbackImages[index % fallbackImages.length],
         video: getProductVideo(product),
         badge: categoryName,
         dietary: [],

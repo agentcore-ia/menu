@@ -147,6 +147,42 @@ const presentationPresets = {
       mutedVideos: true,
     },
   },
+  pizzeria: {
+    template: 'pizzeria',
+    layout: 'pizzeria',
+    branding: {
+      wordmark: 'LA BUONA',
+      subtitle: 'PIZZERIA',
+    },
+    theme: {
+      id: 'pizzeria-olive',
+      background: '#f5f0e6',
+      surface: '#fffaf1',
+      surfaceAlt: '#faf2e4',
+      text: '#2c2c2c',
+      muted: 'rgba(44, 44, 44, 0.82)',
+      primary: '#17361f',
+      primaryText: '#fffaf1',
+      accent: '#2d5a31',
+      border: 'rgba(23, 54, 31, 0.1)',
+      shadow: 'rgba(16, 28, 16, 0.12)',
+      displayFont: 'Cinzel',
+      bodyFont: 'Montserrat',
+    },
+    hero: {
+      title: 'NUESTRO MENÚ',
+      accent: 'Sabor que te hace volver',
+      description: 'Pizza, entradas, bebidas y postres.',
+    },
+    cards: {
+      style: 'pizzeria-grid',
+    },
+    preview: {
+      productMedia: 'image-with-video-chip',
+      autoplayVideos: false,
+      mutedVideos: true,
+    },
+  },
 }
 
 const accountPresentations = {
@@ -154,6 +190,9 @@ const accountPresentations = {
   'sandras-rose': presentationPresets.luxe,
   bruder: presentationPresets.bistro,
   heladeria: presentationPresets.gelato,
+  'la-esquina': presentationPresets.pizzeria,
+  laesquina: presentationPresets.pizzeria,
+  laesquinacba: presentationPresets.pizzeria,
   'neurorest-demo': presentationPresets.default,
 }
 

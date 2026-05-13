@@ -151,6 +151,49 @@ function IconSpark() {
   )
 }
 
+function IconStar() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3.8l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.8 7.2 18.7l.9-5.4-3.9-3.8 5.4-.8z" />
+    </svg>
+  )
+}
+
+function IconPizzaOutline() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 4c3.8 0 6.8.8 8.5 2l-8.5 14-8.5-14C5.2 4.8 8.2 4 12 4z" />
+      <circle cx="10.1" cy="10.2" r="1" />
+      <circle cx="13.9" cy="11.8" r="1" />
+      <circle cx="12.1" cy="15.1" r="1" />
+    </svg>
+  )
+}
+
+function IconEmpanada() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4.5 13c0-4.7 3.4-8 7.9-8 4.3 0 7.1 2.6 7.1 6.5 0 4-3 7.5-8.5 7.5H8.5" />
+      <path d="M9.2 8.5c.8 1 1.2 2.1 1.2 3.3" />
+      <path d="M12.1 7.7c.8 1.1 1.2 2.4 1.2 3.8" />
+      <path d="M15 8.2c.6.9.9 1.9 1 3" />
+    </svg>
+  )
+}
+
+function PizzeriaLogo() {
+  return (
+    <div className="pizzeria-logo" aria-label="La Buona Pizzeria">
+      <span className="pizzeria-logo-oven" aria-hidden="true">
+        <span className="pizzeria-logo-bricks" />
+        <span className="pizzeria-logo-flame" />
+      </span>
+      <span className="pizzeria-logo-wordmark">LA BUONA</span>
+      <span className="pizzeria-logo-subtitle">PIZZERIA</span>
+    </div>
+  )
+}
+
 function IconPlay() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -219,6 +262,20 @@ function formatPrice(value, currencySymbol = '$') {
 
 function getHeroImage(presentation, heroDish) {
   return presentation.hero?.image ?? heroDish?.image ?? '/dishes/hero-clean-cut.png'
+}
+
+function getInitialCategoryId(payload) {
+  const templateId = payload?.presentation?.template ?? payload?.presentation?.layout
+
+  if (templateId === 'pizzeria') {
+    return (
+      payload.categories.find((category) => slugify(category.label).includes('pizza'))?.id ??
+      payload.categories[0]?.id ??
+      ''
+    )
+  }
+
+  return payload?.categories?.[0]?.id ?? ''
 }
 
 function getCategoryIcon(label) {
@@ -567,6 +624,22 @@ function TemplateHero({ templateId, presentation, heroDish }) {
     )
   }
 
+  if (templateId === 'pizzeria') {
+    return (
+      <section className="hero-content hero-content-pizzeria">
+        <div className="pizzeria-hero-crest">
+          <PizzeriaLogo />
+        </div>
+
+        <div className="pizzeria-hero-copy">
+          <h1>{presentation.hero?.title ?? 'NUESTRO MENÚ'}</h1>
+          <p>{presentation.hero?.accent ?? 'Sabor que te hace volver'}</p>
+          <span className="pizzeria-hero-underline" aria-hidden="true" />
+        </div>
+      </section>
+    )
+  }
+
   if (templateId === 'bistro') {
     return (
       <section className="hero-content hero-content-bistro">
@@ -644,6 +717,38 @@ function TemplateCategorySelector({
     return null
   }
 
+  if (templateId === 'pizzeria') {
+    return (
+      <div className="pizzeria-category-row">
+        {categories.map((category) => {
+          const key = slugify(category.label)
+          const isActive = category.id === currentCategory?.id
+          const Icon = key.includes('pizza')
+            ? IconPizzaOutline
+            : key.includes('empanada')
+              ? IconEmpanada
+              : key.includes('bebida')
+                ? IconDrink
+                : IconDessert
+
+          return (
+            <button
+              key={category.id}
+              type="button"
+              className={`pizzeria-category-pill ${isActive ? 'active' : ''}`}
+              onClick={() => onSelectCategory(category.id)}
+            >
+              <span className="pizzeria-category-icon">
+                <Icon />
+              </span>
+              <span>{category.label}</span>
+            </button>
+          )
+        })}
+      </div>
+    )
+  }
+
   if (templateId === 'bistro') {
     return (
       <div className="bistro-category-row">
@@ -717,15 +822,88 @@ function TemplateCategorySelector({
 
 function TemplateMenuCollection({
   templateId,
+  categories,
   currentCategory,
   categoryItems,
   presentation,
   renderProductMedia,
   onOpenDish,
   onAddItem,
+  onSelectCategory,
   gelatoFormats,
   onOpenGelatoBuilder,
 }) {
+  if (templateId === 'pizzeria') {
+    const highlightedItems = categoryItems.slice(0, 4)
+
+    return (
+      <section className="section-block section-block-pizzeria">
+        <div className="pizzeria-card-grid">
+          {highlightedItems.map((item, index) => (
+            <article key={item.id} className="pizzeria-dish-card">
+              <button type="button" className="pizzeria-dish-media" onClick={() => onOpenDish(item)}>
+                {index === 0 ? (
+                  <span className="pizzeria-ribbon pizzeria-ribbon-hot">
+                    MÁS
+                    <br />
+                    PEDIDA
+                    <span className="pizzeria-ribbon-star">
+                      <IconStar />
+                    </span>
+                  </span>
+                ) : null}
+                {index === Math.min(2, highlightedItems.length - 1) ? (
+                  <span className="pizzeria-ribbon pizzeria-ribbon-new">NUEVA</span>
+                ) : null}
+                {renderProductMedia(item)}
+              </button>
+
+              <div className="pizzeria-dish-body">
+                <button type="button" className="pizzeria-dish-copy" onClick={() => onOpenDish(item)}>
+                  <h3>{item.name}</h3>
+                  <p>{item.description}</p>
+                </button>
+
+                <div className="pizzeria-dish-footer">
+                  <strong>{item.price}</strong>
+                  <button
+                    type="button"
+                    className="pizzeria-add-button"
+                    onClick={() => onAddItem(item)}
+                    aria-label={`Agregar ${item.name}`}
+                  >
+                    <IconPlus />
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <article className="pizzeria-drinks-banner">
+          <div className="pizzeria-drinks-copy">
+            <strong>¿ALGO PARA TOMAR?</strong>
+            <button
+              type="button"
+              className="pizzeria-drinks-button"
+              onClick={() =>
+                onSelectCategory?.(
+                  categories.find((category) => slugify(category.label).includes('bebida'))?.id ??
+                    currentCategory?.id,
+                )
+              }
+            >
+              VER BEBIDAS
+              <span className="pizzeria-drinks-icon">
+                <IconDrink />
+              </span>
+            </button>
+          </div>
+        </article>
+      </section>
+    )
+  }
+
   if (templateId === 'gelato') {
     return (
       <section className="section-block">
@@ -1006,7 +1184,7 @@ export default function MenuApp() {
         }
 
         setMenu(payload)
-        setSelectedCategory(payload.categories[0]?.id ?? '')
+        setSelectedCategory(getInitialCategoryId(payload))
         setStatus('ready')
       } catch (error) {
         if (cancelled) {
@@ -1301,7 +1479,7 @@ export default function MenuApp() {
               </button>
             </div>
 
-            {templateId !== 'gelato' ? (
+            {templateId !== 'gelato' && templateId !== 'pizzeria' ? (
               <div className="brand hero-brand">
                 <span className="brand-mark">
                   <IconLeafMark />
@@ -1332,7 +1510,7 @@ export default function MenuApp() {
 
             {status === 'ready' ? (
               <>
-                {templateId !== 'gelato' ? (
+                {templateId !== 'gelato' && templateId !== 'pizzeria' ? (
                   <section className="section-block" data-section="categories">
                     <div className="section-heading">
                       <h2>Categorias</h2>
@@ -1350,12 +1528,14 @@ export default function MenuApp() {
 
                 <TemplateMenuCollection
                   templateId={templateId}
+                  categories={categories}
                   currentCategory={currentCategory}
                   categoryItems={categoryItems}
                   presentation={presentation}
                   renderProductMedia={renderProductMedia}
                   onOpenDish={handleOpenDish}
                   onAddItem={handleAddItem}
+                  onSelectCategory={setSelectedCategory}
                   gelatoFormats={gelatoFormats}
                   onOpenGelatoBuilder={handleOpenGelatoBuilder}
                 />
@@ -1363,7 +1543,7 @@ export default function MenuApp() {
             ) : null}
           </main>
 
-          {templateId !== 'gelato' || cartCount > 0 ? (
+          {templateId !== 'gelato' && templateId !== 'pizzeria' ? (
             <footer className="order-bar">
               <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                 <div className="order-bar-copy">
