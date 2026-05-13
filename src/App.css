@@ -672,16 +672,35 @@
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 50% 48%, #ffffff 0%, #fffdfd 68%, rgba(255, 255, 255, 0) 78%);
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.98) 0 52%, rgba(255, 255, 255, 0.78) 63%, rgba(255, 255, 255, 0) 79%),
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--gelato-card-tint, #fff2f6) 76%, white) 0 72%, transparent 78%);
+}
+
+.gelato-format-video-shell::after {
+  content: '';
+  position: absolute;
+  inset: -2%;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 48%, rgba(255, 255, 255, 0.08) 58%, color-mix(in srgb, var(--gelato-card-tint, #fff2f6) 68%, white) 74%, transparent 82%);
 }
 
 .gelato-format-video {
-  width: 11.4rem;
-  height: 11.4rem;
+  position: relative;
+  z-index: 1;
+  width: 12.45rem;
+  height: 12.45rem;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 16px 22px rgba(255, 123, 173, 0.14));
-  mix-blend-mode: multiply;
+  transform: translate(0.25rem, 0.18rem) scale(1.05);
+  filter: drop-shadow(0 18px 22px rgba(255, 123, 173, 0.12)) saturate(1.02);
+  mix-blend-mode: darken;
+  -webkit-mask-image: radial-gradient(circle at 51% 50%, #000 0 52%, rgba(0, 0, 0, 0.96) 61%, transparent 77%);
+  mask-image: radial-gradient(circle at 51% 50%, #000 0 52%, rgba(0, 0, 0, 0.96) 61%, transparent 77%);
 }
 
 .gelato-format-badge {
