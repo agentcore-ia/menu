@@ -466,6 +466,7 @@ function getGelatoFormats() {
       tint: '#ffe8f0',
       icon: '⚖',
       image: '/gelato/hero-kilo.png',
+      video: '/gelato/hero-kilo.mp4',
       action: 'Abrir formato',
       enabled: true,
     },
@@ -749,7 +750,21 @@ function TemplateMenuCollection({
               </div>
 
               <div className={`gelato-format-visual gelato-format-visual-${format.id}`}>
-                <img className="gelato-format-image gelato-format-image-main" src={format.image} alt={format.title} />
+                {format.video ? (
+                  <div className="gelato-format-video-shell">
+                    <video
+                      className="gelato-format-video"
+                      src={format.video}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      aria-label={format.title}
+                    />
+                  </div>
+                ) : (
+                  <img className="gelato-format-image gelato-format-image-main" src={format.image} alt={format.title} />
+                )}
                 {format.secondaryImage ? (
                   <img
                     className="gelato-format-image gelato-format-image-secondary"

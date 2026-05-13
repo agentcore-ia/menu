@@ -663,6 +663,27 @@
   min-height: 12.6rem;
 }
 
+.gelato-format-video-shell {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.1rem;
+  width: 12.2rem;
+  height: 12.2rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 48%, #ffffff 0%, #fffdfd 68%, rgba(255, 255, 255, 0) 78%);
+}
+
+.gelato-format-video {
+  width: 11.4rem;
+  height: 11.4rem;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 16px 22px rgba(255, 123, 173, 0.14));
+  mix-blend-mode: multiply;
+}
+
 .gelato-format-badge {
   position: absolute;
   top: 0;
