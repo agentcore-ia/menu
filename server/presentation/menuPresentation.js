@@ -68,8 +68,8 @@ const presentationPresets = {
       style: 'magazine-list',
     },
     preview: {
-      productMedia: 'image-with-video-chip',
-      autoplayVideos: false,
+      productMedia: 'video-first',
+      autoplayVideos: true,
       mutedVideos: true,
     },
   },
