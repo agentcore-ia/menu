@@ -594,12 +594,12 @@ function getPresentationStyles(presentation) {
   }
 }
 
-function shouldAutoplayPreview(item, presentation) {
-  return Boolean(
-    item.video &&
-      presentation.preview?.productMedia === 'video-first' &&
-      presentation.preview?.autoplayVideos,
-  )
+function shouldRenderPreviewVideo(item, presentation) {
+  return Boolean(item.video && presentation.preview?.productMedia === 'video-first')
+}
+
+function shouldAutoplayVideoPreview(presentation) {
+  return presentation.preview?.productMedia === 'video-first'
 }
 
 function TemplateHero({ templateId, presentation, heroDish }) {
@@ -1359,15 +1359,15 @@ export default function MenuApp() {
   }
 
   function renderProductMedia(item) {
-    if (shouldAutoplayPreview(item, presentation)) {
+    if (shouldRenderPreviewVideo(item, presentation)) {
       return (
         <video
           className="dish-thumb"
           src={item.video}
           poster={item.image}
-          autoPlay
+          autoPlay={shouldAutoplayVideoPreview(presentation)}
           muted={presentation.preview?.mutedVideos ?? true}
-          loop
+          loop={shouldAutoplayVideoPreview(presentation)}
           playsInline
         />
       )
@@ -1805,9 +1805,9 @@ export default function MenuApp() {
                 <video
                   src={selectedDish.video}
                   poster={selectedDish.image}
-                  autoPlay={presentation.preview?.autoplayVideos ?? false}
+                  autoPlay={shouldAutoplayVideoPreview(presentation)}
                   muted={presentation.preview?.mutedVideos ?? true}
-                  loop={presentation.preview?.autoplayVideos ?? false}
+                  loop={shouldAutoplayVideoPreview(presentation)}
                   playsInline
                 />
               ) : (
@@ -1927,13 +1927,13 @@ export default function MenuApp() {
                 <div className="recommendation-row">
                   {recommendations.map((item) => (
                     <article key={item.id} className="mini-card">
-                      {item.video && presentation.preview?.productMedia === 'video-first' ? (
+                      {shouldRenderPreviewVideo(item, presentation) ? (
                         <video
                           src={item.video}
                           poster={item.image}
-                          autoPlay
+                          autoPlay={shouldAutoplayVideoPreview(presentation)}
                           muted={presentation.preview?.mutedVideos ?? true}
-                          loop
+                          loop={shouldAutoplayVideoPreview(presentation)}
                           playsInline
                         />
                       ) : (

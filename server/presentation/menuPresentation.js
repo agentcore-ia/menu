@@ -142,8 +142,8 @@ const presentationPresets = {
       style: 'gelato-cards',
     },
     preview: {
-      productMedia: 'image-with-video-chip',
-      autoplayVideos: false,
+      productMedia: 'video-first',
+      autoplayVideos: true,
       mutedVideos: true,
     },
   },
@@ -178,8 +178,8 @@ const presentationPresets = {
       style: 'pizzeria-grid',
     },
     preview: {
-      productMedia: 'image-with-video-chip',
-      autoplayVideos: false,
+      productMedia: 'video-first',
+      autoplayVideos: true,
       mutedVideos: true,
     },
   },
