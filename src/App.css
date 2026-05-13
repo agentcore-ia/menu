@@ -779,18 +779,22 @@
 
 .gelato-loyalty-banner {
   margin-top: 1.35rem;
-  padding: 0;
+  position: relative;
+  overflow: hidden;
+  min-height: 7.4rem;
+  padding: 1rem 1.1rem 1rem 0.8rem;
   border-radius: 1.7rem;
-  background: transparent;
-  border: 0;
-  display: block;
+  background: linear-gradient(180deg, #ffeef5 0%, #ffe8f1 100%);
+  border: 1px solid rgba(255, 123, 173, 0.12);
+  box-shadow: 0 16px 28px rgba(255, 120, 171, 0.08);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  align-items: center;
 }
 
 .gelato-loyalty-banner img {
-  display: block;
-  width: 100%;
-  border-radius: 1.7rem;
-  box-shadow: 0 16px 28px rgba(255, 120, 171, 0.08);
+  display: none;
 }
 
 .gelato-format-card:nth-child(1) {
@@ -813,15 +817,52 @@
 }
 
 .gelato-loyalty-banner strong {
-  display: none;
+  display: block;
+  font-size: 1.6rem;
+  line-height: 1.02;
+  color: #242443;
 }
 
 .gelato-loyalty-banner p {
-  display: none;
+  display: block;
+  margin: 0.42rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: #53546b;
 }
 
 .gelato-loyalty-action {
-  display: none;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  border: 0;
+  background: #ff5a92;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  box-shadow: 0 12px 20px rgba(255, 90, 146, 0.2);
+}
+
+.gelato-loyalty-mascot {
+  width: 4.85rem;
+  align-self: end;
+  margin-left: -0.25rem;
+  filter: drop-shadow(0 8px 14px rgba(255, 123, 173, 0.15));
+}
+
+.gelato-loyalty-copy {
+  padding-right: 0.35rem;
+}
+
+.gelato-loyalty-spark {
+  position: absolute;
+  left: 4.85rem;
+  bottom: 1.45rem;
+  color: #ff8aaf;
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 .gelato-builder {

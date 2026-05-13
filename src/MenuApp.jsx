@@ -764,7 +764,22 @@ function TemplateMenuCollection({
         </div>
 
         <article className="gelato-loyalty-banner">
-          <img src="/gelato/banner-puntos.png" alt="Acumula puntos" />
+          <img
+            className="gelato-loyalty-mascot"
+            src="/gelato/heladito.png"
+            alt=""
+            aria-hidden="true"
+          />
+          <span className="gelato-loyalty-spark" aria-hidden="true">
+            ♡
+          </span>
+          <div className="gelato-loyalty-copy">
+            <strong>¡Acumulá puntos!</strong>
+            <p>Por cada compra ganás puntos canjeables por helados gratis.</p>
+          </div>
+          <button type="button" className="gelato-loyalty-action" aria-label="Ver puntos">
+            {'>'}
+          </button>
         </article>
       </section>
     )
