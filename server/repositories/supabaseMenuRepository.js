@@ -1,3 +1,9 @@
+import {
+  isMissingSupabaseRelationError,
+  mapLoyaltySettingsRow,
+  mapRewardRow,
+} from './loyaltyUtils.js'
+
 const fallbackImages = [
   '/dishes/hero-steak.jpg',
   '/dishes/bruschetta.jpg',
@@ -31,9 +37,10 @@ export class SupabaseMenuRepository {
       return null
     }
 
-    const [products, presentationConfig] = await Promise.all([
+    const [products, presentationConfig, loyalty] = await Promise.all([
       this.fetchProducts(restaurant.id),
       this.fetchPresentationConfig(restaurant.id),
+      this.fetchLoyaltyProgram(restaurant.id),
     ])
     const categories = this.groupProductsByCategory(products)
 
@@ -44,6 +51,7 @@ export class SupabaseMenuRepository {
       locale: 'es',
       presentationConfig,
       categories,
+      loyalty,
     }
   }
 
@@ -82,6 +90,57 @@ export class SupabaseMenuRepository {
     }
   }
 
+  async fetchLoyaltyProgram(restaurantId) {
+    try {
+      const [settingsRows, rewardRows] = await Promise.all([
+        this.request(
+          `/restaurant_loyalty_settings?restaurant_id=eq.${restaurantId}&select=*&limit=1`,
+        ),
+        this.request(
+          `/restaurant_loyalty_rewards?restaurant_id=eq.${restaurantId}&is_active=eq.true&select=*&order=sort_order.asc,created_at.asc`,
+        ),
+      ])
+
+      const productIds = rewardRows.map((row) => row.product_id).filter(Boolean)
+      const productMap = productIds.length
+        ? await this.fetchProductsMapByIds(productIds)
+        : new Map()
+
+      return {
+        settings: mapLoyaltySettingsRow(settingsRows[0] ?? null),
+        rewards: rewardRows
+          .map((row) => {
+            const reward = mapRewardRow(row)
+
+            if (!reward) {
+              return null
+            }
+
+            const product = reward.productId ? productMap.get(reward.productId) : null
+
+            return {
+              ...reward,
+              title: reward.title || product?.name || 'Canje',
+              imageUrl: reward.imageUrl || product?.image_url || null,
+            }
+          })
+          .filter(Boolean),
+      }
+    } catch (error) {
+      if (
+        isMissingSupabaseRelationError(error, 'restaurant_loyalty_settings') ||
+        isMissingSupabaseRelationError(error, 'restaurant_loyalty_rewards')
+      ) {
+        return {
+          settings: mapLoyaltySettingsRow(null),
+          rewards: [],
+        }
+      }
+
+      throw error
+    }
+  }
+
   groupProductsByCategory(products) {
     const groups = new Map()
 
@@ -111,6 +170,14 @@ export class SupabaseMenuRepository {
     })
 
     return [...groups.values()]
+  }
+
+  async fetchProductsMapByIds(productIds) {
+    const rows = await this.request(
+      `/products?id=in.(${productIds.join(',')})&select=id,name,image_url`,
+    )
+
+    return new Map(rows.map((row) => [row.id, row]))
   }
 
   formatPrice(price) {

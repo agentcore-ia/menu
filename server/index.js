@@ -3,12 +3,14 @@ import express from 'express'
 import { getServerConfig } from './config.js'
 import { createMenuRepository } from './repositories/menuRepository.js'
 import { createOrderRepository } from './repositories/orderRepository.js'
+import { createLoyaltyRepository } from './repositories/loyaltyRepository.js'
 import { createAdminRepository } from './admin/createAdminRepository.js'
 import { assertAdminToken } from './admin/requireAdminToken.js'
 
 const config = getServerConfig()
 const repository = createMenuRepository(config)
 const orderRepository = createOrderRepository(config)
+const loyaltyRepository = createLoyaltyRepository(config)
 const adminRepository = createAdminRepository(config)
 const app = express()
 
@@ -115,6 +117,30 @@ app.post('/api/accounts/:accountId/orders', async (req, res) => {
     res.status(500).json({
       error: 'ORDER_CREATE_FAILED',
       message: error instanceof Error ? error.message : 'No se pudo crear el pedido.',
+    })
+  }
+})
+
+app.get('/api/accounts/:accountId/loyalty', async (req, res) => {
+  try {
+    const loyalty = await loyaltyRepository.getLoyaltyByAccountId(
+      req.params.accountId,
+      req.query.phone,
+    )
+
+    if (!loyalty) {
+      res.status(404).json({
+        error: 'ACCOUNT_NOT_FOUND',
+        message: 'No se encontro la cuenta para consultar puntos.',
+      })
+      return
+    }
+
+    res.json(loyalty)
+  } catch (error) {
+    res.status(500).json({
+      error: 'LOYALTY_LOAD_FAILED',
+      message: error instanceof Error ? error.message : 'No se pudo consultar el programa de puntos.',
     })
   }
 })

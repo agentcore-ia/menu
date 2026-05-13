@@ -7,6 +7,7 @@ Menu digital responsive inspirado en BioMenus, preparado para trabajar por cuent
 - cada cuenta tiene su propio menu digital
 - el frontend carga categorias y productos desde `GET /api/accounts/:accountId/menu`
 - el frontend puede enviar pedidos reales a NeuroRest desde `POST /api/accounts/:accountId/orders`
+- el backend puede acreditar puntos automaticamente por compra usando el numero de telefono del cliente
 - puedes abrir cuentas distintas con `?account=totta`, `?account=bruder`, `?account=sandras-rose`
 - tambien soporta rutas limpias como `/totta` y `/bruder`
 - incluye modo `mock`, `supabase` y `sql`
@@ -58,8 +59,50 @@ Para pedidos reales, el backend escribe en:
 - `clientes`
 - `pedidos`
 - `items_pedido`
+- `customer_loyalty_accounts`
+- `customer_loyalty_transactions`
 
 Asi el pedido aparece en el dashboard de NeuroRest y queda historial por cliente usando `phone`.
+
+## Programa de puntos
+
+El sistema de puntos queda preparado para que la configuracion y administracion se haga desde el dashboard principal de NeuroRest, no desde `/admin` de esta app.
+
+Tablas nuevas:
+
+- `restaurant_loyalty_settings`
+- `restaurant_loyalty_rewards`
+- `customer_loyalty_accounts`
+- `customer_loyalty_transactions`
+
+Reglas principales:
+
+- el programa es opcional por restaurante usando `restaurant_loyalty_settings.enabled`
+- los puntos se acumulan por `restaurant_id + phone`
+- si un mismo numero vuelve a pedir, sigue sumando sobre la misma cuenta
+- los productos canjeables se definen en `restaurant_loyalty_rewards`
+- el menu puede consultar saldo y premios desde `GET /api/accounts/:accountId/loyalty?phone=...`
+
+Calculo de puntos:
+
+- `spend_amount_step`: cada cuanto dinero gastado se acredita
+- `points_per_step`: cuantos puntos suma ese bloque
+- `minimum_order_total`: compra minima para empezar a sumar
+
+Ejemplo:
+
+- `spend_amount_step = 1000`
+- `points_per_step = 1`
+
+Entonces una compra de `$3.500` suma `3` puntos.
+
+### Migracion
+
+Nueva migracion:
+
+- [supabase/migrations/20260513_loyalty_program.sql](C:/Users/matii/Documents/menu/supabase/migrations/20260513_loyalty_program.sql)
+
+Esta app no administra puntos desde `/admin`; el dashboard de NeuroRest debe crear y editar filas en esas tablas.
 
 ## Arquitectura de presentacion por cuenta
 

@@ -2122,6 +2122,22 @@ export default function MenuApp() {
                 <strong>{buildWhatsappNumberPreview(lastOrder.customer?.phone)}</strong>
               </div>
             </div>
+            {lastOrder.loyalty?.enabled ? (
+              <div className="confirmation-meta confirmation-meta-loyalty">
+                <div>
+                  <span>Ganaste</span>
+                  <strong>
+                    {lastOrder.loyalty.pointsEarned ?? 0} {lastOrder.loyalty.pointsName || 'puntos'}
+                  </strong>
+                </div>
+                <div>
+                  <span>Saldo actual</span>
+                  <strong>
+                    {lastOrder.loyalty.balance ?? 0} {lastOrder.loyalty.pointsName || 'puntos'}
+                  </strong>
+                </div>
+              </div>
+            ) : null}
             <div className="confirmation-timeline">
               <div className="confirmation-step active">
                 <span />
