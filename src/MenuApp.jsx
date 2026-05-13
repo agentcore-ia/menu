@@ -1364,7 +1364,7 @@ export default function MenuApp() {
         <video
           className="dish-thumb"
           src={item.video}
-          poster={item.image}
+          preload="metadata"
           autoPlay={shouldAutoplayVideoPreview(presentation)}
           muted={presentation.preview?.mutedVideos ?? true}
           loop={shouldAutoplayVideoPreview(presentation)}
@@ -1804,7 +1804,7 @@ export default function MenuApp() {
               {selectedDish.video ? (
                 <video
                   src={selectedDish.video}
-                  poster={selectedDish.image}
+                  preload="metadata"
                   autoPlay={shouldAutoplayVideoPreview(presentation)}
                   muted={presentation.preview?.mutedVideos ?? true}
                   loop={shouldAutoplayVideoPreview(presentation)}
@@ -1930,7 +1930,7 @@ export default function MenuApp() {
                       {shouldRenderPreviewVideo(item, presentation) ? (
                         <video
                           src={item.video}
-                          poster={item.image}
+                          preload="metadata"
                           autoPlay={shouldAutoplayVideoPreview(presentation)}
                           muted={presentation.preview?.mutedVideos ?? true}
                           loop={shouldAutoplayVideoPreview(presentation)}
