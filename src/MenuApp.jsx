@@ -602,6 +602,18 @@ function shouldAutoplayVideoPreview(presentation) {
   return presentation.preview?.productMedia === 'video-first'
 }
 
+function getVideoFrameSrc(videoUrl) {
+  if (!videoUrl) {
+    return videoUrl
+  }
+
+  if (videoUrl.includes('#t=')) {
+    return videoUrl
+  }
+
+  return `${videoUrl}#t=0.001`
+}
+
 function TemplateHero({ templateId, presentation, heroDish }) {
   if (!heroDish) {
     return null
@@ -1363,8 +1375,8 @@ export default function MenuApp() {
       return (
         <video
           className="dish-thumb"
-          src={item.video}
-          preload="metadata"
+          src={getVideoFrameSrc(item.video)}
+          preload="auto"
           autoPlay={shouldAutoplayVideoPreview(presentation)}
           muted={presentation.preview?.mutedVideos ?? true}
           loop={shouldAutoplayVideoPreview(presentation)}
@@ -1803,8 +1815,8 @@ export default function MenuApp() {
             <div className="detail-hero">
               {selectedDish.video ? (
                 <video
-                  src={selectedDish.video}
-                  preload="metadata"
+                  src={getVideoFrameSrc(selectedDish.video)}
+                  preload="auto"
                   autoPlay={shouldAutoplayVideoPreview(presentation)}
                   muted={presentation.preview?.mutedVideos ?? true}
                   loop={shouldAutoplayVideoPreview(presentation)}
@@ -1929,8 +1941,8 @@ export default function MenuApp() {
                     <article key={item.id} className="mini-card">
                       {shouldRenderPreviewVideo(item, presentation) ? (
                         <video
-                          src={item.video}
-                          preload="metadata"
+                          src={getVideoFrameSrc(item.video)}
+                          preload="auto"
                           autoPlay={shouldAutoplayVideoPreview(presentation)}
                           muted={presentation.preview?.mutedVideos ?? true}
                           loop={shouldAutoplayVideoPreview(presentation)}
