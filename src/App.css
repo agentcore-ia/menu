@@ -183,39 +183,38 @@
 
 .hero-content-pizzeria {
   position: relative;
-  min-height: 24.25rem;
-  padding: 0 1.35rem 1.5rem;
+  min-height: 22rem;
+  padding: 0 0.65rem 0.2rem;
 }
 
 .hero-content-pizzeria::before {
   content: '';
   position: absolute;
-  inset: 1.3rem 0 0;
-  background:
-    radial-gradient(circle at 11% 56%, rgba(194, 162, 113, 0.22) 0 11%, transparent 12%),
-    radial-gradient(circle at 89% 56%, rgba(194, 162, 113, 0.22) 0 11%, transparent 12%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+  inset: 0.55rem 0 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
   pointer-events: none;
 }
 
 .pizzeria-hero-crest {
   position: relative;
+  max-width: 100%;
+  margin: 0 auto;
   background:
-    radial-gradient(circle at 50% 10%, #f7f0e6 0 64%, transparent 65%),
+    radial-gradient(circle at 50% -6%, #f7f0e6 0 7.4rem, transparent 7.45rem),
     linear-gradient(180deg, #f7f0e6 0%, #f7f0e6 100%);
-  border-radius: 8rem 8rem 2.2rem 2.2rem / 5.5rem 5.5rem 2.2rem 2.2rem;
-  padding: 2.1rem 1.5rem 1.7rem;
-  box-shadow: 0 10px 26px rgba(74, 59, 35, 0.08);
+  border-radius: 10rem 10rem 0 0 / 7rem 7rem 0 0;
+  padding: 1.3rem 1.3rem 1.4rem;
+  box-shadow: 0 6px 18px rgba(74, 59, 35, 0.05);
 }
 
 .pizzeria-hero-crest::before,
 .pizzeria-hero-crest::after {
   content: '';
   position: absolute;
-  top: 8.8rem;
-  width: 5.6rem;
-  height: 5.6rem;
-  opacity: 0.3;
+  top: 8.4rem;
+  width: 6.4rem;
+  height: 6.4rem;
+  opacity: 0.25;
   pointer-events: none;
   background-repeat: no-repeat;
   background-position: center;
@@ -223,12 +222,12 @@
 }
 
 .pizzeria-hero-crest::before {
-  left: 0.75rem;
+  left: 0.15rem;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23c7b086' stroke-width='2.2'%3E%3Cpath d='M60 104c21 0 38-16 38-37S83 20 61 20 22 43 22 67s17 37 38 37Z'/%3E%3Cpath d='M60 32c-8 0-14 5-16 13M72 28c7 3 12 9 13 17M48 30c-5 4-9 10-9 17'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 .pizzeria-hero-crest::after {
-  right: 0.75rem;
+  right: 0.15rem;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23c7b086' stroke-width='2.2'%3E%3Cpath d='M60 104c21 0 38-16 38-37S83 20 61 20 22 43 22 67s17 37 38 37Z'/%3E%3Cpath d='M60 30c7 1 13 4 18 9M47 27c-7 5-12 12-13 21M76 38c5 5 8 11 9 18'/%3E%3C/g%3E%3C/svg%3E");
 }
 
@@ -236,14 +235,14 @@
   position: relative;
   z-index: 1;
   text-align: center;
-  margin-top: 1.4rem;
+  margin-top: 0.9rem;
   padding-bottom: 0.25rem;
 }
 
 .pizzeria-hero-copy h1 {
   margin: 0;
   font-family: 'Bebas Neue', var(--font-display, serif);
-  font-size: clamp(3.9rem, 11vw, 6rem);
+  font-size: clamp(3.65rem, 10.8vw, 5.75rem);
   line-height: 0.92;
   letter-spacing: 0.035em;
   color: #17361f;
@@ -251,20 +250,20 @@
 }
 
 .pizzeria-hero-copy p {
-  margin: 0.35rem 0 0;
+  margin: 0.15rem 0 0;
   font-family: 'Great Vibes', cursive;
   color: #b63127;
-  font-size: clamp(2.2rem, 7vw, 3.1rem);
+  font-size: clamp(2.25rem, 6.9vw, 3rem);
   line-height: 1;
 }
 
 .pizzeria-hero-underline {
   display: block;
-  width: 12rem;
+  width: 12.4rem;
   max-width: 44vw;
-  height: 0.18rem;
+  height: 0.16rem;
   border-radius: 999px;
-  margin: 0.45rem auto 0;
+  margin: 0.35rem auto 0;
   background: #2d5a31;
   transform: rotate(-4deg);
 }
@@ -279,8 +278,8 @@
 
 .pizzeria-logo-oven {
   position: relative;
-  width: 6.45rem;
-  height: 4.45rem;
+  width: 5.9rem;
+  height: 4rem;
   display: block;
 }
 
@@ -331,7 +330,7 @@
 
 .pizzeria-logo-wordmark {
   font-family: 'Cinzel', var(--font-display, serif);
-  font-size: clamp(2.6rem, 7vw, 4.2rem);
+  font-size: clamp(2.55rem, 6.8vw, 4rem);
   line-height: 0.95;
   letter-spacing: 0.08em;
 }
@@ -339,8 +338,8 @@
 .pizzeria-logo-subtitle {
   font-family: 'Bebas Neue', var(--font-display, serif);
   color: #b63127;
-  letter-spacing: 0.32em;
-  font-size: 1.15rem;
+  letter-spacing: 0.28em;
+  font-size: 1rem;
 }
 
 .template-pizzeria .content-panel {
