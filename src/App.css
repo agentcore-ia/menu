@@ -1069,25 +1069,29 @@
 
 .template-pizzeria .hero-content-pizzeria {
   padding: 0;
+  overflow: hidden;
 }
 
 .pizzeria-header-image {
   display: block;
   width: 100%;
   height: auto;
+  margin-top: 0;
 }
 
 .pizzeria-category-row {
-  gap: 0.16rem;
-  padding: 0.28rem;
-  margin: 0.2rem 1rem 1rem;
+  grid-template-columns: 1.02fr 1.28fr 1fr 1fr;
+  gap: 0.14rem;
+  padding: 0.24rem;
+  margin: 0.18rem 0.7rem 1rem;
 }
 
 .pizzeria-category-pill {
-  min-height: 3.2rem;
-  padding: 0 0.3rem;
-  gap: 0.35rem;
-  font-size: 0.74rem;
+  min-height: 3.08rem;
+  padding: 0 0.22rem;
+  gap: 0.28rem;
+  font-size: 0.69rem;
+  letter-spacing: 0;
 }
 
 .pizzeria-category-pill.active {
