@@ -1262,7 +1262,19 @@
   box-shadow: 0 12px 30px rgba(51, 40, 28, 0.1);
 }
 
+.pizzeria-dish-media {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+  overflow: hidden;
+  border-radius: 1.55rem 1.55rem 0 0;
+}
+
 .pizzeria-dish-media .dish-thumb {
+  display: block;
+  width: 100%;
   aspect-ratio: 1.02 / 1.16;
 }
 
