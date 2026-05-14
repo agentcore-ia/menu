@@ -1171,6 +1171,8 @@
   display: none !important;
 }
 
+/* Trigger fresh production deploy after Vercel served an older build. */
+
 .template-pizzeria .section-block-pizzeria {
   padding-top: 0;
 }
