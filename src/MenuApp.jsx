@@ -151,14 +151,6 @@ function IconSpark() {
   )
 }
 
-function IconStar() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 3.8l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.8 7.2 18.7l.9-5.4-3.9-3.8 5.4-.8z" />
-    </svg>
-  )
-}
-
 function IconPizzaOutline() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -908,22 +900,9 @@ function TemplateMenuCollection({
     return (
       <section className="section-block section-block-pizzeria">
         <div className="pizzeria-card-grid">
-          {highlightedItems.map((item, index) => (
+          {highlightedItems.map((item) => (
             <article key={item.id} className="pizzeria-dish-card">
               <button type="button" className="pizzeria-dish-media" onClick={() => onOpenDish(item)}>
-                {index === 0 ? (
-                  <span className="pizzeria-ribbon pizzeria-ribbon-hot">
-                    MÁS
-                    <br />
-                    PEDIDA
-                    <span className="pizzeria-ribbon-star">
-                      <IconStar />
-                    </span>
-                  </span>
-                ) : null}
-                {index === Math.min(2, highlightedItems.length - 1) ? (
-                  <span className="pizzeria-ribbon pizzeria-ribbon-new">NUEVA</span>
-                ) : null}
                 {renderProductMedia(item)}
               </button>
 
