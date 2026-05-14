@@ -644,8 +644,8 @@
 .template-pizzeria .hero-topbar .icon-button {
   left: 1.45rem;
   border-radius: 1rem;
-  background: #17361f;
-  color: #f7f0e6;
+  background: transparent;
+  color: transparent;
 }
 
 .template-pizzeria .hero-topbar .cart-button {
@@ -661,6 +661,10 @@
   width: 2rem;
   height: 2rem;
   stroke-width: 1.7;
+}
+
+.template-pizzeria .hero-topbar .icon-button svg {
+  opacity: 0;
 }
 
 .template-pizzeria .hero-topbar .cart-badge {
@@ -708,6 +712,46 @@
   background: rgba(255, 250, 241, 0.98);
   border: 1px solid rgba(23, 54, 31, 0.08);
   box-shadow: 0 8px 18px rgba(58, 50, 36, 0.08);
+}
+
+.pizzeria-category-art-wrap {
+  position: relative;
+  margin: 0 0 1.1rem;
+}
+
+.pizzeria-category-art {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.pizzeria-category-hitbox {
+  position: absolute;
+  top: 0.28rem;
+  bottom: 0.28rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.pizzeria-category-hitbox-pizzas {
+  left: 0.3rem;
+  width: 24%;
+}
+
+.pizzeria-category-hitbox-entradas {
+  left: 25%;
+  width: 25%;
+}
+
+.pizzeria-category-hitbox-bebidas {
+  left: 50%;
+  width: 23%;
+}
+
+.pizzeria-category-hitbox-burgers {
+  right: 0.35rem;
+  width: 26%;
 }
 
 .pizzeria-category-pill {

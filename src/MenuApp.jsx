@@ -766,6 +766,56 @@ function TemplateCategorySelector({
 
   if (templateId === 'pizzeria') {
     const orderedCategories = getPizzeriaOrderedCategories(categories)
+    const pizzasId =
+      orderedCategories.find((category) => slugify(category.label).includes('pizza'))?.id ??
+      currentCategory?.id
+    const entradasId =
+      orderedCategories.find((category) => slugify(category.label).includes('empanada'))?.id ??
+      currentCategory?.id
+    const bebidasId =
+      orderedCategories.find((category) => slugify(category.label).includes('bebida'))?.id ??
+      currentCategory?.id
+    const burgersId =
+      orderedCategories.find((category) => slugify(category.label).includes('hamburgues'))?.id ??
+      currentCategory?.id
+
+    return (
+      <div className="pizzeria-category-art-wrap">
+        <img
+          className="pizzeria-category-art"
+          src="/pizzeria/barra-categorias.png"
+          alt="Categorias: Pizzas, Entradas, Bebidas y Postres"
+        />
+        <button
+          type="button"
+          className="pizzeria-category-hitbox pizzeria-category-hitbox-pizzas"
+          onClick={() => onSelectCategory(pizzasId)}
+          aria-label="Pizzas"
+        />
+        <button
+          type="button"
+          className="pizzeria-category-hitbox pizzeria-category-hitbox-entradas"
+          onClick={() => onSelectCategory(entradasId)}
+          aria-label="Entradas"
+        />
+        <button
+          type="button"
+          className="pizzeria-category-hitbox pizzeria-category-hitbox-bebidas"
+          onClick={() => onSelectCategory(bebidasId)}
+          aria-label="Bebidas"
+        />
+        <button
+          type="button"
+          className="pizzeria-category-hitbox pizzeria-category-hitbox-burgers"
+          onClick={() => onSelectCategory(burgersId)}
+          aria-label="Burgers"
+        />
+      </div>
+    )
+  }
+
+  if (templateId === 'pizzeria') {
+    const orderedCategories = getPizzeriaOrderedCategories(categories)
 
     return (
       <div className="pizzeria-category-row">
