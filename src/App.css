@@ -606,6 +606,244 @@
   stroke-width: 1.8;
 }
 
+.template-pizzeria .phone-surface,
+.layout-pizzeria.detail-phone {
+  background:
+    radial-gradient(circle at 20% 2%, rgba(255, 255, 255, 0.45), transparent 18%),
+    radial-gradient(circle at 80% 4%, rgba(255, 255, 255, 0.32), transparent 16%),
+    linear-gradient(180deg, #f5f0e6 0%, #f3ede1 100%);
+}
+
+.hero-pizzeria {
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+}
+
+.hero-pizzeria::before,
+.hero-pizzeria::after {
+  display: none;
+}
+
+.template-pizzeria .hero-topbar {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 0;
+}
+
+.template-pizzeria .hero-topbar .icon-button,
+.template-pizzeria .hero-topbar .cart-button {
+  position: absolute;
+  top: 1.6rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  box-shadow: none;
+}
+
+.template-pizzeria .hero-topbar .icon-button {
+  left: 1.45rem;
+  border-radius: 1rem;
+  background: #17361f;
+  color: #f7f0e6;
+}
+
+.template-pizzeria .hero-topbar .cart-button {
+  right: 1.55rem;
+  border-radius: 999px;
+  background: #17361f;
+  color: #f7f0e6;
+  border: 2px solid rgba(247, 240, 230, 0.96);
+}
+
+.template-pizzeria .hero-topbar .icon-button svg,
+.template-pizzeria .hero-topbar .cart-button svg {
+  width: 2rem;
+  height: 2rem;
+  stroke-width: 1.7;
+}
+
+.template-pizzeria .hero-topbar .cart-badge {
+  top: -0.45rem;
+  right: -0.45rem;
+  min-width: 2rem;
+  height: 2rem;
+  font-size: 1.08rem;
+  font-weight: 800;
+  background: #b63127;
+  color: #fff7ef;
+  border: 2px solid #f7f0e6;
+}
+
+.hero-content-pizzeria {
+  min-height: auto;
+  padding: 0;
+}
+
+.pizzeria-header-art {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.template-pizzeria .content-panel {
+  margin-top: -0.9rem;
+  padding: 0 1rem 1.85rem;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.template-pizzeria .section-block-pizzeria {
+  padding-top: 0;
+}
+
+.pizzeria-category-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.2rem;
+  padding: 0.32rem;
+  margin: 0 0 1.1rem;
+  border-radius: 999px;
+  background: rgba(255, 250, 241, 0.98);
+  border: 1px solid rgba(23, 54, 31, 0.08);
+  box-shadow: 0 8px 18px rgba(58, 50, 36, 0.08);
+}
+
+.pizzeria-category-pill {
+  min-height: 3.65rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: #2c2c2c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  font-family: 'Montserrat', var(--font-body, sans-serif);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.pizzeria-category-pill.active {
+  background: #17361f;
+  color: #fffaf1;
+}
+
+.pizzeria-category-icon svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  stroke-width: 1.7;
+}
+
+.pizzeria-card-grid {
+  gap: 1rem 0.95rem;
+}
+
+.pizzeria-dish-card {
+  border-radius: 1.55rem;
+  background: #fffaf1;
+  border: 1px solid rgba(23, 54, 31, 0.05);
+  box-shadow: 0 12px 30px rgba(51, 40, 28, 0.1);
+}
+
+.pizzeria-dish-media .dish-thumb {
+  aspect-ratio: 1.02 / 0.82;
+}
+
+.pizzeria-dish-body {
+  padding: 0.95rem 1rem 1.05rem;
+}
+
+.pizzeria-dish-copy h3 {
+  font-size: 1.9rem;
+  line-height: 0.98;
+  letter-spacing: 0.015em;
+}
+
+.pizzeria-dish-copy p {
+  margin-top: 0.52rem;
+  min-height: 4.9rem;
+  font-size: 0.98rem;
+  line-height: 1.34;
+  color: rgba(44, 44, 44, 0.92);
+}
+
+.pizzeria-dish-footer {
+  margin-top: 0.75rem;
+  align-items: center;
+}
+
+.pizzeria-dish-footer strong {
+  color: #b63127;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.pizzeria-add-button {
+  width: 3.2rem;
+  height: 3.2rem;
+  background: #17361f;
+  box-shadow: none;
+}
+
+.pizzeria-add-button svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.pizzeria-ribbon {
+  left: 1rem;
+}
+
+.pizzeria-ribbon-hot {
+  width: 3.35rem;
+  padding: 0.78rem 0.18rem 1.1rem;
+  background: #b63127;
+  font-size: 0.98rem;
+}
+
+.pizzeria-ribbon-new {
+  min-width: 3.7rem;
+  padding: 0.78rem 0.58rem 1.02rem;
+  background: #2d5a31;
+  font-size: 0.94rem;
+}
+
+.pizzeria-drinks-banner {
+  position: relative;
+  overflow: hidden;
+  margin-top: 1.2rem;
+  padding: 0;
+  border-radius: 0 0 2.2rem 2.2rem;
+  background: transparent;
+}
+
+.pizzeria-footer-art {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.pizzeria-footer-hitbox {
+  position: absolute;
+  left: 50%;
+  bottom: 1.45rem;
+  width: min(14rem, 56vw);
+  height: 3rem;
+  transform: translateX(-50%);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.pizzeria-drinks-copy {
+  display: none;
+}
+
 .hero-topbar {
   display: flex;
   align-items: center;

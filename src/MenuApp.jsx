@@ -182,16 +182,7 @@ function IconEmpanada() {
 }
 
 function PizzeriaLogo() {
-  return (
-    <div className="pizzeria-logo" aria-label="La Buona Pizzeria">
-      <span className="pizzeria-logo-oven" aria-hidden="true">
-        <span className="pizzeria-logo-bricks" />
-        <span className="pizzeria-logo-flame" />
-      </span>
-      <span className="pizzeria-logo-wordmark">LA BUONA</span>
-      <span className="pizzeria-logo-subtitle">PIZZERIA</span>
-    </div>
-  )
+  return <img className="pizzeria-logo-image" src="/pizzeria/logo.png" alt="La Buona Pizzeria" />
 }
 
 function IconPlay() {
@@ -639,6 +630,18 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   if (templateId === 'pizzeria') {
     return (
       <section className="hero-content hero-content-pizzeria">
+        <img
+          className="pizzeria-header-art"
+          src="/pizzeria/header-completo.png"
+          alt="La Buona Pizzeria. Nuestro menu. Sabor que te hace volver."
+        />
+      </section>
+    )
+  }
+
+  if (templateId === 'pizzeria') {
+    return (
+      <section className="hero-content hero-content-pizzeria">
         <div className="pizzeria-hero-crest">
           <PizzeriaLogo />
         </div>
@@ -893,6 +896,18 @@ function TemplateMenuCollection({
         </div>
 
         <article className="pizzeria-drinks-banner">
+          <img className="pizzeria-footer-art" src="/pizzeria/footer.png" alt="" aria-hidden="true" />
+          <button
+            type="button"
+            className="pizzeria-footer-hitbox"
+            onClick={() =>
+              onSelectCategory?.(
+                categories.find((category) => slugify(category.label).includes('bebida'))?.id ??
+                  currentCategory?.id,
+              )
+            }
+            aria-label="Ver bebidas"
+          />
           <div className="pizzeria-drinks-copy">
             <strong>¿ALGO PARA TOMAR?</strong>
             <button

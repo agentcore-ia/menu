@@ -24,9 +24,14 @@ function mergeDeep(base, override) {
 
 export function enrichMenu(menu) {
   const preset = resolveMenuPresentation(menu.accountId)
-  const presentation = menu.presentationConfig
-    ? mergeDeep(preset, menu.presentationConfig)
-    : preset
+  const presentationConfig =
+    preset.template === 'pizzeria' && menu.presentationConfig
+      ? {
+          preview: menu.presentationConfig.preview,
+        }
+      : menu.presentationConfig
+
+  const presentation = presentationConfig ? mergeDeep(preset, presentationConfig) : preset
 
   return {
     ...menu,
