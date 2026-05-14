@@ -3988,18 +3988,6 @@ button:focus-visible {
   overflow: hidden;
 }
 
-.template-pizzeria .hero-content-pizzeria::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1.2rem;
-  background: #284026;
-  z-index: 1;
-  pointer-events: none;
-}
-
 .template-pizzeria .content-panel {
   margin-top: -0.45rem;
   padding: 0 1rem 1.85rem;
@@ -4034,6 +4022,11 @@ button:focus-visible {
 .template-pizzeria .hero-pizzeria::after {
   display: none !important;
   background: none !important;
+}
+
+.template-pizzeria .pizzeria-header-image {
+  transform: translateY(-1.15rem);
+  margin-bottom: -1.15rem;
 }
 
 .template-pizzeria .pizzeria-header-image {
