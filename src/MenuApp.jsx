@@ -671,30 +671,11 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   if (templateId === 'pizzeria') {
     return (
       <section className="hero-content hero-content-pizzeria">
-        <div className="pizzeria-hero-stage">
-          <div className="pizzeria-hero-shell">
-            <img
-              className="pizzeria-hero-illustration pizzeria-hero-illustration-left"
-              src="/pizzeria/illustration-fondo.png"
-              alt=""
-              aria-hidden="true"
-            />
-            <img
-              className="pizzeria-hero-illustration pizzeria-hero-illustration-right"
-              src="/pizzeria/illustration-fondo.png"
-              alt=""
-              aria-hidden="true"
-            />
-            <div className="pizzeria-hero-brand">
-              <PizzeriaLogo />
-            </div>
-            <div className="pizzeria-hero-copy">
-              <h1>{presentation.hero?.title ?? 'NUESTRO MENU'}</h1>
-              <p>{presentation.hero?.accent ?? 'Sabor que te hace volver'}</p>
-              <span className="pizzeria-hero-underline" aria-hidden="true" />
-            </div>
-          </div>
-        </div>
+        <img
+          className="pizzeria-header-image"
+          src="/pizzeria/header.png"
+          alt="La Buona Pizzeria. Nuestro menu. Sabor que te hace volver."
+        />
       </section>
     )
   }
