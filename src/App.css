@@ -1263,24 +1263,24 @@
 }
 
 .pizzeria-dish-media .dish-thumb {
-  aspect-ratio: 1.02 / 1.02;
+  aspect-ratio: 1.02 / 1.16;
 }
 
 .pizzeria-dish-body {
-  padding: 0.42rem 0.82rem 0.52rem;
+  padding: 0.34rem 0.78rem 0.44rem;
 }
 
 .pizzeria-dish-copy h3 {
-  font-size: 1.62rem;
+  font-size: 1.56rem;
   line-height: 0.98;
   letter-spacing: 0.015em;
 }
 
 .pizzeria-dish-copy p {
-  margin-top: 0.2rem;
+  margin-top: 0.14rem;
   min-height: 0;
-  font-size: 0.84rem;
-  line-height: 1.18;
+  font-size: 0.82rem;
+  line-height: 1.14;
   color: rgba(44, 44, 44, 0.92);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1289,7 +1289,7 @@
 }
 
 .pizzeria-dish-footer {
-  margin-top: 0.28rem;
+  margin-top: 0.18rem;
   align-items: center;
 }
 
