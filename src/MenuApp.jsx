@@ -286,10 +286,38 @@ function getCategoryIcon(label) {
   return IconServe
 }
 
+function getProductKind(dish) {
+  const category = `${dish.categoryLabel ?? ''} ${dish.badge ?? ''}`.toLowerCase()
+  const fallback = `${dish.name ?? ''} ${dish.description ?? ''}`.toLowerCase()
+
+  if (/pizza/.test(category)) return 'pizza'
+  if (/empanada/.test(category)) return 'empanada'
+  if (/(bebida|drink)/.test(category)) return 'bebida'
+  if (/(postre|torta|helado|brownie|flan)/.test(category)) return 'postre'
+  if (/(pasta|fideo|raviol|sorrentino|noqui)/.test(category)) return 'pasta'
+  if (/(hamburguesa|burger|carne|pollo|milanesa)/.test(category)) return 'carne'
+  if (/(ensalada|veggie|vegetal|falafel|hummus)/.test(category)) return 'vegetal'
+
+  if (/(pizza|muzza|mozzarella|fugazza|napolitana)/.test(fallback)) return 'pizza'
+  if (/empanada/.test(fallback)) return 'empanada'
+  if (/(bebida|agua|gaseosa|jugo|limonada|cerveza|vino|cafe|\bte\b)/.test(fallback)) {
+    return 'bebida'
+  }
+  if (/(pasta|fideo|raviol|sorrentino|noqui)/.test(fallback)) return 'pasta'
+  if (/(postre|torta|helado|brownie|flan)/.test(fallback)) return 'postre'
+  if (/(ensalada|veggie|vegetal|falafel|hummus)/.test(fallback)) return 'vegetal'
+  if (/(carne|bife|filete|lomo|burger|hamburguesa|milanesa|pollo)/.test(fallback)) {
+    return 'carne'
+  }
+
+  return 'comida'
+}
+
 function buildProductOptionGroups(dish) {
   const text = `${dish.categoryLabel ?? ''} ${dish.name ?? ''} ${dish.description ?? ''}`.toLowerCase()
+  const kind = getProductKind(dish)
 
-  if (/(bebida|agua|gaseosa|jugo|limonada|cerveza|vino|cafe|té|te)/.test(text)) {
+  if (kind === 'bebida') {
     return [
       {
         id: 'temperatura',
@@ -306,7 +334,7 @@ function buildProductOptionGroups(dish) {
     ]
   }
 
-  if (/(pizza|muzza|mozzarella|fugazza)/.test(text)) {
+  if (kind === 'pizza') {
     return [
       {
         id: 'tamano',
@@ -323,7 +351,7 @@ function buildProductOptionGroups(dish) {
     ]
   }
 
-  if (/empanada/.test(text)) {
+  if (kind === 'empanada') {
     return [
       {
         id: 'salsa',
@@ -340,7 +368,7 @@ function buildProductOptionGroups(dish) {
     ]
   }
 
-  if (/(pasta|fideo|raviol|sorrentino|noqui|ñoqui)/.test(text)) {
+  if (kind === 'pasta') {
     return [
       {
         id: 'salsa',
@@ -357,7 +385,7 @@ function buildProductOptionGroups(dish) {
     ]
   }
 
-  if (/(postre|torta|helado|brownie|flan)/.test(text)) {
+  if (kind === 'postre') {
     return [
       {
         id: 'topping',
@@ -374,7 +402,7 @@ function buildProductOptionGroups(dish) {
     ]
   }
 
-  if (/(vegano|vegan|falafel|ensalada)/.test(text)) {
+  if (kind === 'vegetal' || /(vegano|vegan|falafel|ensalada)/.test(text)) {
     return [
       {
         id: 'acompanamiento',
@@ -391,7 +419,7 @@ function buildProductOptionGroups(dish) {
     ]
   }
 
-  if (/(carne|bife|filete|lomo|burger|hamburguesa|milanesa|pollo)/.test(text)) {
+  if (kind === 'carne') {
     return [
       {
         id: 'acompanamiento',
@@ -433,14 +461,22 @@ function buildSelectionSummary(groups, selections) {
 }
 
 function getDetailNote(dish) {
-  const text = `${dish.categoryLabel ?? ''} ${dish.name ?? ''} ${dish.description ?? ''}`.toLowerCase()
+  const kind = getProductKind(dish)
 
-  if (/(carne|bife|filete|lomo|burger|hamburguesa|milanesa|pollo)/.test(text)) {
+  if (kind === 'carne') {
     return 'Vamos a enviar tu punto de coccion y acompanamientos tal como los elegiste.'
   }
 
-  if (/(bebida|agua|gaseosa|jugo|limonada|cerveza|vino|cafe|te)/.test(text)) {
+  if (kind === 'bebida') {
     return 'Tu preferencia de temperatura y extras se suma al pedido.'
+  }
+
+  if (kind === 'pizza') {
+    return 'Vamos a preparar tu pizza con el tamano, masa y extras que elegiste.'
+  }
+
+  if (kind === 'empanada') {
+    return 'Vamos a enviar tus empanadas con la salsa y coccion elegidas.'
   }
 
   return 'Las preferencias que elijas se guardan en el detalle del pedido.'
