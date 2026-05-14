@@ -577,7 +577,21 @@ function getPizzeriaDishTitle(item) {
 function getPizzeriaCategoryLabel(label) {
   const key = slugify(label)
   if (key.includes('empanada')) return 'Entradas'
+  if (key.includes('hamburgues')) return 'Burgers'
   return label
+}
+
+function getPizzeriaOrderedCategories(categories) {
+  const order = ['pizza', 'empanada', 'bebida', 'hamburgues']
+
+  return [...categories].sort((left, right) => {
+    const leftKey = slugify(left.label)
+    const rightKey = slugify(right.label)
+    const leftIndex = order.findIndex((token) => leftKey.includes(token))
+    const rightIndex = order.findIndex((token) => rightKey.includes(token))
+
+    return (leftIndex === -1 ? 99 : leftIndex) - (rightIndex === -1 ? 99 : rightIndex)
+  })
 }
 
 function getPresentationStyles(presentation) {
@@ -600,6 +614,10 @@ function getPresentationStyles(presentation) {
 }
 
 function shouldRenderPreviewVideo(item, presentation) {
+  if (presentation.template === 'pizzeria') {
+    return false
+  }
+
   return Boolean(item.video && presentation.preview?.productMedia === 'video-first')
 }
 
@@ -747,9 +765,11 @@ function TemplateCategorySelector({
   }
 
   if (templateId === 'pizzeria') {
+    const orderedCategories = getPizzeriaOrderedCategories(categories)
+
     return (
       <div className="pizzeria-category-row">
-        {categories.map((category) => {
+        {orderedCategories.map((category) => {
           const key = slugify(category.label)
           const isActive = category.id === currentCategory?.id
           const Icon = key.includes('pizza')
