@@ -172,12 +172,11 @@ function IconPizzaOutline() {
 
 function IconEmpanada() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4.2 13.2c0-4.9 3.6-8.4 8.3-8.4 4.4 0 7.3 2.8 7.3 6.8 0 4.2-3.2 7.7-9 7.7H8.2" />
-      <path d="M8.7 9.5l1.2 1.1" />
-      <path d="M10.8 8.4l1.4 1.5" />
-      <path d="M13.2 7.9l1.5 1.7" />
-      <path d="M15.8 8.3l1.2 1.5" />
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M4.5 18.8c2.7-7.5 8.4-11.5 15.2-10.5 5.1.8 8.2 4.7 8.2 10.5H4.5z" />
+      <path d="M5.8 18.9c2.8 4.5 6.5 6.8 10.8 6.8s8-2.3 10-6.8" />
+      <path d="M7.6 17.3l1.7-2 2 2 1.9-2.2 2 2.2 2-2.2 2 2.2 1.9-2.1 1.9 2.1" />
+      <path d="M10.2 20.4c1.7 1.4 3.8 2.1 6.3 2.1 2.3 0 4.3-.7 5.9-2.1" />
     </svg>
   )
 }
@@ -777,6 +776,15 @@ function TemplateCategorySelector({
         {orderedCategories.map((category) => {
           const key = slugify(category.label)
           const isActive = category.id === currentCategory?.id
+          const categoryKind = key.includes('pizza')
+            ? 'pizzas'
+            : key.includes('empanada')
+              ? 'empanadas'
+              : key.includes('bebida')
+                ? 'bebidas'
+                : key.includes('hamburgues')
+                  ? 'postres'
+                  : 'postres'
           const Icon = key.includes('pizza')
             ? IconPizzaOutline
             : key.includes('empanada')
@@ -791,7 +799,7 @@ function TemplateCategorySelector({
             <button
               key={category.id}
               type="button"
-              className={`pizzeria-category-pill ${isActive ? 'active' : ''}`}
+              className={`pizzeria-category-pill pizzeria-category-pill-${categoryKind} ${isActive ? 'active' : ''}`}
               onClick={() => onSelectCategory(category.id)}
             >
               <span className="pizzeria-category-icon">
