@@ -50,6 +50,42 @@ app.post('/api/admin/products/:productId/video-upload', express.raw({ type: 'vid
   }
 })
 
+app.post('/api/admin/products/:productId/image-upload', express.raw({ type: 'image/*', limit: '20mb' }), async (req, res) => {
+  try {
+    assertAdminToken(config, req)
+    const fileName = req.headers['x-file-name']
+    const contentType = req.headers['content-type']
+
+    if (!req.body || !req.body.length) {
+      res.status(400).json({ error: 'IMAGE_REQUIRED', message: 'Selecciona una imagen para subir.' })
+      return
+    }
+
+    const product = await adminRepository.uploadProductImage(req.params.productId, {
+      buffer: req.body,
+      fileName: Array.isArray(fileName) ? fileName[0] : fileName,
+      contentType: Array.isArray(contentType) ? contentType[0] : contentType,
+    })
+
+    if (!product) {
+      res.status(404).json({ error: 'PRODUCT_NOT_FOUND', message: 'Producto no encontrado.' })
+      return
+    }
+
+    res.json(product)
+  } catch (error) {
+    if (error instanceof Error && error.code === 'UNAUTHORIZED') {
+      res.status(401).json({ error: 'UNAUTHORIZED', message: 'Token admin invalido.' })
+      return
+    }
+
+    res.status(500).json({
+      error: 'PRODUCT_IMAGE_UPLOAD_FAILED',
+      message: error instanceof Error ? error.message : 'No se pudo subir la imagen.',
+    })
+  }
+})
+
 app.use(express.json())
 
 app.get('/api/health', (_req, res) => {

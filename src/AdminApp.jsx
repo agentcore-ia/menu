@@ -291,6 +291,30 @@ export default function AdminApp() {
     setMessage('Video guardado para el producto.')
   }
 
+  async function handleSaveProductImage(productId, imageUrl) {
+    setMessage('')
+
+    const response = await fetch(`/api/admin/products/${productId}/media`, {
+      method: 'PATCH',
+      headers: authHeaders(token),
+      body: JSON.stringify({ image_url: imageUrl || null }),
+    })
+    const payload = await readApiPayload(response)
+
+    if (!response.ok) {
+      setMessage(payload.message ?? 'No se pudo guardar la imagen.')
+      return
+    }
+
+    setEditor((current) => ({
+      ...current,
+      products: current.products.map((product) =>
+        product.id === productId ? { ...product, image_url: payload.image_url ?? null } : product,
+      ),
+    }))
+    setMessage('Imagen guardada para el producto.')
+  }
+
   async function handleUploadProductVideo(productId, file) {
     if (!file) {
       setMessage('Selecciona un archivo .mp4 antes de subirlo.')
@@ -324,13 +348,46 @@ export default function AdminApp() {
     setMessage('Video subido a Supabase Storage y vinculado al producto.')
   }
 
+  async function handleUploadProductImage(productId, file) {
+    if (!file) {
+      setMessage('Selecciona una imagen antes de subirla.')
+      return
+    }
+
+    setMessage(`Subiendo ${file.name}...`)
+
+    const response = await fetch(`/api/admin/products/${productId}/image-upload`, {
+      method: 'POST',
+      headers: {
+        'x-admin-token': token,
+        'content-type': file.type || 'image/jpeg',
+        'x-file-name': file.name,
+      },
+      body: await file.arrayBuffer(),
+    })
+    const payload = await readApiPayload(response)
+
+    if (!response.ok) {
+      setMessage(payload.message ?? 'No se pudo subir la imagen al storage.')
+      return
+    }
+
+    setEditor((current) => ({
+      ...current,
+      products: current.products.map((product) =>
+        product.id === productId ? { ...product, image_url: payload.image_url ?? null } : product,
+      ),
+    }))
+    setMessage('Imagen subida a Supabase Storage y vinculada al producto.')
+  }
+
   return (
     <div className="admin-shell">
       <div className="admin-container">
         <header className="admin-header">
           <div>
             <h1>NeuroRest Menu Admin</h1>
-            <p>Gestiona cuentas, identidad visual y previews de video.</p>
+            <p>Gestiona cuentas, identidad visual y fotos o videos de producto.</p>
           </div>
         </header>
 
@@ -588,14 +645,16 @@ export default function AdminApp() {
             </section>
 
             <section className="admin-card">
-              <h2>Videos por producto</h2>
+              <h2>Fotos y videos por producto</h2>
               <div className="admin-products">
                 {products.map((product) => (
                   <ProductMediaRow
-                    key={`${product.id}:${product.video_url ?? ''}`}
+                    key={`${product.id}:${product.image_url ?? ''}:${product.video_url ?? ''}`}
                     product={product}
-                    onSave={handleSaveProductVideo}
-                    onUpload={handleUploadProductVideo}
+                    onSaveImage={handleSaveProductImage}
+                    onSaveVideo={handleSaveProductVideo}
+                    onUploadImage={handleUploadProductImage}
+                    onUploadVideo={handleUploadProductVideo}
                   />
                 ))}
               </div>
@@ -607,9 +666,11 @@ export default function AdminApp() {
   )
 }
 
-function ProductMediaRow({ product, onSave, onUpload }) {
+function ProductMediaRow({ product, onSaveImage, onSaveVideo, onUploadImage, onUploadVideo }) {
+  const [imageUrl, setImageUrl] = useState(product.image_url ?? '')
   const [videoUrl, setVideoUrl] = useState(product.video_url ?? '')
-  const [file, setFile] = useState(null)
+  const [imageFile, setImageFile] = useState(null)
+  const [videoFile, setVideoFile] = useState(null)
 
   return (
     <div className="admin-product-row">
@@ -618,30 +679,82 @@ function ProductMediaRow({ product, onSave, onUpload }) {
         <span>{product.category || 'Sin categoria'}</span>
       </div>
 
-      <input
-        className="admin-product-input"
-        value={videoUrl}
-        onChange={(event) => setVideoUrl(event.target.value)}
-        placeholder="https://.../preview.mp4"
-      />
-
-      <div className="admin-product-actions">
-        <button type="button" className="admin-secondary" onClick={() => onSave(product.id, videoUrl)}>
-          Guardar URL
-        </button>
-
-        <label className="admin-upload">
+      <div className="admin-product-media-fields">
+        <label className="admin-media-field">
+          <span>Foto</span>
           <input
-            type="file"
-            accept="video/mp4,video/webm,video/quicktime"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            className="admin-product-input"
+            value={imageUrl}
+            onChange={(event) => setImageUrl(event.target.value)}
+            placeholder="https://.../foto.webp"
           />
-          <span>{file ? file.name : 'Elegir video'}</span>
         </label>
 
-        <button type="button" className="admin-primary" onClick={() => onUpload(product.id, file)}>
-          Subir a Storage
-        </button>
+        <label className="admin-media-field">
+          <span>Video</span>
+          <input
+            className="admin-product-input"
+            value={videoUrl}
+            onChange={(event) => setVideoUrl(event.target.value)}
+            placeholder="https://.../preview.mp4"
+          />
+        </label>
+      </div>
+
+      <div className="admin-product-actions">
+        <div className="admin-media-actions">
+          <button
+            type="button"
+            className="admin-secondary"
+            onClick={() => onSaveImage(product.id, imageUrl)}
+          >
+            Guardar foto
+          </button>
+
+          <label className="admin-upload">
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/avif"
+              onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+            />
+            <span>{imageFile ? imageFile.name : 'Elegir foto'}</span>
+          </label>
+
+          <button
+            type="button"
+            className="admin-primary"
+            onClick={() => onUploadImage(product.id, imageFile)}
+          >
+            Subir foto
+          </button>
+        </div>
+
+        <div className="admin-media-actions">
+          <button
+            type="button"
+            className="admin-secondary"
+            onClick={() => onSaveVideo(product.id, videoUrl)}
+          >
+            Guardar video
+          </button>
+
+          <label className="admin-upload">
+            <input
+              type="file"
+              accept="video/mp4,video/webm,video/quicktime"
+              onChange={(event) => setVideoFile(event.target.files?.[0] ?? null)}
+            />
+            <span>{videoFile ? videoFile.name : 'Elegir video'}</span>
+          </label>
+
+          <button
+            type="button"
+            className="admin-primary"
+            onClick={() => onUploadVideo(product.id, videoFile)}
+          >
+            Subir video
+          </button>
+        </div>
       </div>
     </div>
   )

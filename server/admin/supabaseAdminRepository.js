@@ -163,15 +163,22 @@ export class SupabaseAdminRepository {
   }
 
   async updateProductMedia(productId, media) {
+    const payload = {}
+
+    if (Object.prototype.hasOwnProperty.call(media, 'video_url')) {
+      payload.video_url = media.video_url || null
+    }
+
+    if (Object.prototype.hasOwnProperty.call(media, 'image_url')) {
+      payload.image_url = media.image_url || null
+    }
+
     const [row] = await this.request(`/products?id=eq.${productId}`, {
       method: 'PATCH',
       headers: {
         Prefer: 'return=representation',
       },
-      body: JSON.stringify({
-        video_url: media.video_url ?? null,
-        image_url: media.image_url ?? undefined,
-      }),
+      body: JSON.stringify(payload),
     })
 
     return row
@@ -213,6 +220,44 @@ export class SupabaseAdminRepository {
 
     const publicUrl = `${this.config.supabaseUrl}/storage/v1/object/public/${this.config.storageBucket}/${path}`
     return this.updateProductMedia(productId, { video_url: publicUrl })
+  }
+
+  async uploadProductImage(productId, file) {
+    const product = await this.fetchProductById(productId)
+
+    if (!product) {
+      return null
+    }
+
+    const restaurant = await this.fetchRestaurantById(product.restaurant_id)
+    const extension = file.fileName?.split('.').pop()?.toLowerCase() || 'jpg'
+    const safeName = slugify(product.name) || 'product'
+    const folder = slugify(restaurant?.slug || 'general')
+    const path = `products/${folder}/images/${product.id}-${safeName}-${Date.now()}.${extension}`
+
+    const uploadResponse = await fetch(
+      `${this.config.supabaseUrl}/storage/v1/object/${this.config.storageBucket}/${path}`,
+      {
+        method: 'POST',
+        headers: {
+          apikey: this.config.supabaseStorageApiKey,
+          Authorization: `Bearer ${this.config.supabaseStorageApiKey}`,
+          'Content-Type': file.contentType || 'image/jpeg',
+          'x-upsert': 'true',
+        },
+        body: file.buffer,
+      },
+    )
+
+    if (!uploadResponse.ok) {
+      const detail = await uploadResponse.text()
+      throw new Error(
+        `Supabase storage error: ${uploadResponse.status} ${detail || 'No se pudo subir la imagen.'}`,
+      )
+    }
+
+    const publicUrl = `${this.config.supabaseUrl}/storage/v1/object/public/${this.config.storageBucket}/${path}`
+    return this.updateProductMedia(productId, { image_url: publicUrl })
   }
 
   async fetchRestaurantBySlug(accountId) {
