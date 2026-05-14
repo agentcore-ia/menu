@@ -659,10 +659,10 @@
 .template-pizzeria .hero-topbar .cart-button::after {
   content: '';
   position: absolute;
-  top: -0.75rem;
-  right: -0.75rem;
-  width: 2.35rem;
-  height: 2.35rem;
+  top: -0.12rem;
+  right: -0.08rem;
+  width: 1.45rem;
+  height: 1.45rem;
   border-radius: 999px;
   background: #17361f;
   z-index: 0;
