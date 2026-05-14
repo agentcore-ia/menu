@@ -656,6 +656,18 @@
   border: 2px solid rgba(247, 240, 230, 0.96);
 }
 
+.template-pizzeria .hero-topbar .cart-button::after {
+  content: '';
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  background: #17361f;
+  z-index: 0;
+}
+
 .template-pizzeria .hero-topbar .icon-button svg,
 .template-pizzeria .hero-topbar .cart-button svg {
   width: 2rem;
@@ -677,6 +689,7 @@
   background: #b63127;
   color: #fff7ef;
   border: 2px solid #f7f0e6;
+  z-index: 1;
 }
 
 .hero-content-pizzeria {
