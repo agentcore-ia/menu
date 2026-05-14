@@ -634,14 +634,18 @@ function getPizzeriaCategoryLabel(label) {
   if (key.includes('empanada')) return 'Empanadas'
   if (key.includes('bebida')) return 'Bebidas'
   if (key.includes('postre')) return 'Postres'
-  if (key.includes('hamburgues')) return 'Hamburguesas'
   return label
 }
 
-function getPizzeriaOrderedCategories(categories) {
-  const order = ['pizza', 'empanada', 'bebida', 'postre', 'hamburgues']
+function shouldShowPizzeriaCategory(category) {
+  const key = slugify(category.label)
+  return !key.includes('hamburgues') && !key.includes('burger')
+}
 
-  return [...categories].sort((left, right) => {
+function getPizzeriaOrderedCategories(categories) {
+  const order = ['pizza', 'empanada', 'bebida', 'postre']
+
+  return categories.filter(shouldShowPizzeriaCategory).sort((left, right) => {
     const leftKey = slugify(left.label)
     const rightKey = slugify(right.label)
     const leftIndex = order.findIndex((token) => leftKey.includes(token))
@@ -834,9 +838,7 @@ function TemplateCategorySelector({
                 ? 'bebidas'
                 : key.includes('postre')
                   ? 'postres'
-                  : key.includes('hamburgues')
-                    ? 'hamburguesas'
-                    : 'otros'
+                  : 'otros'
           const Icon = key.includes('pizza')
             ? IconPizzaOutline
             : key.includes('empanada')
@@ -845,9 +847,7 @@ function TemplateCategorySelector({
                 ? IconDrink
                 : key.includes('postre')
                   ? IconDessert
-                  : key.includes('hamburgues')
-                    ? IconBurger
-                    : IconServe
+                  : IconServe
 
           return (
             <button
