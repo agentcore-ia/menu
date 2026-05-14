@@ -3974,12 +3974,17 @@ button:focus-visible {
 }
 
 .template-pizzeria .hero-pizzeria {
-  background: transparent;
+  background: transparent !important;
+}
+
+.template-pizzeria .hero {
+  background: transparent !important;
 }
 
 .template-pizzeria .hero-content-pizzeria {
   min-height: auto;
   padding: 0;
+  overflow: hidden;
 }
 
 .template-pizzeria .content-panel {
@@ -4008,6 +4013,19 @@ button:focus-visible {
   width: 3.5rem;
   height: 3.5rem;
   box-shadow: none;
+}
+
+.template-pizzeria .hero::before,
+.template-pizzeria .hero::after,
+.template-pizzeria .hero-pizzeria::before,
+.template-pizzeria .hero-pizzeria::after {
+  display: none !important;
+  background: none !important;
+}
+
+.template-pizzeria .pizzeria-header-image {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 @media (max-width: 760px) {
