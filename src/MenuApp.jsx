@@ -1620,7 +1620,7 @@ export default function MenuApp() {
             ) : null}
           </main>
 
-          {templateId !== 'gelato' && templateId !== 'pizzeria' ? (
+          {templateId !== 'gelato' && (templateId !== 'pizzeria' || cartCount > 0) ? (
             <footer className="order-bar">
               <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                 <div className="order-bar-copy">
@@ -2037,21 +2037,23 @@ export default function MenuApp() {
               </div>
             </section>
 
-            <footer className="detail-order-bar">
-              <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
-                <div className="order-bar-copy">
-                  <span className="order-icon-wrap">
-                    <IconCart />
-                    {cartCount > 0 ? <span className="order-badge">{cartCount}</span> : null}
-                  </span>
-                  <span>Ver mi pedido</span>
-                </div>
-                <div className="order-bar-price">
-                  {cartCount > 0 ? formatPrice(cartTotal, currencySymbol) : 'Sin productos'}
-                  <span className="order-arrow">{'>'}</span>
-                </div>
-              </button>
-            </footer>
+            {templateId !== 'pizzeria' || cartCount > 0 ? (
+              <footer className="detail-order-bar">
+                <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
+                  <div className="order-bar-copy">
+                    <span className="order-icon-wrap">
+                      <IconCart />
+                      {cartCount > 0 ? <span className="order-badge">{cartCount}</span> : null}
+                    </span>
+                    <span>Ver mi pedido</span>
+                  </div>
+                  <div className="order-bar-price">
+                    {cartCount > 0 ? formatPrice(cartTotal, currencySymbol) : 'Sin productos'}
+                    <span className="order-arrow">{'>'}</span>
+                  </div>
+                </button>
+              </footer>
+            ) : null}
           </div>
         </div>
       ) : null}
