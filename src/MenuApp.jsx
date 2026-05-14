@@ -154,6 +154,52 @@ function IconBurger() {
   )
 }
 
+function IconFlame() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 21c-3.8 0-6.4-2.5-6.4-6.2 0-2.6 1.6-4.4 3.1-6.1 1.1-1.3 2-2.6 2-4.3 2.6 1.4 4.3 3.5 4.3 6.2 1-.6 1.7-1.6 1.9-2.9 1.6 1.4 2.5 3.4 2.5 5.7 0 4.5-3.2 7.6-7.4 7.6z" />
+      <path d="M12.1 18.5c-1.5 0-2.5-1-2.5-2.5 0-1 .6-1.8 1.3-2.5.5-.6.9-1.1.9-1.8 1.4.8 2.4 2.1 2.4 3.6 0 1.9-.9 3.2-2.1 3.2z" />
+    </svg>
+  )
+}
+
+function IconFries() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 9l1.2 11h7.6L17 9" />
+      <path d="M6 9h12" />
+      <path d="M8 8l-.6-4M11 8V3M14 8l.8-4M17 8l1.4-3.5" />
+    </svg>
+  )
+}
+
+function IconSearch() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="10.8" cy="10.8" r="5.9" />
+      <path d="M15.3 15.3L20 20" />
+    </svg>
+  )
+}
+
+function IconTicket() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 8.5V6h16v2.5a2.5 2.5 0 0 0 0 5V16H4v-2.5a2.5 2.5 0 0 0 0-5z" />
+      <path d="M9 9h.01M15 15h.01M15 9l-6 6" />
+    </svg>
+  )
+}
+
+function IconUser() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="8" r="3.2" />
+      <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
+    </svg>
+  )
+}
+
 function IconSpark() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -198,6 +244,20 @@ function PizzeriaLogo() {
       </span>
       <span className="pizzeria-logo-wordmark">LA BUONA</span>
       <span className="pizzeria-logo-subtitle">PIZZERIA</span>
+    </div>
+  )
+}
+
+function BurgerBrand() {
+  return (
+    <div className="burger-brand-mark" aria-label="Brasa Burger Co.">
+      <span className="burger-brand-flame" aria-hidden="true">
+        <IconFlame />
+      </span>
+      <span className="burger-brand-frame" aria-hidden="true" />
+      <strong>BRASA</strong>
+      <span>BURGER CO.</span>
+      <small aria-hidden="true">x</small>
     </div>
   )
 }
@@ -283,6 +343,17 @@ function getInitialCategoryId(payload) {
     )
   }
 
+  if (templateId === 'burger') {
+    return (
+      payload.categories.find((category) => {
+        const key = slugify(category.label)
+        return key.includes('hamburgues') || key.includes('burger')
+      })?.id ??
+      payload.categories[0]?.id ??
+      ''
+    )
+  }
+
   return payload?.categories?.[0]?.id ?? ''
 }
 
@@ -294,6 +365,8 @@ function getCategoryIcon(label) {
   if (key.includes('pizza')) return IconPizza
   if (key.includes('postre')) return IconDessert
   if (key.includes('bebida')) return IconDrink
+  if (key.includes('combo')) return IconBurger
+  if (key.includes('entrada') || key.includes('papas')) return IconFries
   if (key.includes('hamburgues') || key.includes('burger')) return IconBurger
   return IconServe
 }
@@ -307,7 +380,8 @@ function getProductKind(dish) {
   if (/(bebida|drink)/.test(category)) return 'bebida'
   if (/(postre|torta|helado|brownie|flan)/.test(category)) return 'postre'
   if (/(pasta|fideo|raviol|sorrentino|noqui)/.test(category)) return 'pasta'
-  if (/(hamburguesa|burger|carne|pollo|milanesa)/.test(category)) return 'carne'
+  if (/(hamburguesa|burger)/.test(category)) return 'hamburguesa'
+  if (/(carne|pollo|milanesa)/.test(category)) return 'carne'
   if (/(ensalada|veggie|vegetal|falafel|hummus)/.test(category)) return 'vegetal'
 
   if (/(pizza|muzza|mozzarella|fugazza|napolitana)/.test(fallback)) return 'pizza'
@@ -318,7 +392,8 @@ function getProductKind(dish) {
   if (/(pasta|fideo|raviol|sorrentino|noqui)/.test(fallback)) return 'pasta'
   if (/(postre|torta|helado|brownie|flan)/.test(fallback)) return 'postre'
   if (/(ensalada|veggie|vegetal|falafel|hummus)/.test(fallback)) return 'vegetal'
-  if (/(carne|bife|filete|lomo|burger|hamburguesa|milanesa|pollo)/.test(fallback)) {
+  if (/(burger|hamburguesa)/.test(fallback)) return 'hamburguesa'
+  if (/(carne|bife|filete|lomo|milanesa|pollo)/.test(fallback)) {
     return 'carne'
   }
 
@@ -342,6 +417,29 @@ function buildProductOptionGroups(dish) {
         title: 'Extra',
         required: false,
         options: ['Sin azucar', 'Rodaja de limon', 'Sin extra'],
+      },
+    ]
+  }
+
+  if (kind === 'hamburguesa') {
+    return [
+      {
+        id: 'punto',
+        title: 'Punto de la carne',
+        required: true,
+        options: ['Jugosa', 'A punto', 'Bien cocida'],
+      },
+      {
+        id: 'combo',
+        title: 'Convertir en combo',
+        required: false,
+        options: ['Solo burger', 'Con papas', 'Papas + bebida'],
+      },
+      {
+        id: 'extra',
+        title: 'Extra',
+        required: false,
+        options: ['Sin extra', 'Cheddar extra', 'Bacon extra'],
       },
     ]
   }
@@ -477,6 +575,10 @@ function getDetailNote(dish) {
 
   if (kind === 'carne') {
     return 'Vamos a enviar tu punto de coccion y acompanamientos tal como los elegiste.'
+  }
+
+  if (kind === 'hamburguesa') {
+    return 'Vamos a preparar tu burger con el punto, combo y extras que elegiste.'
   }
 
   if (kind === 'bebida') {
@@ -655,6 +757,50 @@ function getPizzeriaOrderedCategories(categories) {
   })
 }
 
+function getBurgerCategoryLabel(label) {
+  const key = slugify(label)
+  if (key.includes('hamburgues') || key.includes('burger')) return 'Hamburguesas'
+  if (key.includes('combo')) return 'Combos'
+  if (key.includes('entrada') || key.includes('papa')) return 'Entradas'
+  if (key.includes('bebida')) return 'Bebidas'
+  if (key.includes('postre')) return 'Postres'
+  return label
+}
+
+function getBurgerCategoryIcon(label) {
+  const key = slugify(label)
+  if (key.includes('hamburgues') || key.includes('burger')) return IconBurger
+  if (key.includes('combo')) return IconBurger
+  if (key.includes('entrada') || key.includes('papa')) return IconFries
+  if (key.includes('bebida')) return IconDrink
+  if (key.includes('postre')) return IconDessert
+  return IconServe
+}
+
+function getBurgerOrderedCategories(categories) {
+  const order = ['hamburgues', 'burger', 'combo', 'entrada', 'papa', 'bebida', 'postre']
+
+  return [...categories].sort((left, right) => {
+    const leftKey = slugify(left.label)
+    const rightKey = slugify(right.label)
+    const leftIndex = order.findIndex((token) => leftKey.includes(token))
+    const rightIndex = order.findIndex((token) => rightKey.includes(token))
+
+    return (leftIndex === -1 ? 99 : leftIndex) - (rightIndex === -1 ? 99 : rightIndex)
+  })
+}
+
+function getBurgerDishParts(item) {
+  const name = String(item?.name ?? '').replace(/^hamburguesa\s+/i, '').trim()
+  const words = name.split(/\s+/).filter(Boolean)
+
+  if (words.length <= 1) {
+    return [name || 'Brasa', 'Clasica']
+  }
+
+  return [words.slice(0, -1).join(' '), words.at(-1)]
+}
+
 function getPresentationStyles(presentation) {
   const theme = presentation.theme
 
@@ -726,6 +872,47 @@ function TemplateHero({ templateId, presentation, heroDish }) {
           src="/pizzeria/header.png"
           alt="La Buona Pizzeria. Nuestro menu. Sabor que te hace volver."
         />
+      </section>
+    )
+  }
+
+  if (templateId === 'burger') {
+    return (
+      <section className="hero-content hero-content-burger">
+        <BurgerBrand />
+
+        <div className="burger-hero-copy">
+          <h1>
+            <span>{presentation.hero?.title ?? 'SABOR'}</span>
+            <span className="burger-hero-accent">
+              {presentation.hero?.accent ?? 'QUE SE RECUERDA'}
+            </span>
+          </h1>
+          <span className="burger-hero-rule" aria-hidden="true" />
+          <p>
+            {presentation.hero?.description ??
+              'Carne premium. Ingredientes reales. Hechas al fuego.'}
+          </p>
+        </div>
+
+        <div className="burger-hero-art" aria-hidden="true">
+          <img src={getHeroImage(presentation, heroDish)} alt="" />
+        </div>
+
+        <div className="burger-hero-features">
+          <span>
+            <IconFlame />
+            A la brasa
+          </span>
+          <span>
+            <IconBurger />
+            Carne 100% de res
+          </span>
+          <span>
+            <IconLeafMark />
+            Ingredientes frescos
+          </span>
+        </div>
       </section>
     )
   }
@@ -821,6 +1008,40 @@ function TemplateCategorySelector({
 }) {
   if (templateId === 'gelato') {
     return null
+  }
+
+  if (templateId === 'burger') {
+    const orderedCategories = getBurgerOrderedCategories(categories)
+
+    return (
+      <div className="burger-menu-head">
+        <div className="burger-menu-title-row">
+          <h2>NUESTRO MENU</h2>
+          <button type="button" className="burger-search-button" aria-label="Buscar">
+            <IconSearch />
+          </button>
+        </div>
+
+        <div className="burger-category-row">
+          {orderedCategories.map((category) => {
+            const Icon = getBurgerCategoryIcon(category.label)
+            const isActive = category.id === currentCategory?.id
+
+            return (
+              <button
+                key={category.id}
+                type="button"
+                className={`burger-category-pill ${isActive ? 'active' : ''}`}
+                onClick={() => onSelectCategory(category.id)}
+              >
+                <Icon />
+                <span>{getBurgerCategoryLabel(category.label)}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )
   }
 
   if (templateId === 'pizzeria') {
@@ -948,9 +1169,119 @@ function TemplateMenuCollection({
   onOpenDish,
   onAddItem,
   onSelectCategory,
+  onOpenCart,
   gelatoFormats,
   onOpenGelatoBuilder,
 }) {
+  if (templateId === 'burger') {
+    const highlightedItems = categoryItems.slice(0, 3)
+    const comboTarget =
+      categories.find((category) => slugify(category.label).includes('combo')) ??
+      categories.find((category) => slugify(category.label).includes('bebida')) ??
+      currentCategory
+
+    return (
+      <section className="section-block section-block-burger">
+        <div className="burger-card-grid">
+          {highlightedItems.map((item) => {
+            const [title, accent] = getBurgerDishParts(item)
+
+            return (
+              <article key={item.id} className="burger-dish-card">
+                <button type="button" className="burger-favorite" aria-label="Guardar favorito">
+                  <IconHeart />
+                </button>
+
+                <span className="burger-dish-badge">
+                  <IconFlame />
+                  Mas
+                </span>
+
+                <button
+                  type="button"
+                  className="burger-dish-media"
+                  onClick={() => onOpenDish(item)}
+                  aria-label={`Ver ${item.name}`}
+                >
+                  {renderProductMedia(item)}
+                </button>
+
+                <div className="burger-dish-body">
+                  <button
+                    type="button"
+                    className="burger-dish-copy"
+                    onClick={() => onOpenDish(item)}
+                  >
+                    <h3>
+                      <span>{title}</span>
+                      <strong>{accent}</strong>
+                    </h3>
+                    <p>{item.description}</p>
+                  </button>
+
+                  <div className="burger-dish-footer">
+                    <strong>{item.price}</strong>
+                    <button
+                      type="button"
+                      className="burger-add-button"
+                      onClick={() => onAddItem(item)}
+                      aria-label={`Agregar ${item.name}`}
+                    >
+                      <IconPlus />
+                    </button>
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+
+        <article className="burger-combo-banner">
+          <div className="burger-combo-copy">
+            <span>
+              <IconFlame />
+              Combo
+            </span>
+            <h3>COMBO CLASICO</h3>
+            <p>Hamburguesa clasica + papas + bebida a eleccion.</p>
+          </div>
+          <img src="/burger/burger-2.svg" alt="" aria-hidden="true" />
+          <div className="burger-combo-action">
+            <strong>$18.900</strong>
+            <button
+              type="button"
+              onClick={() => onSelectCategory?.(comboTarget?.id)}
+            >
+              Ver combos
+            </button>
+          </div>
+        </article>
+
+        <nav className="burger-bottom-nav" aria-label="Navegacion del menu">
+          <button type="button" className="active">
+            <IconFlame />
+            <span>Inicio</span>
+          </button>
+          <button type="button" onClick={() => onSelectCategory?.(currentCategory?.id)}>
+            <IconBurger />
+            <span>Menu</span>
+          </button>
+          <button type="button" className="burger-bottom-primary" onClick={onOpenCart}>
+            <IconFlame />
+          </button>
+          <button type="button">
+            <IconTicket />
+            <span>Promos</span>
+          </button>
+          <button type="button">
+            <IconUser />
+            <span>Mi cuenta</span>
+          </button>
+        </nav>
+      </section>
+    )
+  }
+
   if (templateId === 'pizzeria') {
     const highlightedItems = categoryItems.slice(0, 4)
 
@@ -1596,7 +1927,7 @@ export default function MenuApp() {
               </button>
             </div>
 
-            {templateId !== 'gelato' && templateId !== 'pizzeria' ? (
+            {templateId !== 'gelato' && templateId !== 'pizzeria' && templateId !== 'burger' ? (
               <div className="brand hero-brand">
                 <span className="brand-mark">
                   <IconLeafMark />
@@ -1627,7 +1958,7 @@ export default function MenuApp() {
 
             {status === 'ready' ? (
               <>
-                {templateId === 'pizzeria' ? (
+                {templateId === 'pizzeria' || templateId === 'burger' ? (
                   <TemplateCategorySelector
                     templateId={templateId}
                     categories={categories}
@@ -1636,7 +1967,7 @@ export default function MenuApp() {
                   />
                 ) : null}
 
-                {templateId !== 'gelato' && templateId !== 'pizzeria' ? (
+                {templateId !== 'gelato' && templateId !== 'pizzeria' && templateId !== 'burger' ? (
                   <section className="section-block" data-section="categories">
                     <div className="section-heading">
                       <h2>Categorias</h2>
@@ -1662,6 +1993,7 @@ export default function MenuApp() {
                   onOpenDish={handleOpenDish}
                   onAddItem={handleAddItem}
                   onSelectCategory={setSelectedCategory}
+                  onOpenCart={() => setIsCartOpen(true)}
                   gelatoFormats={gelatoFormats}
                   onOpenGelatoBuilder={handleOpenGelatoBuilder}
                 />
@@ -1669,7 +2001,7 @@ export default function MenuApp() {
             ) : null}
           </main>
 
-          {templateId !== 'gelato' && (templateId !== 'pizzeria' || cartCount > 0) ? (
+          {templateId !== 'gelato' && templateId !== 'burger' && (templateId !== 'pizzeria' || cartCount > 0) ? (
             <footer className="order-bar">
               <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                 <div className="order-bar-copy">

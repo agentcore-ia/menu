@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 980" role="img" aria-labelledby="title">
+  <title id="title">Burger clasica</title>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#251312"/>
+      <stop offset=".52" stop-color="#0c1111"/>
+      <stop offset="1" stop-color="#030405"/>
+    </linearGradient>
+    <radialGradient id="ember" cx="50%" cy="35%" r="60%">
+      <stop offset="0" stop-color="#f4a227" stop-opacity=".48"/>
+      <stop offset="1" stop-color="#030405" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bun" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#f0a03b"/>
+      <stop offset=".55" stop-color="#8c3d16"/>
+      <stop offset="1" stop-color="#421909"/>
+    </linearGradient>
+  </defs>
+  <rect width="760" height="980" fill="url(#bg)"/>
+  <circle cx="400" cy="420" r="420" fill="url(#ember)"/>
+  <g transform="translate(75 205)">
+    <ellipse cx="305" cy="520" rx="290" ry="44" fill="#000" opacity=".55"/>
+    <path d="M32 215c26-100 133-169 272-169 145 0 251 68 282 169H32z" fill="url(#bun)"/>
+    <path d="M63 203c48-61 130-92 240-92 108 0 193 31 248 91" fill="none" stroke="#ffd082" stroke-width="12" stroke-linecap="round" opacity=".65"/>
+    <path d="M64 255c57 33 110 34 162 0 59 31 116 29 171-2 56 34 110 36 163 4v59H52z" fill="#efae24"/>
+    <path d="M50 320c56-18 105-12 151 7 60 24 116 22 173-3 65-29 126-27 186 5l24 70H25z" fill="#33120b"/>
+    <path d="M52 398c84 21 161 23 230 5 85-21 168-16 250 15l-25 55H76z" fill="#6c2113"/>
+    <path d="M51 456c72 17 152 20 239 3 84-16 169-17 254 0-23 73-116 119-260 119-145 0-220-42-233-122z" fill="url(#bun)"/>
+    <path d="M54 367c60 21 116 21 167-2 68-31 131-31 190 0 51 26 101 26 151 0" fill="none" stroke="#76bc48" stroke-width="18" stroke-linecap="round"/>
+    <g fill="#f6dfb9">
+      <ellipse cx="172" cy="93" rx="10" ry="4" transform="rotate(12 172 93)"/>
+      <ellipse cx="257" cy="74" rx="10" ry="4" transform="rotate(-16 257 74)"/>
+      <ellipse cx="386" cy="86" rx="10" ry="4" transform="rotate(18 386 86)"/>
+      <ellipse cx="486" cy="117" rx="10" ry="4" transform="rotate(-12 486 117)"/>
+    </g>
+  </g>
+</svg>

@@ -4308,6 +4308,790 @@ button:focus-visible {
   margin-bottom: 0;
 }
 
+.phone-surface.template-burger,
+.detail-phone.template-burger {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 72% 5%, rgba(245, 183, 46, 0.12), transparent 18rem),
+    radial-gradient(circle at 6% 36%, rgba(255, 139, 33, 0.08), transparent 18rem),
+    linear-gradient(180deg, #050808 0%, #111719 46%, #0a0f10 100%);
+  color: #f8f3e8;
+  font-family: 'Montserrat', var(--font-body, sans-serif);
+}
+
+.template-burger .hero {
+  min-height: 33rem;
+  overflow: hidden;
+  border-radius: 0 0 1.3rem 1.3rem;
+  background:
+    radial-gradient(circle at 72% 45%, rgba(245, 183, 46, 0.19), transparent 18rem),
+    radial-gradient(circle at 68% 30%, rgba(255, 255, 255, 0.07), transparent 13rem),
+    linear-gradient(115deg, #030607 0%, #0a0f10 47%, #14100d 100%);
+  box-shadow: 0 1.15rem 2.5rem rgba(0, 0, 0, 0.34);
+}
+
+.template-burger .hero::after {
+  background:
+    radial-gradient(circle at 78% 20%, rgba(255, 255, 255, 0.05), transparent 18rem),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.62) 0%, transparent 58%);
+}
+
+.template-burger .hero-topbar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 5;
+  padding: 2.35rem 2rem 0;
+}
+
+.template-burger .hero-topbar .icon-button,
+.template-burger .hero-topbar .cart-button {
+  width: 3.1rem;
+  height: 3.1rem;
+  color: #f5b72e;
+  background: transparent;
+  box-shadow: none;
+}
+
+.template-burger .hero-topbar .icon-button svg,
+.template-burger .hero-topbar .cart-button svg {
+  width: 2rem;
+  height: 2rem;
+  stroke-width: 1.9;
+}
+
+.template-burger .hero-topbar .cart-button {
+  color: #f5b72e;
+}
+
+.template-burger .hero-topbar .cart-badge {
+  top: -0.3rem;
+  right: -0.2rem;
+  min-width: 1.55rem;
+  height: 1.55rem;
+  background: #f5b72e;
+  color: #090806;
+  font-weight: 900;
+}
+
+.hero-content-burger {
+  min-height: 33rem;
+  padding: 0;
+}
+
+.burger-brand-mark {
+  position: absolute;
+  top: 1.15rem;
+  left: 50%;
+  z-index: 4;
+  width: 12.3rem;
+  min-height: 7rem;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  padding: 1.55rem 1.1rem 0.6rem;
+  color: #f7f0dd;
+  text-align: center;
+}
+
+.burger-brand-frame {
+  position: absolute;
+  inset: 1.65rem 0.4rem 0.25rem;
+  border: 2px solid #f5b72e;
+  border-radius: 0.5rem 0.5rem 1.8rem 1.8rem;
+  clip-path: polygon(0 0, 100% 0, 94% 77%, 50% 100%, 6% 77%);
+  opacity: 0.9;
+}
+
+.burger-brand-flame {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2.8rem;
+  height: 2.8rem;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  color: #ff8124;
+}
+
+.burger-brand-flame svg,
+.burger-hero-features svg,
+.burger-dish-badge svg,
+.burger-category-pill svg,
+.burger-search-button svg,
+.burger-bottom-nav svg,
+.burger-combo-copy svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.burger-brand-flame svg {
+  width: 2.4rem;
+  height: 2.4rem;
+  fill: #ff8124;
+  stroke: #ff8124;
+}
+
+.burger-brand-mark strong {
+  position: relative;
+  z-index: 1;
+  margin-top: 1.1rem;
+  font-family: Impact, 'Arial Narrow', var(--font-display, sans-serif);
+  font-size: 2.65rem;
+  line-height: 0.9;
+  letter-spacing: 0.05em;
+  color: #f8f3e8;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+}
+
+.burger-brand-mark > span:not(.burger-brand-frame):not(.burger-brand-flame) {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.2rem;
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #f5b72e;
+}
+
+.burger-brand-mark small {
+  position: relative;
+  z-index: 1;
+  color: #f5b72e;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.burger-hero-copy {
+  position: absolute;
+  left: 2rem;
+  top: 9.6rem;
+  z-index: 3;
+  width: 15rem;
+}
+
+.burger-hero-copy h1 {
+  margin: 0;
+  font-family: Impact, 'Arial Narrow', var(--font-display, sans-serif);
+  font-size: clamp(3.75rem, 16vw, 5.85rem);
+  line-height: 0.88;
+  letter-spacing: 0.08em;
+  color: #f5f1e7;
+  text-transform: uppercase;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+}
+
+.burger-hero-copy h1 span {
+  display: block;
+}
+
+.burger-hero-accent {
+  color: #f5b72e;
+}
+
+.burger-hero-rule {
+  display: block;
+  width: 4.8rem;
+  height: 0.18rem;
+  margin: 1.35rem 0 1.15rem;
+  border-radius: 999px;
+  background: #f5b72e;
+  box-shadow: 1.4rem 0 0 -0.04rem #f5b72e;
+}
+
+.burger-hero-rule::after {
+  content: '';
+  display: block;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-left: 5.2rem;
+  transform: rotate(45deg) translateY(-0.16rem);
+  background: #f5b72e;
+}
+
+.burger-hero-copy p {
+  margin: 0;
+  max-width: 13rem;
+  color: rgba(248, 243, 232, 0.78);
+  font-size: 1.1rem;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.burger-hero-art {
+  position: absolute;
+  right: -12.4rem;
+  bottom: 0.8rem;
+  z-index: 2;
+  width: 35rem;
+  pointer-events: none;
+}
+
+.burger-hero-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.burger-hero-features {
+  position: absolute;
+  left: 1.95rem;
+  right: 1.4rem;
+  bottom: 2.05rem;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  align-items: end;
+}
+
+.burger-hero-features span {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  color: #f8f3e8;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.burger-hero-features span + span {
+  border-left: 1px solid rgba(248, 243, 232, 0.2);
+  padding-left: 0.65rem;
+}
+
+.burger-hero-features svg {
+  flex: 0 0 auto;
+  width: 1.65rem;
+  height: 1.65rem;
+  color: #f5b72e;
+}
+
+.template-burger .content-panel {
+  margin-top: 0;
+  padding: 2.1rem 1.35rem 8.2rem;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06), transparent 14rem),
+    radial-gradient(circle at 82% 34%, rgba(245, 183, 46, 0.06), transparent 16rem),
+    linear-gradient(180deg, #111719 0%, #0b1011 100%);
+  box-shadow: none;
+}
+
+.burger-menu-head {
+  display: grid;
+  gap: 1.35rem;
+}
+
+.burger-menu-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.burger-menu-title-row h2 {
+  margin: 0;
+  color: #f8f3e8;
+  font-family: Impact, 'Arial Narrow', var(--font-display, sans-serif);
+  font-size: 2.9rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.burger-search-button {
+  width: 3.8rem;
+  height: 3.8rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+  color: #f8f3e8;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.burger-search-button svg {
+  width: 1.55rem;
+  height: 1.55rem;
+}
+
+.burger-category-row {
+  display: flex;
+  gap: 0.85rem;
+  overflow-x: auto;
+  padding: 0.1rem 0 0.35rem;
+  scrollbar-width: none;
+}
+
+.burger-category-row::-webkit-scrollbar {
+  display: none;
+}
+
+.burger-category-pill {
+  flex: 0 0 auto;
+  min-height: 3.15rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.62rem;
+  padding: 0 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  color: #f8f3e8;
+  background: rgba(255, 255, 255, 0.055);
+  font-size: 0.83rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.burger-category-pill svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.burger-category-pill.active {
+  border-color: transparent;
+  background: #f5b72e;
+  color: #11100b;
+  box-shadow: 0 12px 24px rgba(245, 183, 46, 0.22);
+}
+
+.section-block-burger {
+  margin-top: 1.3rem;
+}
+
+.burger-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.05rem;
+}
+
+.burger-dish-card {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 28.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+    #0a0f10;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28);
+}
+
+.burger-favorite {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.75rem;
+  z-index: 3;
+  width: 2.15rem;
+  height: 2.15rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  color: #f8f3e8;
+  background: transparent;
+}
+
+.burger-favorite svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.burger-dish-badge {
+  position: absolute;
+  top: 0.8rem;
+  left: 0.75rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  min-height: 1.55rem;
+  padding: 0.18rem 0.44rem;
+  border-radius: 0.36rem;
+  background: #f5b72e;
+  color: #11100b;
+  font-size: 0.68rem;
+  line-height: 1;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.burger-dish-badge svg {
+  width: 0.78rem;
+  height: 0.78rem;
+  fill: #11100b;
+  stroke: #11100b;
+}
+
+.burger-dish-media {
+  width: 100%;
+  height: 14.1rem;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: #050708;
+}
+
+.burger-dish-media .dish-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.burger-dish-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem 0.8rem 0.85rem;
+  text-align: center;
+}
+
+.burger-dish-copy {
+  border: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  text-align: center;
+}
+
+.burger-dish-copy h3 {
+  margin: 0;
+  color: #f8f3e8;
+  font-family: Impact, 'Arial Narrow', var(--font-display, sans-serif);
+  font-size: clamp(1.18rem, 4.7vw, 1.86rem);
+  line-height: 0.98;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.burger-dish-copy h3 span,
+.burger-dish-copy h3 strong {
+  display: block;
+}
+
+.burger-dish-copy h3 strong {
+  color: #f5b72e;
+  font-weight: 900;
+}
+
+.burger-dish-copy p {
+  margin: 0.7rem auto 0;
+  max-width: 11rem;
+  min-height: 4.2rem;
+  color: rgba(248, 243, 232, 0.78);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.burger-dish-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.burger-dish-footer strong {
+  color: #f5b72e;
+  font-family: Impact, 'Arial Narrow', var(--font-display, sans-serif);
+  font-size: 1.55rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+}
+
+.burger-add-button {
+  flex: 0 0 auto;
+  width: 2.55rem;
+  height: 2.55rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: #f5b72e;
+  color: #11100b;
+  box-shadow: 0 12px 20px rgba(245, 183, 46, 0.2);
+}
+
+.burger-add-button svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.burger-combo-banner {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(8rem, 0.9fr) minmax(6.8rem, 0.65fr);
+  gap: 0.8rem;
+  align-items: center;
+  margin-top: 1.35rem;
+  padding: 1rem 1.05rem;
+  min-height: 8.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at 52% 20%, rgba(245, 183, 46, 0.16), transparent 14rem),
+    linear-gradient(100deg, rgba(42, 23, 16, 0.88), rgba(12, 16, 17, 0.94));
+}
+
+.burger-combo-copy span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+  padding: 0.22rem 0.45rem;
+  border-radius: 0.32rem;
+  border: 1px solid #f5b72e;
+  color: #f5b72e;
+  font-size: 0.72rem;
+  line-height: 1;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.burger-combo-copy svg {
+  width: 0.86rem;
+  height: 0.86rem;
+  fill: #f5b72e;
+  stroke: #f5b72e;
+}
+
+.burger-combo-copy h3 {
+  margin: 0;
+  font-family: Impact, 'Arial Narrow', var(--font-display, sans-serif);
+  font-size: 2rem;
+  line-height: 0.98;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.burger-combo-copy p {
+  margin: 0.45rem 0 0;
+  color: rgba(248, 243, 232, 0.78);
+  font-size: 0.78rem;
+  line-height: 1.42;
+}
+
+.burger-combo-banner img {
+  width: 100%;
+  max-height: 7.3rem;
+  object-fit: cover;
+  object-position: center 42%;
+  border-radius: 0.85rem;
+}
+
+.burger-combo-action {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: end;
+}
+
+.burger-combo-action strong {
+  color: #f5b72e;
+  font-family: Impact, 'Arial Narrow', var(--font-display, sans-serif);
+  font-size: 2.15rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+}
+
+.burger-combo-action button {
+  min-height: 2.65rem;
+  padding: 0 1.05rem;
+  border: 0;
+  border-radius: 0.42rem;
+  background: #f5b72e;
+  color: #11100b;
+  font-size: 0.78rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.burger-bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  z-index: 20;
+  width: min(100%, 27rem);
+  height: 5.6rem;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: center;
+  padding: 0.55rem 0.9rem max(0.55rem, env(safe-area-inset-bottom));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem 1.25rem 0 0;
+  background: rgba(14, 21, 22, 0.96);
+  box-shadow: 0 -18px 34px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(18px);
+}
+
+.burger-bottom-nav button {
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  gap: 0.28rem;
+  border: 0;
+  color: rgba(248, 243, 232, 0.62);
+  background: transparent;
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.burger-bottom-nav button.active {
+  color: #f5b72e;
+}
+
+.burger-bottom-nav svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.burger-bottom-primary {
+  width: 4.25rem;
+  height: 4.25rem;
+  margin: -1.7rem auto 0;
+  border-radius: 999px !important;
+  color: #11100b !important;
+  background: #f5b72e !important;
+  box-shadow:
+    0 0 0 0.55rem rgba(245, 183, 46, 0.1),
+    0 14px 26px rgba(0, 0, 0, 0.32);
+}
+
+.burger-bottom-primary svg {
+  width: 2rem;
+  height: 2rem;
+  fill: #11100b;
+  stroke: #11100b;
+}
+
+@media (max-width: 430px) {
+  .template-burger .hero {
+    min-height: 31.5rem;
+  }
+
+  .burger-brand-mark {
+    width: 10.7rem;
+  }
+
+  .burger-brand-mark strong {
+    font-size: 2.2rem;
+  }
+
+  .burger-hero-copy {
+    left: 1.55rem;
+    top: 9.4rem;
+    width: 13.2rem;
+  }
+
+  .burger-hero-copy h1 {
+    font-size: 4.25rem;
+  }
+
+  .burger-hero-copy p {
+    max-width: 11.2rem;
+    font-size: 0.96rem;
+  }
+
+  .burger-hero-art {
+    right: -13.6rem;
+    bottom: 1.2rem;
+    width: 33.5rem;
+  }
+
+  .burger-hero-features {
+    left: 1.4rem;
+    right: 1.1rem;
+    gap: 0.5rem;
+  }
+
+  .burger-hero-features span {
+    font-size: 0.66rem;
+  }
+
+  .template-burger .content-panel {
+    padding-inline: 1rem;
+  }
+
+  .burger-menu-title-row h2 {
+    font-size: 2.45rem;
+  }
+
+  .burger-card-grid {
+    gap: 0.72rem;
+  }
+
+  .burger-dish-card {
+    min-height: 24.8rem;
+    border-radius: 0.85rem;
+  }
+
+  .burger-dish-media {
+    height: 11.6rem;
+  }
+
+  .burger-dish-body {
+    padding: 0.78rem 0.55rem 0.65rem;
+  }
+
+  .burger-dish-copy p {
+    min-height: 4.8rem;
+    font-size: 0.62rem;
+  }
+
+  .burger-dish-footer strong {
+    font-size: 1.28rem;
+  }
+
+  .burger-add-button {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .burger-combo-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .burger-combo-banner img {
+    display: none;
+  }
+
+  .burger-combo-action {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    justify-items: stretch;
+  }
+}
+
 @media (max-width: 760px) {
   .admin-shell {
     padding: 0.9rem;

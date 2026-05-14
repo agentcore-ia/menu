@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 980" role="img" aria-labelledby="title">
+  <title id="title">Burger dessert</title>
+  <rect width="760" height="980" fill="#0c1010"/>
+  <circle cx="390" cy="430" r="320" fill="#f5a623" opacity=".17"/>
+  <g transform="translate(150 220)">
+    <path d="M62 308h345l-44 236H104z" fill="#2b140d" stroke="#f5b72e" stroke-width="14"/>
+    <path d="M95 306c20-116 90-184 211-184s194 68 218 184H95z" fill="#f2e7cc"/>
+    <path d="M116 280c48 48 94 54 140 17 55-44 112-42 172 7 35 29 69 30 103 3" fill="none" stroke="#7a3019" stroke-width="28" stroke-linecap="round"/>
+    <path d="M194 123l32-74 32 74" fill="#e3412e"/>
+    <path d="M224 61c0 18-14 32-32 32" fill="none" stroke="#ff8c2a" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>

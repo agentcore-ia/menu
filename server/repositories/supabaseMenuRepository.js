@@ -42,6 +42,24 @@ function getPizzeriaFallbackImage(accountId, product, index) {
   return fallbackImages[index % fallbackImages.length]
 }
 
+function getBurgerFallbackImage(accountId, product, index) {
+  if (!['burguer', 'burger', 'brasa'].includes(accountId)) {
+    return null
+  }
+
+  const category = String(product.category ?? '').toLowerCase()
+
+  if (category.includes('bebida')) return '/burger/drink.svg'
+  if (category.includes('postre')) return '/burger/dessert.svg'
+  if (category.includes('combo')) return '/burger/burger-2.svg'
+  if (category.includes('entrada')) return '/burger/burger-3.svg'
+  if (category.includes('hamburg') || category.includes('burger')) {
+    return `/burger/burger-${(index % 3) + 1}.svg`
+  }
+
+  return `/burger/burger-${(index % 3) + 1}.svg`
+}
+
 export class SupabaseMenuRepository {
   constructor(config) {
     this.config = config
@@ -188,6 +206,7 @@ export class SupabaseMenuRepository {
         price: this.formatPrice(product.price),
         image:
           customImage ||
+          getBurgerFallbackImage(this.accountIdForFallback, product, index) ||
           getPizzeriaFallbackImage(this.accountIdForFallback, product, index) ||
           fallbackImages[index % fallbackImages.length],
         hasCustomImage: Boolean(customImage),

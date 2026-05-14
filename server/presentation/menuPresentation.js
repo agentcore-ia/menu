@@ -183,6 +183,43 @@ const presentationPresets = {
       mutedVideos: true,
     },
   },
+  burger: {
+    template: 'burger',
+    layout: 'burger',
+    branding: {
+      wordmark: 'BRASA',
+      subtitle: 'BURGER CO.',
+    },
+    theme: {
+      id: 'brasa-burger',
+      background: '#080c0d',
+      surface: '#111719',
+      surfaceAlt: '#0b1011',
+      text: '#f8f3e8',
+      muted: 'rgba(248, 243, 232, 0.72)',
+      primary: '#f5b72e',
+      primaryText: '#100f0c',
+      accent: '#ff8b21',
+      border: 'rgba(255, 255, 255, 0.16)',
+      shadow: 'rgba(0, 0, 0, 0.35)',
+      displayFont: 'Bebas Neue',
+      bodyFont: 'Montserrat',
+    },
+    hero: {
+      image: '/burger/hero-burger.svg',
+      title: 'SABOR',
+      accent: 'QUE SE RECUERDA',
+      description: 'Carne premium. Ingredientes reales. Hechas al fuego.',
+    },
+    cards: {
+      style: 'burger-grid',
+    },
+    preview: {
+      productMedia: 'video-first',
+      autoplayVideos: true,
+      mutedVideos: true,
+    },
+  },
 }
 
 const accountPresentations = {
@@ -193,6 +230,9 @@ const accountPresentations = {
   'la-esquina': presentationPresets.pizzeria,
   laesquina: presentationPresets.pizzeria,
   laesquinacba: presentationPresets.pizzeria,
+  burguer: presentationPresets.burger,
+  burger: presentationPresets.burger,
+  brasa: presentationPresets.burger,
   'neurorest-demo': presentationPresets.default,
 }
 

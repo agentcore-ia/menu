@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 980" role="img" aria-labelledby="title">
+  <title id="title">Burger drink</title>
+  <rect width="760" height="980" fill="#0b1011"/>
+  <circle cx="380" cy="430" r="320" fill="#f5a623" opacity=".18"/>
+  <g transform="translate(240 170)">
+    <path d="M62 132h250l-34 500H96z" fill="#1b2324" stroke="#f5b72e" stroke-width="16"/>
+    <path d="M100 210h170l-24 330H122z" fill="#532410"/>
+    <path d="M118 243c48 30 92 30 132 0" fill="none" stroke="#f7b52d" stroke-width="16" stroke-linecap="round"/>
+    <path d="M175 132V58h98" fill="none" stroke="#f7f0dd" stroke-width="18" stroke-linecap="round"/>
+    <path d="M268 58l72-44" fill="none" stroke="#f7f0dd" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="188" cy="422" r="30" fill="#e9a623"/>
+    <circle cx="229" cy="458" r="18" fill="#f7d17a"/>
+  </g>
+</svg>
