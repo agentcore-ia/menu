@@ -26,6 +26,23 @@ const defaultPresentation = {
   },
 }
 
+const layoutDescriptions = {
+  editorial: 'Diseno clasico y elegante: portada, categorias y productos en una lista limpia.',
+  bistro: 'Diseno mas visual: una carta moderna con imagenes destacadas y ritmo tipo revista.',
+  luxe: 'Diseno premium: mas dramatico y sofisticado, pensado para marcas gastronomicas elegantes.',
+}
+
+const cardStyleDescriptions = {
+  'editorial-list': 'Productos en lista, facil de leer y rapido para pedir.',
+  'magazine-list': 'Cards mas visuales, con mas protagonismo para fotos y platos destacados.',
+  'glass-list': 'Cards con efecto premium/translucido para menus mas atmosfericos.',
+}
+
+const previewDescriptions = {
+  'image-with-video-chip': 'La foto queda como vista principal y se muestra una etiqueta si el producto tiene video.',
+  'video-first': 'El video se usa como vista principal si el producto no tiene una foto subida.',
+}
+
 function getInitialAdminAccount() {
   const params = new URLSearchParams(window.location.search)
   return params.get('account') ?? ''
@@ -600,88 +617,102 @@ export default function AdminApp() {
 
               <div className="admin-form admin-form-grid">
                 <label className="admin-field">
-                  <span>Layout</span>
+                  <span>Diseno del menu</span>
                   <select
                     value={presentation.layout}
                     onChange={(event) => updatePresentation('layout', event.target.value)}
                   >
-                    <option value="editorial">editorial</option>
-                    <option value="bistro">bistro</option>
-                    <option value="luxe">luxe</option>
+                    <option value="editorial">Clasico editorial</option>
+                    <option value="bistro">Bistro moderno</option>
+                    <option value="luxe">Premium oscuro</option>
                   </select>
+                  <small className="admin-help">{layoutDescriptions[presentation.layout]}</small>
                 </label>
 
                 <label className="admin-field">
-                  <span>Cards</span>
+                  <span>Tarjetas de productos</span>
                   <select
                     value={presentation.cards.style}
                     onChange={(event) => updatePresentation('cards.style', event.target.value)}
                   >
-                    <option value="editorial-list">editorial-list</option>
-                    <option value="magazine-list">magazine-list</option>
-                    <option value="glass-list">glass-list</option>
+                    <option value="editorial-list">Lista simple</option>
+                    <option value="magazine-list">Visual tipo revista</option>
+                    <option value="glass-list">Premium con efecto vidrio</option>
                   </select>
+                  <small className="admin-help">
+                    {cardStyleDescriptions[presentation.cards.style]}
+                  </small>
                 </label>
 
                 <label className="admin-field">
-                  <span>Preview</span>
+                  <span>Foto/video en productos</span>
                   <select
                     value={presentation.preview.productMedia}
                     onChange={(event) =>
                       updatePresentation('preview.productMedia', event.target.value)
                     }
                   >
-                    <option value="image-with-video-chip">image-with-video-chip</option>
-                    <option value="video-first">video-first</option>
+                    <option value="image-with-video-chip">Foto principal + etiqueta de video</option>
+                    <option value="video-first">Video como vista principal</option>
                   </select>
+                  <small className="admin-help">
+                    {previewDescriptions[presentation.preview.productMedia]}
+                  </small>
                 </label>
 
                 <label className="admin-field">
-                  <span>Wordmark</span>
+                  <span>Nombre visible / logo textual</span>
                   <input
                     value={presentation.branding.wordmark}
                     onChange={(event) =>
                       updatePresentation('branding.wordmark', event.target.value)
                     }
                   />
+                  <small className="admin-help">
+                    Texto principal de marca. Ejemplo: La Buona, Dolce o Sandra's Rose.
+                  </small>
                 </label>
 
                 <label className="admin-field">
-                  <span>Subtitle</span>
+                  <span>Subtitulo del logo</span>
                   <input
                     value={presentation.branding.subtitle}
                     onChange={(event) =>
                       updatePresentation('branding.subtitle', event.target.value)
                     }
                   />
+                  <small className="admin-help">Texto pequeno debajo del nombre, como Pizzeria o Cocina de autor.</small>
                 </label>
 
                 <label className="admin-field">
-                  <span>Hero image</span>
+                  <span>Imagen principal</span>
                   <input
                     value={presentation.hero.image}
                     onChange={(event) => updatePresentation('hero.image', event.target.value)}
                   />
+                  <small className="admin-help">URL de la imagen grande de portada del menu.</small>
                 </label>
 
                 <label className="admin-field">
-                  <span>Hero title</span>
+                  <span>Titulo principal</span>
                   <input
                     value={presentation.hero.title}
                     onChange={(event) => updatePresentation('hero.title', event.target.value)}
                   />
+                  <small className="admin-help">Frase grande de la portada.</small>
                 </label>
 
                 <label className="admin-field">
-                  <span>Hero accent</span>
+                  <span>Texto destacado</span>
                   <input
                     value={presentation.hero.accent}
                     onChange={(event) => updatePresentation('hero.accent', event.target.value)}
                   />
+                  <small className="admin-help">Parte secundaria o resaltada del titulo.</small>
                 </label>
 
                 <label className="admin-field admin-field-wide">
-                  <span>Hero description</span>
+                  <span>Descripcion principal</span>
                   <textarea
                     rows="3"
                     value={presentation.hero.description}
@@ -689,42 +720,47 @@ export default function AdminApp() {
                       updatePresentation('hero.description', event.target.value)
                     }
                   />
+                  <small className="admin-help">Texto corto que aparece en la portada del menu.</small>
                 </label>
 
                 <label className="admin-field">
-                  <span>Primary</span>
+                  <span>Color principal</span>
                   <input
                     value={presentation.theme.primary}
                     onChange={(event) => updatePresentation('theme.primary', event.target.value)}
                   />
+                  <small className="admin-help">Color de botones, detalles activos y acentos importantes.</small>
                 </label>
 
                 <label className="admin-field">
-                  <span>Accent</span>
+                  <span>Color secundario</span>
                   <input
                     value={presentation.theme.accent}
                     onChange={(event) => updatePresentation('theme.accent', event.target.value)}
                   />
+                  <small className="admin-help">Color de apoyo para detalles visuales.</small>
                 </label>
 
                 <label className="admin-field">
-                  <span>Display font</span>
+                  <span>Fuente de titulos</span>
                   <input
                     value={presentation.theme.displayFont}
                     onChange={(event) =>
                       updatePresentation('theme.displayFont', event.target.value)
                     }
                   />
+                  <small className="admin-help">Tipografia usada en titulos grandes y marca.</small>
                 </label>
 
                 <label className="admin-field">
-                  <span>Body font</span>
+                  <span>Fuente de textos</span>
                   <input
                     value={presentation.theme.bodyFont}
                     onChange={(event) =>
                       updatePresentation('theme.bodyFont', event.target.value)
                     }
                   />
+                  <small className="admin-help">Tipografia usada en descripciones, precios y formularios.</small>
                 </label>
 
                 <label className="admin-checkbox">
@@ -735,7 +771,7 @@ export default function AdminApp() {
                       updatePresentation('preview.autoplayVideos', event.target.checked)
                     }
                   />
-                  <span>Autoplay videos</span>
+                  <span>Reproducir videos automaticamente</span>
                 </label>
 
                 <label className="admin-checkbox">
