@@ -342,6 +342,10 @@ export default function AdminApp() {
     setMessage('Video guardado para el producto.')
   }
 
+  async function handleClearProductVideo(productId) {
+    await handleSaveProductVideo(productId, '')
+  }
+
   async function handleSaveProductImage(productId, imageUrl) {
     setMessage('')
 
@@ -364,6 +368,10 @@ export default function AdminApp() {
       ),
     }))
     setMessage('Imagen guardada para el producto.')
+  }
+
+  async function handleClearProductImage(productId) {
+    await handleSaveProductImage(productId, '')
   }
 
   async function handleUploadProductVideo(productId, file) {
@@ -761,6 +769,8 @@ export default function AdminApp() {
                   <ProductMediaRow
                     key={`${product.id}:${product.image_url ?? ''}:${product.video_url ?? ''}`}
                     product={product}
+                    onClearImage={handleClearProductImage}
+                    onClearVideo={handleClearProductVideo}
                     onSaveImage={handleSaveProductImage}
                     onSaveVideo={handleSaveProductVideo}
                     onUploadImage={handleUploadProductImage}
@@ -776,12 +786,40 @@ export default function AdminApp() {
   )
 }
 
-function ProductMediaRow({ product, onSaveImage, onSaveVideo, onUploadImage, onUploadVideo }) {
+function ProductMediaRow({
+  product,
+  onClearImage,
+  onClearVideo,
+  onSaveImage,
+  onSaveVideo,
+  onUploadImage,
+  onUploadVideo,
+}) {
   const [imageUrl, setImageUrl] = useState(product.image_url ?? '')
   const [videoUrl, setVideoUrl] = useState(product.video_url ?? '')
   const [imageFile, setImageFile] = useState(null)
   const [videoFile, setVideoFile] = useState(null)
   const previewImage = imageUrl || product.image_url
+  const hasImageDraft = Boolean(imageFile || imageUrl.trim())
+  const hasVideoDraft = Boolean(videoFile || videoUrl.trim())
+
+  function handleImageAction() {
+    if (imageFile) {
+      onUploadImage(product.id, imageFile)
+      return
+    }
+
+    onSaveImage(product.id, imageUrl)
+  }
+
+  function handleVideoAction() {
+    if (videoFile) {
+      onUploadVideo(product.id, videoFile)
+      return
+    }
+
+    onSaveVideo(product.id, videoUrl)
+  }
 
   return (
     <div className="admin-product-row">
@@ -820,14 +858,6 @@ function ProductMediaRow({ product, onSaveImage, onSaveVideo, onUploadImage, onU
 
       <div className="admin-product-actions">
         <div className="admin-media-actions">
-          <button
-            type="button"
-            className="admin-secondary"
-            onClick={() => onSaveImage(product.id, imageUrl)}
-          >
-            Guardar foto
-          </button>
-
           <label className="admin-upload">
             <input
               type="file"
@@ -840,21 +870,20 @@ function ProductMediaRow({ product, onSaveImage, onSaveVideo, onUploadImage, onU
           <button
             type="button"
             className="admin-primary"
-            onClick={() => onUploadImage(product.id, imageFile)}
+            disabled={!hasImageDraft}
+            onClick={handleImageAction}
           >
-            Subir foto
+            {imageFile ? 'Subir foto' : 'Guardar URL foto'}
           </button>
+
+          {previewImage ? (
+            <button type="button" className="admin-danger" onClick={() => onClearImage(product.id)}>
+              Quitar foto
+            </button>
+          ) : null}
         </div>
 
         <div className="admin-media-actions">
-          <button
-            type="button"
-            className="admin-secondary"
-            onClick={() => onSaveVideo(product.id, videoUrl)}
-          >
-            Guardar video
-          </button>
-
           <label className="admin-upload">
             <input
               type="file"
@@ -867,10 +896,17 @@ function ProductMediaRow({ product, onSaveImage, onSaveVideo, onUploadImage, onU
           <button
             type="button"
             className="admin-primary"
-            onClick={() => onUploadVideo(product.id, videoFile)}
+            disabled={!hasVideoDraft}
+            onClick={handleVideoAction}
           >
-            Subir video
+            {videoFile ? 'Subir video' : 'Guardar URL video'}
           </button>
+
+          {videoUrl ? (
+            <button type="button" className="admin-danger" onClick={() => onClearVideo(product.id)}>
+              Quitar video
+            </button>
+          ) : null}
         </div>
       </div>
     </div>

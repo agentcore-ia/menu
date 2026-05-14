@@ -4035,6 +4035,14 @@ button:focus-visible {
   cursor: pointer;
 }
 
+.admin-primary:disabled,
+.admin-secondary:disabled,
+.admin-danger:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  box-shadow: none;
+}
+
 .admin-primary {
   background: #445d39;
   color: #fffdf8;
