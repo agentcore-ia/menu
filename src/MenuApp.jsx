@@ -936,7 +936,7 @@ function TemplateMenuCollection({
         </div>
 
         <article className="pizzeria-drinks-banner">
-          <img className="pizzeria-footer-art" src="/pizzeria/footer.png" alt="" aria-hidden="true" />
+          <img className="pizzeria-footer-art" src="/pizzeria/footer2.png" alt="" aria-hidden="true" />
           <button
             type="button"
             className="pizzeria-footer-hitbox"
