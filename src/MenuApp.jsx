@@ -623,10 +623,6 @@ function getPresentationStyles(presentation) {
 }
 
 function shouldRenderPreviewVideo(item, presentation) {
-  if (presentation.template === 'pizzeria') {
-    return false
-  }
-
   return Boolean(item.video && presentation.preview?.productMedia === 'video-first')
 }
 
