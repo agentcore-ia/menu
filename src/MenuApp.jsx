@@ -586,7 +586,7 @@ function getPizzeriaDishTitle(item) {
 function getPizzeriaCategoryLabel(label) {
   const key = slugify(label)
   if (key.includes('empanada')) return 'Entradas'
-  if (key.includes('hamburgues')) return 'Burgers'
+  if (key.includes('hamburgues')) return 'Postres'
   return label
 }
 
@@ -787,7 +787,7 @@ function TemplateCategorySelector({
               : key.includes('bebida')
                 ? IconDrink
                 : key.includes('hamburgues')
-                  ? IconServe
+                  ? IconDessert
                   : IconDessert
 
           return (
