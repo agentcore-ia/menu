@@ -3988,6 +3988,16 @@ button:focus-visible {
   overflow: hidden;
 }
 
+.template-pizzeria .hero-content-pizzeria::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.46rem;
+  background: #f2e8db;
+  z-index: 2;
+  pointer-events: none;
+}
+
 .template-pizzeria .content-panel {
   margin-top: -0.45rem;
   padding: 0 1rem 1.85rem;
