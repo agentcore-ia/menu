@@ -1162,6 +1162,15 @@
   border-radius: 0;
 }
 
+.template-pizzeria .hero-pizzeria {
+  background: transparent !important;
+}
+
+.template-pizzeria .hero-pizzeria::before,
+.template-pizzeria .hero-pizzeria::after {
+  display: none !important;
+}
+
 .template-pizzeria .section-block-pizzeria {
   padding-top: 0;
 }
