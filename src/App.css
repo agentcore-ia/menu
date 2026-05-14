@@ -3813,16 +3813,17 @@ button:focus-visible {
 
 .admin-shell {
   min-height: 100vh;
-  padding: 1.25rem;
+  padding: 1.5rem;
   background:
-    radial-gradient(circle at top, rgba(197, 181, 151, 0.2), transparent 26%),
-    linear-gradient(180deg, #f2ecdf 0%, #e8dfd1 100%);
+    radial-gradient(circle at 8% 0%, rgba(68, 93, 57, 0.22), transparent 28rem),
+    radial-gradient(circle at 92% 10%, rgba(189, 71, 47, 0.12), transparent 24rem),
+    linear-gradient(180deg, #f7f1e6 0%, #e9dfcf 100%);
   color: #1f241b;
   font-family: var(--font-body, 'Manrope', sans-serif);
 }
 
 .admin-container {
-  max-width: 72rem;
+  max-width: 76rem;
   margin: 0 auto;
   display: grid;
   gap: 1rem;
@@ -3835,7 +3836,94 @@ button:focus-visible {
 
 .admin-header p {
   margin: 0.35rem 0 0;
+  max-width: 36rem;
   color: rgba(31, 36, 27, 0.7);
+}
+
+.admin-hero-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.35rem;
+  border-radius: 1.8rem;
+  background:
+    linear-gradient(135deg, rgba(31, 52, 29, 0.96), rgba(67, 89, 50, 0.88)),
+    #314422;
+  color: #fffdf8;
+  box-shadow: 0 24px 60px rgba(39, 49, 31, 0.22);
+}
+
+.admin-hero-card::after {
+  content: '';
+  position: absolute;
+  right: -4rem;
+  top: -5rem;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-hero-card p {
+  color: rgba(255, 253, 248, 0.72);
+}
+
+.admin-kicker {
+  display: inline-flex;
+  margin-bottom: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(68, 93, 57, 0.76);
+}
+
+.admin-hero-card .admin-kicker {
+  color: rgba(255, 253, 248, 0.62);
+}
+
+.admin-header-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.admin-status-pill,
+.admin-link-button {
+  min-height: 2.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.admin-status-pill {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 253, 248, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.admin-status-pill.is-ready {
+  background: rgba(255, 253, 248, 0.96);
+  color: #2f4828;
+}
+
+.admin-link-button {
+  background: rgba(68, 93, 57, 0.12);
+  color: #2d4126;
+}
+
+.admin-hero-card .admin-link-button {
+  background: rgba(255, 253, 248, 0.94);
+  color: #2d4126;
 }
 
 .admin-grid {
@@ -3847,10 +3935,34 @@ button:focus-visible {
 .admin-card {
   padding: 1.2rem;
   border-radius: 1.5rem;
-  background: rgba(255, 251, 245, 0.88);
+  background: rgba(255, 251, 245, 0.92);
   border: 1px solid rgba(84, 73, 45, 0.12);
   box-shadow: 0 18px 42px rgba(64, 51, 30, 0.08);
   backdrop-filter: blur(14px);
+}
+
+.admin-card-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-card-heading p,
+.admin-section-head p,
+.admin-active-actions p {
+  margin: 0.35rem 0 0;
+  color: rgba(31, 36, 27, 0.62);
+}
+
+.admin-access-card {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.admin-token-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .admin-form,
@@ -3914,7 +4026,8 @@ button:focus-visible {
 }
 
 .admin-primary,
-.admin-secondary {
+.admin-secondary,
+.admin-danger {
   min-height: 2.95rem;
   padding: 0.8rem 1rem;
   border: 0;
@@ -3933,6 +4046,11 @@ button:focus-visible {
   color: #2d4126;
 }
 
+.admin-danger {
+  background: rgba(177, 53, 36, 0.1);
+  color: #9b2e21;
+}
+
 .admin-message {
   margin: 0.85rem 0 0;
   color: #445d39;
@@ -3943,11 +4061,26 @@ button:focus-visible {
   margin-top: 1rem;
   display: grid;
   gap: 0.2rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(68, 93, 57, 0.06);
   color: rgba(31, 36, 27, 0.72);
 }
 
 .admin-meta strong {
   color: #1f241b;
+}
+
+.admin-active-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.admin-active-actions p {
+  grid-column: 1 / -1;
+  font-size: 0.9rem;
 }
 
 .admin-section-head {
@@ -3958,33 +4091,89 @@ button:focus-visible {
   margin-bottom: 1rem;
 }
 
+.admin-stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.admin-stat-row span {
+  padding: 0.62rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(68, 93, 57, 0.08);
+  color: #2d4126;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .admin-product-row {
   display: grid;
-  grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) minmax(15rem, 22rem);
-  gap: 0.8rem;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) minmax(15rem, 22rem);
+  gap: 1rem;
   align-items: start;
   padding: 0.85rem;
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   border: 1px solid rgba(84, 73, 45, 0.12);
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.78);
 }
 
 .admin-product-info {
-  display: grid;
-  gap: 0.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
   min-width: 0;
 }
 
-.admin-product-info strong,
-.admin-product-info span {
+.admin-product-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.admin-product-copy strong,
+.admin-product-copy span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.admin-product-info span {
+.admin-product-copy span {
   color: rgba(31, 36, 27, 0.64);
   font-size: 0.9rem;
+}
+
+.admin-product-thumb {
+  position: relative;
+  flex: 0 0 4.25rem;
+  width: 4.25rem;
+  height: 4.25rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  background:
+    linear-gradient(135deg, rgba(68, 93, 57, 0.1), rgba(177, 53, 36, 0.08)),
+    #f4eddf;
+  display: grid;
+  place-items: center;
+  color: rgba(31, 36, 27, 0.48);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.admin-product-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-product-thumb small {
+  position: absolute;
+  left: 0.35rem;
+  bottom: 0.35rem;
+  padding: 0.22rem 0.42rem;
+  border-radius: 999px;
+  background: rgba(31, 36, 27, 0.82);
+  color: #fffdf8;
+  font-size: 0.62rem;
 }
 
 .admin-product-media-fields {
@@ -4108,14 +4297,33 @@ button:focus-visible {
     padding: 0.9rem;
   }
 
+  .admin-hero-card,
+  .admin-header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-header-actions {
+    width: 100%;
+  }
+
   .admin-grid,
   .admin-form-grid {
     grid-template-columns: 1fr;
   }
 
-  .admin-section-head {
+  .admin-section-head,
+  .admin-card-heading {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .admin-active-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-stat-row {
+    justify-content: flex-start;
   }
 
   .admin-product-row {

@@ -68,8 +68,17 @@ export default function AdminApp() {
     address: '',
   })
 
-  const products = editor?.products ?? []
+  const products = useMemo(() => editor?.products ?? [], [editor])
   const restaurant = editor?.restaurant ?? null
+  const menuPublicUrl = selectedAccount ? `${window.location.origin}/${selectedAccount}` : ''
+  const productStats = useMemo(
+    () => ({
+      total: products.length,
+      withImage: products.filter((product) => product.image_url).length,
+      withVideo: products.filter((product) => product.video_url).length,
+    }),
+    [products],
+  )
 
   useEffect(() => {
     if (!token) {
@@ -245,6 +254,48 @@ export default function AdminApp() {
     )
   }
 
+  async function handleDeleteSelectedMenu() {
+    if (!selectedAccount || !restaurant) {
+      return
+    }
+
+    const confirmed = window.confirm(
+      `Vas a eliminar el menu digital "${restaurant.name}". No se borran productos, pedidos ni datos del restaurante en NeuroRest. Continuar?`,
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    setStatus('deleting-menu')
+    setMessage('')
+
+    try {
+      const response = await fetch(`/api/admin/accounts/${selectedAccount}`, {
+        method: 'DELETE',
+        headers: authHeaders(token),
+      })
+      const payload = await readApiPayload(response)
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? 'No se pudo eliminar el menu.')
+      }
+
+      setAccounts((current) => current.filter((account) => account.slug !== selectedAccount))
+      setSelectedAccount((current) => {
+        const nextAccount = accounts.find((account) => account.slug !== current)
+        return nextAccount?.slug ?? ''
+      })
+      setEditor(null)
+      setPresentation(defaultPresentation)
+      setMessage(`Menu eliminado: ${payload.name}.`)
+      setStatus('ready')
+    } catch (error) {
+      setStatus('error')
+      setMessage(error instanceof Error ? error.message : 'No se pudo eliminar el menu.')
+    }
+  }
+
   async function handleSavePresentation() {
     setMessage('')
 
@@ -384,23 +435,43 @@ export default function AdminApp() {
   return (
     <div className="admin-shell">
       <div className="admin-container">
-        <header className="admin-header">
+        <header className="admin-header admin-hero-card">
           <div>
+            <span className="admin-kicker">Panel interno</span>
             <h1>NeuroRest Menu Admin</h1>
-            <p>Gestiona cuentas, identidad visual y fotos o videos de producto.</p>
+            <p>Gestiona menus digitales, identidad visual y media de producto desde un solo lugar.</p>
+          </div>
+          <div className="admin-header-actions">
+            <span className={`admin-status-pill ${token ? 'is-ready' : ''}`}>
+              {token ? 'Token cargado' : 'Sin token'}
+            </span>
+            {menuPublicUrl ? (
+              <a className="admin-link-button" href={menuPublicUrl} target="_blank" rel="noreferrer">
+                Ver menu
+              </a>
+            ) : null}
           </div>
         </header>
 
-        <section className="admin-card">
-          <label className="admin-field">
-            <span>Token admin</span>
-            <input
-              type="password"
-              value={token}
-              onChange={(event) => setToken(event.target.value)}
-              placeholder="NEUROREST_ADMIN_TOKEN"
-            />
-          </label>
+        <section className="admin-card admin-access-card">
+          <div className="admin-card-heading">
+            <div>
+              <h2>Acceso</h2>
+              <p>Ingresa el token para cargar y administrar los menus.</p>
+            </div>
+          </div>
+
+          <div className="admin-token-row">
+            <label className="admin-field">
+              <span>Token admin</span>
+              <input
+                type="password"
+                value={token}
+                onChange={(event) => setToken(event.target.value)}
+                placeholder="NEUROREST_ADMIN_TOKEN"
+              />
+            </label>
+          </div>
 
           {status.startsWith('loading') ? (
             <p className="admin-message">Sincronizando panel...</p>
@@ -409,8 +480,14 @@ export default function AdminApp() {
         </section>
 
         <section className="admin-grid">
-          <article className="admin-card">
-            <h2>Crear cuenta</h2>
+          <article className="admin-card admin-create-card">
+            <div className="admin-card-heading">
+              <div>
+                <span className="admin-kicker">Nuevo menu</span>
+                <h2>Crear cuenta</h2>
+                <p>Usa el mismo slug del restaurante para traer sus productos de NeuroRest.</p>
+              </div>
+            </div>
             <form className="admin-form" onSubmit={handleCreateAccount}>
               <label className="admin-field">
                 <span>Nombre</span>
@@ -454,8 +531,14 @@ export default function AdminApp() {
             </form>
           </article>
 
-          <article className="admin-card">
-            <h2>Cuenta activa</h2>
+          <article className="admin-card admin-active-card">
+            <div className="admin-card-heading">
+              <div>
+                <span className="admin-kicker">Edicion actual</span>
+                <h2>Cuenta activa</h2>
+                <p>Selecciona el menu que quieres configurar.</p>
+              </div>
+            </div>
             <label className="admin-field">
               <span>Seleccionar cuenta</span>
               <select
@@ -478,6 +561,18 @@ export default function AdminApp() {
                 <span>{restaurant.city || 'Sin ciudad'}</span>
               </div>
             ) : null}
+
+            {restaurant ? (
+              <div className="admin-active-actions">
+                <a className="admin-link-button" href={menuPublicUrl} target="_blank" rel="noreferrer">
+                  Abrir menu publico
+                </a>
+                <button type="button" className="admin-danger" onClick={handleDeleteSelectedMenu}>
+                  Eliminar menu
+                </button>
+                <p>El menu deja de estar publicado, pero no se borra la cuenta ni sus productos.</p>
+              </div>
+            ) : null}
           </article>
         </section>
 
@@ -485,7 +580,11 @@ export default function AdminApp() {
           <>
             <section className="admin-card">
               <div className="admin-section-head">
-                <h2>Presentacion</h2>
+                <div>
+                  <span className="admin-kicker">Look & feel</span>
+                  <h2>Presentacion</h2>
+                  <p>Define el diseño visual que va a ver el cliente en el menu.</p>
+                </div>
                 <button type="button" className="admin-primary" onClick={handleSavePresentation}>
                   Guardar presentacion
                 </button>
@@ -645,7 +744,18 @@ export default function AdminApp() {
             </section>
 
             <section className="admin-card">
-              <h2>Fotos y videos por producto</h2>
+              <div className="admin-section-head">
+                <div>
+                  <span className="admin-kicker">Catalogo visual</span>
+                  <h2>Fotos y videos por producto</h2>
+                  <p>Carga una foto fija o un video corto para cada producto del menu.</p>
+                </div>
+                <div className="admin-stat-row">
+                  <span>{productStats.total} productos</span>
+                  <span>{productStats.withImage} fotos</span>
+                  <span>{productStats.withVideo} videos</span>
+                </div>
+              </div>
               <div className="admin-products">
                 {products.map((product) => (
                   <ProductMediaRow
@@ -671,12 +781,19 @@ function ProductMediaRow({ product, onSaveImage, onSaveVideo, onUploadImage, onU
   const [videoUrl, setVideoUrl] = useState(product.video_url ?? '')
   const [imageFile, setImageFile] = useState(null)
   const [videoFile, setVideoFile] = useState(null)
+  const previewImage = imageUrl || product.image_url
 
   return (
     <div className="admin-product-row">
       <div className="admin-product-info">
-        <strong>{product.name}</strong>
-        <span>{product.category || 'Sin categoria'}</span>
+        <div className="admin-product-thumb">
+          {previewImage ? <img src={previewImage} alt="" /> : <span>Sin foto</span>}
+          {videoUrl ? <small>Video</small> : null}
+        </div>
+        <div className="admin-product-copy">
+          <strong>{product.name}</strong>
+          <span>{product.category || 'Sin categoria'}</span>
+        </div>
       </div>
 
       <div className="admin-product-media-fields">

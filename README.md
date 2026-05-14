@@ -144,17 +144,21 @@ Endpoints disponibles:
 
 - `GET /api/admin/accounts`
 - `POST /api/admin/accounts`
+- `DELETE /api/admin/accounts/:accountId`
 - `GET /api/admin/accounts/:accountId/editor`
 - `PATCH /api/admin/accounts/:accountId/presentation`
 - `PATCH /api/admin/products/:productId/media`
+- `POST /api/admin/products/:productId/image-upload`
+- `POST /api/admin/products/:productId/video-upload`
 
 Con eso ya puedes:
 
 - crear una cuenta nueva en `restaurants`
 - enlazar por `slug` una cuenta ya existente de NeuroRest sin duplicarla
+- eliminar/publicar como inactivo un menu digital sin borrar productos ni pedidos de NeuroRest
 - editar `layout`, `theme`, `branding`, `hero` y `preview`
-- guardar `video_url` por producto
-- subir videos directo a Supabase Storage desde el panel
+- guardar `image_url` y `video_url` por producto
+- subir fotos o videos directo a Supabase Storage desde el panel
 
 ## Preparar Supabase Storage para videos
 
@@ -176,10 +180,10 @@ Variables:
 Flujo en `/admin`:
 
 1. elegir cuenta
-2. ir a `Videos por producto`
+2. ir a `Fotos y videos por producto`
 3. seleccionar un archivo
 4. click en `Subir a Storage`
-5. el panel sube el archivo al bucket y guarda `video_url` en `products`
+5. el panel sube el archivo al bucket y guarda `image_url` o `video_url` en `products`
 
 Ruta interna usada:
 

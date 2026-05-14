@@ -15,6 +15,8 @@ const fallbackImages = [
   '/dishes/lemonade.jpg',
 ]
 
+const DELETED_MENU_THEME_ID = 'menu-deleted'
+
 function getProductVideo(product) {
   return (
     product.video_url ||
@@ -58,6 +60,11 @@ export class SupabaseMenuRepository {
       this.fetchPresentationConfig(restaurant.id),
       this.fetchLoyaltyProgram(restaurant.id),
     ])
+
+    if (presentationConfig?.isDeleted) {
+      return null
+    }
+
     const categories = this.groupProductsByCategory(products)
 
     return {
@@ -219,6 +226,7 @@ export class SupabaseMenuRepository {
         : {}
 
     return {
+      isDeleted: config.theme_id === DELETED_MENU_THEME_ID,
       template: config.layout || undefined,
       layout: config.layout || undefined,
       branding: {

@@ -38,6 +38,8 @@ function mapPresentationConfig(config) {
   }
 }
 
+const DELETED_MENU_THEME_ID = 'menu-deleted'
+
 function normalizePresentationInput(input) {
   return {
     layout: input.layout ?? 'editorial',
@@ -83,7 +85,12 @@ export class SupabaseAdminRepository {
   }
 
   async listAccounts() {
-    return this.request('/restaurants?select=id,slug,name,city,business_type&order=name.asc')
+    const [restaurants, deletedRestaurantIds] = await Promise.all([
+      this.request('/restaurants?select=id,slug,name,city,business_type&order=name.asc'),
+      this.fetchDeletedMenuRestaurantIds(),
+    ])
+
+    return restaurants.filter((restaurant) => !deletedRestaurantIds.has(restaurant.id))
   }
 
   async getAccountEditorData(accountId) {
@@ -109,6 +116,8 @@ export class SupabaseAdminRepository {
     const existingRestaurant = await this.fetchRestaurantBySlug(payload.slug)
 
     if (existingRestaurant) {
+      await this.restoreMenu(existingRestaurant.id)
+
       return {
         ...existingRestaurant,
         linkedExisting: true,
@@ -160,6 +169,58 @@ export class SupabaseAdminRepository {
     )
 
     return mapPresentationConfig(row)
+  }
+
+  async deleteMenu(accountId) {
+    const restaurant = await this.fetchRestaurantBySlug(accountId)
+
+    if (!restaurant) {
+      return null
+    }
+
+    await this.request('/restaurant_menu_presentations?on_conflict=restaurant_id', {
+      method: 'POST',
+      headers: {
+        Prefer: 'resolution=merge-duplicates,return=representation',
+      },
+      body: JSON.stringify([
+        {
+          restaurant_id: restaurant.id,
+          layout: 'editorial',
+          theme_id: DELETED_MENU_THEME_ID,
+          theme_overrides: {},
+          branding_wordmark: null,
+          branding_subtitle: null,
+          hero_image_url: null,
+          hero_title: null,
+          hero_accent: null,
+          hero_description: null,
+          cards_style: 'editorial-list',
+          preview_mode: 'image-with-video-chip',
+          autoplay_videos: false,
+          muted_videos: true,
+        },
+      ]),
+    })
+
+    return {
+      id: restaurant.id,
+      slug: restaurant.slug,
+      name: restaurant.name,
+      deleted: true,
+    }
+  }
+
+  async restoreMenu(restaurantId) {
+    await this.request(
+      `/restaurant_menu_presentations?restaurant_id=eq.${restaurantId}&theme_id=eq.${DELETED_MENU_THEME_ID}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Prefer: 'return=minimal',
+        },
+      },
+    )
   }
 
   async updateProductMedia(productId, media) {
@@ -288,6 +349,27 @@ export class SupabaseAdminRepository {
         message.includes('42P01')
       ) {
         return null
+      }
+
+      throw error
+    }
+  }
+
+  async fetchDeletedMenuRestaurantIds() {
+    try {
+      const rows = await this.request(
+        `/restaurant_menu_presentations?theme_id=eq.${DELETED_MENU_THEME_ID}&select=restaurant_id`,
+      )
+
+      return new Set(rows.map((row) => row.restaurant_id).filter(Boolean))
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      if (
+        message.includes('restaurant_menu_presentations') ||
+        message.includes('PGRST') ||
+        message.includes('42P01')
+      ) {
+        return new Set()
       }
 
       throw error
