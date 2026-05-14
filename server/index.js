@@ -96,6 +96,8 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.get('/api/accounts/:accountId/menu', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, max-age=0')
+
   try {
     const menu = await repository.getMenuByAccountId(req.params.accountId)
 

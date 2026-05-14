@@ -227,11 +227,13 @@ export class SupabaseAdminRepository {
     const payload = {}
 
     if (Object.prototype.hasOwnProperty.call(media, 'video_url')) {
-      payload.video_url = media.video_url || null
+      const videoUrl = String(media.video_url ?? '').trim()
+      payload.video_url = videoUrl || null
     }
 
     if (Object.prototype.hasOwnProperty.call(media, 'image_url')) {
-      payload.image_url = media.image_url || null
+      const imageUrl = String(media.image_url ?? '').trim()
+      payload.image_url = imageUrl || null
     }
 
     const [row] = await this.request(`/products?id=eq.${productId}`, {

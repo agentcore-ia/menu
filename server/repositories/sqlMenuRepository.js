@@ -38,6 +38,7 @@ export class SqlMenuRepository {
             unitPrice: Number(product.price ?? 0),
             price: product.price_display ?? `$${product.price ?? ''}`,
             image: product.image_url ?? '/dishes/hero-steak.jpg',
+            hasCustomImage: Boolean(product.image_url),
             video: product.video_url ?? null,
             badge: product.badge ?? '',
             dietary: product.dietary_tags

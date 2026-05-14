@@ -656,7 +656,9 @@ function getPresentationStyles(presentation) {
 }
 
 function shouldRenderPreviewVideo(item, presentation) {
-  return Boolean(item.video && presentation.preview?.productMedia === 'video-first')
+  return Boolean(
+    item.video && !item.hasCustomImage && presentation.preview?.productMedia === 'video-first',
+  )
 }
 
 function shouldAutoplayVideoPreview(presentation) {
@@ -1268,7 +1270,7 @@ export default function MenuApp() {
       setErrorMessage('')
 
       try {
-        const response = await fetch(`/api/accounts/${accountId}/menu`)
+        const response = await fetch(`/api/accounts/${accountId}/menu`, { cache: 'no-store' })
         const payload = await response.json()
 
         if (!response.ok) {

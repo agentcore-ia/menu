@@ -170,6 +170,7 @@ export class SupabaseMenuRepository {
     products.forEach((product, index) => {
       const categoryName = product.category?.trim() || 'Menu'
       const categoryId = this.slugify(categoryName)
+      const customImage = String(product.image_url ?? '').trim()
 
       if (!groups.has(categoryId)) {
         groups.set(categoryId, {
@@ -186,9 +187,10 @@ export class SupabaseMenuRepository {
         unitPrice: Number(product.price ?? 0),
         price: this.formatPrice(product.price),
         image:
-          product.image_url ||
+          customImage ||
           getPizzeriaFallbackImage(this.accountIdForFallback, product, index) ||
           fallbackImages[index % fallbackImages.length],
+        hasCustomImage: Boolean(customImage),
         video: getProductVideo(product),
         badge: categoryName,
         dietary: [],
