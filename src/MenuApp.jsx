@@ -143,6 +143,17 @@ function IconDrink() {
   )
 }
 
+function IconBurger() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 11c.8-3.1 3.2-4.8 7-4.8s6.2 1.7 7 4.8H5z" />
+      <path d="M5.2 14.5h13.6" />
+      <path d="M6 17.5h12" />
+      <path d="M7.2 11.2c1.4.8 2.7.8 4.1 0 1.5.8 3 .8 4.5 0" />
+    </svg>
+  )
+}
+
 function IconSpark() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -283,6 +294,7 @@ function getCategoryIcon(label) {
   if (key.includes('pizza')) return IconPizza
   if (key.includes('postre')) return IconDessert
   if (key.includes('bebida')) return IconDrink
+  if (key.includes('hamburgues') || key.includes('burger')) return IconBurger
   return IconServe
 }
 
@@ -618,13 +630,16 @@ function getPizzeriaDishTitle(item) {
 
 function getPizzeriaCategoryLabel(label) {
   const key = slugify(label)
+  if (key.includes('pizza')) return 'Pizzas'
   if (key.includes('empanada')) return 'Empanadas'
-  if (key.includes('hamburgues')) return 'Postres'
+  if (key.includes('bebida')) return 'Bebidas'
+  if (key.includes('postre')) return 'Postres'
+  if (key.includes('hamburgues')) return 'Hamburguesas'
   return label
 }
 
 function getPizzeriaOrderedCategories(categories) {
-  const order = ['pizza', 'empanada', 'bebida', 'hamburgues']
+  const order = ['pizza', 'empanada', 'bebida', 'postre', 'hamburgues']
 
   return [...categories].sort((left, right) => {
     const leftKey = slugify(left.label)
@@ -817,18 +832,22 @@ function TemplateCategorySelector({
               ? 'empanadas'
               : key.includes('bebida')
                 ? 'bebidas'
-                : key.includes('hamburgues')
+                : key.includes('postre')
                   ? 'postres'
-                  : 'postres'
+                  : key.includes('hamburgues')
+                    ? 'hamburguesas'
+                    : 'otros'
           const Icon = key.includes('pizza')
             ? IconPizzaOutline
             : key.includes('empanada')
               ? IconEmpanada
               : key.includes('bebida')
                 ? IconDrink
-                : key.includes('hamburgues')
+                : key.includes('postre')
                   ? IconDessert
-                  : IconDessert
+                  : key.includes('hamburgues')
+                    ? IconBurger
+                    : IconServe
 
           return (
             <button
