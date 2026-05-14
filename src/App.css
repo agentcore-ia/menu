@@ -3469,6 +3469,43 @@ button:focus-visible {
   white-space: nowrap;
 }
 
+.template-pizzeria .hero-pizzeria {
+  background: transparent;
+}
+
+.template-pizzeria .hero-content-pizzeria {
+  min-height: auto;
+  padding: 0;
+}
+
+.template-pizzeria .content-panel {
+  margin-top: -0.45rem;
+  padding: 0 1rem 1.85rem;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.template-pizzeria .section-block-pizzeria {
+  padding-top: 0;
+}
+
+.template-pizzeria .hero-topbar {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 0;
+}
+
+.template-pizzeria .hero-topbar .icon-button,
+.template-pizzeria .hero-topbar .cart-button {
+  position: absolute;
+  top: 1.6rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  box-shadow: none;
+}
+
 @media (max-width: 760px) {
   .admin-shell {
     padding: 0.9rem;
