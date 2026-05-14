@@ -4025,11 +4025,6 @@ button:focus-visible {
 }
 
 .template-pizzeria .pizzeria-header-image {
-  transform: translateY(-1.15rem);
-  margin-bottom: -1.15rem;
-}
-
-.template-pizzeria .pizzeria-header-image {
   margin-top: 0;
   margin-bottom: 0;
 }
