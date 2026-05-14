@@ -641,31 +641,549 @@
   box-shadow: none;
 }
 
+.template-pizzeria .phone-surface,
+.template-pizzeria.detail-phone {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.42), transparent 18%),
+    radial-gradient(circle at 85% 6%, rgba(255, 255, 255, 0.2), transparent 14%),
+    linear-gradient(180deg, #f6efe5 0%, #f3ebde 100%);
+}
+
+.template-pizzeria .hero-pizzeria {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f6efe5 0%, #f3ebde 100%);
+}
+
+.template-pizzeria .hero-pizzeria::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 8.8rem;
+  background: #17361f;
+  display: block;
+}
+
+.template-pizzeria .hero-topbar {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  padding: 0;
+}
+
+.template-pizzeria .hero-topbar .icon-button,
+.template-pizzeria .hero-topbar .cart-button {
+  position: absolute;
+  top: 1.35rem;
+  width: 3.35rem;
+  height: 3.35rem;
+  color: #f7f0e6;
+}
+
 .template-pizzeria .hero-topbar .icon-button {
   left: 1.45rem;
   border-radius: 1rem;
   background: transparent;
-  color: transparent;
+}
+
+.template-pizzeria .hero-topbar .cart-button {
+  right: 1.45rem;
+  border-radius: 999px;
+  border: 2px solid rgba(247, 240, 230, 0.94);
+  background: rgba(21, 44, 23, 0.22);
+  backdrop-filter: blur(2px);
+}
+
+.template-pizzeria .hero-topbar .icon-button svg,
+.template-pizzeria .hero-topbar .cart-button svg {
+  width: 1.95rem;
+  height: 1.95rem;
+  opacity: 1;
+}
+
+.template-pizzeria .hero-topbar .cart-button::after {
+  display: none;
+}
+
+.template-pizzeria .hero-topbar .cart-badge {
+  top: -0.38rem;
+  right: -0.38rem;
+  min-width: 2rem;
+  height: 2rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  background: #b63127;
+  color: #fff8ef;
+  border: 2px solid #f7f0e6;
+}
+
+.template-pizzeria .hero-content-pizzeria {
+  min-height: 0;
+  padding: 1.65rem 1rem 0;
+}
+
+.pizzeria-hero-stage {
+  position: relative;
+  padding-top: 2.3rem;
+}
+
+.pizzeria-hero-shell {
+  position: relative;
+  overflow: hidden;
+  min-height: 27rem;
+  padding: 6rem 1.4rem 2.35rem;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.52), transparent 28%),
+    linear-gradient(180deg, rgba(247, 240, 230, 0.98) 0%, rgba(246, 238, 226, 0.98) 100%);
+  border-radius: 8rem 8rem 0 0 / 5.5rem 5.5rem 0 0;
+  box-shadow: inset 0 0 0 1px rgba(199, 176, 134, 0.18);
+}
+
+.pizzeria-hero-shell::before {
+  content: '';
+  position: absolute;
+  top: -5.8rem;
+  left: 50%;
+  width: 18rem;
+  height: 10rem;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255, 255, 255, 0.34), transparent 52%),
+    linear-gradient(180deg, #f7f0e6 0%, #f6eee2 100%);
+  border-radius: 50% 50% 0 0 / 92% 92% 0 0;
+  box-shadow: inset 0 0 0 1px rgba(199, 176, 134, 0.18);
+}
+
+.pizzeria-hero-shell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 19% 14%, rgba(199, 176, 134, 0.06), transparent 16%),
+    radial-gradient(circle at 82% 24%, rgba(199, 176, 134, 0.05), transparent 14%);
+  pointer-events: none;
+}
+
+.pizzeria-hero-brand,
+.pizzeria-hero-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.pizzeria-hero-brand {
+  display: flex;
+  justify-content: center;
+}
+
+.pizzeria-logo-image {
+  width: min(18rem, 68vw);
+  height: auto;
+  display: block;
+}
+
+.pizzeria-hero-copy {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.pizzeria-hero-copy h1 {
+  margin: 0;
+  font-family: 'Bebas Neue', var(--font-display, serif);
+  font-size: clamp(4.1rem, 13vw, 6.1rem);
+  line-height: 0.9;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  color: #17361f;
+  text-shadow: 0 1px 0 rgba(23, 54, 31, 0.05);
+}
+
+.pizzeria-hero-copy p {
+  margin: 0.25rem 0 0;
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(2.5rem, 7.1vw, 3.2rem);
+  line-height: 0.95;
+  color: #b63127;
+}
+
+.pizzeria-hero-underline {
+  display: block;
+  width: 13rem;
+  max-width: 45vw;
+  height: 0.18rem;
+  margin: 0.55rem auto 0;
+  background: #2d5a31;
+  border-radius: 999px;
+  transform: rotate(-4deg);
+}
+
+.pizzeria-hero-illustration {
+  position: absolute;
+  bottom: 0.85rem;
+  width: 11.5rem;
+  opacity: 0.16;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.pizzeria-hero-illustration-left {
+  left: -3rem;
+}
+
+.pizzeria-hero-illustration-right {
+  right: -3rem;
+  transform: scaleX(-1);
+}
+
+.template-pizzeria .content-panel {
+  margin-top: -1rem;
+  padding: 0 1rem 1.85rem;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.template-pizzeria .section-block-pizzeria {
+  padding-top: 0;
+}
+
+.pizzeria-category-art-wrap,
+.pizzeria-header-art,
+.pizzeria-footer-art,
+.pizzeria-footer-hitbox {
+  display: none;
+}
+
+.pizzeria-category-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.25rem;
+  margin: 0 0 1rem;
+  padding: 0.34rem;
+  border-radius: 999px;
+  background: rgba(255, 251, 245, 0.98);
+  border: 1px solid rgba(209, 194, 167, 0.75);
+  box-shadow: 0 10px 22px rgba(58, 50, 36, 0.08);
+}
+
+.pizzeria-category-pill {
+  min-height: 3.55rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: #2c2c2c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.48rem;
+  font-family: 'Montserrat', var(--font-body, sans-serif);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.pizzeria-category-pill.active {
+  background: linear-gradient(180deg, #264f2d 0%, #17361f 100%);
+  color: #fffaf1;
+}
+
+.pizzeria-category-icon svg {
+  width: 1.32rem;
+  height: 1.32rem;
+  stroke-width: 1.75;
+}
+
+.pizzeria-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 0.95rem;
+}
+
+.pizzeria-dish-card {
+  overflow: hidden;
+  border-radius: 1.9rem;
+  background: linear-gradient(180deg, #fffbf5 0%, #fff8ef 100%);
+  border: 1px solid rgba(205, 192, 168, 0.4);
+  box-shadow: 0 14px 32px rgba(52, 40, 25, 0.1);
+}
+
+.pizzeria-dish-media .dish-thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.08 / 0.84;
+  object-fit: cover;
+}
+
+.pizzeria-dish-body {
+  padding: 1rem 1.1rem 1.15rem;
+}
+
+.pizzeria-dish-copy h3 {
+  margin: 0;
+  font-family: 'Bebas Neue', var(--font-display, serif);
+  font-size: 2.55rem;
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  color: #1f4725;
+  text-transform: uppercase;
+}
+
+.pizzeria-dish-copy p {
+  margin: 0.55rem 0 0;
+  min-height: 4.5rem;
+  color: #353535;
+  font-size: 0.95rem;
+  line-height: 1.38;
+}
+
+.pizzeria-dish-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.9rem;
+  margin-top: 0.8rem;
+}
+
+.pizzeria-dish-footer strong {
+  color: #b63127;
+  font-family: 'Montserrat', var(--font-body, sans-serif);
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.pizzeria-add-button {
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #17361f;
+  color: #fffaf1;
+  box-shadow: 0 10px 20px rgba(23, 54, 31, 0.18);
+}
+
+.pizzeria-add-button svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  stroke-width: 2;
+}
+
+.pizzeria-ribbon {
+  position: absolute;
+  left: 0.9rem;
+  top: 0;
+  z-index: 2;
+  color: #fff8ef;
+  text-align: center;
+  font-family: 'Bebas Neue', var(--font-display, serif);
+  letter-spacing: 0.03em;
+}
+
+.pizzeria-ribbon-hot {
+  width: 3.75rem;
+  padding: 0.86rem 0.35rem 1.2rem;
+  background: #b63127;
+  font-size: 1.05rem;
+  line-height: 0.95;
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 50% 100%, 0 82%);
+}
+
+.pizzeria-ribbon-new {
+  min-width: 3.9rem;
+  padding: 0.78rem 0.62rem 1.06rem;
+  background: #2d5a31;
+  font-size: 0.98rem;
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 50% 100%, 0 82%);
+}
+
+.pizzeria-drinks-banner {
+  position: relative;
+  overflow: hidden;
+  margin-top: 1.45rem;
+  padding: 2rem 1.4rem 2.15rem;
+  border-radius: 0 0 2.45rem 2.45rem;
+  background: linear-gradient(180deg, #214926 0%, #17361f 100%);
+}
+
+.pizzeria-drinks-banner::before {
+  content: '';
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  top: -1.15rem;
+  height: 2rem;
+  background: #17361f;
+  clip-path: polygon(0 56%, 8% 64%, 16% 50%, 24% 62%, 32% 48%, 40% 62%, 48% 50%, 56% 64%, 64% 49%, 72% 62%, 80% 48%, 88% 61%, 96% 50%, 100% 56%, 100% 100%, 0 100%);
+}
+
+.pizzeria-drinks-illustration {
+  position: absolute;
+  left: -1rem;
+  bottom: -0.4rem;
+  width: 10rem;
+  opacity: 0.18;
+  transform: scaleX(-1);
+  mix-blend-mode: screen;
+}
+
+.pizzeria-drinks-copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+}
+
+.pizzeria-drinks-copy strong {
+  color: #fff8ef;
+  font-family: 'Bebas Neue', var(--font-display, serif);
+  font-size: 2.15rem;
+  line-height: 1;
+  letter-spacing: 0.03em;
+}
+
+.pizzeria-drinks-button {
+  min-width: 15.2rem;
+  min-height: 3.7rem;
+  padding: 0 1.45rem;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 248, 239, 0.95);
+  background: transparent;
+  color: #fff8ef;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-family: 'Bebas Neue', var(--font-display, serif);
+  font-size: 1.5rem;
+  letter-spacing: 0.03em;
+}
+
+.pizzeria-drinks-icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  stroke-width: 1.85;
+}
+
+.template-pizzeria .hero-topbar .icon-button {
+  color: rgba(247, 240, 230, 0.96);
+}
+
+.template-pizzeria .hero-topbar .icon-button svg,
+.template-pizzeria .hero-topbar .cart-button svg,
+.pizzeria-category-icon svg,
+.pizzeria-drinks-icon svg,
+.pizzeria-add-button svg {
+  stroke: currentColor;
+  fill: none;
+}
+
+.template-pizzeria .hero-content-pizzeria {
+  padding-top: 1.2rem;
+}
+
+.pizzeria-hero-stage {
+  padding-top: 6rem;
+}
+
+.pizzeria-hero-shell {
+  min-height: 19.4rem;
+  padding: 3.35rem 1.15rem 2rem;
+  border-radius: 9rem 9rem 0 0 / 5.2rem 5.2rem 0 0;
+}
+
+.pizzeria-hero-shell::before {
+  top: -3.55rem;
+  width: 14.2rem;
+  height: 6.8rem;
+}
+
+.pizzeria-hero-brand {
+  margin-top: -0.65rem;
+}
+
+.pizzeria-logo {
+  gap: 0.1rem;
+}
+
+.pizzeria-logo-oven {
+  width: 5rem;
+  height: 3.35rem;
+}
+
+.pizzeria-logo-wordmark {
+  font-size: clamp(2.45rem, 8vw, 3.3rem);
+  letter-spacing: 0.075em;
+}
+
+.pizzeria-logo-subtitle {
+  font-size: 0.92rem;
+  letter-spacing: 0.34em;
+}
+
+.pizzeria-hero-copy {
+  margin-top: 1.15rem;
+}
+
+.pizzeria-hero-copy h1 {
+  font-size: clamp(3.85rem, 12vw, 5.45rem);
+}
+
+.pizzeria-hero-copy p {
+  font-size: clamp(2.15rem, 6.3vw, 2.9rem);
+}
+
+.pizzeria-hero-underline {
+  width: 10.7rem;
+  margin-top: 0.4rem;
+}
+
+.pizzeria-hero-illustration {
+  bottom: 0.55rem;
+  width: 9.4rem;
+  opacity: 0.12;
+}
+
+.pizzeria-category-row {
+  gap: 0.16rem;
+  padding: 0.28rem;
+}
+
+.pizzeria-category-pill {
+  min-height: 3.2rem;
+  padding: 0 0.3rem;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+}
+
+.pizzeria-category-pill.active {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.pizzeria-category-icon svg {
+  width: 1.12rem;
+  height: 1.12rem;
+}
+
+.template-pizzeria .hero-topbar .icon-button {
+  left: 1.45rem;
+  border-radius: 1rem;
+  background: transparent;
+  color: rgba(247, 240, 230, 0.96);
 }
 
 .template-pizzeria .hero-topbar .cart-button {
   right: 1.55rem;
   border-radius: 999px;
-  background: #17361f;
+  background: rgba(21, 44, 23, 0.22);
   color: #f7f0e6;
   border: 2px solid rgba(247, 240, 230, 0.96);
+  backdrop-filter: blur(2px);
 }
 
 .template-pizzeria .hero-topbar .cart-button::after {
-  content: '';
-  position: absolute;
-  top: -0.12rem;
-  right: -0.08rem;
-  width: 1.45rem;
-  height: 1.45rem;
-  border-radius: 999px;
-  background: #17361f;
-  z-index: 0;
+  display: none;
 }
 
 .template-pizzeria .hero-topbar .icon-button svg,
@@ -676,7 +1194,7 @@
 }
 
 .template-pizzeria .hero-topbar .icon-button svg {
-  opacity: 0;
+  opacity: 1;
 }
 
 .template-pizzeria .hero-topbar .cart-badge {
