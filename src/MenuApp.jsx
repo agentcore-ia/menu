@@ -566,6 +566,20 @@ function getGelatoFlavorAsset(flavorName) {
   return '/gelato/flavor-chocolate.png'
 }
 
+function getPizzeriaDishTitle(item) {
+  return String(item?.name ?? '')
+    .replace(/^pizza\s+/i, '')
+    .replace(/^empanada\s+/i, '')
+    .replace(/^hamburguesa\s+/i, '')
+    .trim()
+}
+
+function getPizzeriaCategoryLabel(label) {
+  const key = slugify(label)
+  if (key.includes('empanada')) return 'Entradas'
+  return label
+}
+
 function getPresentationStyles(presentation) {
   const theme = presentation.theme
 
@@ -744,7 +758,9 @@ function TemplateCategorySelector({
               ? IconEmpanada
               : key.includes('bebida')
                 ? IconDrink
-                : IconDessert
+                : key.includes('hamburgues')
+                  ? IconServe
+                  : IconDessert
 
           return (
             <button
@@ -756,7 +772,7 @@ function TemplateCategorySelector({
               <span className="pizzeria-category-icon">
                 <Icon />
               </span>
-              <span>{category.label}</span>
+              <span>{getPizzeriaCategoryLabel(category.label)}</span>
             </button>
           )
         })}
@@ -875,7 +891,7 @@ function TemplateMenuCollection({
 
               <div className="pizzeria-dish-body">
                 <button type="button" className="pizzeria-dish-copy" onClick={() => onOpenDish(item)}>
-                  <h3>{item.name}</h3>
+                  <h3>{getPizzeriaDishTitle(item)}</h3>
                   <p>{item.description}</p>
                 </button>
 
@@ -1537,6 +1553,15 @@ export default function MenuApp() {
 
             {status === 'ready' ? (
               <>
+                {templateId === 'pizzeria' ? (
+                  <TemplateCategorySelector
+                    templateId={templateId}
+                    categories={categories}
+                    currentCategory={currentCategory}
+                    onSelectCategory={setSelectedCategory}
+                  />
+                ) : null}
+
                 {templateId !== 'gelato' && templateId !== 'pizzeria' ? (
                   <section className="section-block" data-section="categories">
                     <div className="section-heading">
