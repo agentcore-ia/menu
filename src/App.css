@@ -1286,9 +1286,30 @@
 }
 
 .pizzeria-category-pill-empanadas .pizzeria-category-icon svg {
-  width: 1.12rem;
-  height: 1.12rem;
-  stroke-width: 1.65;
+  width: 1.2rem;
+  height: 1.2rem;
+  stroke-width: 0;
+}
+
+.pizzeria-category-pill-empanadas {
+  --empanada-cutout: #fffaf2;
+}
+
+.pizzeria-category-pill-empanadas.active {
+  --empanada-cutout: #17361f;
+}
+
+.pizzeria-category-pill-empanadas .empanada-shell {
+  fill: currentColor;
+  stroke: none;
+}
+
+.pizzeria-category-pill-empanadas .empanada-crimp {
+  fill: none;
+  stroke: var(--empanada-cutout);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.1;
 }
 
 .pizzeria-card-grid {
