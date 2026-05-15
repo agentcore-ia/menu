@@ -15,6 +15,8 @@ export function getServerConfig() {
       '',
     adminToken: process.env.NEUROREST_ADMIN_TOKEN ?? '',
     storageBucket: process.env.NEUROREST_SUPABASE_STORAGE_BUCKET ?? 'menu-videos',
+    n8nWhatsappWebhookUrl: process.env.NEUROREST_N8N_WHATSAPP_WEBHOOK_URL ?? '',
+    n8nWebhookSecret: process.env.NEUROREST_N8N_WEBHOOK_SECRET ?? '',
     databaseProvider: process.env.NEUROREST_DB_PROVIDER ?? 'postgres',
     databaseUrl: process.env.DATABASE_URL ?? '',
     mysqlHost: process.env.MYSQL_HOST ?? '',

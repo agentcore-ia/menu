@@ -128,7 +128,23 @@ export class SupabaseOrderRepository {
       loyalty: loyaltyEarn,
     })
 
-    await this.createOutgoingWhatsappMessage(conversation.id, confirmationMessage)
+    const whatsappMessage = await this.createOutgoingWhatsappMessage(
+      conversation.id,
+      confirmationMessage,
+    )
+    const whatsappDispatch = await this.dispatchWhatsappWebhook({
+      restaurant,
+      customer,
+      pedido,
+      conversation,
+      message: whatsappMessage,
+      content: confirmationMessage,
+      items: payload.items,
+      redemptionItems: redemptionPreview?.lineItems ?? [],
+      total,
+      deliveryType: payload.deliveryType,
+      paymentMethod: payload.paymentMethod,
+    })
     await this.touchConversation(conversation.id)
 
     return {
@@ -158,6 +174,7 @@ export class SupabaseOrderRepository {
               redemptionPreview?.account?.pointsBalance ??
               0,
           },
+      whatsapp: whatsappDispatch,
     }
   }
 
@@ -599,7 +616,7 @@ export class SupabaseOrderRepository {
   }
 
   async createOutgoingWhatsappMessage(conversationId, content) {
-    await this.request('/mensajes', {
+    const [created] = await this.request('/mensajes', {
       method: 'POST',
       headers: {
         Prefer: 'return=representation',
@@ -615,6 +632,88 @@ export class SupabaseOrderRepository {
         },
       ]),
     })
+
+    return created
+  }
+
+  async dispatchWhatsappWebhook({
+    restaurant,
+    customer,
+    pedido,
+    conversation,
+    message,
+    content,
+    items,
+    redemptionItems,
+    total,
+    deliveryType,
+    paymentMethod,
+  }) {
+    if (!this.config.n8nWhatsappWebhookUrl) {
+      return {
+        status: 'skipped',
+        reason: 'N8N_WEBHOOK_NOT_CONFIGURED',
+      }
+    }
+
+    try {
+      const response = await fetch(this.config.n8nWhatsappWebhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(this.config.n8nWebhookSecret
+            ? { 'x-neurorest-webhook-secret': this.config.n8nWebhookSecret }
+            : {}),
+        },
+        body: JSON.stringify({
+          event: 'menu.order.whatsapp_confirmation',
+          restaurant: {
+            id: restaurant.id,
+            slug: restaurant.slug,
+            name: restaurant.name,
+          },
+          customer: {
+            id: customer.id,
+            name: customer.name,
+            phone: customer.phone,
+          },
+          order: {
+            id: pedido.id,
+            number: pedido.order_number,
+            total,
+            deliveryType,
+            paymentMethod,
+            items,
+            redemptions: redemptionItems,
+          },
+          conversation: {
+            id: conversation.id,
+          },
+          message: {
+            id: message?.id ?? null,
+            content,
+          },
+          whatsapp: {
+            to: customer.phone,
+            text: content,
+          },
+        }),
+      })
+
+      if (!response.ok) {
+        const detail = await response.text()
+        throw new Error(`n8n webhook error: ${response.status} ${detail}`)
+      }
+
+      return {
+        status: 'sent',
+      }
+    } catch (error) {
+      return {
+        status: 'failed',
+        reason: error instanceof Error ? error.message : 'No se pudo disparar n8n.',
+      }
+    }
   }
 
   async touchConversation(conversationId) {
