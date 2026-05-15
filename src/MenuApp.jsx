@@ -763,40 +763,17 @@ function getBurgerCategoryIcon(label) {
   return IconServe
 }
 
-function findBurgerCategory(categories, tokens) {
-  return categories.find((category) => {
-    const key = slugify(category.label)
-    return tokens.some((token) => key.includes(token))
-  })
-}
-
 function getBurgerOrderedCategories(categories) {
-  const slots = [
-    { id: 'hamburguesas', label: 'Hamburguesas', tokens: ['hamburgues', 'burger'] },
-    { id: 'combos', label: 'Combos', tokens: ['combo'] },
-    { id: 'entradas', label: 'Entradas', tokens: ['entrada', 'papa'] },
-    { id: 'bebidas', label: 'Bebidas', tokens: ['bebida'] },
-  ]
+  const order = ['hamburgues', 'burger', 'combo', 'entrada', 'papa', 'bebida', 'postre']
 
-  return slots.map((slot) => {
-    const category = findBurgerCategory(categories, slot.tokens)
+  return [...categories].sort((left, right) => {
+    const leftKey = slugify(left.label)
+    const rightKey = slugify(right.label)
+    const leftIndex = order.findIndex((token) => leftKey.includes(token))
+    const rightIndex = order.findIndex((token) => rightKey.includes(token))
 
-    return category
-      ? { ...category, displayLabel: slot.label }
-      : { id: `virtual-${slot.id}`, label: slot.label, displayLabel: slot.label, items: [], isVirtual: true }
+    return (leftIndex === -1 ? 99 : leftIndex) - (rightIndex === -1 ? 99 : rightIndex)
   })
-}
-
-function getBurgerSectionTitle(category) {
-  const key = slugify(category?.label ?? '')
-
-  if (key.includes('hamburgues') || key.includes('burger')) return 'NUESTRAS HAMBURGUESAS'
-  if (key.includes('bebida')) return 'BEBIDAS'
-  if (key.includes('postre')) return 'POSTRES'
-  if (key.includes('combo')) return 'COMBOS'
-  if (key.includes('entrada') || key.includes('papa')) return 'ENTRADAS'
-
-  return String(category?.label ?? 'NUESTRO MENU').toUpperCase()
 }
 
 function getBurgerDishParts(item) {
@@ -995,12 +972,12 @@ function TemplateCategorySelector({
 
     return (
       <div className="burger-menu-head">
-        <label className="burger-search-field">
-          <span>
+        <div className="burger-menu-title-row">
+          <h2>NUESTRO MENU</h2>
+          <button type="button" className="burger-search-button" aria-label="Buscar">
             <IconSearch />
-          </span>
-          <input type="search" placeholder="Buscar productos..." aria-label="Buscar productos" />
-        </label>
+          </button>
+        </div>
 
         <div className="burger-category-row">
           {orderedCategories.map((category) => {
@@ -1012,10 +989,10 @@ function TemplateCategorySelector({
                 key={category.id}
                 type="button"
                 className={`burger-category-pill ${isActive ? 'active' : ''}`}
-                onClick={() => !category.isVirtual && onSelectCategory(category.id)}
+                onClick={() => onSelectCategory(category.id)}
               >
                 <Icon />
-                <span>{category.displayLabel ?? getBurgerCategoryLabel(category.label)}</span>
+                <span>{getBurgerCategoryLabel(category.label)}</span>
               </button>
             )
           })}
@@ -1162,17 +1139,6 @@ function TemplateMenuCollection({
 
     return (
       <section className="section-block section-block-burger">
-        <div className="burger-section-heading">
-          <div>
-            <h2>{getBurgerSectionTitle(currentCategory)}</h2>
-            <span aria-hidden="true" />
-          </div>
-          <button type="button">
-            Mas populares
-            <small>{'⌄'}</small>
-          </button>
-        </div>
-
         <div className="burger-card-grid">
           {highlightedItems.map((item) => {
             const [title, accent] = getBurgerDishParts(item)
@@ -1227,14 +1193,26 @@ function TemplateMenuCollection({
           })}
         </div>
 
-        <button
-          type="button"
-          className="burger-footer-banner"
-          onClick={() => onSelectCategory?.(comboTarget?.id)}
-          aria-label="Ver combo clasico"
-        >
-          <img src="/burger/footer.png" alt="El match perfecto. Combo clasico." />
-        </button>
+        <article className="burger-combo-banner">
+          <div className="burger-combo-copy">
+            <span>
+              <IconFlame />
+              Combo
+            </span>
+            <h3>COMBO CLASICO</h3>
+            <p>Hamburguesa clasica + papas + bebida a eleccion.</p>
+          </div>
+          <img src="/burger/burger-2.svg" alt="" aria-hidden="true" />
+          <div className="burger-combo-action">
+            <strong>$18.900</strong>
+            <button
+              type="button"
+              onClick={() => onSelectCategory?.(comboTarget?.id)}
+            >
+              Ver combos
+            </button>
+          </div>
+        </article>
 
         <nav className="burger-bottom-nav" aria-label="Navegacion del menu">
           <button type="button" className="active">
