@@ -233,6 +233,7 @@ const accountPresentations = {
   burguer: presentationPresets.burger,
   burger: presentationPresets.burger,
   brasa: presentationPresets.burger,
+  'el-club': presentationPresets.burger,
   'neurorest-demo': presentationPresets.default,
 }
 
