@@ -1149,11 +1149,6 @@ function TemplateMenuCollection({
                   <IconHeart />
                 </button>
 
-                <span className="burger-dish-badge">
-                  <IconFlame />
-                  Mas
-                </span>
-
                 <button
                   type="button"
                   className="burger-dish-media"
