@@ -248,20 +248,6 @@ function PizzeriaLogo() {
   )
 }
 
-function BurgerBrand() {
-  return (
-    <div className="burger-brand-mark" aria-label="Brasa Burger Co.">
-      <span className="burger-brand-flame" aria-hidden="true">
-        <IconFlame />
-      </span>
-      <span className="burger-brand-frame" aria-hidden="true" />
-      <strong>BRASA</strong>
-      <span>BURGER CO.</span>
-      <small aria-hidden="true">x</small>
-    </div>
-  )
-}
-
 function IconPlay() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -879,40 +865,11 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   if (templateId === 'burger') {
     return (
       <section className="hero-content hero-content-burger">
-        <BurgerBrand />
-
-        <div className="burger-hero-copy">
-          <h1>
-            <span>{presentation.hero?.title ?? 'SABOR'}</span>
-            <span className="burger-hero-accent">
-              {presentation.hero?.accent ?? 'QUE SE RECUERDA'}
-            </span>
-          </h1>
-          <span className="burger-hero-rule" aria-hidden="true" />
-          <p>
-            {presentation.hero?.description ??
-              'Carne premium. Ingredientes reales. Hechas al fuego.'}
-          </p>
-        </div>
-
-        <div className="burger-hero-art" aria-hidden="true">
-          <img src={getHeroImage(presentation, heroDish)} alt="" />
-        </div>
-
-        <div className="burger-hero-features">
-          <span>
-            <IconFlame />
-            A la brasa
-          </span>
-          <span>
-            <IconBurger />
-            Carne 100% de res
-          </span>
-          <span>
-            <IconLeafMark />
-            Ingredientes frescos
-          </span>
-        </div>
+        <img
+          className="burger-header-image"
+          src={getHeroImage(presentation, heroDish)}
+          alt="Grill House Burger Co. Hechas para gustar."
+        />
       </section>
     )
   }

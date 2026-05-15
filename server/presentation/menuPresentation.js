@@ -206,7 +206,7 @@ const presentationPresets = {
       bodyFont: 'Montserrat',
     },
     hero: {
-      image: '/burger/hero-burger.svg',
+      image: '/burger/header.png',
       title: 'SABOR',
       accent: 'QUE SE RECUERDA',
       description: 'Carne premium. Ingredientes reales. Hechas al fuego.',

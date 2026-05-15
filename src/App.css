@@ -5092,6 +5092,34 @@ button:focus-visible {
   }
 }
 
+.template-burger .hero {
+  min-height: auto !important;
+  background: #050808;
+}
+
+.template-burger .hero::after {
+  display: none;
+}
+
+.template-burger .hero-topbar {
+  padding: 1rem 1rem 0;
+}
+
+.template-burger .hero-topbar .icon-button {
+  visibility: hidden;
+}
+
+.hero-content-burger {
+  min-height: 0 !important;
+  padding: 0;
+}
+
+.burger-header-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 @media (max-width: 760px) {
   .admin-shell {
     padding: 0.9rem;
