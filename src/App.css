@@ -4685,7 +4685,7 @@ button:focus-visible {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 28.6rem;
+  min-height: 21.4rem;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 1rem;
   background:
@@ -4765,7 +4765,7 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 1rem 0.8rem 0.85rem;
+  padding: 0.62rem 0.66rem 0.62rem;
   text-align: center;
 }
 
@@ -4781,7 +4781,7 @@ button:focus-visible {
   margin: 0;
   color: #f8f3e8;
   font-family: Impact, 'Arial Narrow', var(--font-display, sans-serif);
-  font-size: clamp(1.18rem, 4.7vw, 1.86rem);
+  font-size: clamp(1rem, 3.8vw, 1.45rem);
   line-height: 0.98;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -4798,12 +4798,16 @@ button:focus-visible {
 }
 
 .burger-dish-copy p {
-  margin: 0.7rem auto 0;
-  max-width: 11rem;
-  min-height: 4.2rem;
+  display: -webkit-box;
+  max-width: 9.8rem;
+  min-height: 0;
+  margin: 0.34rem auto 0;
+  overflow: hidden;
   color: rgba(248, 243, 232, 0.78);
-  font-size: 0.72rem;
-  line-height: 1.55;
+  font-size: 0.62rem;
+  line-height: 1.32;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .burger-dish-footer {
@@ -4811,21 +4815,21 @@ button:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-top: 0.9rem;
+  margin-top: 0.48rem;
 }
 
 .burger-dish-footer strong {
   color: #f5b72e;
   font-family: Impact, 'Arial Narrow', var(--font-display, sans-serif);
-  font-size: 1.55rem;
+  font-size: 1.22rem;
   line-height: 1;
   letter-spacing: 0.08em;
 }
 
 .burger-add-button {
   flex: 0 0 auto;
-  width: 2.55rem;
-  height: 2.55rem;
+  width: 2.08rem;
+  height: 2.08rem;
   display: grid;
   place-items: center;
   border: 0;
@@ -5051,30 +5055,36 @@ button:focus-visible {
   }
 
   .burger-dish-card {
-    min-height: 24.8rem;
+    min-height: 19.2rem;
     border-radius: 0.85rem;
   }
 
   .burger-dish-media {
-    height: 11.6rem;
+    height: 10.8rem;
   }
 
   .burger-dish-body {
-    padding: 0.78rem 0.55rem 0.65rem;
+    padding: 0.52rem 0.48rem 0.52rem;
+  }
+
+  .burger-dish-copy h3 {
+    font-size: clamp(0.96rem, 6vw, 1.28rem);
   }
 
   .burger-dish-copy p {
-    min-height: 4.8rem;
-    font-size: 0.62rem;
+    min-height: 0;
+    font-size: 0.58rem;
+    line-height: 1.28;
+    -webkit-line-clamp: 3;
   }
 
   .burger-dish-footer strong {
-    font-size: 1.28rem;
+    font-size: 1.06rem;
   }
 
   .burger-add-button {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 1.95rem;
+    height: 1.95rem;
   }
 
   .burger-combo-banner {
