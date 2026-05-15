@@ -355,6 +355,36 @@ app.post('/api/admin/products/:productId/video-upload-url', async (req, res) => 
   }
 })
 
+app.post('/api/admin/accounts/:accountId/asset-upload-url', async (req, res) => {
+  try {
+    assertAdminToken(config, req)
+    const upload = await adminRepository.createMenuAssetUpload(req.params.accountId, {
+      fileName: req.body?.fileName,
+      contentType: req.body?.contentType,
+      size: req.body?.size,
+      kind: req.body?.kind,
+    })
+
+    if (!upload) {
+      res.status(404).json({ error: 'ACCOUNT_NOT_FOUND', message: 'Cuenta no encontrada.' })
+      return
+    }
+
+    res.json(upload)
+  } catch (error) {
+    if (error instanceof Error && error.code === 'UNAUTHORIZED') {
+      res.status(401).json({ error: 'UNAUTHORIZED', message: 'Token admin invalido.' })
+      return
+    }
+
+    res.status(500).json({
+      error: 'MENU_ASSET_UPLOAD_URL_FAILED',
+      message:
+        error instanceof Error ? error.message : 'No se pudo preparar la subida del asset.',
+    })
+  }
+})
+
 app.patch('/api/admin/products/:productId/media', async (req, res) => {
   try {
     assertAdminToken(config, req)

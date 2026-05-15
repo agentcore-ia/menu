@@ -11,6 +11,37 @@ const defaultPresentation = {
     accent: '#4f6546',
     displayFont: 'Cormorant Garamond',
     bodyFont: 'Manrope',
+    logoImage: '',
+    background: '#f4efe6',
+    surface: '#fffdfa',
+    surfaceAlt: '#f8f4ec',
+    text: '#1b1b18',
+    muted: 'rgba(27, 27, 24, 0.72)',
+    primaryText: '#fffdf8',
+    border: 'rgba(96, 91, 74, 0.12)',
+    shadow: 'rgba(45, 38, 24, 0.08)',
+    pageBackground: '',
+    heroBackground: '',
+    heroRadius: '',
+    heroMinHeight: '',
+    headerObjectFit: '',
+    contentBackground: '',
+    categoryBackground: '',
+    categoryActiveBackground: '',
+    categoryText: '',
+    categoryActiveText: '',
+    categoryBorder: '',
+    categoryRadius: '',
+    cardBackground: '',
+    cardText: '',
+    cardMuted: '',
+    cardPrice: '',
+    cardBorder: '',
+    cardRadius: '',
+    cardShadow: '',
+    productImageHeight: '',
+    addButtonBackground: '',
+    addButtonText: '',
   },
   hero: {
     image: '/dishes/hero-clean-cut.png',
@@ -30,17 +61,24 @@ const layoutDescriptions = {
   editorial: 'Diseno clasico y elegante: portada, categorias y productos en una lista limpia.',
   bistro: 'Diseno mas visual: una carta moderna con imagenes destacadas y ritmo tipo revista.',
   luxe: 'Diseno premium: mas dramatico y sofisticado, pensado para marcas gastronomicas elegantes.',
+  gelato: 'Flujo de heladeria con formatos, tamanos, sabores y estetica dulce.',
+  pizzeria: 'Menu visual para pizzeria con header grafico, tabs y cards de dos columnas.',
+  burger: 'Menu oscuro para hamburgueseria con hero fuerte, categorias pill y cards bold.',
 }
 
 const cardStyleDescriptions = {
   'editorial-list': 'Productos en lista, facil de leer y rapido para pedir.',
   'magazine-list': 'Cards mas visuales, con mas protagonismo para fotos y platos destacados.',
   'glass-list': 'Cards con efecto premium/translucido para menus mas atmosfericos.',
+  'gelato-cards': 'Cards grandes y suaves para formatos de heladeria.',
+  'pizzeria-grid': 'Grilla de dos columnas con media arriba y precio destacado.',
+  'burger-grid': 'Cards oscuras, verticales y con imagen grande del producto.',
 }
 
 const previewDescriptions = {
+  'image-only': 'Solo muestra fotos, aunque el producto tenga video cargado.',
   'image-with-video-chip': 'La foto queda como vista principal y se muestra una etiqueta si el producto tiene video.',
-  'video-first': 'El video se usa como vista principal si el producto no tiene una foto subida.',
+  'video-first': 'El video se usa como vista principal cuando el producto tiene video.',
 }
 
 function getInitialAdminAccount() {
@@ -429,6 +467,49 @@ export default function AdminApp() {
       ...current,
       ...payload,
     }))
+  }
+
+  async function handleUploadPresentationAsset(fieldPath, file, kind) {
+    if (!file) {
+      return
+    }
+
+    if (!selectedAccount) {
+      setMessage('Selecciona una cuenta antes de subir assets del menu.')
+      return
+    }
+
+    setMessage(`Preparando subida de ${file.name}...`)
+
+    const signedResponse = await fetch(`/api/admin/accounts/${selectedAccount}/asset-upload-url`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({
+        fileName: file.name,
+        contentType: file.type || 'image/png',
+        size: file.size,
+        kind,
+      }),
+    })
+    const signedPayload = await readApiPayload(signedResponse)
+
+    if (!signedResponse.ok) {
+      setMessage(signedPayload.message ?? 'No se pudo preparar la subida del asset.')
+      return
+    }
+
+    setMessage(`Subiendo ${file.name} directo a Supabase Storage...`)
+
+    const uploadResponse = await uploadFileToSignedUrl(signedPayload, file)
+
+    if (!uploadResponse.ok) {
+      const detail = await uploadResponse.text()
+      setMessage(detail || 'No se pudo subir el asset directo a Supabase Storage.')
+      return
+    }
+
+    updatePresentation(fieldPath, signedPayload.publicUrl)
+    setMessage('Asset subido. Guarda la presentacion para aplicar el cambio.')
   }
 
   async function handleSaveProductVideo(productId, videoUrl) {
@@ -843,6 +924,9 @@ export default function AdminApp() {
                     <option value="editorial">Clasico editorial</option>
                     <option value="bistro">Bistro moderno</option>
                     <option value="luxe">Premium oscuro</option>
+                    <option value="gelato">Heladeria</option>
+                    <option value="pizzeria">Pizzeria</option>
+                    <option value="burger">Burger</option>
                   </select>
                   <small className="admin-help">{layoutDescriptions[presentation.layout]}</small>
                 </label>
@@ -856,6 +940,9 @@ export default function AdminApp() {
                     <option value="editorial-list">Lista simple</option>
                     <option value="magazine-list">Visual tipo revista</option>
                     <option value="glass-list">Premium con efecto vidrio</option>
+                    <option value="gelato-cards">Heladeria</option>
+                    <option value="pizzeria-grid">Pizzeria dos columnas</option>
+                    <option value="burger-grid">Burger oscuro</option>
                   </select>
                   <small className="admin-help">
                     {cardStyleDescriptions[presentation.cards.style]}
@@ -870,6 +957,7 @@ export default function AdminApp() {
                       updatePresentation('preview.productMedia', event.target.value)
                     }
                   >
+                    <option value="image-only">Solo fotos</option>
                     <option value="image-with-video-chip">Foto principal + etiqueta de video</option>
                     <option value="video-first">Video como vista principal</option>
                   </select>
@@ -909,6 +997,62 @@ export default function AdminApp() {
                     onChange={(event) => updatePresentation('hero.image', event.target.value)}
                   />
                   <small className="admin-help">URL de la imagen grande de portada del menu.</small>
+                  <span className="admin-upload admin-inline-upload">
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/avif,image/svg+xml"
+                      onChange={(event) =>
+                        handleUploadPresentationAsset(
+                          'hero.image',
+                          event.target.files?.[0],
+                          'header',
+                        )
+                      }
+                    />
+                    <span>Subir imagen header</span>
+                  </span>
+                </label>
+
+                <label className="admin-field">
+                  <span>Logo / marca superior</span>
+                  <input
+                    value={presentation.theme.logoImage}
+                    onChange={(event) => updatePresentation('theme.logoImage', event.target.value)}
+                    placeholder="/gelato/logo-dolce.png"
+                  />
+                  <small className="admin-help">
+                    Opcional: reemplaza el logo visual en disenos que usan imagen de marca.
+                  </small>
+                  <span className="admin-upload admin-inline-upload">
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/avif,image/svg+xml"
+                      onChange={(event) =>
+                        handleUploadPresentationAsset(
+                          'theme.logoImage',
+                          event.target.files?.[0],
+                          'logo',
+                        )
+                      }
+                    />
+                    <span>Subir logo</span>
+                  </span>
+                </label>
+
+                <label className="admin-field">
+                  <span>Ajuste de imagen header</span>
+                  <select
+                    value={presentation.theme.headerObjectFit}
+                    onChange={(event) =>
+                      updatePresentation('theme.headerObjectFit', event.target.value)
+                    }
+                  >
+                    <option value="">Default</option>
+                    <option value="contain">Ver imagen completa</option>
+                    <option value="cover">Cubrir header</option>
+                    <option value="fill">Estirar</option>
+                  </select>
+                  <small className="admin-help">Controla como encaja la imagen del header.</small>
                 </label>
 
                 <label className="admin-field">
@@ -942,6 +1086,114 @@ export default function AdminApp() {
                 </label>
 
                 <label className="admin-field">
+                  <span>Fondo general</span>
+                  <input
+                    value={presentation.theme.background}
+                    onChange={(event) => updatePresentation('theme.background', event.target.value)}
+                    placeholder="#f4efe6"
+                  />
+                  <small className="admin-help">Color base del menu completo.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Fondo avanzado</span>
+                  <input
+                    value={presentation.theme.pageBackground}
+                    onChange={(event) =>
+                      updatePresentation('theme.pageBackground', event.target.value)
+                    }
+                    placeholder="linear-gradient(...)"
+                  />
+                  <small className="admin-help">Opcional: color, gradient o imagen CSS para todo el fondo.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Fondo del header</span>
+                  <input
+                    value={presentation.theme.heroBackground}
+                    onChange={(event) =>
+                      updatePresentation('theme.heroBackground', event.target.value)
+                    }
+                    placeholder="#ffffff o linear-gradient(...)"
+                  />
+                  <small className="admin-help">Fondo detras de la imagen principal.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Alto minimo header</span>
+                  <input
+                    value={presentation.theme.heroMinHeight}
+                    onChange={(event) =>
+                      updatePresentation('theme.heroMinHeight', event.target.value)
+                    }
+                    placeholder="22rem"
+                  />
+                  <small className="admin-help">Ejemplo: 18rem, 320px o deja vacio para default.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Borde redondeado header</span>
+                  <input
+                    value={presentation.theme.heroRadius}
+                    onChange={(event) => updatePresentation('theme.heroRadius', event.target.value)}
+                    placeholder="0 0 2rem 2rem"
+                  />
+                  <small className="admin-help">Controla las esquinas del bloque superior.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Fondo del contenido</span>
+                  <input
+                    value={presentation.theme.contentBackground}
+                    onChange={(event) =>
+                      updatePresentation('theme.contentBackground', event.target.value)
+                    }
+                    placeholder="#fffdfa"
+                  />
+                  <small className="admin-help">Fondo del area donde viven categorias y productos.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Color superficie</span>
+                  <input
+                    value={presentation.theme.surface}
+                    onChange={(event) => updatePresentation('theme.surface', event.target.value)}
+                    placeholder="#fffdfa"
+                  />
+                  <small className="admin-help">Color de paneles principales.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Color superficie secundaria</span>
+                  <input
+                    value={presentation.theme.surfaceAlt}
+                    onChange={(event) => updatePresentation('theme.surfaceAlt', event.target.value)}
+                    placeholder="#f8f4ec"
+                  />
+                  <small className="admin-help">Color de fondos suaves y estados secundarios.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Color texto</span>
+                  <input
+                    value={presentation.theme.text}
+                    onChange={(event) => updatePresentation('theme.text', event.target.value)}
+                    placeholder="#1b1b18"
+                  />
+                  <small className="admin-help">Color de titulos y textos principales.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Color texto secundario</span>
+                  <input
+                    value={presentation.theme.muted}
+                    onChange={(event) => updatePresentation('theme.muted', event.target.value)}
+                    placeholder="rgba(27, 27, 24, 0.72)"
+                  />
+                  <small className="admin-help">Color de descripciones y ayudas.</small>
+                </label>
+
+                <label className="admin-field">
                   <span>Color principal</span>
                   <input
                     value={presentation.theme.primary}
@@ -951,12 +1203,44 @@ export default function AdminApp() {
                 </label>
 
                 <label className="admin-field">
+                  <span>Texto sobre color principal</span>
+                  <input
+                    value={presentation.theme.primaryText}
+                    onChange={(event) =>
+                      updatePresentation('theme.primaryText', event.target.value)
+                    }
+                    placeholder="#fffdf8"
+                  />
+                  <small className="admin-help">Color del texto sobre botones activos.</small>
+                </label>
+
+                <label className="admin-field">
                   <span>Color secundario</span>
                   <input
                     value={presentation.theme.accent}
                     onChange={(event) => updatePresentation('theme.accent', event.target.value)}
                   />
                   <small className="admin-help">Color de apoyo para detalles visuales.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Bordes</span>
+                  <input
+                    value={presentation.theme.border}
+                    onChange={(event) => updatePresentation('theme.border', event.target.value)}
+                    placeholder="rgba(96, 91, 74, 0.12)"
+                  />
+                  <small className="admin-help">Color de lineas y contornos.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Sombras</span>
+                  <input
+                    value={presentation.theme.shadow}
+                    onChange={(event) => updatePresentation('theme.shadow', event.target.value)}
+                    placeholder="rgba(45, 38, 24, 0.08)"
+                  />
+                  <small className="admin-help">Color base para sombras.</small>
                 </label>
 
                 <label className="admin-field">
@@ -979,6 +1263,186 @@ export default function AdminApp() {
                     }
                   />
                   <small className="admin-help">Tipografia usada en descripciones, precios y formularios.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Fondo barra categorias</span>
+                  <input
+                    value={presentation.theme.categoryBackground}
+                    onChange={(event) =>
+                      updatePresentation('theme.categoryBackground', event.target.value)
+                    }
+                    placeholder="#ffffff"
+                  />
+                  <small className="admin-help">Fondo de botones o chips de categorias.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Categoria activa</span>
+                  <input
+                    value={presentation.theme.categoryActiveBackground}
+                    onChange={(event) =>
+                      updatePresentation('theme.categoryActiveBackground', event.target.value)
+                    }
+                    placeholder="#445d39"
+                  />
+                  <small className="admin-help">Color del chip seleccionado.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Texto categorias</span>
+                  <input
+                    value={presentation.theme.categoryText}
+                    onChange={(event) =>
+                      updatePresentation('theme.categoryText', event.target.value)
+                    }
+                    placeholder="#4f6546"
+                  />
+                  <small className="admin-help">Color de categorias no seleccionadas.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Texto categoria activa</span>
+                  <input
+                    value={presentation.theme.categoryActiveText}
+                    onChange={(event) =>
+                      updatePresentation('theme.categoryActiveText', event.target.value)
+                    }
+                    placeholder="#ffffff"
+                  />
+                  <small className="admin-help">Texto/iconos dentro de la categoria activa.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Borde categorias</span>
+                  <input
+                    value={presentation.theme.categoryBorder}
+                    onChange={(event) =>
+                      updatePresentation('theme.categoryBorder', event.target.value)
+                    }
+                    placeholder="rgba(0,0,0,.12)"
+                  />
+                  <small className="admin-help">Contorno de los chips de categoria.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Radio categorias</span>
+                  <input
+                    value={presentation.theme.categoryRadius}
+                    onChange={(event) =>
+                      updatePresentation('theme.categoryRadius', event.target.value)
+                    }
+                    placeholder="999px"
+                  />
+                  <small className="admin-help">Redondeado de la barra: 1rem, 999px, etc.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Fondo cards productos</span>
+                  <input
+                    value={presentation.theme.cardBackground}
+                    onChange={(event) =>
+                      updatePresentation('theme.cardBackground', event.target.value)
+                    }
+                    placeholder="#fffdfa"
+                  />
+                  <small className="admin-help">Color o gradient de las cards.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Texto cards</span>
+                  <input
+                    value={presentation.theme.cardText}
+                    onChange={(event) => updatePresentation('theme.cardText', event.target.value)}
+                    placeholder="#1b1b18"
+                  />
+                  <small className="admin-help">Color de nombres de productos.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Descripcion cards</span>
+                  <input
+                    value={presentation.theme.cardMuted}
+                    onChange={(event) => updatePresentation('theme.cardMuted', event.target.value)}
+                    placeholder="rgba(27,27,24,.72)"
+                  />
+                  <small className="admin-help">Color de descripciones dentro de cards.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Precio cards</span>
+                  <input
+                    value={presentation.theme.cardPrice}
+                    onChange={(event) => updatePresentation('theme.cardPrice', event.target.value)}
+                    placeholder="#445d39"
+                  />
+                  <small className="admin-help">Color del precio.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Borde cards</span>
+                  <input
+                    value={presentation.theme.cardBorder}
+                    onChange={(event) => updatePresentation('theme.cardBorder', event.target.value)}
+                    placeholder="rgba(0,0,0,.12)"
+                  />
+                  <small className="admin-help">Contorno de las cards de productos.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Radio cards</span>
+                  <input
+                    value={presentation.theme.cardRadius}
+                    onChange={(event) => updatePresentation('theme.cardRadius', event.target.value)}
+                    placeholder="1.5rem"
+                  />
+                  <small className="admin-help">Redondeado de productos.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Sombra cards</span>
+                  <input
+                    value={presentation.theme.cardShadow}
+                    onChange={(event) => updatePresentation('theme.cardShadow', event.target.value)}
+                    placeholder="0 12px 24px rgba(0,0,0,.12)"
+                  />
+                  <small className="admin-help">Sombra CSS completa para cards.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Alto imagen producto</span>
+                  <input
+                    value={presentation.theme.productImageHeight}
+                    onChange={(event) =>
+                      updatePresentation('theme.productImageHeight', event.target.value)
+                    }
+                    placeholder="10rem"
+                  />
+                  <small className="admin-help">Ejemplo: 8rem, 160px, 40vw.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Boton agregar</span>
+                  <input
+                    value={presentation.theme.addButtonBackground}
+                    onChange={(event) =>
+                      updatePresentation('theme.addButtonBackground', event.target.value)
+                    }
+                    placeholder="#445d39"
+                  />
+                  <small className="admin-help">Color del boton + en productos.</small>
+                </label>
+
+                <label className="admin-field">
+                  <span>Texto boton agregar</span>
+                  <input
+                    value={presentation.theme.addButtonText}
+                    onChange={(event) =>
+                      updatePresentation('theme.addButtonText', event.target.value)
+                    }
+                    placeholder="#ffffff"
+                  />
+                  <small className="admin-help">Color del icono +.</small>
                 </label>
 
                 <label className="admin-checkbox">

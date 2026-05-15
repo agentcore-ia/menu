@@ -810,6 +810,9 @@ function getPresentationStyles(presentation) {
   const theme = presentation.theme
 
   return {
+    '--menu-page-background':
+      theme.pageBackground ||
+      `linear-gradient(180deg, ${theme.surfaceAlt} 0%, ${theme.background} 100%)`,
     '--theme-bg': theme.background,
     '--theme-surface': theme.surface,
     '--theme-surface-alt': theme.surfaceAlt,
@@ -822,12 +825,33 @@ function getPresentationStyles(presentation) {
     '--theme-shadow': theme.shadow,
     '--font-display': `"${theme.displayFont}", serif`,
     '--font-body': `"${theme.bodyFont}", sans-serif`,
+    '--custom-hero-background': theme.heroBackground || undefined,
+    '--custom-hero-radius': theme.heroRadius || undefined,
+    '--custom-hero-min-height': theme.heroMinHeight || undefined,
+    '--custom-header-object-fit': theme.headerObjectFit || undefined,
+    '--custom-content-background': theme.contentBackground || undefined,
+    '--custom-category-bg': theme.categoryBackground || undefined,
+    '--custom-category-active-bg': theme.categoryActiveBackground || undefined,
+    '--custom-category-text': theme.categoryText || undefined,
+    '--custom-category-active-text': theme.categoryActiveText || undefined,
+    '--custom-category-border': theme.categoryBorder || undefined,
+    '--custom-category-radius': theme.categoryRadius || undefined,
+    '--custom-card-bg': theme.cardBackground || undefined,
+    '--custom-card-text': theme.cardText || undefined,
+    '--custom-card-muted': theme.cardMuted || undefined,
+    '--custom-card-price': theme.cardPrice || undefined,
+    '--custom-card-border': theme.cardBorder || undefined,
+    '--custom-card-radius': theme.cardRadius || undefined,
+    '--custom-card-shadow': theme.cardShadow || undefined,
+    '--custom-product-image-height': theme.productImageHeight || undefined,
+    '--custom-add-bg': theme.addButtonBackground || undefined,
+    '--custom-add-text': theme.addButtonText || undefined,
   }
 }
 
 function shouldRenderPreviewVideo(item, presentation) {
   return Boolean(
-    item.video && !item.hasCustomImage && presentation.preview?.productMedia === 'video-first',
+    item.video && presentation.preview?.productMedia === 'video-first',
   )
 }
 
@@ -857,7 +881,7 @@ function TemplateHero({ templateId, presentation, heroDish }) {
       <section className="hero-content hero-content-gelato">
         <img
           className="gelato-brand-image"
-          src="/gelato/logo-dolce.png"
+          src={presentation.theme?.logoImage || '/gelato/logo-dolce.png'}
           alt={presentation.branding?.wordmark ?? 'Dolce Heladeria'}
         />
 
@@ -874,7 +898,7 @@ function TemplateHero({ templateId, presentation, heroDish }) {
       <section className="hero-content hero-content-pizzeria">
         <img
           className="pizzeria-header-image"
-          src="/pizzeria/header.png"
+          src={presentation.hero?.image ?? '/pizzeria/header.png'}
           alt="La Buona Pizzeria. Nuestro menu. Sabor que te hace volver."
         />
       </section>

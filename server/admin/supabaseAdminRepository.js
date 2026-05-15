@@ -45,10 +45,12 @@ function normalizePresentationInput(input) {
     layout: input.layout ?? 'editorial',
     theme_id: input.theme?.id ?? 'ivory-olive',
     theme_overrides: {
+      background: input.theme?.background,
       primary: input.theme?.primary,
       accent: input.theme?.accent,
       displayFont: input.theme?.displayFont,
       bodyFont: input.theme?.bodyFont,
+      logoImage: input.theme?.logoImage,
       surface: input.theme?.surface,
       surfaceAlt: input.theme?.surfaceAlt,
       text: input.theme?.text,
@@ -56,6 +58,28 @@ function normalizePresentationInput(input) {
       primaryText: input.theme?.primaryText,
       border: input.theme?.border,
       shadow: input.theme?.shadow,
+      pageBackground: input.theme?.pageBackground,
+      heroBackground: input.theme?.heroBackground,
+      heroRadius: input.theme?.heroRadius,
+      heroMinHeight: input.theme?.heroMinHeight,
+      headerObjectFit: input.theme?.headerObjectFit,
+      contentBackground: input.theme?.contentBackground,
+      categoryBackground: input.theme?.categoryBackground,
+      categoryActiveBackground: input.theme?.categoryActiveBackground,
+      categoryText: input.theme?.categoryText,
+      categoryActiveText: input.theme?.categoryActiveText,
+      categoryBorder: input.theme?.categoryBorder,
+      categoryRadius: input.theme?.categoryRadius,
+      cardBackground: input.theme?.cardBackground,
+      cardText: input.theme?.cardText,
+      cardMuted: input.theme?.cardMuted,
+      cardPrice: input.theme?.cardPrice,
+      cardBorder: input.theme?.cardBorder,
+      cardRadius: input.theme?.cardRadius,
+      cardShadow: input.theme?.cardShadow,
+      productImageHeight: input.theme?.productImageHeight,
+      addButtonBackground: input.theme?.addButtonBackground,
+      addButtonText: input.theme?.addButtonText,
     },
     branding_wordmark: input.branding?.wordmark ?? null,
     branding_subtitle: input.branding?.subtitle ?? null,
@@ -409,6 +433,29 @@ export class SupabaseAdminRepository {
     const safeName = slugify(product.name) || 'product'
     const folder = slugify(restaurant?.slug || 'general')
     const path = `products/${folder}/${product.id}-${safeName}-${Date.now()}.${extension}`
+    const uploadUrl = await this.createSignedStorageUploadUrl(path)
+    const publicUrl = `${this.config.supabaseUrl}/storage/v1/object/public/${this.config.storageBucket}/${path}`
+
+    return {
+      uploadUrl,
+      publicUrl,
+      path,
+      method: 'PUT',
+    }
+  }
+
+  async createMenuAssetUpload(accountId, file = {}) {
+    const restaurant = await this.fetchRestaurantBySlug(accountId)
+
+    if (!restaurant) {
+      return null
+    }
+
+    const extension = getFileExtension(file.fileName, 'png')
+    const kind = slugify(file.kind || 'asset') || 'asset'
+    const safeName = slugify(file.fileName?.replace(/\.[^.]+$/, '') || kind) || kind
+    const folder = slugify(restaurant.slug || accountId || 'general')
+    const path = `menus/${folder}/${kind}-${safeName}-${Date.now()}.${extension}`
     const uploadUrl = await this.createSignedStorageUploadUrl(path)
     const publicUrl = `${this.config.supabaseUrl}/storage/v1/object/public/${this.config.storageBucket}/${path}`
 

@@ -8,9 +8,7 @@
 .detail-phone {
   position: relative;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top, rgba(197, 181, 151, 0.16), transparent 34%),
-    linear-gradient(180deg, var(--theme-surface-alt) 0%, var(--theme-bg) 100%);
+  background: var(--menu-page-background);
   color: var(--theme-text);
 }
 
@@ -27,9 +25,12 @@
 .hero {
   position: relative;
   overflow: hidden;
-  background:
+  background: var(
+    --custom-hero-background,
     radial-gradient(circle at 72% 10%, rgba(0, 0, 0, 0.26), transparent 30%),
-    linear-gradient(180deg, color-mix(in srgb, var(--theme-surface) 86%, white) 0%, var(--theme-surface-alt) 100%);
+    linear-gradient(180deg, color-mix(in srgb, var(--theme-surface) 86%, white) 0%, var(--theme-surface-alt) 100%)
+  );
+  border-radius: var(--custom-hero-radius, 0);
 }
 
 .hero::after {
@@ -4992,6 +4993,15 @@ button:focus-visible {
   white-space: nowrap;
 }
 
+.admin-inline-upload {
+  margin-top: 0.2rem;
+}
+
+.admin-field .admin-inline-upload span {
+  color: rgba(31, 36, 27, 0.68);
+  font-weight: 800;
+}
+
 .template-pizzeria .hero-pizzeria {
   background: transparent !important;
 }
@@ -5969,4 +5979,99 @@ button:focus-visible {
   .admin-product-row {
     grid-template-columns: 1fr;
   }
+}
+
+.phone-surface,
+.detail-phone {
+  background: var(--menu-page-background);
+}
+
+.hero {
+  background: var(
+    --custom-hero-background,
+    radial-gradient(circle at 72% 10%, rgba(0, 0, 0, 0.26), transparent 30%),
+    linear-gradient(180deg, color-mix(in srgb, var(--theme-surface) 86%, white) 0%, var(--theme-surface-alt) 100%)
+  );
+  border-radius: var(--custom-hero-radius, 0);
+}
+
+.hero-content {
+  min-height: var(--custom-hero-min-height, 21.8rem);
+}
+
+.content-panel,
+.template-pizzeria .content-panel,
+.template-burger .content-panel,
+.template-gelato .content-panel {
+  background: var(
+    --custom-content-background,
+    radial-gradient(circle at top, rgba(212, 203, 186, 0.18), transparent 28%),
+    linear-gradient(180deg, var(--theme-surface) 0%, color-mix(in srgb, var(--theme-surface) 88%, var(--theme-bg)) 100%)
+  );
+}
+
+.pizzeria-header-image,
+.burger-header-image {
+  object-fit: var(--custom-header-object-fit, contain);
+}
+
+.category-icon,
+.bistro-category-chip,
+.luxe-category-pill,
+.pizzeria-category-pill,
+.burger-category-pill,
+.template-burger .burger-category-pill {
+  border-radius: var(--custom-category-radius, 999px);
+  background: var(--custom-category-bg, var(--theme-surface));
+  color: var(--custom-category-text, var(--theme-accent));
+  border-color: var(--custom-category-border, var(--theme-border));
+}
+
+.category-chip.active .category-icon,
+.bistro-category-chip.active,
+.luxe-category-pill.active,
+.pizzeria-category-pill.active,
+.burger-category-pill.active,
+.template-burger .burger-category-pill.active {
+  background: var(--custom-category-active-bg, var(--theme-primary));
+  color: var(--custom-category-active-text, var(--theme-primary-text));
+}
+
+.dish-card,
+.bistro-feature-card,
+.luxe-card,
+.pizzeria-dish-card,
+.burger-dish-card,
+.gelato-format-card {
+  border-radius: var(--custom-card-radius, inherit);
+  background: var(--custom-card-bg, color-mix(in srgb, var(--theme-surface) 92%, transparent));
+  color: var(--custom-card-text, var(--theme-text));
+  border-color: var(--custom-card-border, var(--theme-border));
+  box-shadow: var(--custom-card-shadow, 0 12px 24px var(--theme-shadow));
+}
+
+.dish-main p,
+.pizzeria-dish-copy p,
+.burger-dish-copy p {
+  color: var(--custom-card-muted, var(--theme-muted));
+}
+
+.dish-footer strong,
+.pizzeria-dish-footer strong,
+.burger-dish-footer strong {
+  color: var(--custom-card-price, currentColor);
+}
+
+.dish-thumb,
+.pizzeria-dish-media .dish-thumb,
+.burger-dish-media .dish-thumb {
+  height: var(--custom-product-image-height, 8.4rem);
+}
+
+.add-button,
+.mini-add,
+.pizzeria-add-button,
+.burger-add-button {
+  background: var(--custom-add-bg, var(--theme-primary));
+  color: var(--custom-add-text, var(--theme-primary-text));
 }
