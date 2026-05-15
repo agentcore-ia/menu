@@ -274,7 +274,11 @@ function getInitialAccountId() {
 function getLoadingTemplate(accountId) {
   const key = slugify(accountId)
 
-  if (key.includes('burger') || key.includes('burguer')) {
+  if (
+    key.includes('burger') ||
+    key.includes('burguer') ||
+    ['brasa', 'el-club', 'owen'].includes(key)
+  ) {
     return 'burger'
   }
 
@@ -284,6 +288,14 @@ function getLoadingTemplate(accountId) {
 
   if (key.includes('esquina') || key.includes('pizzeria')) {
     return 'pizzeria'
+  }
+
+  if (key.includes('sandra') || key.includes('rose')) {
+    return 'luxe'
+  }
+
+  if (key.includes('bruder') || key.includes('bistro')) {
+    return 'bistro'
   }
 
   return 'default'
@@ -1002,22 +1014,39 @@ function TemplateHero({ templateId, presentation, heroDish }) {
 
 function MenuLoadingScreen({ accountId }) {
   const loadingTemplate = getLoadingTemplate(accountId)
-  const title =
-    loadingTemplate === 'burger'
-      ? 'BRASA'
-      : loadingTemplate === 'gelato'
-        ? 'Dolce'
-        : loadingTemplate === 'pizzeria'
-          ? 'La Buona'
-          : 'NeuroRest'
-  const subtitle =
-    loadingTemplate === 'burger'
-      ? 'preparando el fuego'
-      : loadingTemplate === 'gelato'
-        ? 'sirviendo sabores'
-        : loadingTemplate === 'pizzeria'
-          ? 'calentando el horno'
-          : 'preparando tu menu'
+  const loadingCopy = {
+    burger: {
+      title: 'BRASA',
+      subtitle: 'preparando el fuego',
+      icon: <IconFlame />,
+    },
+    gelato: {
+      title: 'Dolce',
+      subtitle: 'sirviendo sabores',
+      icon: <IconDessert />,
+    },
+    pizzeria: {
+      title: 'La Buona',
+      subtitle: 'calentando el horno',
+      icon: <IconPizzaOutline />,
+    },
+    luxe: {
+      title: "Sandra's",
+      subtitle: 'encendiendo la noche',
+      icon: <IconSpark />,
+    },
+    bistro: {
+      title: 'Bruder',
+      subtitle: 'preparando la mesa',
+      icon: <IconServe />,
+    },
+    default: {
+      title: 'NeuroRest',
+      subtitle: 'preparando tu menu',
+      icon: <IconLeafMark />,
+    },
+  }
+  const copy = loadingCopy[loadingTemplate] ?? loadingCopy.default
 
   return (
     <div className="app-shell">
@@ -1028,11 +1057,9 @@ function MenuLoadingScreen({ accountId }) {
           <span />
         </div>
         <div className="menu-loading-card" role="status" aria-live="polite">
-          <span className="menu-loading-mark">
-            {loadingTemplate === 'burger' ? <IconFlame /> : <IconLeafMark />}
-          </span>
-          <strong>{title}</strong>
-          <p>{subtitle}</p>
+          <span className="menu-loading-mark">{copy.icon}</span>
+          <strong>{copy.title}</strong>
+          <p>{copy.subtitle}</p>
           <div className="menu-loading-bar" aria-hidden="true">
             <span />
           </div>

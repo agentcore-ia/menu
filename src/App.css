@@ -1824,6 +1824,15 @@
     linear-gradient(180deg, #f6f0e6 0%, #eee6d9 100%);
 }
 
+.menu-loading-screen::before {
+  content: '';
+  position: absolute;
+  inset: 1.2rem;
+  pointer-events: none;
+  border: 1px solid rgba(68, 93, 57, 0.08);
+  border-radius: 2.1rem;
+}
+
 .menu-loading-card {
   position: relative;
   z-index: 1;
@@ -1939,9 +1948,15 @@
 
 .loading-burger {
   background:
+    radial-gradient(circle at 74% 34%, rgba(245, 183, 46, 0.08), transparent 14rem),
     radial-gradient(circle at 68% 20%, rgba(245, 183, 46, 0.16), transparent 9rem),
     radial-gradient(circle at 20% 84%, rgba(255, 255, 255, 0.06), transparent 10rem),
     linear-gradient(180deg, #050707 0%, #0d1415 100%);
+}
+
+.loading-burger::before {
+  border-color: rgba(245, 183, 46, 0.12);
+  box-shadow: inset 0 0 40px rgba(245, 183, 46, 0.04);
 }
 
 .loading-burger .menu-loading-card {
@@ -1980,7 +1995,21 @@
   background:
     radial-gradient(circle at 24% 14%, rgba(255, 91, 146, 0.22), transparent 8rem),
     radial-gradient(circle at 82% 20%, rgba(123, 221, 211, 0.22), transparent 8rem),
+    radial-gradient(circle at 54% 88%, rgba(255, 210, 82, 0.16), transparent 8rem),
     linear-gradient(180deg, #fff8fb 0%, #fff 100%);
+}
+
+.loading-gelato::before {
+  border-color: rgba(255, 90, 146, 0.16);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255, 90, 146, 0.16), transparent 5rem),
+    radial-gradient(circle at 100% 0%, rgba(123, 221, 211, 0.18), transparent 5rem);
+}
+
+.loading-gelato .menu-loading-card {
+  border-color: rgba(255, 90, 146, 0.14);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 28px 48px rgba(226, 102, 149, 0.14);
 }
 
 .loading-gelato .menu-loading-mark,
@@ -1988,15 +2017,129 @@
   background: #ff5a92;
 }
 
+.loading-gelato .menu-loading-card strong {
+  color: #22183b;
+  font-family: 'Baloo 2', var(--font-body, sans-serif);
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.loading-gelato .menu-loading-card p {
+  color: rgba(34, 24, 59, 0.62);
+}
+
 .loading-pizzeria {
   background:
     radial-gradient(circle at 50% 0%, rgba(20, 63, 33, 0.16), transparent 12rem),
+    radial-gradient(circle at 92% 78%, rgba(145, 32, 24, 0.08), transparent 9rem),
     linear-gradient(180deg, #f2e8db 0%, #efe4d5 100%);
+}
+
+.loading-pizzeria::before {
+  border-color: rgba(18, 63, 34, 0.12);
+  background:
+    linear-gradient(90deg, transparent 0 48%, rgba(18, 63, 34, 0.04) 48% 52%, transparent 52%),
+    radial-gradient(circle at 50% 0%, rgba(255, 250, 241, 0.5), transparent 10rem);
+}
+
+.loading-pizzeria .menu-loading-card {
+  border-color: rgba(18, 63, 34, 0.14);
+  background: rgba(255, 250, 241, 0.9);
+  box-shadow: 0 24px 48px rgba(80, 56, 32, 0.16);
 }
 
 .loading-pizzeria .menu-loading-mark,
 .loading-pizzeria .menu-loading-bar span {
   background: #123f22;
+}
+
+.loading-pizzeria .menu-loading-card strong {
+  color: #17361f;
+  font-family: 'Cinzel', var(--font-display, serif);
+  letter-spacing: 0.08em;
+}
+
+.loading-pizzeria .menu-loading-card p {
+  color: #9b3328;
+  font-family: 'Montserrat', var(--font-body, sans-serif);
+}
+
+.loading-luxe {
+  background:
+    radial-gradient(circle at 76% 14%, rgba(211, 177, 122, 0.16), transparent 10rem),
+    radial-gradient(circle at 22% 78%, rgba(184, 140, 84, 0.1), transparent 12rem),
+    linear-gradient(180deg, #120f0d 0%, #211915 100%);
+}
+
+.loading-luxe::before {
+  border-color: rgba(211, 177, 122, 0.18);
+  box-shadow: inset 0 0 48px rgba(211, 177, 122, 0.06);
+}
+
+.loading-luxe .menu-loader-orbit span:nth-child(1),
+.loading-luxe .menu-loader-orbit span:nth-child(2) {
+  background: rgba(211, 177, 122, 0.12);
+}
+
+.loading-luxe .menu-loading-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02)),
+    rgba(26, 20, 16, 0.92);
+  border-color: rgba(211, 177, 122, 0.22);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.34);
+}
+
+.loading-luxe .menu-loading-mark,
+.loading-luxe .menu-loading-bar span {
+  background: #b88c54;
+  color: #1a1410;
+}
+
+.loading-luxe .menu-loading-card strong {
+  color: #f7f0e4;
+  font-family: 'Playfair Display', var(--font-display, serif);
+  letter-spacing: 0.08em;
+}
+
+.loading-luxe .menu-loading-card p {
+  color: rgba(247, 240, 228, 0.68);
+}
+
+.loading-luxe .menu-loading-bar {
+  background: rgba(211, 177, 122, 0.16);
+}
+
+.loading-bistro {
+  background:
+    radial-gradient(circle at 20% 18%, rgba(140, 75, 47, 0.14), transparent 9rem),
+    radial-gradient(circle at 78% 78%, rgba(65, 88, 63, 0.14), transparent 10rem),
+    linear-gradient(180deg, #f5efe8 0%, #eadfd2 100%);
+}
+
+.loading-bistro::before {
+  border-color: rgba(140, 75, 47, 0.14);
+  background: linear-gradient(135deg, rgba(140, 75, 47, 0.06), transparent 32%);
+}
+
+.loading-bistro .menu-loading-card {
+  border-color: rgba(140, 75, 47, 0.14);
+  background: rgba(255, 249, 243, 0.9);
+  box-shadow: 0 28px 52px rgba(68, 43, 28, 0.14);
+}
+
+.loading-bistro .menu-loading-mark,
+.loading-bistro .menu-loading-bar span {
+  background: #8c4b2f;
+}
+
+.loading-bistro .menu-loading-card strong {
+  color: #241d17;
+  font-family: 'Fraunces', var(--font-display, serif);
+  letter-spacing: 0.08em;
+}
+
+.loading-bistro .menu-loading-card p {
+  color: rgba(36, 29, 23, 0.62);
 }
 
 @keyframes loading-bar-slide {
