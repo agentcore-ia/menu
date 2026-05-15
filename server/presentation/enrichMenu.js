@@ -41,6 +41,7 @@ const defaultAdminThemeValues = {
   displayFont: 'Cormorant Garamond',
   bodyFont: 'Manrope',
 }
+const defaultAdminHeroImage = '/dishes/hero-clean-cut.png'
 
 function sanitizePresentationConfig(preset, config) {
   if (!config) {
@@ -81,6 +82,14 @@ function sanitizePresentationConfig(preset, config) {
     sanitized[section] = Object.fromEntries(
       Object.entries(sanitized[section]).filter(([, value]) => !isEmptyConfigValue(value)),
     )
+  }
+
+  if (
+    preset.hero?.image &&
+    sanitized.hero?.image === defaultAdminHeroImage &&
+    sanitized.hero.image !== preset.hero.image
+  ) {
+    delete sanitized.hero.image
   }
 
   if (preset.theme?.id !== defaultAdminThemeValues.id && isObject(sanitized.theme)) {

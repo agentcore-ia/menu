@@ -1,3 +1,13 @@
+const INHERITED_THEME_PREFIX = 'inherits-'
+
+function getInheritedPresetFromThemeId(themeId) {
+  if (typeof themeId !== 'string' || !themeId.startsWith(INHERITED_THEME_PREFIX)) {
+    return undefined
+  }
+
+  return themeId.slice(INHERITED_THEME_PREFIX.length) || undefined
+}
+
 function mapPresentationConfig(config) {
   if (!config) {
     return null
@@ -7,6 +17,8 @@ function mapPresentationConfig(config) {
     config.theme_overrides && typeof config.theme_overrides === 'object'
       ? config.theme_overrides
       : {}
+  const inheritedPreset =
+    themeOverrides.inheritPreset || getInheritedPresetFromThemeId(config.theme_id)
 
   return {
     template: config.layout || undefined,
@@ -17,6 +29,7 @@ function mapPresentationConfig(config) {
     },
     theme: {
       ...themeOverrides,
+      ...(inheritedPreset ? { inheritPreset: inheritedPreset } : {}),
       id: config.theme_id || themeOverrides.id || undefined,
     },
     hero: {
@@ -39,12 +52,31 @@ function mapPresentationConfig(config) {
 }
 
 const DELETED_MENU_THEME_ID = 'menu-deleted'
+const DEFAULT_ADMIN_HERO_IMAGE = '/dishes/hero-clean-cut.png'
 
-function normalizePresentationInput(input) {
+function normalizePresentationInput(input, existingConfig) {
+  const existingThemeOverrides =
+    existingConfig?.theme_overrides && typeof existingConfig.theme_overrides === 'object'
+      ? existingConfig.theme_overrides
+      : {}
+  const inheritedPreset =
+    input.theme?.inheritPreset ||
+    getInheritedPresetFromThemeId(input.theme?.id) ||
+    existingThemeOverrides.inheritPreset ||
+    getInheritedPresetFromThemeId(existingConfig?.theme_id)
+  const themeId = inheritedPreset
+    ? `${INHERITED_THEME_PREFIX}${inheritedPreset}`
+    : input.theme?.id ?? existingConfig?.theme_id ?? 'ivory-olive'
+  const heroImage =
+    inheritedPreset && input.hero?.image === DEFAULT_ADMIN_HERO_IMAGE
+      ? existingConfig?.hero_image_url ?? null
+      : input.hero?.image ?? null
+
   return {
     layout: input.layout ?? 'editorial',
-    theme_id: input.theme?.id ?? 'ivory-olive',
+    theme_id: themeId,
     theme_overrides: {
+      ...(inheritedPreset ? { inheritPreset: inheritedPreset } : {}),
       background: input.theme?.background,
       primary: input.theme?.primary,
       accent: input.theme?.accent,
@@ -83,7 +115,7 @@ function normalizePresentationInput(input) {
     },
     branding_wordmark: input.branding?.wordmark ?? null,
     branding_subtitle: input.branding?.subtitle ?? null,
-    hero_image_url: input.hero?.image ?? null,
+    hero_image_url: heroImage,
     hero_title: input.hero?.title ?? null,
     hero_accent: input.hero?.accent ?? null,
     hero_description: input.hero?.description ?? null,
@@ -288,7 +320,8 @@ export class SupabaseAdminRepository {
       return null
     }
 
-    const payload = normalizePresentationInput(input)
+    const existingPresentation = await this.fetchPresentationByRestaurantId(restaurant.id)
+    const payload = normalizePresentationInput(input, existingPresentation)
     const [row] = await this.request(
       '/restaurant_menu_presentations?on_conflict=restaurant_id',
       {

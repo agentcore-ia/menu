@@ -16,6 +16,15 @@ const fallbackImages = [
 ]
 
 const DELETED_MENU_THEME_ID = 'menu-deleted'
+const INHERITED_THEME_PREFIX = 'inherits-'
+
+function getInheritedPresetFromThemeId(themeId) {
+  if (typeof themeId !== 'string' || !themeId.startsWith(INHERITED_THEME_PREFIX)) {
+    return undefined
+  }
+
+  return themeId.slice(INHERITED_THEME_PREFIX.length) || undefined
+}
 
 function getProductVideo(product) {
   return (
@@ -255,6 +264,8 @@ export class SupabaseMenuRepository {
       config.theme_overrides && typeof config.theme_overrides === 'object'
         ? config.theme_overrides
         : {}
+    const inheritedPreset =
+      themeOverrides.inheritPreset || getInheritedPresetFromThemeId(config.theme_id)
 
     return {
       isDeleted: config.theme_id === DELETED_MENU_THEME_ID,
@@ -266,6 +277,7 @@ export class SupabaseMenuRepository {
       },
       theme: {
         ...themeOverrides,
+        ...(inheritedPreset ? { inheritPreset: inheritedPreset } : {}),
         id: config.theme_id || themeOverrides.id || undefined,
       },
       hero: {
