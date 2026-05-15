@@ -294,6 +294,36 @@ app.patch('/api/admin/accounts/:accountId/presentation', async (req, res) => {
   }
 })
 
+app.post('/api/admin/accounts/:accountId/products/copy', async (req, res) => {
+  try {
+    assertAdminToken(config, req)
+    const result = await adminRepository.copyProductsFromAccount(
+      req.params.accountId,
+      req.body?.sourceAccountId,
+      {
+        replaceExisting: Boolean(req.body?.replaceExisting),
+      },
+    )
+
+    if (!result) {
+      res.status(404).json({ error: 'ACCOUNT_NOT_FOUND', message: 'Cuenta destino no encontrada.' })
+      return
+    }
+
+    res.json(result)
+  } catch (error) {
+    if (error instanceof Error && error.code === 'UNAUTHORIZED') {
+      res.status(401).json({ error: 'UNAUTHORIZED', message: 'Token admin invalido.' })
+      return
+    }
+
+    res.status(500).json({
+      error: 'PRODUCT_COPY_FAILED',
+      message: error instanceof Error ? error.message : 'No se pudieron copiar los productos.',
+    })
+  }
+})
+
 app.post('/api/admin/products/:productId/video-upload-url', async (req, res) => {
   try {
     assertAdminToken(config, req)

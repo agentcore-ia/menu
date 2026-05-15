@@ -97,6 +97,13 @@ export default function AdminApp() {
     slug: 'sandras-rose',
     city: '',
     address: '',
+    demo: false,
+    sourceAccountId: '',
+    replaceProducts: false,
+  })
+  const [copyForm, setCopyForm] = useState({
+    sourceAccountId: '',
+    replaceExisting: false,
   })
 
   const products = useMemo(() => editor?.products ?? [], [editor])
@@ -110,6 +117,52 @@ export default function AdminApp() {
     }),
     [products],
   )
+
+  function applyEditorPayload(payload) {
+    setEditor(payload)
+    setPresentation({
+      ...defaultPresentation,
+      ...payload.presentation,
+      branding: {
+        ...defaultPresentation.branding,
+        ...(payload.presentation?.branding ?? {}),
+      },
+      theme: {
+        ...defaultPresentation.theme,
+        ...(payload.presentation?.theme ?? {}),
+      },
+      hero: {
+        ...defaultPresentation.hero,
+        ...(payload.presentation?.hero ?? {}),
+      },
+      cards: {
+        ...defaultPresentation.cards,
+        ...(payload.presentation?.cards ?? {}),
+      },
+      preview: {
+        ...defaultPresentation.preview,
+        ...(payload.presentation?.preview ?? {}),
+      },
+    })
+  }
+
+  async function refreshEditor(accountSlug = selectedAccount) {
+    if (!token || !accountSlug) {
+      return null
+    }
+
+    const response = await fetch(`/api/admin/accounts/${accountSlug}/editor`, {
+      headers: authHeaders(token),
+    })
+    const payload = await readApiPayload(response)
+
+    if (!response.ok) {
+      throw new Error(payload.message ?? 'No se pudo cargar el editor.')
+    }
+
+    applyEditorPayload(payload)
+    return payload
+  }
 
   useEffect(() => {
     if (!token) {
@@ -191,31 +244,7 @@ export default function AdminApp() {
           return
         }
 
-        setEditor(payload)
-        setPresentation({
-          ...defaultPresentation,
-          ...payload.presentation,
-          branding: {
-            ...defaultPresentation.branding,
-            ...(payload.presentation?.branding ?? {}),
-          },
-          theme: {
-            ...defaultPresentation.theme,
-            ...(payload.presentation?.theme ?? {}),
-          },
-          hero: {
-            ...defaultPresentation.hero,
-            ...(payload.presentation?.hero ?? {}),
-          },
-          cards: {
-            ...defaultPresentation.cards,
-            ...(payload.presentation?.cards ?? {}),
-          },
-          preview: {
-            ...defaultPresentation.preview,
-            ...(payload.presentation?.preview ?? {}),
-          },
-        })
+        applyEditorPayload(payload)
         setStatus('ready')
       } catch (error) {
         if (cancelled) {
@@ -237,6 +266,13 @@ export default function AdminApp() {
   const accountOptions = useMemo(
     () => accounts.map((account) => ({ value: account.slug, label: account.name })),
     [accounts],
+  )
+  const sourceAccountOptions = useMemo(
+    () =>
+      accounts
+        .filter((account) => account.slug !== selectedAccount)
+        .map((account) => ({ value: account.slug, label: account.name })),
+    [accounts, selectedAccount],
   )
 
   function updatePresentation(path, value) {
@@ -280,9 +316,55 @@ export default function AdminApp() {
     setSelectedAccount(payload.slug)
     setMessage(
       payload.linkedExisting
-        ? `Cuenta enlazada a NeuroRest: ${payload.name}. Se mostraran sus productos cargados.`
-        : `Cuenta creada: ${payload.name}`,
+        ? `Cuenta enlazada: ${payload.name}. ${
+            payload.copiedProducts ? `Productos copiados: ${payload.copiedProducts}.` : ''
+          }`
+        : `Cuenta ${payload.demo ? 'demo ' : ''}creada: ${payload.name}. ${
+            payload.copiedProducts ? `Productos copiados: ${payload.copiedProducts}.` : ''
+          }`,
     )
+  }
+
+  async function handleCopyProducts(event) {
+    event.preventDefault()
+
+    if (!selectedAccount || !copyForm.sourceAccountId) {
+      setMessage('Selecciona un menu origen para copiar productos.')
+      return
+    }
+
+    if (copyForm.replaceExisting) {
+      const confirmed = window.confirm(
+        'Esto va a borrar los productos actuales del menu activo y reemplazarlos por los del menu origen. Continuar?',
+      )
+
+      if (!confirmed) {
+        return
+      }
+    }
+
+    setStatus('copying-products')
+    setMessage('')
+
+    try {
+      const response = await fetch(`/api/admin/accounts/${selectedAccount}/products/copy`, {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: JSON.stringify(copyForm),
+      })
+      const payload = await readApiPayload(response)
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? 'No se pudieron copiar los productos.')
+      }
+
+      await refreshEditor(selectedAccount)
+      setMessage(`Productos copiados desde ${payload.source?.name ?? 'el menu origen'}: ${payload.copied}.`)
+      setStatus('ready')
+    } catch (error) {
+      setStatus('error')
+      setMessage(error instanceof Error ? error.message : 'No se pudieron copiar los productos.')
+    }
   }
 
   async function handleDeleteSelectedMenu() {
@@ -546,10 +628,20 @@ export default function AdminApp() {
               <div>
                 <span className="admin-kicker">Nuevo menu</span>
                 <h2>Crear cuenta</h2>
-                <p>Usa el mismo slug del restaurante para traer sus productos de NeuroRest.</p>
+                <p>Crea un menu real por slug o una cuenta demo sin tener que abrirla antes en NeuroRest.</p>
               </div>
             </div>
             <form className="admin-form" onSubmit={handleCreateAccount}>
+              <label className="admin-checkbox admin-checkbox-card">
+                <input
+                  type="checkbox"
+                  checked={createForm.demo}
+                  onChange={(event) =>
+                    setCreateForm((current) => ({ ...current, demo: event.target.checked }))
+                  }
+                />
+                <span>Crear como cuenta demo</span>
+              </label>
               <label className="admin-field">
                 <span>Nombre</span>
                 <input
@@ -586,8 +678,45 @@ export default function AdminApp() {
                   }
                 />
               </label>
+              <label className="admin-field">
+                <span>Copiar productos desde otro menu</span>
+                <select
+                  value={createForm.sourceAccountId}
+                  onChange={(event) =>
+                    setCreateForm((current) => ({
+                      ...current,
+                      sourceAccountId: event.target.value,
+                    }))
+                  }
+                >
+                  <option value="">No copiar productos</option>
+                  {accountOptions.map((account) => (
+                    <option key={account.value} value={account.value}>
+                      {account.label}
+                    </option>
+                  ))}
+                </select>
+                <small className="admin-help">
+                  Ideal para demos: crea el menu y trae productos, fotos y videos desde un catalogo existente.
+                </small>
+              </label>
+              {createForm.sourceAccountId ? (
+                <label className="admin-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={createForm.replaceProducts}
+                    onChange={(event) =>
+                      setCreateForm((current) => ({
+                        ...current,
+                        replaceProducts: event.target.checked,
+                      }))
+                    }
+                  />
+                  <span>Reemplazar productos si el slug ya existia</span>
+                </label>
+              ) : null}
               <button type="submit" className="admin-primary">
-                Crear cuenta
+                {createForm.demo ? 'Crear demo' : 'Crear cuenta'}
               </button>
             </form>
           </article>
@@ -636,6 +765,59 @@ export default function AdminApp() {
             ) : null}
           </article>
         </section>
+
+        {selectedAccount && restaurant ? (
+          <section className="admin-card admin-copy-card">
+            <div className="admin-section-head">
+              <div>
+                <span className="admin-kicker">Importar catalogo</span>
+                <h2>Copiar productos de otro menu</h2>
+                <p>Trae productos, categorias, fotos y videos de una cuenta existente al menu activo.</p>
+              </div>
+            </div>
+            <form className="admin-copy-form" onSubmit={handleCopyProducts}>
+              <label className="admin-field">
+                <span>Menu origen</span>
+                <select
+                  value={copyForm.sourceAccountId}
+                  onChange={(event) =>
+                    setCopyForm((current) => ({
+                      ...current,
+                      sourceAccountId: event.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Selecciona un menu para copiar</option>
+                  {sourceAccountOptions.map((account) => (
+                    <option key={account.value} value={account.value}>
+                      {account.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="admin-checkbox">
+                <input
+                  type="checkbox"
+                  checked={copyForm.replaceExisting}
+                  onChange={(event) =>
+                    setCopyForm((current) => ({
+                      ...current,
+                      replaceExisting: event.target.checked,
+                    }))
+                  }
+                />
+                <span>Reemplazar productos actuales</span>
+              </label>
+              <button
+                type="submit"
+                className="admin-primary"
+                disabled={!copyForm.sourceAccountId || status === 'copying-products'}
+              >
+                {status === 'copying-products' ? 'Copiando...' : 'Copiar productos'}
+              </button>
+            </form>
+          </section>
+        ) : null}
 
         {selectedAccount ? (
           <>

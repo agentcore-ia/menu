@@ -141,9 +141,24 @@ export class SupabaseAdminRepository {
     if (existingRestaurant) {
       await this.restoreMenu(existingRestaurant.id)
 
+      if (payload.sourceAccountId) {
+        const copyResult = await this.copyProductsFromAccount(existingRestaurant.slug, payload.sourceAccountId, {
+          replaceExisting: Boolean(payload.replaceProducts),
+        })
+
+        return {
+          ...existingRestaurant,
+          linkedExisting: true,
+          demo: Boolean(payload.demo),
+          copiedProducts: copyResult.copied,
+        }
+      }
+
       return {
         ...existingRestaurant,
         linkedExisting: true,
+        demo: Boolean(payload.demo),
+        copiedProducts: 0,
       }
     }
 
@@ -155,15 +170,89 @@ export class SupabaseAdminRepository {
       body: JSON.stringify({
         name: payload.name,
         slug: payload.slug,
-        business_type: payload.business_type ?? 'restaurant',
+        business_type: payload.demo ? 'demo_menu' : payload.business_type ?? 'restaurant',
         city: payload.city ?? null,
         address: payload.address ?? null,
       }),
     })
 
+    let copiedProducts = 0
+
+    if (payload.sourceAccountId) {
+      const copyResult = await this.copyProductsFromAccount(restaurant.slug, payload.sourceAccountId, {
+        replaceExisting: Boolean(payload.replaceProducts),
+      })
+      copiedProducts = copyResult.copied
+    }
+
     return {
       ...restaurant,
       linkedExisting: false,
+      demo: Boolean(payload.demo),
+      copiedProducts,
+    }
+  }
+
+  async copyProductsFromAccount(targetAccountId, sourceAccountId, options = {}) {
+    const [targetRestaurant, sourceRestaurant] = await Promise.all([
+      this.fetchRestaurantBySlug(targetAccountId),
+      this.fetchRestaurantBySlug(sourceAccountId),
+    ])
+
+    if (!targetRestaurant) {
+      return null
+    }
+
+    if (!sourceRestaurant) {
+      throw new Error('No se encontro el menu origen para copiar productos.')
+    }
+
+    if (targetRestaurant.id === sourceRestaurant.id) {
+      throw new Error('El menu origen y destino no pueden ser el mismo.')
+    }
+
+    const sourceProducts = await this.fetchProductsForCopy(sourceRestaurant.id)
+
+    if (options.replaceExisting) {
+      await this.request(`/products?restaurant_id=eq.${targetRestaurant.id}`, {
+        method: 'DELETE',
+        headers: {
+          Prefer: 'return=minimal',
+        },
+      })
+    }
+
+    if (!sourceProducts.length) {
+      return {
+        copied: 0,
+        source: sourceRestaurant,
+        target: targetRestaurant,
+      }
+    }
+
+    const rowsToCreate = sourceProducts.map((product) => ({
+      restaurant_id: targetRestaurant.id,
+      name: product.name,
+      description: product.description ?? null,
+      price: product.price ?? 0,
+      category: product.category ?? null,
+      available: product.available !== false,
+      image_url: product.image_url ?? null,
+      video_url: product.video_url ?? null,
+    }))
+
+    const createdProducts = await this.request('/products', {
+      method: 'POST',
+      headers: {
+        Prefer: 'return=representation',
+      },
+      body: JSON.stringify(rowsToCreate),
+    })
+
+    return {
+      copied: createdProducts.length,
+      source: sourceRestaurant,
+      target: targetRestaurant,
     }
   }
 
@@ -462,6 +551,12 @@ export class SupabaseAdminRepository {
   async fetchProductsByRestaurantId(restaurantId) {
     return this.request(
       `/products?restaurant_id=eq.${restaurantId}&select=id,name,category,image_url,video_url,available&order=category.asc,name.asc`,
+    )
+  }
+
+  async fetchProductsForCopy(restaurantId) {
+    return this.request(
+      `/products?restaurant_id=eq.${restaurantId}&select=name,description,price,category,image_url,video_url,available&order=category.asc,name.asc`,
     )
   }
 

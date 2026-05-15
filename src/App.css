@@ -4750,6 +4750,29 @@ button:focus-visible {
   accent-color: #445d39;
 }
 
+.admin-checkbox-card {
+  grid-auto-flow: column;
+  justify-content: start;
+  padding: 0.85rem 0.95rem;
+  border-radius: 1rem;
+  background: rgba(68, 93, 57, 0.08);
+  border: 1px solid rgba(68, 93, 57, 0.12);
+}
+
+.admin-copy-card {
+  border-color: rgba(68, 93, 57, 0.18);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(68, 93, 57, 0.12), transparent 18rem),
+    rgba(255, 251, 245, 0.94);
+}
+
+.admin-copy-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: end;
+  gap: 0.85rem;
+}
+
 .admin-primary,
 .admin-secondary,
 .admin-danger {
@@ -5924,7 +5947,8 @@ button:focus-visible {
   }
 
   .admin-grid,
-  .admin-form-grid {
+  .admin-form-grid,
+  .admin-copy-form {
     grid-template-columns: 1fr;
   }
 
