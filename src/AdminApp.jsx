@@ -70,6 +70,20 @@ async function readApiPayload(response) {
   return { message: text || 'La respuesta del servidor no fue JSON.' }
 }
 
+async function uploadFileToSignedUrl(upload, file) {
+  const formData = new FormData()
+  formData.append('cacheControl', '3600')
+  formData.append('', file)
+
+  return fetch(upload.uploadUrl, {
+    method: upload.method ?? 'PUT',
+    headers: {
+      'x-upsert': 'true',
+    },
+    body: formData,
+  })
+}
+
 export default function AdminApp() {
   const [token, setToken] = useState(readSavedToken)
   const [accounts, setAccounts] = useState([])
@@ -397,21 +411,43 @@ export default function AdminApp() {
       return
     }
 
-    setMessage(`Subiendo ${file.name}...`)
+    setMessage(`Preparando subida directa para ${file.name}...`)
 
-    const response = await fetch(`/api/admin/products/${productId}/video-upload`, {
+    const signedResponse = await fetch(`/api/admin/products/${productId}/video-upload-url`, {
       method: 'POST',
-      headers: {
-        'x-admin-token': token,
-        'content-type': file.type || 'video/mp4',
-        'x-file-name': file.name,
-      },
-      body: await file.arrayBuffer(),
+      headers: authHeaders(token),
+      body: JSON.stringify({
+        fileName: file.name,
+        contentType: file.type || 'video/mp4',
+        size: file.size,
+      }),
+    })
+    const signedPayload = await readApiPayload(signedResponse)
+
+    if (!signedResponse.ok) {
+      setMessage(signedPayload.message ?? 'No se pudo preparar la subida del video.')
+      return
+    }
+
+    setMessage(`Subiendo ${file.name} directo a Supabase Storage...`)
+
+    const uploadResponse = await uploadFileToSignedUrl(signedPayload, file)
+
+    if (!uploadResponse.ok) {
+      const detail = await uploadResponse.text()
+      setMessage(detail || 'No se pudo subir el video directo a Supabase Storage.')
+      return
+    }
+
+    const response = await fetch(`/api/admin/products/${productId}/media`, {
+      method: 'PATCH',
+      headers: authHeaders(token),
+      body: JSON.stringify({ video_url: signedPayload.publicUrl }),
     })
     const payload = await readApiPayload(response)
 
     if (!response.ok) {
-      setMessage(payload.message ?? 'No se pudo subir el video al storage.')
+      setMessage(payload.message ?? 'El video subio, pero no se pudo vincular al producto.')
       return
     }
 

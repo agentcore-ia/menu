@@ -1131,7 +1131,7 @@ function TemplateMenuCollection({
   onOpenGelatoBuilder,
 }) {
   if (templateId === 'burger') {
-    const highlightedItems = categoryItems.slice(0, 3)
+    const highlightedItems = categoryItems
     const comboTarget =
       categories.find((category) => slugify(category.label).includes('combo')) ??
       categories.find((category) => slugify(category.label).includes('bebida')) ??

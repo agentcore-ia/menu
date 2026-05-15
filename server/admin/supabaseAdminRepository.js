@@ -79,6 +79,29 @@ function slugify(value) {
     .replace(/^-|-$/g, '')
 }
 
+function encodeStoragePath(path) {
+  return String(path)
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/')
+}
+
+function getFileExtension(fileName, fallback) {
+  const normalizedFileName = String(fileName ?? '')
+
+  if (!normalizedFileName.includes('.')) {
+    return fallback
+  }
+
+  const extension = normalizedFileName
+    .split('.')
+    .pop()
+    ?.toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+
+  return extension || fallback
+}
+
 export class SupabaseAdminRepository {
   constructor(config) {
     this.config = config
@@ -255,7 +278,7 @@ export class SupabaseAdminRepository {
     }
 
     const restaurant = await this.fetchRestaurantById(product.restaurant_id)
-    const extension = file.fileName?.split('.').pop()?.toLowerCase() || 'mp4'
+    const extension = getFileExtension(file.fileName, 'mp4')
     const safeName = slugify(product.name) || 'product'
     const folder = slugify(restaurant?.slug || 'general')
     const path = `products/${folder}/${product.id}-${safeName}-${Date.now()}.${extension}`
@@ -285,6 +308,64 @@ export class SupabaseAdminRepository {
     return this.updateProductMedia(productId, { video_url: publicUrl })
   }
 
+  async createProductVideoUpload(productId, file = {}) {
+    const product = await this.fetchProductById(productId)
+
+    if (!product) {
+      return null
+    }
+
+    const restaurant = await this.fetchRestaurantById(product.restaurant_id)
+    const extension = getFileExtension(file.fileName, 'mp4')
+    const safeName = slugify(product.name) || 'product'
+    const folder = slugify(restaurant?.slug || 'general')
+    const path = `products/${folder}/${product.id}-${safeName}-${Date.now()}.${extension}`
+    const uploadUrl = await this.createSignedStorageUploadUrl(path)
+    const publicUrl = `${this.config.supabaseUrl}/storage/v1/object/public/${this.config.storageBucket}/${path}`
+
+    return {
+      uploadUrl,
+      publicUrl,
+      path,
+      method: 'PUT',
+    }
+  }
+
+  async createSignedStorageUploadUrl(path) {
+    const uploadResponse = await fetch(
+      `${this.config.supabaseUrl}/storage/v1/object/upload/sign/${this.config.storageBucket}/${encodeStoragePath(path)}`,
+      {
+        method: 'POST',
+        headers: {
+          apikey: this.config.supabaseStorageApiKey,
+          Authorization: `Bearer ${this.config.supabaseStorageApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ upsert: true }),
+      },
+    )
+
+    if (!uploadResponse.ok) {
+      const detail = await uploadResponse.text()
+      throw new Error(
+        `Supabase signed upload error: ${uploadResponse.status} ${
+          detail || 'No se pudo preparar la subida directa.'
+        }`,
+      )
+    }
+
+    const payload = await uploadResponse.json()
+    const signedPath = payload.signedURL ?? payload.signedUrl ?? payload.url
+
+    if (!signedPath) {
+      throw new Error('Supabase no devolvio una URL firmada para subir el video.')
+    }
+
+    return signedPath.startsWith('http')
+      ? signedPath
+      : `${this.config.supabaseUrl}/storage/v1${signedPath}`
+  }
+
   async uploadProductImage(productId, file) {
     const product = await this.fetchProductById(productId)
 
@@ -293,7 +374,7 @@ export class SupabaseAdminRepository {
     }
 
     const restaurant = await this.fetchRestaurantById(product.restaurant_id)
-    const extension = file.fileName?.split('.').pop()?.toLowerCase() || 'jpg'
+    const extension = getFileExtension(file.fileName, 'jpg')
     const safeName = slugify(product.name) || 'product'
     const folder = slugify(restaurant?.slug || 'general')
     const path = `products/${folder}/images/${product.id}-${safeName}-${Date.now()}.${extension}`

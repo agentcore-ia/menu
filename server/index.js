@@ -291,6 +291,37 @@ app.patch('/api/admin/accounts/:accountId/presentation', async (req, res) => {
   }
 })
 
+app.post('/api/admin/products/:productId/video-upload-url', async (req, res) => {
+  try {
+    assertAdminToken(config, req)
+    const upload = await adminRepository.createProductVideoUpload(req.params.productId, {
+      fileName: req.body?.fileName,
+      contentType: req.body?.contentType,
+      size: req.body?.size,
+    })
+
+    if (!upload) {
+      res.status(404).json({ error: 'PRODUCT_NOT_FOUND', message: 'Producto no encontrado.' })
+      return
+    }
+
+    res.json(upload)
+  } catch (error) {
+    if (error instanceof Error && error.code === 'UNAUTHORIZED') {
+      res.status(401).json({ error: 'UNAUTHORIZED', message: 'Token admin invalido.' })
+      return
+    }
+
+    res.status(500).json({
+      error: 'PRODUCT_VIDEO_UPLOAD_URL_FAILED',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'No se pudo preparar la subida directa del video.',
+    })
+  }
+})
+
 app.patch('/api/admin/products/:productId/media', async (req, res) => {
   try {
     assertAdminToken(config, req)
