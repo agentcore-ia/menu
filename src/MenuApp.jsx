@@ -271,6 +271,24 @@ function getInitialAccountId() {
   return params.get('account') ?? 'sandras-rose'
 }
 
+function getLoadingTemplate(accountId) {
+  const key = slugify(accountId)
+
+  if (key.includes('burger') || key.includes('burguer')) {
+    return 'burger'
+  }
+
+  if (key.includes('heladeria') || key.includes('dolce')) {
+    return 'gelato'
+  }
+
+  if (key.includes('esquina') || key.includes('pizzeria')) {
+    return 'pizzeria'
+  }
+
+  return 'default'
+}
+
 function slugify(value) {
   return value
     .normalize('NFD')
@@ -955,6 +973,48 @@ function TemplateHero({ templateId, presentation, heroDish }) {
         <img src={getHeroImage(presentation, heroDish)} alt={heroDish.name} />
       </div>
     </section>
+  )
+}
+
+function MenuLoadingScreen({ accountId }) {
+  const loadingTemplate = getLoadingTemplate(accountId)
+  const title =
+    loadingTemplate === 'burger'
+      ? 'BRASA'
+      : loadingTemplate === 'gelato'
+        ? 'Dolce'
+        : loadingTemplate === 'pizzeria'
+          ? 'La Buona'
+          : 'NeuroRest'
+  const subtitle =
+    loadingTemplate === 'burger'
+      ? 'preparando el fuego'
+      : loadingTemplate === 'gelato'
+        ? 'sirviendo sabores'
+        : loadingTemplate === 'pizzeria'
+          ? 'calentando el horno'
+          : 'preparando tu menu'
+
+  return (
+    <div className="app-shell">
+      <div className={`phone-surface menu-loading-screen loading-${loadingTemplate}`}>
+        <div className="menu-loader-orbit" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+        <div className="menu-loading-card" role="status" aria-live="polite">
+          <span className="menu-loading-mark">
+            {loadingTemplate === 'burger' ? <IconFlame /> : <IconLeafMark />}
+          </span>
+          <strong>{title}</strong>
+          <p>{subtitle}</p>
+          <div className="menu-loading-bar" aria-hidden="true">
+            <span />
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -1927,6 +1987,10 @@ export default function MenuApp() {
     `theme-${presentation.theme.id}`,
   ].join(' ')
 
+  if (status === 'loading') {
+    return <MenuLoadingScreen accountId={accountId} />
+  }
+
   return (
     <>
       <div className="app-shell">
@@ -1969,12 +2033,6 @@ export default function MenuApp() {
           </header>
 
           <main className="content-panel">
-            {status === 'loading' ? (
-              <section className="state-panel">
-                <p>Cargando menu digital...</p>
-              </section>
-            ) : null}
-
             {status === 'error' ? (
               <section className="state-panel">
                 <p>{errorMessage}</p>

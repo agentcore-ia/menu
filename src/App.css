@@ -1647,6 +1647,217 @@
   box-shadow: 0 -8px 24px rgba(27, 27, 24, 0.07);
 }
 
+.menu-loading-screen {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255, 255, 255, 0.62), transparent 8rem),
+    linear-gradient(180deg, #f6f0e6 0%, #eee6d9 100%);
+}
+
+.menu-loading-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 18rem);
+  min-height: 14rem;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  padding: 1.8rem;
+  border-radius: 2rem;
+  background: rgba(255, 253, 248, 0.82);
+  border: 1px solid rgba(68, 93, 57, 0.1);
+  box-shadow: 0 24px 48px rgba(42, 36, 24, 0.14);
+  text-align: center;
+}
+
+.menu-loading-mark {
+  width: 3.35rem;
+  height: 3.35rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #fffdf8;
+  background: #445d39;
+  box-shadow: 0 14px 24px rgba(68, 93, 57, 0.22);
+}
+
+.menu-loading-mark svg {
+  width: 1.7rem;
+  height: 1.7rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.menu-loading-card strong {
+  color: #1b1b18;
+  font-family: var(--font-display, 'Cormorant Garamond', serif);
+  font-size: 2.15rem;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.menu-loading-card p {
+  margin: 0;
+  color: rgba(27, 27, 24, 0.66);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.menu-loading-bar {
+  width: 10.5rem;
+  height: 0.42rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(68, 93, 57, 0.12);
+}
+
+.menu-loading-bar span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: #445d39;
+  animation: loading-bar-slide 1.1s ease-in-out infinite;
+}
+
+.menu-loader-orbit {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.menu-loader-orbit span {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+  opacity: 0.72;
+  animation: loading-float 3.6s ease-in-out infinite;
+}
+
+.menu-loader-orbit span:nth-child(1) {
+  top: 12%;
+  left: 12%;
+  width: 5rem;
+  height: 5rem;
+  background: rgba(68, 93, 57, 0.12);
+}
+
+.menu-loader-orbit span:nth-child(2) {
+  right: -1.6rem;
+  top: 26%;
+  width: 8rem;
+  height: 8rem;
+  background: rgba(245, 183, 46, 0.1);
+  animation-delay: -1.1s;
+}
+
+.menu-loader-orbit span:nth-child(3) {
+  left: 18%;
+  bottom: 14%;
+  width: 6.5rem;
+  height: 6.5rem;
+  background: rgba(255, 255, 255, 0.52);
+  animation-delay: -2s;
+}
+
+.loading-burger {
+  background:
+    radial-gradient(circle at 68% 20%, rgba(245, 183, 46, 0.16), transparent 9rem),
+    radial-gradient(circle at 20% 84%, rgba(255, 255, 255, 0.06), transparent 10rem),
+    linear-gradient(180deg, #050707 0%, #0d1415 100%);
+}
+
+.loading-burger .menu-loading-card {
+  background: rgba(9, 13, 14, 0.9);
+  border-color: rgba(245, 183, 46, 0.24);
+  box-shadow: 0 26px 54px rgba(0, 0, 0, 0.34);
+}
+
+.loading-burger .menu-loading-mark,
+.loading-burger .menu-loading-bar span {
+  color: #11100b;
+  background: #f5b72e;
+  box-shadow: 0 14px 28px rgba(245, 183, 46, 0.22);
+}
+
+.loading-burger .menu-loading-mark svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.loading-burger .menu-loading-card strong {
+  color: #f8f3e8;
+  font-family: Impact, 'Arial Narrow', sans-serif;
+  letter-spacing: 0.1em;
+}
+
+.loading-burger .menu-loading-card p {
+  color: rgba(248, 243, 232, 0.66);
+}
+
+.loading-burger .menu-loading-bar {
+  background: rgba(245, 183, 46, 0.14);
+}
+
+.loading-gelato {
+  background:
+    radial-gradient(circle at 24% 14%, rgba(255, 91, 146, 0.22), transparent 8rem),
+    radial-gradient(circle at 82% 20%, rgba(123, 221, 211, 0.22), transparent 8rem),
+    linear-gradient(180deg, #fff8fb 0%, #fff 100%);
+}
+
+.loading-gelato .menu-loading-mark,
+.loading-gelato .menu-loading-bar span {
+  background: #ff5a92;
+}
+
+.loading-pizzeria {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(20, 63, 33, 0.16), transparent 12rem),
+    linear-gradient(180deg, #f2e8db 0%, #efe4d5 100%);
+}
+
+.loading-pizzeria .menu-loading-mark,
+.loading-pizzeria .menu-loading-bar span {
+  background: #123f22;
+}
+
+@keyframes loading-bar-slide {
+  0% {
+    transform: translateX(-115%);
+  }
+
+  50% {
+    transform: translateX(72%);
+  }
+
+  100% {
+    transform: translateX(255%);
+  }
+}
+
+@keyframes loading-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(0.6rem, -0.8rem, 0) scale(1.05);
+  }
+}
+
 .template-gelato .content-panel {
   margin-top: 0;
   padding-top: 0.4rem;
