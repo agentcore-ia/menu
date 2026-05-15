@@ -5120,11 +5120,25 @@ button:focus-visible {
 }
 
 .hero-content-burger {
+  position: relative;
   min-height: 0 !important;
   padding: 0;
+  overflow: hidden;
+  background: #020404;
+}
+
+.burger-header-video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .burger-header-image {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: auto;
