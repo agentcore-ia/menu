@@ -191,11 +191,12 @@ function IconTicket() {
   )
 }
 
-function IconUser() {
+function IconAward() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="8" r="3.2" />
-      <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
+      <circle cx="12" cy="8.5" r="5" />
+      <path d="M9.3 13.1L7.8 21l4.2-2.4 4.2 2.4-1.5-7.9" />
+      <path d="M10.2 8.5l1.2 1.2 2.4-2.5" />
     </svg>
   )
 }
@@ -1127,6 +1128,10 @@ function TemplateMenuCollection({
   onAddItem,
   onSelectCategory,
   onOpenCart,
+  onOpenLoyalty,
+  onNavigateHome,
+  onNavigateMenu,
+  onNavigatePromos,
   gelatoFormats,
   onOpenGelatoBuilder,
 }) {
@@ -1188,10 +1193,13 @@ function TemplateMenuCollection({
           })}
         </div>
 
-        <article className="burger-combo-banner burger-footer-banner">
+        <article className="burger-combo-banner burger-footer-banner" data-burger-promos>
           <button
             type="button"
-            onClick={() => onSelectCategory?.(comboTarget?.id)}
+            onClick={() => {
+              onSelectCategory?.(comboTarget?.id)
+              onNavigatePromos?.()
+            }}
             aria-label="Ver combo clasico"
           >
             <img src="/burger/footer.png" alt="El match perfecto. Combo clasico." />
@@ -1199,24 +1207,24 @@ function TemplateMenuCollection({
         </article>
 
         <nav className="burger-bottom-nav" aria-label="Navegacion del menu">
-          <button type="button" className="active">
+          <button type="button" className="active" onClick={onNavigateHome}>
             <IconFlame />
             <span>Inicio</span>
           </button>
-          <button type="button" onClick={() => onSelectCategory?.(currentCategory?.id)}>
+          <button type="button" onClick={onNavigateMenu}>
             <IconBurger />
             <span>Menu</span>
           </button>
           <button type="button" className="burger-bottom-primary" onClick={onOpenCart}>
             <IconFlame />
           </button>
-          <button type="button">
+          <button type="button" onClick={onNavigatePromos}>
             <IconTicket />
             <span>Promos</span>
           </button>
-          <button type="button">
-            <IconUser />
-            <span>Mi cuenta</span>
+          <button type="button" onClick={onOpenLoyalty}>
+            <IconAward />
+            <span>Mis puntos</span>
           </button>
         </nav>
       </section>
@@ -1536,6 +1544,11 @@ export default function MenuApp() {
   const [checkoutMessage, setCheckoutMessage] = useState('')
   const [lastOrder, setLastOrder] = useState(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const [isLoyaltyOpen, setIsLoyaltyOpen] = useState(false)
+  const [loyaltyPhone, setLoyaltyPhone] = useState('')
+  const [loyaltyStatus, setLoyaltyStatus] = useState('idle')
+  const [loyaltyMessage, setLoyaltyMessage] = useState('')
+  const [loyaltyData, setLoyaltyData] = useState(null)
   const [gelatoBuilderOpen, setGelatoBuilderOpen] = useState(false)
   const [gelatoStep, setGelatoStep] = useState(1)
   const [gelatoFormat, setGelatoFormat] = useState('kilo')
@@ -1770,6 +1783,73 @@ export default function MenuApp() {
       ...current,
       [field]: value,
     }))
+
+    if (field === 'phone') {
+      setLoyaltyPhone(value)
+    }
+  }
+
+  function scrollToMenuTarget(selector, block = 'start') {
+    window.requestAnimationFrame(() => {
+      document.querySelector(selector)?.scrollIntoView({
+        behavior: 'smooth',
+        block,
+      })
+    })
+  }
+
+  function handleNavigateHome() {
+    scrollToMenuTarget('[data-menu-hero]')
+  }
+
+  function handleNavigateMenu() {
+    scrollToMenuTarget('[data-menu-categories]')
+  }
+
+  function handleNavigatePromos() {
+    scrollToMenuTarget('[data-burger-promos]', 'center')
+  }
+
+  function handleOpenLoyalty() {
+    setLoyaltyPhone((current) => current || orderForm.phone)
+    setLoyaltyMessage('')
+    setIsLoyaltyOpen(true)
+  }
+
+  async function handleCheckLoyalty(event) {
+    event.preventDefault()
+
+    const phone = loyaltyPhone.trim()
+
+    if (!phone) {
+      setLoyaltyStatus('error')
+      setLoyaltyMessage('Ingresa tu numero de celular para consultar tus puntos.')
+      return
+    }
+
+    setLoyaltyStatus('loading')
+    setLoyaltyMessage('')
+
+    try {
+      const response = await fetch(
+        `/api/accounts/${accountId}/loyalty?phone=${encodeURIComponent(phone)}`,
+        { cache: 'no-store' },
+      )
+      const payload = await response.json()
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? 'No se pudieron consultar los puntos.')
+      }
+
+      setLoyaltyData(payload)
+      setLoyaltyStatus('ready')
+    } catch (error) {
+      setLoyaltyData(null)
+      setLoyaltyStatus('error')
+      setLoyaltyMessage(
+        error instanceof Error ? error.message : 'No se pudieron consultar los puntos.',
+      )
+    }
   }
 
   async function handleSubmitOrder(event) {
@@ -1851,9 +1931,14 @@ export default function MenuApp() {
     <>
       <div className="app-shell">
         <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation)}>
-          <header className={`hero hero-${templateId}`}>
+          <header className={`hero hero-${templateId}`} data-menu-hero>
             <div className="hero-topbar">
-              <button type="button" className="icon-button" aria-label="Abrir menu">
+              <button
+                type="button"
+                className="icon-button"
+                aria-label="Abrir menu"
+                onClick={handleNavigateMenu}
+              >
                 <IconMenu />
               </button>
 
@@ -1900,12 +1985,14 @@ export default function MenuApp() {
             {status === 'ready' ? (
               <>
                 {templateId === 'pizzeria' || templateId === 'burger' ? (
-                  <TemplateCategorySelector
-                    templateId={templateId}
-                    categories={categories}
-                    currentCategory={currentCategory}
-                    onSelectCategory={setSelectedCategory}
-                  />
+                  <div data-menu-categories>
+                    <TemplateCategorySelector
+                      templateId={templateId}
+                      categories={categories}
+                      currentCategory={currentCategory}
+                      onSelectCategory={setSelectedCategory}
+                    />
+                  </div>
                 ) : null}
 
                 {templateId !== 'gelato' && templateId !== 'pizzeria' && templateId !== 'burger' ? (
@@ -1935,6 +2022,10 @@ export default function MenuApp() {
                   onAddItem={handleAddItem}
                   onSelectCategory={setSelectedCategory}
                   onOpenCart={() => setIsCartOpen(true)}
+                  onOpenLoyalty={handleOpenLoyalty}
+                  onNavigateHome={handleNavigateHome}
+                  onNavigateMenu={handleNavigateMenu}
+                  onNavigatePromos={handleNavigatePromos}
                   gelatoFormats={gelatoFormats}
                   onOpenGelatoBuilder={handleOpenGelatoBuilder}
                 />
@@ -2657,6 +2748,120 @@ export default function MenuApp() {
                   <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
                 </button>
               </form>
+            </section>
+          </div>
+        </div>
+      ) : null}
+
+      {isLoyaltyOpen ? (
+        <div className="detail-screen" role="presentation" onClick={() => setIsLoyaltyOpen(false)}>
+          <div
+            className={`detail-phone ${appClassName}`}
+            style={getPresentationStyles(presentation)}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <section className="checkout-sheet loyalty-sheet">
+              <div className="checkout-head">
+                <button
+                  type="button"
+                  className="floating-button light"
+                  onClick={() => setIsLoyaltyOpen(false)}
+                  aria-label="Cerrar puntos"
+                >
+                  <IconBack />
+                </button>
+                <div>
+                  <h2>Mis puntos</h2>
+                  <p>Ingresa tu celular y consulta el saldo acumulado en este menu.</p>
+                </div>
+              </div>
+
+              <form className="checkout-form loyalty-form" onSubmit={handleCheckLoyalty}>
+                <label className="checkout-field">
+                  <span>Celular</span>
+                  <input
+                    value={loyaltyPhone}
+                    onChange={(event) => setLoyaltyPhone(event.target.value)}
+                    placeholder="549..."
+                    inputMode="tel"
+                    required
+                  />
+                </label>
+
+                {loyaltyMessage ? (
+                  <p className={`checkout-message ${loyaltyStatus}`}>{loyaltyMessage}</p>
+                ) : null}
+
+                <button
+                  type="submit"
+                  className="primary-action"
+                  disabled={loyaltyStatus === 'loading'}
+                >
+                  <span>{loyaltyStatus === 'loading' ? 'Consultando...' : 'Consultar puntos'}</span>
+                  <strong>
+                    <IconAward />
+                  </strong>
+                </button>
+              </form>
+
+              {loyaltyStatus === 'ready' && loyaltyData ? (
+                <div className="loyalty-result">
+                  {loyaltyData.settings?.enabled ? (
+                    <>
+                      <div className="loyalty-balance-card">
+                        <span>Saldo disponible</span>
+                        <strong>
+                          {loyaltyData.balance ?? 0} {loyaltyData.settings?.pointsName ?? 'puntos'}
+                        </strong>
+                        <small>
+                          {loyaltyData.customer
+                            ? `Numero asociado: ${loyaltyData.customer.phone}`
+                            : 'Todavia no habia puntos asociados a este numero.'}
+                        </small>
+                      </div>
+
+                      {loyaltyData.rewards?.length ? (
+                        <section className="cart-panel">
+                          <div className="section-heading compact">
+                            <h2>Canjes disponibles</h2>
+                          </div>
+                          <div className="loyalty-reward-list">
+                            {loyaltyData.rewards.map((reward) => (
+                              <article
+                                key={reward.id}
+                                className={`loyalty-reward-card ${reward.redeemable ? 'redeemable' : ''}`}
+                              >
+                                {reward.imageUrl ? (
+                                  <img src={reward.imageUrl} alt="" />
+                                ) : (
+                                  <span className="loyalty-reward-placeholder">
+                                    <IconAward />
+                                  </span>
+                                )}
+                                <div>
+                                  <strong>{reward.title}</strong>
+                                  <span>
+                                    {reward.pointsCost} {loyaltyData.settings?.pointsName ?? 'puntos'}
+                                  </span>
+                                </div>
+                                <small>{reward.redeemable ? 'Disponible' : 'Te faltan puntos'}</small>
+                              </article>
+                            ))}
+                          </div>
+                        </section>
+                      ) : (
+                        <p className="loyalty-empty">Este restaurante todavia no cargo productos para canjear.</p>
+                      )}
+                    </>
+                  ) : (
+                    <div className="loyalty-balance-card">
+                      <span>Programa de puntos</span>
+                      <strong>No activo</strong>
+                      <small>Este restaurante todavia no habilito puntos para clientes.</small>
+                    </div>
+                  )}
+                </div>
+              ) : null}
             </section>
           </div>
         </div>
