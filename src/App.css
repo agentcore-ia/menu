@@ -6970,3 +6970,33 @@ button:focus-visible {
     height: 3.8rem;
   }
 }
+
+/* The blue burger hero is intentionally image-driven so each account can upload
+   a complete header artwork from the admin without duplicated HTML layers. */
+.template-blue-burger .hero {
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 1.4rem 1.4rem 0 0;
+  background: #fff8ef;
+}
+
+.template-blue-burger .hero-topbar {
+  display: none;
+}
+
+.hero-content-blue-burger {
+  min-height: 0;
+  padding: 0;
+  background: #fff8ef;
+}
+
+.blue-burger-header-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.template-blue-burger .content-panel {
+  padding-top: 2.25rem;
+}

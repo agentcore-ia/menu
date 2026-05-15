@@ -154,15 +154,6 @@ function IconBurger() {
   )
 }
 
-function IconClock() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="8" />
-      <path d="M12 7.8V12l3 2" />
-    </svg>
-  )
-}
-
 function IconHome() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -970,73 +961,11 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   if (templateId === 'blue-burger') {
     return (
       <section className="hero-content hero-content-blue-burger">
-        <div className="blue-burger-brand-card">
-          {presentation.theme?.logoImage ? (
-            <img src={presentation.theme.logoImage} alt={presentation.branding?.wordmark ?? 'JBurger'} />
-          ) : (
-            <>
-              <span className="blue-burger-logo-icon">
-                <IconBurger />
-              </span>
-              <strong>{presentation.branding?.wordmark ?? 'JBurger'}</strong>
-            </>
-          )}
-        </div>
-
-        <div className="blue-burger-stamp" aria-hidden="true">
-          <span>Burgers</span>
-          <strong>100%</strong>
-          <small>Carne</small>
-        </div>
-
-        <div className="blue-burger-copy">
-          <span className="blue-burger-badge">
-            100% Carne <IconFlame />
-          </span>
-          <h1>
-            <span>{presentation.hero?.title ?? 'HAMBURGUESAS'}</span>
-            <strong>{presentation.hero?.accent ?? 'DE VERDAD'}</strong>
-          </h1>
-          <p>
-            {presentation.hero?.description ??
-              'Ingredientes frescos, carne de calidad y todo el sabor.'}
-          </p>
-          <button
-            type="button"
-            className="blue-burger-hero-cta"
-            onClick={() => {
-              document.querySelector('[data-menu-categories]')?.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start',
-              })
-            }}
-          >
-            <IconBurger />
-            Ver menu
-          </button>
-        </div>
-
-        <div className="blue-burger-hero-art">
-          <img src={getHeroImage(presentation, heroDish)} alt={heroDish.name} />
-        </div>
-
-        <div className="blue-burger-benefits" aria-label="Beneficios">
-          <span>
-            <IconBurger />
-            <strong>100% carne</strong>
-            <small>Sin rellenos</small>
-          </span>
-          <span>
-            <IconFries />
-            <strong>Cocinamos</strong>
-            <small>A la parrilla</small>
-          </span>
-          <span>
-            <IconClock />
-            <strong>Domingos</strong>
-            <small>Nuestro dia</small>
-          </span>
-        </div>
+        <img
+          className="blue-burger-header-image"
+          src={getHeroImage(presentation, heroDish)}
+          alt={`${presentation.branding?.wordmark ?? 'JBurger'} menu`}
+        />
       </section>
     )
   }
@@ -2447,7 +2376,10 @@ export default function MenuApp() {
               </button>
             </div>
 
-            {templateId !== 'gelato' && templateId !== 'pizzeria' && templateId !== 'burger' ? (
+            {templateId !== 'gelato' &&
+            templateId !== 'pizzeria' &&
+            templateId !== 'burger' &&
+            templateId !== 'blue-burger' ? (
               <div className="brand hero-brand">
                 <span className="brand-mark">
                   <IconLeafMark />
