@@ -220,6 +220,43 @@ const presentationPresets = {
       mutedVideos: true,
     },
   },
+  blueBurger: {
+    template: 'blue-burger',
+    layout: 'blue-burger',
+    branding: {
+      wordmark: 'JBurger',
+      subtitle: 'BURGER HOUSE',
+    },
+    theme: {
+      id: 'blue-burger',
+      background: '#f6efe5',
+      surface: '#fffdf8',
+      surfaceAlt: '#f2e8da',
+      text: '#16304a',
+      muted: '#29445e',
+      primary: '#0f5182',
+      primaryText: '#fffdf8',
+      accent: '#1c64a0',
+      border: 'rgba(15, 81, 130, 0.12)',
+      shadow: 'rgba(22, 48, 74, 0.12)',
+      displayFont: 'Bebas Neue',
+      bodyFont: 'Montserrat',
+    },
+    hero: {
+      image: '/dishes/hero-steak.jpg',
+      title: 'HAMBURGUESAS',
+      accent: 'DE VERDAD',
+      description: 'Ingredientes frescos, carne de calidad y todo el sabor.',
+    },
+    cards: {
+      style: 'blue-burger-list',
+    },
+    preview: {
+      productMedia: 'video-first',
+      autoplayVideos: true,
+      mutedVideos: true,
+    },
+  },
 }
 
 const accountPresentations = {
@@ -234,6 +271,8 @@ const accountPresentations = {
   burger: presentationPresets.burger,
   brasa: presentationPresets.burger,
   'el-club': presentationPresets.burger,
+  'blue-burger': presentationPresets.blueBurger,
+  jburger: presentationPresets.blueBurger,
   'neurorest-demo': presentationPresets.default,
 }
 

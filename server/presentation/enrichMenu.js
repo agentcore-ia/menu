@@ -49,16 +49,28 @@ function sanitizePresentationConfig(preset, config) {
   }
 
   const sanitized = structuredClone(config)
+  const isInheritedPreset = Boolean(sanitized.theme?.inheritPreset)
 
-  if (preset.template && sanitized.template && sanitized.template !== preset.template) {
+  if (
+    isInheritedPreset &&
+    preset.template &&
+    sanitized.template &&
+    sanitized.template !== preset.template
+  ) {
     delete sanitized.template
   }
 
-  if (preset.layout && sanitized.layout && sanitized.layout !== preset.layout) {
+  if (
+    isInheritedPreset &&
+    preset.layout &&
+    sanitized.layout &&
+    sanitized.layout !== preset.layout
+  ) {
     delete sanitized.layout
   }
 
   if (
+    isInheritedPreset &&
     preset.cards?.style &&
     sanitized.cards?.style &&
     sanitized.cards.style !== preset.cards.style
@@ -67,6 +79,7 @@ function sanitizePresentationConfig(preset, config) {
   }
 
   if (
+    isInheritedPreset &&
     preset.preview?.productMedia &&
     sanitized.preview?.productMedia === 'image-with-video-chip' &&
     sanitized.preview.productMedia !== preset.preview.productMedia

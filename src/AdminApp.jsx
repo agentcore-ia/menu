@@ -64,6 +64,7 @@ const layoutDescriptions = {
   gelato: 'Flujo de heladeria con formatos, tamanos, sabores y estetica dulce.',
   pizzeria: 'Menu visual para pizzeria con header grafico, tabs y cards de dos columnas.',
   burger: 'Menu oscuro para hamburgueseria con hero fuerte, categorias pill y cards bold.',
+  'blue-burger': 'Menu claro y azul para hamburgueseria con hero amplio, beneficios y cards horizontales.',
 }
 
 const cardStyleDescriptions = {
@@ -73,6 +74,7 @@ const cardStyleDescriptions = {
   'gelato-cards': 'Cards grandes y suaves para formatos de heladeria.',
   'pizzeria-grid': 'Grilla de dos columnas con media arriba y precio destacado.',
   'burger-grid': 'Cards oscuras, verticales y con imagen grande del producto.',
+  'blue-burger-list': 'Cards horizontales blancas con foto grande, precio azul y boton circular.',
 }
 
 const previewDescriptions = {
@@ -927,6 +929,7 @@ export default function AdminApp() {
                     <option value="gelato">Heladeria</option>
                     <option value="pizzeria">Pizzeria</option>
                     <option value="burger">Burger</option>
+                    <option value="blue-burger">Burger azul</option>
                   </select>
                   <small className="admin-help">{layoutDescriptions[presentation.layout]}</small>
                 </label>
@@ -943,6 +946,7 @@ export default function AdminApp() {
                     <option value="gelato-cards">Heladeria</option>
                     <option value="pizzeria-grid">Pizzeria dos columnas</option>
                     <option value="burger-grid">Burger oscuro</option>
+                    <option value="blue-burger-list">Burger azul horizontal</option>
                   </select>
                   <small className="admin-help">
                     {cardStyleDescriptions[presentation.cards.style]}

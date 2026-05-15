@@ -154,6 +154,24 @@ function IconBurger() {
   )
 }
 
+function IconClock() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" />
+      <path d="M12 7.8V12l3 2" />
+    </svg>
+  )
+}
+
+function IconHome() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4.5 11.5L12 5l7.5 6.5" />
+      <path d="M7 10.5V20h10v-9.5" />
+    </svg>
+  )
+}
+
 function IconFlame() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -361,6 +379,17 @@ function getInitialCategoryId(payload) {
   }
 
   if (templateId === 'burger') {
+    return (
+      payload.categories.find((category) => {
+        const key = slugify(category.label)
+        return key.includes('hamburgues') || key.includes('burger')
+      })?.id ??
+      payload.categories[0]?.id ??
+      ''
+    )
+  }
+
+  if (templateId === 'blue-burger') {
     return (
       payload.categories.find((category) => {
         const key = slugify(category.label)
@@ -818,6 +847,15 @@ function getBurgerDishParts(item) {
   return [words.slice(0, -1).join(' '), words.at(-1)]
 }
 
+function getBlueBurgerTitle(item) {
+  return (
+    String(item?.name ?? '')
+      .replace(/^hamburguesa\s+/i, '')
+      .replace(/\s+burger$/i, '')
+      .trim() || 'Clasica Burger'
+  )
+}
+
 function getPresentationStyles(presentation) {
   const theme = presentation.theme
 
@@ -925,6 +963,80 @@ function TemplateHero({ templateId, presentation, heroDish }) {
           src={getHeroImage(presentation, heroDish)}
           alt="Grill House Burger Co. Hechas para gustar."
         />
+      </section>
+    )
+  }
+
+  if (templateId === 'blue-burger') {
+    return (
+      <section className="hero-content hero-content-blue-burger">
+        <div className="blue-burger-brand-card">
+          {presentation.theme?.logoImage ? (
+            <img src={presentation.theme.logoImage} alt={presentation.branding?.wordmark ?? 'JBurger'} />
+          ) : (
+            <>
+              <span className="blue-burger-logo-icon">
+                <IconBurger />
+              </span>
+              <strong>{presentation.branding?.wordmark ?? 'JBurger'}</strong>
+            </>
+          )}
+        </div>
+
+        <div className="blue-burger-stamp" aria-hidden="true">
+          <span>Burgers</span>
+          <strong>100%</strong>
+          <small>Carne</small>
+        </div>
+
+        <div className="blue-burger-copy">
+          <span className="blue-burger-badge">
+            100% Carne <IconFlame />
+          </span>
+          <h1>
+            <span>{presentation.hero?.title ?? 'HAMBURGUESAS'}</span>
+            <strong>{presentation.hero?.accent ?? 'DE VERDAD'}</strong>
+          </h1>
+          <p>
+            {presentation.hero?.description ??
+              'Ingredientes frescos, carne de calidad y todo el sabor.'}
+          </p>
+          <button
+            type="button"
+            className="blue-burger-hero-cta"
+            onClick={() => {
+              document.querySelector('[data-menu-categories]')?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+              })
+            }}
+          >
+            <IconBurger />
+            Ver menu
+          </button>
+        </div>
+
+        <div className="blue-burger-hero-art">
+          <img src={getHeroImage(presentation, heroDish)} alt={heroDish.name} />
+        </div>
+
+        <div className="blue-burger-benefits" aria-label="Beneficios">
+          <span>
+            <IconBurger />
+            <strong>100% carne</strong>
+            <small>Sin rellenos</small>
+          </span>
+          <span>
+            <IconFries />
+            <strong>Cocinamos</strong>
+            <small>A la parrilla</small>
+          </span>
+          <span>
+            <IconClock />
+            <strong>Domingos</strong>
+            <small>Nuestro dia</small>
+          </span>
+        </div>
       </section>
     )
   }
@@ -1336,6 +1448,112 @@ function TemplateMenuCollection({
           <button type="button" onClick={onOpenLoyalty}>
             <IconAward />
             <span>Mis puntos</span>
+          </button>
+        </nav>
+      </section>
+    )
+  }
+
+  if (templateId === 'blue-burger') {
+    const highlightedItems = categoryItems.slice(0, 3)
+    const comboTarget =
+      categories.find((category) => slugify(category.label).includes('combo')) ??
+      categories.find((category) => slugify(category.label).includes('bebida')) ??
+      currentCategory
+
+    return (
+      <section className="section-block section-block-blue-burger" data-menu-categories>
+        <div className="blue-burger-section-title">
+          <span aria-hidden="true" />
+          <h2>Nuestras hamburguesas</h2>
+          <span aria-hidden="true" />
+        </div>
+
+        <div className="blue-burger-list">
+          {highlightedItems.map((item, index) => (
+            <article key={item.id} className="blue-burger-card">
+              <button
+                type="button"
+                className="blue-burger-card-media"
+                onClick={() => onOpenDish(item)}
+                aria-label={`Ver ${item.name}`}
+              >
+                {index === 0 ? <span className="blue-burger-card-badge">Mas pedida</span> : null}
+                {slugify(item.name).includes('veggie') ? (
+                  <span className="blue-burger-card-badge is-veggie">Veggie</span>
+                ) : null}
+                {renderProductMedia(item)}
+              </button>
+
+              <div className="blue-burger-card-body">
+                <button
+                  type="button"
+                  className="blue-burger-card-copy"
+                  onClick={() => onOpenDish(item)}
+                >
+                  <h3>{getBlueBurgerTitle(item)}</h3>
+                  <p>{item.description}</p>
+                  <strong>{item.price}</strong>
+                </button>
+                <button
+                  type="button"
+                  className="blue-burger-add-button"
+                  onClick={() => onAddItem(item)}
+                  aria-label={`Agregar ${item.name}`}
+                >
+                  <IconPlus />
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <article className="blue-burger-combo-card" data-burger-promos>
+          <div>
+            <h3>Combos que te encantan</h3>
+            <button
+              type="button"
+              onClick={() => {
+                onSelectCategory?.(comboTarget?.id)
+                onNavigatePromos?.()
+              }}
+            >
+              <IconTicket />
+              Ver combos
+            </button>
+          </div>
+          <div className="blue-burger-combo-art" aria-hidden="true">
+            <IconFries />
+            <IconDrink />
+          </div>
+        </article>
+
+        <nav className="blue-burger-bottom-nav" aria-label="Navegacion del menu">
+          <button type="button" className="active" onClick={onNavigateHome}>
+            <IconHome />
+            <span>Inicio</span>
+          </button>
+          <button type="button" onClick={onNavigateMenu}>
+            <IconBurger />
+            <span>Menu</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onSelectCategory?.(comboTarget?.id)
+              onNavigatePromos?.()
+            }}
+          >
+            <IconFries />
+            <span>Combos</span>
+          </button>
+          <button type="button" onClick={onOpenLoyalty}>
+            <IconAward />
+            <span>Nosotros</span>
+          </button>
+          <button type="button" onClick={onOpenCart}>
+            <IconCart />
+            <span>Contacto</span>
           </button>
         </nav>
       </section>
@@ -2265,7 +2483,10 @@ export default function MenuApp() {
                   </div>
                 ) : null}
 
-                {templateId !== 'gelato' && templateId !== 'pizzeria' && templateId !== 'burger' ? (
+                {templateId !== 'gelato' &&
+                templateId !== 'pizzeria' &&
+                templateId !== 'burger' &&
+                templateId !== 'blue-burger' ? (
                   <section className="section-block" data-section="categories">
                     <div className="section-heading">
                       <h2>Categorias</h2>
@@ -2303,7 +2524,10 @@ export default function MenuApp() {
             ) : null}
           </main>
 
-          {templateId !== 'gelato' && templateId !== 'burger' && (templateId !== 'pizzeria' || hasOrderItems) ? (
+          {templateId !== 'gelato' &&
+          templateId !== 'burger' &&
+          templateId !== 'blue-burger' &&
+          (templateId !== 'pizzeria' || hasOrderItems) ? (
             <footer className="order-bar">
               <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                 <div className="order-bar-copy">
