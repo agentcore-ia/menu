@@ -1596,6 +1596,7 @@ export default function MenuApp() {
   const [status, setStatus] = useState('loading')
   const [errorMessage, setErrorMessage] = useState('')
   const [cart, setCart] = useState([])
+  const [rewardRedemptions, setRewardRedemptions] = useState([])
   const [detailQuantity, setDetailQuantity] = useState(1)
   const [selectedOptions, setSelectedOptions] = useState({})
   const [isCartOpen, setIsCartOpen] = useState(false)
@@ -1713,6 +1714,7 @@ export default function MenuApp() {
   const recommendations = allItems
     .filter((item) => item.id !== selectedDish?.id)
     .slice(0, 4)
+  const currencySymbol = menu?.currencySymbol ?? '$'
 
   const cartCount = useMemo(() => cart.reduce((total, line) => total + line.quantity, 0), [cart])
 
@@ -1722,6 +1724,22 @@ export default function MenuApp() {
   )
 
   const cartItems = cart
+  const redemptionCount = useMemo(
+    () => rewardRedemptions.reduce((total, line) => total + line.quantity, 0),
+    [rewardRedemptions],
+  )
+  const redemptionPointsTotal = useMemo(
+    () => rewardRedemptions.reduce((total, line) => total + line.pointsCost * line.quantity, 0),
+    [rewardRedemptions],
+  )
+  const orderCount = cartCount + redemptionCount
+  const hasOrderItems = orderCount > 0
+  const orderTotalLabel = cartTotal > 0
+    ? formatPrice(cartTotal, currencySymbol)
+    : redemptionCount > 0
+      ? 'Canje'
+      : 'Sin productos'
+  const pointsName = loyaltyData?.settings?.pointsName ?? menu?.loyalty?.settings?.pointsName ?? 'puntos'
   const cartRecommendations = buildCartRecommendations(cartItems, allItems)
   const cartPairings = buildCartPairingSuggestions(cartItems)
 
@@ -1860,6 +1878,31 @@ export default function MenuApp() {
     return <img src={item.image} alt={item.name} className="dish-thumb" />
   }
 
+  function renderRewardMedia(reward) {
+    if (reward.videoUrl) {
+      return (
+        <video
+          src={getVideoFrameSrc(reward.videoUrl)}
+          preload="auto"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      )
+    }
+
+    if (reward.imageUrl) {
+      return <img src={reward.imageUrl} alt="" />
+    }
+
+    return (
+      <span className="loyalty-reward-placeholder">
+        <IconAward />
+      </span>
+    )
+  }
+
   function updateOrderForm(field, value) {
     setOrderForm((current) => ({
       ...current,
@@ -1869,6 +1912,84 @@ export default function MenuApp() {
     if (field === 'phone') {
       setLoyaltyPhone(value)
     }
+  }
+
+  function handleAddRewardRedemption(reward) {
+    const availablePoints = loyaltyData?.balance ?? 0
+    const pointsCost = Number(reward.pointsCost ?? 0)
+
+    if (!reward.redeemable || redemptionPointsTotal + pointsCost > availablePoints) {
+      setLoyaltyMessage('Todavia no alcanzan los puntos para sumar este canje.')
+      return
+    }
+
+    cartFeedbackIdRef.current += 1
+    setCartFeedback({
+      id: `reward-${reward.id}-${cartFeedbackIdRef.current}`,
+      name: `Canje: ${reward.title}`,
+      quantity: 1,
+    })
+    setLoyaltyMessage('Canje agregado al pedido.')
+
+    setRewardRedemptions((current) => {
+      const existing = current.find((line) => line.rewardId === reward.id)
+
+      if (existing) {
+        return current.map((line) =>
+          line.rewardId === reward.id
+            ? {
+                ...line,
+                quantity: line.quantity + 1,
+              }
+            : line,
+        )
+      }
+
+      return [
+        ...current,
+        {
+          rewardId: reward.id,
+          title: reward.title,
+          pointsCost,
+          quantity: 1,
+          imageUrl: reward.imageUrl,
+          videoUrl: reward.videoUrl,
+        },
+      ]
+    })
+  }
+
+  function handleSetRewardQuantity(rewardId, quantity) {
+    const availablePoints = loyaltyData?.balance ?? 0
+
+    setRewardRedemptions((current) => {
+      if (quantity <= 0) {
+        return current.filter((line) => line.rewardId !== rewardId)
+      }
+
+      const lineToUpdate = current.find((line) => line.rewardId === rewardId)
+
+      if (!lineToUpdate) {
+        return current
+      }
+
+      const otherPoints = current
+        .filter((line) => line.rewardId !== rewardId)
+        .reduce((total, line) => total + line.pointsCost * line.quantity, 0)
+
+      if (otherPoints + lineToUpdate.pointsCost * quantity > availablePoints) {
+        return current
+      }
+
+      return current.map((line) =>
+        line.rewardId === rewardId
+          ? {
+              ...line,
+              quantity,
+            }
+          : line,
+      )
+    })
   }
 
   function scrollToMenuTarget(selector, block = 'start') {
@@ -1937,8 +2058,8 @@ export default function MenuApp() {
   async function handleSubmitOrder(event) {
     event.preventDefault()
 
-    if (!cartItems.length) {
-      setCheckoutMessage('Agrega productos antes de enviar el pedido.')
+    if (!hasOrderItems) {
+      setCheckoutMessage('Agrega productos o canjes antes de enviar el pedido.')
       return
     }
 
@@ -1969,6 +2090,10 @@ export default function MenuApp() {
         quantity: item.quantity,
         notes: item.notes || '',
       })),
+      redemptions: rewardRedemptions.map((item) => ({
+        rewardId: item.rewardId,
+        quantity: item.quantity,
+      })),
     }
 
     try {
@@ -1989,6 +2114,21 @@ export default function MenuApp() {
       setCheckoutStatus('success')
       setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
       setCart([])
+      setRewardRedemptions([])
+      setLoyaltyData((current) =>
+        current
+          ? {
+              ...current,
+              balance: result.loyalty?.balance ?? current.balance,
+              rewards: current.rewards?.map((reward) => ({
+                ...reward,
+                redeemable:
+                  current.settings?.allowRedemption &&
+                  (result.loyalty?.balance ?? current.balance) >= reward.pointsCost,
+              })),
+            }
+          : current,
+      )
       setIsCheckoutOpen(false)
       setSelectedDish(null)
       setShowConfirmation(true)
@@ -1999,7 +2139,6 @@ export default function MenuApp() {
   }
 
   const detailOptionGroups = selectedDish ? buildProductOptionGroups(selectedDish) : []
-  const currencySymbol = menu?.currencySymbol ?? '$'
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
   const appClassName = [
     'menu-app',
@@ -2035,7 +2174,7 @@ export default function MenuApp() {
                 onClick={() => setIsCartOpen(true)}
               >
                 <IconCart />
-                {cartCount > 0 ? <span className="cart-badge">{cartCount}</span> : null}
+                {orderCount > 0 ? <span className="cart-badge">{orderCount}</span> : null}
               </button>
             </div>
 
@@ -2113,18 +2252,18 @@ export default function MenuApp() {
             ) : null}
           </main>
 
-          {templateId !== 'gelato' && templateId !== 'burger' && (templateId !== 'pizzeria' || cartCount > 0) ? (
+          {templateId !== 'gelato' && templateId !== 'burger' && (templateId !== 'pizzeria' || hasOrderItems) ? (
             <footer className="order-bar">
               <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                 <div className="order-bar-copy">
                   <span className="order-icon-wrap">
                     <IconCart />
-                    {cartCount > 0 ? <span className="order-badge">{cartCount}</span> : null}
+                    {orderCount > 0 ? <span className="order-badge">{orderCount}</span> : null}
                   </span>
                   <span>Ver mi pedido</span>
                 </div>
                 <div className="order-bar-price">
-                  {cartCount > 0 ? formatPrice(cartTotal, currencySymbol) : 'Sin productos'}
+                  {orderTotalLabel}
                   <span className="order-arrow">{'>'}</span>
                 </div>
               </button>
@@ -2184,7 +2323,7 @@ export default function MenuApp() {
 
                 <button type="button" className="cart-button" onClick={() => setIsCartOpen(true)}>
                   <IconCart />
-                  {cartCount > 0 ? <span className="cart-badge">{cartCount}</span> : null}
+                  {orderCount > 0 ? <span className="cart-badge">{orderCount}</span> : null}
                 </button>
               </div>
 
@@ -2550,18 +2689,18 @@ export default function MenuApp() {
               </div>
             </section>
 
-            {templateId !== 'pizzeria' || cartCount > 0 ? (
+            {templateId !== 'pizzeria' || hasOrderItems ? (
               <footer className="detail-order-bar">
                 <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                   <div className="order-bar-copy">
                     <span className="order-icon-wrap">
                       <IconCart />
-                      {cartCount > 0 ? <span className="order-badge">{cartCount}</span> : null}
+                      {orderCount > 0 ? <span className="order-badge">{orderCount}</span> : null}
                     </span>
                     <span>Ver mi pedido</span>
                   </div>
                   <div className="order-bar-price">
-                    {cartCount > 0 ? formatPrice(cartTotal, currencySymbol) : 'Sin productos'}
+                    {orderTotalLabel}
                     <span className="order-arrow">{'>'}</span>
                   </div>
                 </button>
@@ -2595,31 +2734,58 @@ export default function MenuApp() {
               </div>
 
               <div className="checkout-summary">
-                {cartItems.length ? (
-                  cartItems.map((item) => (
-                    <div key={item.lineId} className="checkout-item">
-                      <div>
-                        <strong>{item.name}</strong>
-                        <span>{formatPrice(item.unitPrice, currencySymbol)} c/u</span>
-                        {item.notes ? <span className="checkout-item-notes">{item.notes}</span> : null}
+                {hasOrderItems ? (
+                  <>
+                    {cartItems.map((item) => (
+                      <div key={item.lineId} className="checkout-item">
+                        <div>
+                          <strong>{item.name}</strong>
+                          <span>{formatPrice(item.unitPrice, currencySymbol)} c/u</span>
+                          {item.notes ? <span className="checkout-item-notes">{item.notes}</span> : null}
+                        </div>
+                        <div className="checkout-item-controls">
+                          <button
+                            type="button"
+                            onClick={() => handleSetItemQuantity(item.lineId, item.quantity - 1)}
+                          >
+                            <IconMinus />
+                          </button>
+                          <span>{item.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleSetItemQuantity(item.lineId, item.quantity + 1)}
+                          >
+                            <IconPlus />
+                          </button>
+                        </div>
                       </div>
-                      <div className="checkout-item-controls">
-                        <button
-                          type="button"
-                          onClick={() => handleSetItemQuantity(item.lineId, item.quantity - 1)}
-                        >
-                          <IconMinus />
-                        </button>
-                        <span>{item.quantity}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleSetItemQuantity(item.lineId, item.quantity + 1)}
-                        >
-                          <IconPlus />
-                        </button>
+                    ))}
+                    {rewardRedemptions.map((item) => (
+                      <div key={item.rewardId} className="checkout-item checkout-item-redemption">
+                        <div>
+                          <strong>{item.title}</strong>
+                          <span>
+                            Canje: {item.pointsCost} {pointsName} c/u
+                          </span>
+                        </div>
+                        <div className="checkout-item-controls">
+                          <button
+                            type="button"
+                            onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity - 1)}
+                          >
+                            <IconMinus />
+                          </button>
+                          <span>{item.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity + 1)}
+                          >
+                            <IconPlus />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                  </>
                 ) : (
                   <section className="state-panel">
                     <p>Tu carrito esta vacio.</p>
@@ -2628,50 +2794,61 @@ export default function MenuApp() {
                 )}
               </div>
 
-              {cartItems.length ? (
+              {hasOrderItems ? (
                 <>
-                  <section className="cart-panel">
-                    <div className="section-heading compact">
-                      <h2>Recomendados para sumar</h2>
-                    </div>
-                    <div className="recommendation-row">
-                      {cartRecommendations.map((item) => (
-                        <article key={item.id} className="mini-card">
-                          <img src={item.image} alt={item.name} />
-                          <div className="mini-card-body">
-                            <h4>{item.name}</h4>
-                            <div className="mini-card-footer">
-                              <strong>{item.price}</strong>
-                              <button
-                                type="button"
-                                className="mini-add"
-                                onClick={() => handleAddItem(item)}
-                                aria-label={`Agregar ${item.name}`}
-                              >
-                                <IconPlus />
-                              </button>
+                  {cartRecommendations.length ? (
+                    <section className="cart-panel">
+                      <div className="section-heading compact">
+                        <h2>Recomendados para sumar</h2>
+                      </div>
+                      <div className="recommendation-row">
+                        {cartRecommendations.map((item) => (
+                          <article key={item.id} className="mini-card">
+                            <img src={item.image} alt={item.name} />
+                            <div className="mini-card-body">
+                              <h4>{item.name}</h4>
+                              <div className="mini-card-footer">
+                                <strong>{item.price}</strong>
+                                <button
+                                  type="button"
+                                  className="mini-add"
+                                  onClick={() => handleAddItem(item)}
+                                  aria-label={`Agregar ${item.name}`}
+                                >
+                                  <IconPlus />
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  </section>
+                          </article>
+                        ))}
+                      </div>
+                    </section>
+                  ) : null}
 
-                  <section className="cart-panel">
-                    <div className="section-heading compact">
-                      <h2>Acompanamientos sugeridos</h2>
-                    </div>
-                    <div className="pairing-grid">
-                      {cartPairings.map((pairing) => (
-                        <span key={pairing} className="pairing-chip">
-                          {pairing}
-                        </span>
-                      ))}
-                    </div>
-                  </section>
+                  {cartPairings.length ? (
+                    <section className="cart-panel">
+                      <div className="section-heading compact">
+                        <h2>Acompanamientos sugeridos</h2>
+                      </div>
+                      <div className="pairing-grid">
+                        {cartPairings.map((pairing) => (
+                          <span key={pairing} className="pairing-chip">
+                            {pairing}
+                          </span>
+                        ))}
+                      </div>
+                    </section>
+                  ) : null}
 
                   <div className="cart-summary-card">
-                    <span>Total actual</span>
+                    <div>
+                      <span>Total actual</span>
+                      {redemptionPointsTotal > 0 ? (
+                        <small>
+                          Canje: {redemptionPointsTotal} {pointsName}
+                        </small>
+                      ) : null}
+                    </div>
                     <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
                   </div>
 
@@ -2684,7 +2861,7 @@ export default function MenuApp() {
                     }}
                   >
                     <span>Continuar con tus datos</span>
-                    <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
+                    <strong>{orderTotalLabel}</strong>
                   </button>
                 </>
               ) : null}
@@ -2738,6 +2915,31 @@ export default function MenuApp() {
                       <button
                         type="button"
                         onClick={() => handleSetItemQuantity(item.lineId, item.quantity + 1)}
+                      >
+                        <IconPlus />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {rewardRedemptions.map((item) => (
+                  <div key={item.rewardId} className="checkout-item checkout-item-redemption">
+                    <div>
+                      <strong>{item.title}</strong>
+                      <span>
+                        Canje: {item.pointsCost} {pointsName} c/u
+                      </span>
+                    </div>
+                    <div className="checkout-item-controls">
+                      <button
+                        type="button"
+                        onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity - 1)}
+                      >
+                        <IconMinus />
+                      </button>
+                      <span>{item.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity + 1)}
                       >
                         <IconPlus />
                       </button>
@@ -2845,7 +3047,7 @@ export default function MenuApp() {
                   disabled={checkoutStatus === 'submitting'}
                 >
                   <span>{checkoutStatus === 'submitting' ? 'Enviando pedido...' : 'Enviar pedido'}</span>
-                  <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
+                  <strong>{orderTotalLabel}</strong>
                 </button>
               </form>
             </section>
@@ -2926,27 +3128,45 @@ export default function MenuApp() {
                             <h2>Canjes disponibles</h2>
                           </div>
                           <div className="loyalty-reward-list">
-                            {loyaltyData.rewards.map((reward) => (
-                              <article
-                                key={reward.id}
-                                className={`loyalty-reward-card ${reward.redeemable ? 'redeemable' : ''}`}
-                              >
-                                {reward.imageUrl ? (
-                                  <img src={reward.imageUrl} alt="" />
-                                ) : (
-                                  <span className="loyalty-reward-placeholder">
-                                    <IconAward />
-                                  </span>
-                                )}
-                                <div>
-                                  <strong>{reward.title}</strong>
-                                  <span>
-                                    {reward.pointsCost} {loyaltyData.settings?.pointsName ?? 'puntos'}
-                                  </span>
-                                </div>
-                                <small>{reward.redeemable ? 'Disponible' : 'Te faltan puntos'}</small>
-                              </article>
-                            ))}
+                            {loyaltyData.rewards.map((reward) => {
+                              const selectedReward = rewardRedemptions.find(
+                                (line) => line.rewardId === reward.id,
+                              )
+                              const selectedPoints =
+                                redemptionPointsTotal - (selectedReward?.pointsCost ?? 0) * (selectedReward?.quantity ?? 0)
+                              const canAdd =
+                                reward.redeemable &&
+                                selectedPoints +
+                                  (selectedReward?.pointsCost ?? reward.pointsCost) *
+                                    ((selectedReward?.quantity ?? 0) + 1) <=
+                                  (loyaltyData.balance ?? 0)
+
+                              return (
+                                <article
+                                  key={reward.id}
+                                  className={`loyalty-reward-card ${reward.redeemable ? 'redeemable' : ''}`}
+                                >
+                                  {renderRewardMedia(reward)}
+                                  <div>
+                                    <strong>{reward.title}</strong>
+                                    <span>
+                                      {reward.pointsCost} {loyaltyData.settings?.pointsName ?? 'puntos'}
+                                    </span>
+                                    {selectedReward ? (
+                                      <em>{selectedReward.quantity} en tu pedido</em>
+                                    ) : null}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className="loyalty-reward-action"
+                                    disabled={!canAdd}
+                                    onClick={() => handleAddRewardRedemption(reward)}
+                                  >
+                                    {canAdd ? 'Canjear' : 'Sin puntos'}
+                                  </button>
+                                </article>
+                              )
+                            })}
                           </div>
                         </section>
                       ) : (
@@ -2973,7 +3193,7 @@ export default function MenuApp() {
           role="presentation"
         >
           <div
-            className={`confirmation-card ${templateId === 'gelato' ? 'confirmation-card-gelato' : ''}`}
+            className={`confirmation-card confirmation-card-${templateId}`}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="confirmation-hero" aria-hidden="true">
@@ -2982,6 +3202,22 @@ export default function MenuApp() {
                   <img className="confirmation-gelato-brand" src="/gelato/logo-dolce.png" alt="" />
                   <span className="confirmation-gelato-pill">Pedido enviado</span>
                   <img className="confirmation-gelato-scoop" src="/gelato/flavor-fresa.png" alt="" />
+                </div>
+              ) : templateId === 'burger' ? (
+                <div className="confirmation-burger-top">
+                  <span className="confirmation-burger-flame">
+                    <IconFlame />
+                  </span>
+                  <strong>BRASA</strong>
+                  <small>Pedido al fuego</small>
+                </div>
+              ) : templateId === 'pizzeria' ? (
+                <div className="confirmation-pizzeria-top">
+                  <span className="confirmation-pizzeria-oven">
+                    <IconPizzaOutline />
+                  </span>
+                  <strong>LA BUONA</strong>
+                  <small>Pedido al horno</small>
                 </div>
               ) : (
                 <div className="confirmation-ticket">
@@ -2995,7 +3231,15 @@ export default function MenuApp() {
                 </div>
               )}
             </div>
-            <span className="confirmation-kicker">{templateId === 'gelato' ? 'Listo para preparar' : 'Pedido enviado'}</span>
+            <span className="confirmation-kicker">
+              {templateId === 'gelato'
+                ? 'Listo para preparar'
+                : templateId === 'burger'
+                  ? 'Hecho a la parrilla'
+                  : templateId === 'pizzeria'
+                    ? 'Directo al horno'
+                    : 'Pedido enviado'}
+            </span>
             <h3>Pedido #{lastOrder.orderNumber} confirmado</h3>
             <p>Ya recibimos tu pedido y vamos a seguir informandote por WhatsApp.</p>
             <div className="confirmation-meta">

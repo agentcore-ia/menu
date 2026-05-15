@@ -21,7 +21,8 @@ export class SupabaseOrderRepository {
     const loyaltySettings = await this.fetchLoyaltySettings(restaurant.id)
     const customer = await this.upsertCustomer(restaurant, payload.customer)
     const conversation = await this.ensureWhatsappConversation(restaurant, customer)
-    const subtotal = payload.items.reduce(
+    const orderProducts = Array.isArray(payload.items) ? payload.items : []
+    const subtotal = orderProducts.reduce(
       (total, item) => total + Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0),
       0,
     )
@@ -59,7 +60,7 @@ export class SupabaseOrderRepository {
           transcription: {
             channel: 'menu_digital',
             customer: payload.customer,
-            items: payload.items,
+            items: orderProducts,
             redemptions: redemptionPreview?.lineItems ?? [],
           },
         },
@@ -67,7 +68,7 @@ export class SupabaseOrderRepository {
     })
 
     const orderItems = [
-      ...payload.items.map((item) => ({
+      ...orderProducts.map((item) => ({
         pedido_id: pedido.id,
         product_id: item.productId || null,
         name: item.name,
@@ -118,7 +119,7 @@ export class SupabaseOrderRepository {
       orderNumber: pedido.order_number,
       restaurant,
       customer,
-      items: payload.items,
+      items: orderProducts,
       redemptionItems: redemptionPreview?.lineItems ?? [],
       total,
       deliveryType: payload.deliveryType,
@@ -139,7 +140,7 @@ export class SupabaseOrderRepository {
       conversation,
       message: whatsappMessage,
       content: confirmationMessage,
-      items: payload.items,
+      items: orderProducts,
       redemptionItems: redemptionPreview?.lineItems ?? [],
       total,
       deliveryType: payload.deliveryType,

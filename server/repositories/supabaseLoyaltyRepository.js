@@ -87,6 +87,7 @@ export class SupabaseLoyaltyRepository {
             ...reward,
             title: reward.title || product?.name || 'Canje',
             imageUrl: reward.imageUrl || product?.image_url || null,
+            videoUrl: reward.videoUrl || product?.video_url || null,
           }
         })
         .filter(Boolean)
@@ -126,7 +127,7 @@ export class SupabaseLoyaltyRepository {
 
   async fetchProductsMapByIds(productIds) {
     const rows = await this.request(
-      `/products?id=in.(${productIds.join(',')})&select=id,name,image_url`,
+      `/products?id=in.(${productIds.join(',')})&select=id,name,image_url,video_url`,
     )
 
     return new Map(rows.map((row) => [row.id, row]))

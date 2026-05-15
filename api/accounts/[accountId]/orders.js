@@ -22,10 +22,13 @@ export default async function handler(req, res) {
       return
     }
 
-    if (!Array.isArray(payload.items) || payload.items.length === 0) {
+    const hasProducts = Array.isArray(payload.items) && payload.items.length > 0
+    const hasRedemptions = Array.isArray(payload.redemptions) && payload.redemptions.length > 0
+
+    if (!hasProducts && !hasRedemptions) {
       res.status(400).json({
         error: 'ITEMS_REQUIRED',
-        message: 'Agrega al menos un producto al pedido.',
+        message: 'Agrega al menos un producto o canje al pedido.',
       })
       return
     }

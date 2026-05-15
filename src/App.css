@@ -3626,6 +3626,17 @@
   color: var(--theme-muted);
 }
 
+.cart-summary-card div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.cart-summary-card small {
+  color: var(--theme-accent);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
 .cart-summary-card strong {
   font-size: 1.12rem;
 }
@@ -3709,6 +3720,7 @@
 }
 
 .loyalty-reward-card img,
+.loyalty-reward-card video,
 .loyalty-reward-placeholder {
   width: 4.4rem;
   height: 4.4rem;
@@ -3716,7 +3728,8 @@
   background: color-mix(in srgb, var(--theme-primary) 8%, white);
 }
 
-.loyalty-reward-card img {
+.loyalty-reward-card img,
+.loyalty-reward-card video {
   object-fit: cover;
 }
 
@@ -3754,20 +3767,36 @@
   font-weight: 800;
 }
 
-.loyalty-reward-card small {
+.loyalty-reward-card em {
+  color: var(--theme-accent);
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.loyalty-reward-action {
   justify-self: end;
-  padding: 0.35rem 0.55rem;
+  min-height: 2.45rem;
+  padding: 0.35rem 0.65rem;
+  border: 0;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--theme-primary) 9%, white);
-  color: var(--theme-muted);
+  background: var(--theme-primary);
+  color: var(--theme-primary-text);
   font-size: 0.72rem;
   font-weight: 900;
   white-space: nowrap;
+  cursor: pointer;
 }
 
-.loyalty-reward-card.redeemable small {
-  background: var(--theme-primary);
-  color: var(--theme-primary-text);
+.loyalty-reward-action:disabled {
+  background: color-mix(in srgb, var(--theme-primary) 9%, white);
+  color: var(--theme-muted);
+  cursor: not-allowed;
+}
+
+.checkout-item-redemption {
+  border-color: color-mix(in srgb, var(--theme-primary) 28%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-primary) 8%, var(--theme-surface));
 }
 
 .loyalty-empty {
@@ -3803,6 +3832,20 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, #fff8fb 100%);
   border: 1px solid rgba(255, 123, 173, 0.12);
   box-shadow: 0 26px 46px rgba(226, 102, 149, 0.18);
+}
+
+.confirmation-card-burger {
+  background: #090d0c;
+  color: #fff8e8;
+  border-color: rgba(255, 190, 50, 0.22);
+  box-shadow: 0 26px 52px rgba(0, 0, 0, 0.42);
+}
+
+.confirmation-card-pizzeria {
+  background: #f8efe0;
+  color: #173d25;
+  border-color: rgba(145, 49, 34, 0.18);
+  box-shadow: 0 26px 46px rgba(42, 47, 28, 0.22);
 }
 
 .confirmation-hero {
@@ -3853,6 +3896,88 @@
   position: relative;
   z-index: 1;
   filter: drop-shadow(0 12px 18px rgba(255, 123, 173, 0.18));
+}
+
+.confirmation-burger-top,
+.confirmation-pizzeria-top {
+  position: relative;
+  overflow: hidden;
+  min-height: 7.4rem;
+  padding: 1rem;
+  border-radius: 1.45rem;
+  display: grid;
+  align-content: end;
+  gap: 0.15rem;
+}
+
+.confirmation-burger-top {
+  background:
+    radial-gradient(circle at 76% 12%, rgba(255, 184, 49, 0.24), transparent 4.6rem),
+    linear-gradient(135deg, #101918 0%, #050706 100%);
+  border: 1px solid rgba(255, 184, 49, 0.24);
+}
+
+.confirmation-pizzeria-top {
+  background:
+    radial-gradient(circle at 92% 18%, rgba(196, 54, 37, 0.16), transparent 4.8rem),
+    linear-gradient(135deg, #fff8ea 0%, #eadbc4 100%);
+  border: 1px solid rgba(20, 64, 36, 0.16);
+}
+
+.confirmation-burger-flame,
+.confirmation-pizzeria-oven {
+  width: 3.35rem;
+  height: 3.35rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+}
+
+.confirmation-burger-flame {
+  background: #ffbe31;
+  color: #0a0d0c;
+  box-shadow: 0 14px 24px rgba(255, 184, 49, 0.2);
+}
+
+.confirmation-pizzeria-oven {
+  background: #123f25;
+  color: #fff7e7;
+  box-shadow: 0 14px 24px rgba(18, 63, 37, 0.16);
+}
+
+.confirmation-burger-flame svg,
+.confirmation-pizzeria-oven svg {
+  width: 1.65rem;
+  height: 1.65rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.confirmation-burger-top strong,
+.confirmation-pizzeria-top strong {
+  margin-top: 0.55rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+}
+
+.confirmation-burger-top small,
+.confirmation-pizzeria-top small {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.confirmation-burger-top strong,
+.confirmation-burger-top small {
+  color: #fff8e8;
+}
+
+.confirmation-pizzeria-top strong,
+.confirmation-pizzeria-top small {
+  color: #123f25;
 }
 
 .confirmation-ticket {
@@ -3947,6 +4072,16 @@
   color: #ff5a92;
 }
 
+.confirmation-card-burger .confirmation-kicker {
+  background: rgba(255, 190, 49, 0.13);
+  color: #ffbe31;
+}
+
+.confirmation-card-pizzeria .confirmation-kicker {
+  background: rgba(145, 49, 34, 0.1);
+  color: #913122;
+}
+
 .confirmation-card h3 {
   margin: 0.95rem 0 0;
   font-size: 1.85rem;
@@ -3959,14 +4094,41 @@
   letter-spacing: -0.04em;
 }
 
+.confirmation-card-burger h3 {
+  color: #fff8e8;
+  font-family: var(--font-display, 'Anton'), sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.confirmation-card-pizzeria h3 {
+  color: #143f25;
+  font-family: var(--font-display, serif);
+}
+
 .confirmation-card p {
   margin: 0.8rem 0 0;
   line-height: 1.6;
   color: rgba(27, 27, 24, 0.82);
 }
 
+.confirmation-card-burger p {
+  color: rgba(255, 248, 232, 0.78);
+}
+
+.confirmation-card-pizzeria p {
+  color: rgba(23, 61, 37, 0.78);
+}
+
 .confirmation-card strong {
   color: var(--theme-text);
+}
+
+.confirmation-card-burger strong {
+  color: #fff8e8;
+}
+
+.confirmation-card-pizzeria strong {
+  color: #173d25;
 }
 
 .confirmation-meta {
@@ -3986,6 +4148,16 @@
 .confirmation-card-gelato .confirmation-meta div {
   background: linear-gradient(180deg, #fff5f9 0%, #fffdfd 100%);
   border-color: rgba(255, 123, 173, 0.12);
+}
+
+.confirmation-card-burger .confirmation-meta div {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 190, 49, 0.16);
+}
+
+.confirmation-card-pizzeria .confirmation-meta div {
+  background: rgba(255, 250, 239, 0.84);
+  border-color: rgba(20, 64, 36, 0.12);
 }
 
 .confirmation-meta span {
@@ -4057,6 +4229,16 @@
   box-shadow: 0 10px 18px rgba(255, 90, 146, 0.18);
 }
 
+.confirmation-card-burger .confirmation-step.active > span {
+  background: #ffbe31;
+  box-shadow: 0 10px 18px rgba(255, 190, 49, 0.22);
+}
+
+.confirmation-card-pizzeria .confirmation-step.active > span {
+  background: #913122;
+  box-shadow: 0 10px 18px rgba(145, 49, 34, 0.18);
+}
+
 .confirmation-step.active > span::after {
   content: '';
   position: absolute;
@@ -4100,6 +4282,18 @@
   background: linear-gradient(90deg, #ff5a92 0%, #ff7daf 100%);
   color: #fff;
   box-shadow: 0 16px 28px rgba(255, 90, 146, 0.22);
+}
+
+.confirmation-card-burger .confirmation-button {
+  background: #ffbe31;
+  color: #090d0c;
+  box-shadow: 0 16px 28px rgba(255, 190, 49, 0.18);
+}
+
+.confirmation-card-pizzeria .confirmation-button {
+  background: #123f25;
+  color: #fff7e7;
+  box-shadow: 0 16px 28px rgba(18, 63, 37, 0.16);
 }
 
 .recommendation-group {

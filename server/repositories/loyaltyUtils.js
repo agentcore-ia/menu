@@ -135,6 +135,7 @@ export function mapRewardRow(row) {
     description: row.description ?? '',
     pointsCost: parseInteger(row.points_cost, 0),
     imageUrl: row.image_url ?? null,
+    videoUrl: row.video_url ?? null,
     isActive: row.is_active !== false,
     sortOrder: parseInteger(row.sort_order, 0),
     productName: row.product_name ?? null,
