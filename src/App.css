@@ -4666,7 +4666,7 @@ button:focus-visible {
   border-color: transparent;
   background: #f5b72e;
   color: #11100b;
-  box-shadow: 0 12px 24px rgba(245, 183, 46, 0.22);
+  box-shadow: none;
 }
 
 .section-block-burger {
@@ -5157,7 +5157,7 @@ button:focus-visible {
 .template-burger .burger-category-pill.active {
   background: linear-gradient(180deg, #ffc647 0%, #f5ae28 100%);
   color: #12100b;
-  box-shadow: 0 16px 30px rgba(245, 183, 46, 0.24);
+  box-shadow: none;
 }
 
 .burger-footer-banner {
