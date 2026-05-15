@@ -160,7 +160,8 @@ export class SupabaseAdminRepository {
   }
 
   async createAccount(payload) {
-    const existingRestaurant = await this.fetchRestaurantBySlug(payload.slug)
+    const requestedSlug = slugify(payload.slug || payload.name)
+    const existingRestaurant = await this.fetchRestaurantBySlug(requestedSlug)
 
     if (existingRestaurant) {
       await this.restoreMenu(existingRestaurant.id)
@@ -193,7 +194,7 @@ export class SupabaseAdminRepository {
       },
       body: JSON.stringify({
         name: payload.name,
-        slug: payload.slug,
+        slug: requestedSlug,
         business_type: payload.demo ? 'demo_menu' : payload.business_type ?? 'restaurant',
         city: payload.city ?? null,
         address: payload.address ?? null,
@@ -541,10 +542,20 @@ export class SupabaseAdminRepository {
   }
 
   async fetchRestaurantBySlug(accountId) {
-    const rows = await this.request(
-      `/restaurants?slug=eq.${encodeURIComponent(accountId)}&select=id,slug,name,city,business_type,address&limit=1`,
+    const slug = slugify(accountId)
+    const select = 'id,slug,name,city,business_type,address'
+    const exactRows = await this.request(
+      `/restaurants?slug=eq.${encodeURIComponent(slug)}&select=${select}&limit=1`,
     )
-    return rows[0] ?? null
+
+    if (exactRows[0]) {
+      return exactRows[0]
+    }
+
+    const insensitiveRows = await this.request(
+      `/restaurants?slug=ilike.${encodeURIComponent(slug)}&select=${select}&limit=1`,
+    )
+    return insensitiveRows[0] ?? null
   }
 
   async fetchRestaurantById(restaurantId) {

@@ -44,10 +44,20 @@ export class SupabaseLoyaltyRepository {
   }
 
   async fetchRestaurant(accountId) {
-    const rows = await this.request(
-      `/restaurants?slug=eq.${encodeURIComponent(accountId)}&select=id,slug,name&limit=1`,
+    const slug = slugify(accountId)
+    const select = 'id,slug,name'
+    const exactRows = await this.request(
+      `/restaurants?slug=eq.${encodeURIComponent(slug)}&select=${select}&limit=1`,
     )
-    return rows[0] ?? null
+
+    if (exactRows[0]) {
+      return exactRows[0]
+    }
+
+    const insensitiveRows = await this.request(
+      `/restaurants?slug=ilike.${encodeURIComponent(slug)}&select=${select}&limit=1`,
+    )
+    return insensitiveRows[0] ?? null
   }
 
   async fetchLoyaltySettings(restaurantId) {
@@ -148,4 +158,13 @@ export class SupabaseLoyaltyRepository {
 
     return response.json()
   }
+}
+
+function slugify(value) {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
 }

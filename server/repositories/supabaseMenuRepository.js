@@ -97,11 +97,20 @@ export class SupabaseMenuRepository {
   }
 
   async fetchRestaurant(accountId) {
-    const rows = await this.request(
-      `/restaurants?slug=eq.${encodeURIComponent(accountId)}&select=*`,
+    const slug = this.slugify(accountId)
+    const exactRows = await this.request(
+      `/restaurants?slug=eq.${encodeURIComponent(slug)}&select=*&limit=1`,
     )
 
-    return rows[0] ?? null
+    if (exactRows[0]) {
+      return exactRows[0]
+    }
+
+    const insensitiveRows = await this.request(
+      `/restaurants?slug=ilike.${encodeURIComponent(slug)}&select=*&limit=1`,
+    )
+
+    return insensitiveRows[0] ?? null
   }
 
   async fetchProducts(restaurantId) {
