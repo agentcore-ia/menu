@@ -66,7 +66,6 @@ export class SupabaseMenuRepository {
   }
 
   async getMenuByAccountId(accountId) {
-    this.accountIdForFallback = accountId
     const restaurant = await this.fetchRestaurant(accountId)
 
     if (!restaurant) {
@@ -83,6 +82,7 @@ export class SupabaseMenuRepository {
       return null
     }
 
+    this.accountIdForFallback = presentationConfig?.theme?.inheritPreset || restaurant.slug
     const categories = this.groupProductsByCategory(products)
 
     return {
