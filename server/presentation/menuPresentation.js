@@ -171,6 +171,7 @@ const presentationPresets = {
     },
     hero: {
       title: 'NUESTRO MENÚ',
+      image: '/pizzeria/header.png',
       accent: 'Sabor que te hace volver',
       description: 'Pizza, entradas, bebidas y postres.',
     },
@@ -260,6 +261,12 @@ const presentationPresets = {
 }
 
 const accountPresentations = {
+  editorial: presentationPresets.default,
+  default: presentationPresets.default,
+  bistro: presentationPresets.bistro,
+  luxe: presentationPresets.luxe,
+  gelato: presentationPresets.gelato,
+  pizzeria: presentationPresets.pizzeria,
   totta: presentationPresets.default,
   'sandras-rose': presentationPresets.luxe,
   bruder: presentationPresets.bistro,

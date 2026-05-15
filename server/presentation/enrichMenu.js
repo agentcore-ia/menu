@@ -43,16 +43,16 @@ const defaultAdminThemeValues = {
 }
 const defaultAdminHeroImage = '/dishes/hero-clean-cut.png'
 
-function sanitizePresentationConfig(preset, config) {
+function sanitizePresentationConfig(preset, config, options = {}) {
   if (!config) {
     return null
   }
 
   const sanitized = structuredClone(config)
-  const isInheritedPreset = Boolean(sanitized.theme?.inheritPreset)
+  const shouldProtectPreset = Boolean(options.protectPreset)
 
   if (
-    isInheritedPreset &&
+    shouldProtectPreset &&
     preset.template &&
     sanitized.template &&
     sanitized.template !== preset.template
@@ -61,7 +61,7 @@ function sanitizePresentationConfig(preset, config) {
   }
 
   if (
-    isInheritedPreset &&
+    shouldProtectPreset &&
     preset.layout &&
     sanitized.layout &&
     sanitized.layout !== preset.layout
@@ -70,7 +70,7 @@ function sanitizePresentationConfig(preset, config) {
   }
 
   if (
-    isInheritedPreset &&
+    shouldProtectPreset &&
     preset.cards?.style &&
     sanitized.cards?.style &&
     sanitized.cards.style !== preset.cards.style
@@ -79,7 +79,7 @@ function sanitizePresentationConfig(preset, config) {
   }
 
   if (
-    isInheritedPreset &&
+    shouldProtectPreset &&
     preset.preview?.productMedia &&
     sanitized.preview?.productMedia === 'image-with-video-chip' &&
     sanitized.preview.productMedia !== preset.preview.productMedia
@@ -118,10 +118,14 @@ function sanitizePresentationConfig(preset, config) {
 
 export function enrichMenu(menu) {
   const inheritedPreset = menu.presentationConfig?.theme?.inheritPreset
+  const requestedLayout = menu.presentationConfig?.layout
+  const usesExplicitLayoutPreset = Boolean(!inheritedPreset && requestedLayout && requestedLayout !== 'editorial')
   const preset = resolveMenuPresentation(
-    inheritedPreset || menu.presentationConfig?.layout || menu.accountId,
+    inheritedPreset || (usesExplicitLayoutPreset ? requestedLayout : menu.accountId),
   )
-  const presentationConfig = sanitizePresentationConfig(preset, menu.presentationConfig)
+  const presentationConfig = sanitizePresentationConfig(preset, menu.presentationConfig, {
+    protectPreset: Boolean(inheritedPreset || !usesExplicitLayoutPreset),
+  })
   const presentation = presentationConfig ? mergeDeep(preset, presentationConfig) : preset
 
   return {
