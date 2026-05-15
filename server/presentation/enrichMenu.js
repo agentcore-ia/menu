@@ -22,9 +22,82 @@ function mergeDeep(base, override) {
   return result
 }
 
+function isEmptyConfigValue(value) {
+  return value === '' || value === undefined || value === null
+}
+
+const defaultAdminThemeValues = {
+  id: 'ivory-olive',
+  background: '#f4efe6',
+  surface: '#fffdfa',
+  surfaceAlt: '#f8f4ec',
+  text: '#1b1b18',
+  muted: 'rgba(27, 27, 24, 0.72)',
+  primary: '#445d39',
+  primaryText: '#fffdf8',
+  accent: '#4f6546',
+  border: 'rgba(96, 91, 74, 0.12)',
+  shadow: 'rgba(45, 38, 24, 0.08)',
+  displayFont: 'Cormorant Garamond',
+  bodyFont: 'Manrope',
+}
+
+function sanitizePresentationConfig(preset, config) {
+  if (!config) {
+    return null
+  }
+
+  const sanitized = structuredClone(config)
+
+  if (preset.template && sanitized.template && sanitized.template !== preset.template) {
+    delete sanitized.template
+  }
+
+  if (preset.layout && sanitized.layout && sanitized.layout !== preset.layout) {
+    delete sanitized.layout
+  }
+
+  if (
+    preset.cards?.style &&
+    sanitized.cards?.style &&
+    sanitized.cards.style !== preset.cards.style
+  ) {
+    delete sanitized.cards.style
+  }
+
+  if (
+    preset.preview?.productMedia &&
+    sanitized.preview?.productMedia === 'image-with-video-chip' &&
+    sanitized.preview.productMedia !== preset.preview.productMedia
+  ) {
+    delete sanitized.preview.productMedia
+  }
+
+  for (const section of ['branding', 'theme', 'hero', 'cards', 'preview']) {
+    if (!isObject(sanitized[section])) {
+      continue
+    }
+
+    sanitized[section] = Object.fromEntries(
+      Object.entries(sanitized[section]).filter(([, value]) => !isEmptyConfigValue(value)),
+    )
+  }
+
+  if (preset.theme?.id !== defaultAdminThemeValues.id && isObject(sanitized.theme)) {
+    sanitized.theme = Object.fromEntries(
+      Object.entries(sanitized.theme).filter(
+        ([key, value]) => defaultAdminThemeValues[key] !== value,
+      ),
+    )
+  }
+
+  return sanitized
+}
+
 export function enrichMenu(menu) {
   const preset = resolveMenuPresentation(menu.accountId)
-  const presentation = menu.presentationConfig ? mergeDeep(preset, menu.presentationConfig) : preset
+  const presentationConfig = sanitizePresentationConfig(preset, menu.presentationConfig)
+  const presentation = presentationConfig ? mergeDeep(preset, presentationConfig) : preset
 
   return {
     ...menu,
