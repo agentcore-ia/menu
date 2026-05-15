@@ -1,3 +1,5 @@
+import { resolveMenuPresentation } from '../presentation/menuPresentation.js'
+
 const INHERITED_THEME_PREFIX = 'inherits-'
 
 function getInheritedPresetFromThemeId(themeId) {
@@ -59,14 +61,25 @@ function normalizePresentationInput(input, existingConfig) {
     existingConfig?.theme_overrides && typeof existingConfig.theme_overrides === 'object'
       ? existingConfig.theme_overrides
       : {}
-  const inheritedPreset =
+  const candidateInheritedPreset =
     input.theme?.inheritPreset ||
     getInheritedPresetFromThemeId(input.theme?.id) ||
     existingThemeOverrides.inheritPreset ||
     getInheritedPresetFromThemeId(existingConfig?.theme_id)
+  const inheritedPresentation = candidateInheritedPreset
+    ? resolveMenuPresentation(candidateInheritedPreset)
+    : null
+  const shouldKeepInheritance = Boolean(
+    candidateInheritedPreset &&
+      (!input.layout || input.layout === inheritedPresentation?.layout),
+  )
+  const inheritedPreset = shouldKeepInheritance ? candidateInheritedPreset : undefined
+  const requestedThemeId = getInheritedPresetFromThemeId(input.theme?.id)
+    ? input.layout
+    : input.theme?.id
   const themeId = inheritedPreset
     ? `${INHERITED_THEME_PREFIX}${inheritedPreset}`
-    : input.theme?.id ?? existingConfig?.theme_id ?? 'ivory-olive'
+    : requestedThemeId ?? existingConfig?.theme_id ?? 'ivory-olive'
   const heroImage =
     inheritedPreset && input.hero?.image === DEFAULT_ADMIN_HERO_IMAGE
       ? existingConfig?.hero_image_url ?? null

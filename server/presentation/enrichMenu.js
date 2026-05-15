@@ -118,7 +118,9 @@ function sanitizePresentationConfig(preset, config) {
 
 export function enrichMenu(menu) {
   const inheritedPreset = menu.presentationConfig?.theme?.inheritPreset
-  const preset = resolveMenuPresentation(inheritedPreset || menu.accountId)
+  const preset = resolveMenuPresentation(
+    inheritedPreset || menu.presentationConfig?.layout || menu.accountId,
+  )
   const presentationConfig = sanitizePresentationConfig(preset, menu.presentationConfig)
   const presentation = presentationConfig ? mergeDeep(preset, presentationConfig) : preset
 

@@ -52,7 +52,7 @@ function getPizzeriaFallbackImage(accountId, product, index) {
 }
 
 function getBurgerFallbackImage(accountId, product, index) {
-  if (!['burguer', 'burger', 'brasa', 'el-club'].includes(accountId)) {
+  if (!['burguer', 'burger', 'brasa', 'el-club', 'blue-burger'].includes(accountId)) {
     return null
   }
 
@@ -91,7 +91,8 @@ export class SupabaseMenuRepository {
       return null
     }
 
-    this.accountIdForFallback = presentationConfig?.theme?.inheritPreset || restaurant.slug
+    this.accountIdForFallback =
+      presentationConfig?.theme?.inheritPreset || presentationConfig?.layout || restaurant.slug
     const categories = this.groupProductsByCategory(products)
 
     return {
