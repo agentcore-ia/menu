@@ -5122,6 +5122,7 @@ button:focus-visible {
 .hero-content-burger {
   position: relative;
   min-height: 0 !important;
+  aspect-ratio: 853 / 699;
   padding: 0;
   overflow: hidden;
   background: #020404;
@@ -5137,10 +5138,13 @@ button:focus-visible {
 }
 
 .burger-header-image {
-  position: relative;
+  position: absolute;
+  left: -7%;
+  bottom: -2%;
   z-index: 1;
   display: block;
-  width: 100%;
+  width: 112%;
+  max-width: none;
   height: auto;
 }
 
