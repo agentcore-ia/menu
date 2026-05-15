@@ -1193,25 +1193,14 @@ function TemplateMenuCollection({
           })}
         </div>
 
-        <article className="burger-combo-banner">
-          <div className="burger-combo-copy">
-            <span>
-              <IconFlame />
-              Combo
-            </span>
-            <h3>COMBO CLASICO</h3>
-            <p>Hamburguesa clasica + papas + bebida a eleccion.</p>
-          </div>
-          <img src="/burger/burger-2.svg" alt="" aria-hidden="true" />
-          <div className="burger-combo-action">
-            <strong>$18.900</strong>
-            <button
-              type="button"
-              onClick={() => onSelectCategory?.(comboTarget?.id)}
-            >
-              Ver combos
-            </button>
-          </div>
+        <article className="burger-combo-banner burger-footer-banner">
+          <button
+            type="button"
+            onClick={() => onSelectCategory?.(comboTarget?.id)}
+            aria-label="Ver combo clasico"
+          >
+            <img src="/burger/footer.png" alt="El match perfecto. Combo clasico." />
+          </button>
         </article>
 
         <nav className="burger-bottom-nav" aria-label="Navegacion del menu">
