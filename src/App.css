@@ -5140,9 +5140,7 @@ button:focus-visible {
 }
 
 .template-burger .content-panel {
-  background:
-    radial-gradient(circle at 72% 0%, rgba(245, 183, 46, 0.06), transparent 18rem),
-    linear-gradient(180deg, #020404 0%, #080d0e 100%);
+  background: linear-gradient(180deg, #020404 0%, #080d0e 100%);
 }
 
 .template-burger .burger-category-pill {
