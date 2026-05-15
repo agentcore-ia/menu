@@ -3,8 +3,50 @@ import { createAdminRepository } from '../../../../server/admin/createAdminRepos
 import { assertAdminToken } from '../../../../server/admin/requireAdminToken.js'
 
 function getActionPath(req) {
-  const action = req.query.action
-  return Array.isArray(action) ? action.join('/') : String(action ?? '')
+  const action = req.query?.action ?? req.query?.['...action']
+
+  if (Array.isArray(action)) {
+    return action.join('/')
+  }
+
+  if (action) {
+    return String(action)
+  }
+
+  const segments = getRequestPathSegments(req)
+  const accountsIndex = segments.findIndex(
+    (segment, index) => segment === 'accounts' && segments[index - 1] === 'admin',
+  )
+
+  if (accountsIndex === -1) {
+    return ''
+  }
+
+  return segments.slice(accountsIndex + 2).join('/')
+}
+
+function getAccountId(req) {
+  const accountId = req.query?.accountId
+
+  if (Array.isArray(accountId)) {
+    return accountId[0]
+  }
+
+  if (accountId) {
+    return String(accountId)
+  }
+
+  const segments = getRequestPathSegments(req)
+  const accountsIndex = segments.findIndex(
+    (segment, index) => segment === 'accounts' && segments[index - 1] === 'admin',
+  )
+
+  return accountsIndex === -1 ? '' : segments[accountsIndex + 1] ?? ''
+}
+
+function getRequestPathSegments(req) {
+  const pathname = new URL(req.url ?? '', 'https://menu.local').pathname
+  return pathname.split('/').filter(Boolean).map((segment) => decodeURIComponent(segment))
 }
 
 function methodNotAllowed(res, allow) {
@@ -16,6 +58,7 @@ export default async function handler(req, res) {
   const config = getServerConfig()
   const repository = createAdminRepository(config)
   const actionPath = getActionPath(req)
+  const accountId = getAccountId(req)
 
   try {
     assertAdminToken(config, req)
@@ -26,7 +69,7 @@ export default async function handler(req, res) {
         return
       }
 
-      const data = await repository.getAccountEditorData(req.query.accountId)
+      const data = await repository.getAccountEditorData(accountId)
 
       if (!data) {
         res.status(404).json({ error: 'ACCOUNT_NOT_FOUND', message: 'Cuenta no encontrada.' })
@@ -43,7 +86,7 @@ export default async function handler(req, res) {
         return
       }
 
-      const presentation = await repository.savePresentation(req.query.accountId, req.body)
+      const presentation = await repository.savePresentation(accountId, req.body)
 
       if (!presentation) {
         res.status(404).json({ error: 'ACCOUNT_NOT_FOUND', message: 'Cuenta no encontrada.' })
@@ -60,7 +103,7 @@ export default async function handler(req, res) {
         return
       }
 
-      const upload = await repository.createMenuAssetUpload(req.query.accountId, {
+      const upload = await repository.createMenuAssetUpload(accountId, {
         fileName: req.body?.fileName,
         contentType: req.body?.contentType,
         size: req.body?.size,
@@ -83,7 +126,7 @@ export default async function handler(req, res) {
       }
 
       const result = await repository.copyProductsFromAccount(
-        req.query.accountId,
+        accountId,
         req.body?.sourceAccountId,
         {
           replaceExisting: Boolean(req.body?.replaceExisting),
