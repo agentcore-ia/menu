@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 
 const emptyCategories = []
@@ -1609,6 +1609,8 @@ export default function MenuApp() {
   const [loyaltyStatus, setLoyaltyStatus] = useState('idle')
   const [loyaltyMessage, setLoyaltyMessage] = useState('')
   const [loyaltyData, setLoyaltyData] = useState(null)
+  const [cartFeedback, setCartFeedback] = useState(null)
+  const cartFeedbackIdRef = useRef(0)
   const [gelatoBuilderOpen, setGelatoBuilderOpen] = useState(false)
   const [gelatoStep, setGelatoStep] = useState(1)
   const [gelatoFormat, setGelatoFormat] = useState('kilo')
@@ -1667,6 +1669,18 @@ export default function MenuApp() {
     }
   }, [accountId])
 
+  useEffect(() => {
+    if (!cartFeedback) {
+      return undefined
+    }
+
+    const timeout = window.setTimeout(() => {
+      setCartFeedback(null)
+    }, 1700)
+
+    return () => window.clearTimeout(timeout)
+  }, [cartFeedback])
+
   const presentation = menu?.presentation ?? defaultPresentation
   const categories = menu?.categories ?? emptyCategories
   const currentCategory =
@@ -1715,6 +1729,14 @@ export default function MenuApp() {
     const unitPrice = item.unitPrice ?? toNumericPrice(item.price)
     const notes = configuration?.summary ?? ''
     const lineId = `${item.id}::${notes || 'default'}`
+
+    cartFeedbackIdRef.current += 1
+
+    setCartFeedback({
+      id: `${lineId}-${cartFeedbackIdRef.current}`,
+      name: item.name,
+      quantity,
+    })
 
     setCart((current) => {
       const existingIndex = current.findIndex((line) => line.lineId === lineId)
@@ -2110,6 +2132,26 @@ export default function MenuApp() {
           ) : null}
         </div>
       </div>
+
+      {cartFeedback ? (
+        <div
+          key={cartFeedback.id}
+          className={`cart-added-toast ${templateId === 'burger' ? 'cart-added-toast-burger' : ''}`}
+          role="status"
+          aria-live="polite"
+        >
+          <span className="cart-added-icon">
+            <IconCart />
+          </span>
+          <div>
+            <strong>Agregado al pedido</strong>
+            <p>
+              {cartFeedback.quantity > 1 ? `${cartFeedback.quantity} x ` : ''}
+              {cartFeedback.name}
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       {templateId === 'gelato' && gelatoBuilderOpen ? (
         <div className="detail-screen" role="presentation" onClick={() => setGelatoBuilderOpen(false)}>
