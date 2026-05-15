@@ -865,19 +865,9 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   if (templateId === 'burger') {
     return (
       <section className="hero-content hero-content-burger">
-        <video
-          className="burger-header-video"
-          src="/burger/humo.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-        />
         <img
           className="burger-header-image"
-          src="/burger/burguer.png"
+          src={getHeroImage(presentation, heroDish)}
           alt="Grill House Burger Co. Hechas para gustar."
         />
       </section>
