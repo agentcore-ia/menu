@@ -43,7 +43,7 @@ function getPizzeriaFallbackImage(accountId, product, index) {
 }
 
 function getBurgerFallbackImage(accountId, product, index) {
-  if (!['burguer', 'burger', 'brasa'].includes(accountId)) {
+  if (!['burguer', 'burger', 'brasa', 'el-club'].includes(accountId)) {
     return null
   }
 
