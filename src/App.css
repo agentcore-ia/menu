@@ -1,5 +1,6 @@
 .app-shell {
   min-height: 100vh;
+  min-height: 100dvh;
   padding: 0;
   font-family: var(--font-body, 'Manrope', sans-serif);
 }
@@ -8,6 +9,7 @@
 .detail-phone {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--menu-page-background);
   color: var(--theme-text);
 }
@@ -3329,10 +3331,11 @@
 .order-bar,
 .detail-order-bar {
   position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   bottom: max(1rem, env(safe-area-inset-bottom));
   width: min(calc(100% - 1.3rem), 26rem);
+  margin-inline: auto;
   height: 5.25rem;
   padding: 0 1.35rem;
   display: flex;
@@ -4617,6 +4620,7 @@ button:focus-visible {
     overflow: hidden;
     box-shadow: 0 24px 70px rgba(43, 37, 24, 0.18);
     min-height: calc(100vh - 2.4rem);
+    min-height: calc(100dvh - 2.4rem);
   }
 
   .order-bar,
@@ -5852,12 +5856,13 @@ button:focus-visible {
 
 .burger-bottom-nav {
   position: fixed;
-  left: 50%;
+  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 20;
   width: min(100%, 27rem);
   height: 5.6rem;
-  transform: translateX(-50%);
+  margin-inline: auto;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: center;
@@ -6838,12 +6843,13 @@ button:focus-visible {
 
 .blue-burger-bottom-nav {
   position: fixed;
-  left: 50%;
+  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 20;
   width: min(100%, 27rem);
   min-height: 5.65rem;
-  transform: translateX(-50%);
+  margin-inline: auto;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: center;
