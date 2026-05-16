@@ -6662,7 +6662,7 @@ button:focus-visible {
 .blue-burger-card {
   min-height: 4.85rem;
   display: grid;
-  grid-template-columns: 47% 1fr;
+  grid-template-columns: 23.5% 1fr;
   overflow: hidden;
   border: 0;
   border-radius: 0.95rem;
@@ -6934,7 +6934,7 @@ button:focus-visible {
   }
 
   .blue-burger-card {
-    grid-template-columns: 46% 1fr;
+    grid-template-columns: 23% 1fr;
     min-height: 4.625rem;
   }
 
