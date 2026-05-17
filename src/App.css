@@ -2472,12 +2472,12 @@
   gap: 0;
   position: relative;
   z-index: 1;
-  padding-bottom: 0.4rem;
+  padding-bottom: 0.1rem;
   min-height: 100%;
 }
 
 .gelato-format-copy h3 {
-  margin: 1.2rem 0 0;
+  margin: 0.2rem 0 0;
   font-size: 2rem;
   line-height: 0.95;
   color: #1c1c3b;
@@ -2490,25 +2490,6 @@
   line-height: 1.52;
   color: #474861;
   font-size: 0.96rem;
-}
-
-.gelato-format-button {
-  width: 2.85rem;
-  height: 2.85rem;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background: var(--gelato-card-accent, #ff5a92);
-  color: #fff;
-  font-size: 1.15rem;
-  font-weight: 800;
-  margin-top: auto;
-  box-shadow: 0 12px 20px color-mix(in srgb, var(--gelato-card-accent) 28%, transparent);
-}
-
-.gelato-format-button:disabled {
-  background: rgba(95, 82, 112, 0.18);
-  color: rgba(34, 24, 59, 0.56);
 }
 
 .gelato-format-visual {
@@ -2555,21 +2536,6 @@
   mix-blend-mode: darken;
   -webkit-mask-image: radial-gradient(circle at 51% 50%, #000 0 52%, rgba(0, 0, 0, 0.96) 61%, transparent 77%);
   mask-image: radial-gradient(circle at 51% 50%, #000 0 52%, rgba(0, 0, 0, 0.96) 61%, transparent 77%);
-}
-
-.gelato-format-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 2.9rem;
-  height: 2.9rem;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background: var(--gelato-card-accent, #ff5a92);
-  color: #fff;
-  font-size: 1.18rem;
-  font-weight: 800;
 }
 
 .gelato-format-image {

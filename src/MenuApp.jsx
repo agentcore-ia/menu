@@ -1572,14 +1572,12 @@ function TemplateMenuCollection({
               disabled={!format.enabled}
             >
               <div className="gelato-format-copy">
-                <span className="gelato-format-badge">{format.icon}</span>
                 <h3>
                   {format.title.split(' ').slice(0, 1).join(' ')}
                   <br />
                   {format.title.split(' ').slice(1).join(' ')}
                 </h3>
                 <p>{format.description}</p>
-                <span className="gelato-format-button">{'>'}</span>
               </div>
 
               <div className={`gelato-format-visual gelato-format-visual-${format.id}`}>
