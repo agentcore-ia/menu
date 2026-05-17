@@ -2581,7 +2581,9 @@
 }
 
 .gelato-format-visual-kilo .gelato-format-image-main {
-  width: 12.7rem;
+  width: 11.9rem;
+  right: 0.25rem;
+  bottom: 0.2rem;
 }
 
 .gelato-format-visual-conos .gelato-format-image-main {
