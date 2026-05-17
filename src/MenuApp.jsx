@@ -1058,36 +1058,67 @@ function MenuLoadingScreen({ accountId }) {
   const loadingCopy = {
     burger: {
       title: 'BRASA',
-      subtitle: 'preparando el fuego',
+      subtitle: 'burger co.',
       icon: <IconFlame />,
+      kicker: 'A la parrilla',
+      headline: 'Encendiendo la cocina',
+      message: 'Estamos cargando hamburguesas, combos y promos con todo el sabor de la casa.',
+      chips: ['Hamburguesas', 'Combos', 'Bebidas'],
+      section: 'NUESTRO MENU',
     },
     gelato: {
       title: 'Dolce',
-      subtitle: 'sirviendo sabores',
+      subtitle: 'heladeria',
       icon: <IconDessert />,
+      kicker: 'Helado artesanal',
+      headline: 'Sirviendo sabores',
+      message: 'Preparamos el menu con formatos, tamanos y sabores para que empieces a elegir.',
+      chips: ['Por kilo', 'Conos', 'Promos'],
+      section: 'SABORES',
     },
     pizzeria: {
       title: 'La Buona',
-      subtitle: 'calentando el horno',
+      subtitle: 'pizzeria',
       icon: <IconPizzaOutline />,
+      kicker: 'Horno encendido',
+      headline: 'Calentando el horno',
+      message: 'Estamos dejando listas las pizzas, empanadas y bebidas para tu pedido.',
+      chips: ['Pizzas', 'Empanadas', 'Bebidas'],
+      section: 'NUESTRO MENU',
     },
     luxe: {
       title: "Sandra's",
-      subtitle: 'encendiendo la noche',
+      subtitle: 'rose',
       icon: <IconSpark />,
+      kicker: 'Experiencia premium',
+      headline: 'Encendiendo la noche',
+      message: 'Montamos la carta, las sugerencias y los destacados para una experiencia impecable.',
+      chips: ['Entrantes', 'Principales', 'Postres'],
+      section: 'SELECCION',
     },
     bistro: {
       title: 'Bruder',
-      subtitle: 'preparando la mesa',
+      subtitle: 'bistro',
       icon: <IconServe />,
+      kicker: 'Cocina de casa',
+      headline: 'Preparando la mesa',
+      message: 'Cargamos el menu, las categorias y los productos para que elijas sin esperar.',
+      chips: ['Especiales', 'Platos', 'Bebidas'],
+      section: 'RECOMENDADOS',
     },
     default: {
       title: 'NeuroRest',
-      subtitle: 'preparando tu menu',
+      subtitle: 'digital menu',
       icon: <IconLeafMark />,
+      kicker: 'Menu digital',
+      headline: 'Cargando tu experiencia',
+      message: 'Estamos dejando listo el menu, las categorias y el carrito para que empieces a pedir.',
+      chips: ['Menu', 'Destacados', 'Carrito'],
+      section: 'PRODUCTOS',
     },
   }
   const copy = loadingCopy[loadingTemplate] ?? loadingCopy.default
+  const previewRows = Array.from({ length: 3 }, (_, index) => index)
 
   return (
     <div className="app-shell">
@@ -1097,12 +1128,85 @@ function MenuLoadingScreen({ accountId }) {
           <span />
           <span />
         </div>
-        <div className="menu-loading-card" role="status" aria-live="polite">
-          <span className="menu-loading-mark">{copy.icon}</span>
-          <strong>{copy.title}</strong>
-          <p>{copy.subtitle}</p>
-          <div className="menu-loading-bar" aria-hidden="true">
-            <span />
+        <div className="menu-loading-shell" role="status" aria-live="polite">
+          <div className="menu-loading-topbar">
+            <span className="menu-loading-top-icon" aria-hidden="true">
+              <IconMenu />
+            </span>
+            <div className="menu-loading-brand-lockup">
+              <span className="menu-loading-mark">{copy.icon}</span>
+              <div className="menu-loading-brand-copy">
+                <strong>{copy.title}</strong>
+                <p>{copy.subtitle}</p>
+              </div>
+            </div>
+            <span className="menu-loading-top-icon" aria-hidden="true">
+              <IconCart />
+            </span>
+          </div>
+
+          <section className="menu-loading-hero-card">
+            <div className="menu-loading-hero-copy">
+              <span className="menu-loading-kicker">{copy.kicker}</span>
+              <h2>{copy.headline}</h2>
+              <p>{copy.message}</p>
+              <div className="menu-loading-bar" aria-hidden="true">
+                <span />
+              </div>
+              <div className="menu-loading-chip-row" aria-hidden="true">
+                {copy.chips.map((chip) => (
+                  <span key={chip}>{chip}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="menu-loading-visual" aria-hidden="true">
+              <span className="menu-loading-visual-glow" />
+              <span className="menu-loading-visual-card menu-loading-visual-card-back" />
+              <span className="menu-loading-visual-card menu-loading-visual-card-front" />
+              <span className="menu-loading-visual-icon">{copy.icon}</span>
+            </div>
+          </section>
+
+          <div className="menu-loading-category-row" aria-hidden="true">
+            {copy.chips.map((chip, index) => (
+              <span key={chip} className={index === 0 ? 'active' : ''}>
+                {chip}
+              </span>
+            ))}
+          </div>
+
+          <section className="menu-loading-feed" aria-hidden="true">
+            <div className="menu-loading-section-head">
+              <span />
+              <strong>{copy.section}</strong>
+              <span />
+            </div>
+
+            <div className="menu-loading-list">
+              {previewRows.map((row) => (
+                <article key={row} className="menu-loading-item">
+                  <span className="menu-loading-item-media" />
+                  <div className="menu-loading-item-copy">
+                    <span className="menu-loading-item-title" />
+                    <span className="menu-loading-item-line short" />
+                    <span className="menu-loading-item-line" />
+                    <div className="menu-loading-item-footer">
+                      <span className="menu-loading-item-price" />
+                      <span className="menu-loading-item-button" />
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <div className="menu-loading-dock" aria-hidden="true">
+            <span className="menu-loading-dock-item active" />
+            <span className="menu-loading-dock-item" />
+            <span className="menu-loading-dock-core" />
+            <span className="menu-loading-dock-item" />
+            <span className="menu-loading-dock-item" />
           </div>
         </div>
       </div>
