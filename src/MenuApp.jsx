@@ -143,6 +143,28 @@ function IconDrink() {
   )
 }
 
+function IconDrumstick() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M13.8 5.3c2.3 0 4.1 1.7 4.1 4 0 1.5-.7 2.6-1.8 3.5l-3.5 2.9a4.4 4.4 0 0 1-2.8 1H8.9" />
+      <path d="M8.9 16.7a1.9 1.9 0 1 1 0 3.8 1.9 1.9 0 0 1 0-3.8z" />
+      <path d="M6.1 14.5a1.8 1.8 0 0 1 2.5 2.5" />
+      <path d="M10.8 18.4a1.8 1.8 0 0 1-2.5 2.5" />
+      <path d="M11.3 7.6c.8-1.5 2-2.3 2.5-2.3" />
+    </svg>
+  )
+}
+
+function IconPhoneCall() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5.2 4.7h3.4l1.3 4-1.9 1.9a14.8 14.8 0 0 0 5.4 5.4l1.9-1.9 4 1.3v3.4c0 .8-.6 1.4-1.4 1.4C10.2 20.2 3.8 13.8 3.8 6.1c0-.8.6-1.4 1.4-1.4z" />
+      <path d="M14.2 5.8a5.2 5.2 0 0 1 4 4" />
+      <path d="M14.2 2.8a8.2 8.2 0 0 1 7 7" />
+    </svg>
+  )
+}
+
 function IconBurger() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -283,6 +305,10 @@ function getInitialAccountId() {
 function getLoadingTemplate(accountId) {
   const key = slugify(accountId)
 
+  if (key.includes('host')) {
+    return 'host'
+  }
+
   if (
     key.includes('burger') ||
     key.includes('burguer') ||
@@ -358,8 +384,39 @@ function getHeroImage(presentation, heroDish) {
   return presentation.hero?.image ?? heroDish?.image ?? '/dishes/hero-clean-cut.png'
 }
 
+function getHostHeroArtImage(presentation, heroDish) {
+  const customHeroImage = String(presentation.hero?.image ?? '').trim()
+
+  if (customHeroImage) {
+    return customHeroImage
+  }
+
+  if (heroDish?.video && heroDish?.image) {
+    return heroDish.image
+  }
+
+  if (heroDish?.hasCustomImage && heroDish?.image) {
+    return heroDish.image
+  }
+
+  return ''
+}
+
 function getInitialCategoryId(payload) {
   const templateId = payload?.presentation?.template ?? payload?.presentation?.layout
+
+  if (templateId === 'host') {
+    return (
+      payload.categories.find((category) => slugify(category.label).includes('combo'))?.id ??
+      payload.categories.find((category) => slugify(category.label).includes('pollo'))?.id ??
+      payload.categories.find((category) => {
+        const key = slugify(category.label)
+        return key.includes('hamburgues') || key.includes('burger')
+      })?.id ??
+      payload.categories[0]?.id ??
+      ''
+    )
+  }
 
   if (templateId === 'pizzeria') {
     return (
@@ -847,6 +904,80 @@ function getBlueBurgerTitle(item) {
   )
 }
 
+function getHostCategoryLabel(label) {
+  const key = slugify(label)
+  if (key.includes('combo')) return 'Combos'
+  if (key.includes('pollo')) return 'Pollo frito'
+  if (key.includes('hamburgues') || key.includes('burger')) return 'Burgers'
+  if (key.includes('guarnicion') || key.includes('papa') || key.includes('acompa')) return 'Guarniciones'
+  if (key.includes('bebida')) return 'Bebidas'
+  if (key.includes('extra') || key.includes('salsa')) return 'Extras'
+  return label
+}
+
+function getHostCategoryIcon(label) {
+  const key = slugify(label)
+  if (key.includes('combo')) return IconFlame
+  if (key.includes('pollo')) return IconDrumstick
+  if (key.includes('hamburgues') || key.includes('burger')) return IconBurger
+  if (key.includes('guarnicion') || key.includes('papa') || key.includes('acompa')) return IconFries
+  if (key.includes('bebida')) return IconDrink
+  if (key.includes('extra') || key.includes('salsa')) return IconPlus
+  return IconServe
+}
+
+function getHostOrderedCategories(categories) {
+  const order = ['combo', 'pollo', 'hamburgues', 'burger', 'guarnicion', 'papa', 'bebida', 'extra', 'salsa']
+
+  return [...categories].sort((left, right) => {
+    const leftKey = slugify(left.label)
+    const rightKey = slugify(right.label)
+    const leftIndex = order.findIndex((token) => leftKey.includes(token))
+    const rightIndex = order.findIndex((token) => rightKey.includes(token))
+
+    return (leftIndex === -1 ? 99 : leftIndex) - (rightIndex === -1 ? 99 : rightIndex)
+  })
+}
+
+function getHostSectionSubtitle(label) {
+  const key = slugify(label)
+  if (key.includes('combo')) return 'Lo mejor para compartir (o no)'
+  if (key.includes('pollo')) return 'Crujiente real, recien hecho para vos'
+  if (key.includes('hamburgues') || key.includes('burger')) return 'Burgers con actitud y mucho sabor'
+  if (key.includes('guarnicion') || key.includes('papa') || key.includes('acompa')) {
+    return 'El acompanamiento ideal para sumar al pedido'
+  }
+  if (key.includes('bebida')) return 'El complemento perfecto para cada combo'
+  if (key.includes('extra') || key.includes('salsa')) return 'Salsas y extras para llevar el combo mas lejos'
+  return 'Todo el sabor de la casa listo para pedir'
+}
+
+function getHostBadgeText(item, index, categoryLabel) {
+  const nameKey = slugify(item?.name ?? '')
+  const categoryKey = slugify(categoryLabel ?? '')
+
+  if (index === 0) return 'Mas elegido'
+  if (nameKey.includes('duo') || nameKey.includes('para-2')) return 'Para 2'
+  if (nameKey.includes('individual') || nameKey.includes('para-1')) return 'Para 1'
+  if (nameKey.includes('familiar') || nameKey.includes('maxi')) return 'Maxi Host'
+  if (categoryKey.includes('burger') || categoryKey.includes('hamburgues')) return 'Host burger'
+  if (categoryKey.includes('bebida')) return 'Bien fria'
+  return 'Host'
+}
+
+function getHostDisplayTitle(item) {
+  return String(item?.name ?? 'Combo Host').replace(/^combo\s+/i, 'Combo ').trim() || 'Combo Host'
+}
+
+function HostMediaPlaceholder({ label }) {
+  return (
+    <div className="host-dish-placeholder" aria-hidden="true">
+      <IconDrumstick />
+      <span>{label}</span>
+    </div>
+  )
+}
+
 function getPresentationStyles(presentation) {
   const theme = presentation.theme
 
@@ -912,7 +1043,7 @@ function getVideoFrameSrc(videoUrl) {
   return `${videoUrl}#t=0.001`
 }
 
-function TemplateHero({ templateId, presentation, heroDish }) {
+function TemplateHero({ templateId, presentation, heroDish, onPrimaryAction }) {
   if (!heroDish) {
     return null
   }
@@ -954,6 +1085,70 @@ function TemplateHero({ templateId, presentation, heroDish }) {
           src={getHeroImage(presentation, heroDish)}
           alt="Grill House Burger Co. Hechas para gustar."
         />
+      </section>
+    )
+  }
+
+  if (templateId === 'host') {
+    const heroArtImage = getHostHeroArtImage(presentation, heroDish)
+
+    return (
+      <section className="hero-content hero-content-host">
+        <div className="host-hero-top">
+          <div className="host-brand-lockup">
+            {presentation.theme?.logoImage ? (
+              <img
+                className="host-brand-image"
+                src={presentation.theme.logoImage}
+                alt={presentation.branding?.wordmark ?? 'Host'}
+              />
+            ) : (
+              <>
+                <strong>HOST</strong>
+                <span />
+              </>
+            )}
+          </div>
+
+          <button type="button" className="host-hero-cta" onClick={onPrimaryAction}>
+            <IconPhoneCall />
+            <span>Pedi ahora</span>
+          </button>
+        </div>
+
+        <div className="host-hero-copy">
+          <h1>
+            <span>{presentation.hero?.title ?? 'EL CRYSPY'}</span>
+            <strong>{presentation.hero?.accent ?? 'NUNCA MIENTE!'}</strong>
+          </h1>
+          <p>{presentation.hero?.description ?? 'Pollo frito crujiente, sabroso y recien hecho para vos.'}</p>
+        </div>
+
+        <div className="host-hero-art">
+          <div className="host-hero-glow" aria-hidden="true" />
+          {heroArtImage ? (
+            <img src={heroArtImage} alt={heroDish.name} />
+          ) : (
+            <div className="host-hero-placeholder" aria-hidden="true">
+              <IconDrumstick />
+            </div>
+          )}
+        </div>
+
+        <div className="host-hero-features" aria-hidden="true">
+          <span>
+            <IconFlame />
+            <small>Pollo 100% fresco</small>
+          </span>
+          <span>
+            <IconCart />
+            <small>Take away & delivery</small>
+          </span>
+          <span>
+            <IconPhoneCall />
+            <small>Lunes a domingo 20 a 00 hs</small>
+          </span>
+        </div>
       </section>
     )
   }
@@ -1065,6 +1260,16 @@ function MenuLoadingScreen({ accountId }) {
       message: 'Estamos cargando hamburguesas, combos y promos con todo el sabor de la casa.',
       chips: ['Hamburguesas', 'Combos', 'Bebidas'],
       section: 'NUESTRO MENU',
+    },
+    host: {
+      title: 'HOST',
+      subtitle: 'crispy house',
+      icon: <IconFlame />,
+      kicker: 'Crispy chicken',
+      headline: 'Subiendo el calor',
+      message: 'Estamos preparando combos, pollo frito, burgers y extras para que elijas sin esperar.',
+      chips: ['Combos', 'Pollo frito', 'Burgers'],
+      section: 'COMBOS',
     },
     gelato: {
       title: 'Dolce',
@@ -1250,6 +1455,33 @@ function TemplateCategorySelector({
               >
                 <Icon />
                 <span>{getBurgerCategoryLabel(category.label)}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  if (templateId === 'host') {
+    const orderedCategories = getHostOrderedCategories(categories)
+
+    return (
+      <div className="host-category-shell" data-host-categories>
+        <div className="host-category-row">
+          {orderedCategories.map((category) => {
+            const Icon = getHostCategoryIcon(category.label)
+            const isActive = category.id === currentCategory?.id
+
+            return (
+              <button
+                key={category.id}
+                type="button"
+                className={`host-category-pill ${isActive ? 'active' : ''}`}
+                onClick={() => onSelectCategory(category.id)}
+              >
+                <Icon />
+                <span>{getHostCategoryLabel(category.label)}</span>
               </button>
             )
           })}
@@ -1587,6 +1819,130 @@ function TemplateMenuCollection({
           <button type="button" onClick={onOpenCart}>
             <IconCart />
             <span>Contacto</span>
+          </button>
+        </nav>
+      </section>
+    )
+  }
+
+  if (templateId === 'host') {
+    const highlightedItems = categoryItems
+    const extrasTarget =
+      categories.find((category) => {
+        const key = slugify(category.label)
+        return key.includes('extra') || key.includes('salsa')
+      }) ??
+      categories.find((category) => {
+        const key = slugify(category.label)
+        return key.includes('guarnicion') || key.includes('papa')
+      }) ??
+      currentCategory
+    const hostBannerImage = getHostHeroArtImage(
+      presentation,
+      highlightedItems[0] ?? currentCategory?.items?.[0] ?? null,
+    )
+
+    return (
+      <section className="section-block section-block-host" data-menu-categories>
+        <div className="host-section-head">
+          <div className="host-section-title">
+            <span className="host-section-flame">
+              <IconFlame />
+            </span>
+            <h2>{String(currentCategory?.label ?? 'Combos').toUpperCase()}</h2>
+          </div>
+          <p>{getHostSectionSubtitle(currentCategory?.label)}</p>
+        </div>
+
+        <div className="host-card-grid">
+          {highlightedItems.map((item, index) => (
+            <article key={item.id} className="host-dish-card">
+              <span className="host-dish-badge">{getHostBadgeText(item, index, currentCategory?.label)}</span>
+
+              <button
+                type="button"
+                className="host-dish-media"
+                onClick={() => onOpenDish(item)}
+                aria-label={`Ver ${item.name}`}
+              >
+                {renderProductMedia(item)}
+              </button>
+
+              <div className="host-dish-body">
+                <button
+                  type="button"
+                  className="host-dish-copy"
+                  onClick={() => onOpenDish(item)}
+                >
+                  <h3>{getHostDisplayTitle(item)}</h3>
+                  <p>{item.description}</p>
+                </button>
+
+                <div className="host-dish-footer">
+                  <strong>{item.price}</strong>
+                  <button
+                    type="button"
+                    className="host-add-button"
+                    onClick={() => onAddItem(item)}
+                    aria-label={`Agregar ${item.name}`}
+                  >
+                    <IconPlus />
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <article className="host-extra-banner" data-host-extras>
+          <div className="host-extra-copy">
+            <h3>
+              <span>EXTRA</span>
+              <strong>CRYSPY?</strong>
+            </h3>
+            <p>Suma mas sabor a tu combo!</p>
+            <button
+              type="button"
+              onClick={() => {
+                onSelectCategory?.(extrasTarget?.id)
+                onNavigatePromos?.()
+              }}
+            >
+              Ver extras
+              <span>{'>'}</span>
+            </button>
+          </div>
+          <div className="host-extra-art" aria-hidden="true">
+            <span className="host-extra-sauce host-extra-sauce-light" />
+            <span className="host-extra-sauce host-extra-sauce-dark" />
+            {hostBannerImage ? (
+              <img src={hostBannerImage} alt="" />
+            ) : (
+              <HostMediaPlaceholder label="Extras" />
+            )}
+          </div>
+        </article>
+
+        <nav className="host-bottom-nav" aria-label="Navegacion del menu">
+          <button type="button" className="active" onClick={onNavigateHome}>
+            <IconHome />
+            <span>Inicio</span>
+          </button>
+          <button type="button" onClick={onNavigatePromos}>
+            <IconSpark />
+            <span>Promos</span>
+          </button>
+          <button type="button" className="host-bottom-primary" onClick={onOpenCart}>
+            <IconFlame />
+            <span>Pedi ahora</span>
+          </button>
+          <button type="button" onClick={onNavigateMenu}>
+            <IconCart />
+            <span>Pedidos</span>
+          </button>
+          <button type="button" onClick={onOpenLoyalty}>
+            <IconAward />
+            <span>Nosotros</span>
           </button>
         </nav>
       </section>
@@ -2147,6 +2503,10 @@ export default function MenuApp() {
   }
 
   function renderProductMedia(item) {
+    if (templateId === 'host' && !item.video && !item.hasCustomImage) {
+      return <HostMediaPlaceholder label={getHostCategoryLabel(item.badge ?? item.categoryLabel ?? 'Host')} />
+    }
+
     if (shouldRenderPreviewVideo(item, presentation)) {
       return (
         <video
@@ -2443,31 +2803,34 @@ export default function MenuApp() {
       <div className="app-shell">
         <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation)}>
           <header className={`hero hero-${templateId}`} data-menu-hero>
-            <div className="hero-topbar">
-              <button
-                type="button"
-                className="icon-button"
-                aria-label="Abrir menu"
-                onClick={handleNavigateMenu}
-              >
-                <IconMenu />
-              </button>
+            {templateId !== 'host' ? (
+              <div className="hero-topbar">
+                <button
+                  type="button"
+                  className="icon-button"
+                  aria-label="Abrir menu"
+                  onClick={handleNavigateMenu}
+                >
+                  <IconMenu />
+                </button>
 
-              <button
-                type="button"
-                className="cart-button"
-                aria-label="Ver pedido"
-                onClick={() => setIsCartOpen(true)}
-              >
-                <IconCart />
-                {orderCount > 0 ? <span className="cart-badge">{orderCount}</span> : null}
-              </button>
-            </div>
+                <button
+                  type="button"
+                  className="cart-button"
+                  aria-label="Ver pedido"
+                  onClick={() => setIsCartOpen(true)}
+                >
+                  <IconCart />
+                  {orderCount > 0 ? <span className="cart-badge">{orderCount}</span> : null}
+                </button>
+              </div>
+            ) : null}
 
             {templateId !== 'gelato' &&
             templateId !== 'pizzeria' &&
             templateId !== 'burger' &&
-            templateId !== 'blue-burger' ? (
+            templateId !== 'blue-burger' &&
+            templateId !== 'host' ? (
               <div className="brand hero-brand">
                 <span className="brand-mark">
                   <IconLeafMark />
@@ -2479,7 +2842,12 @@ export default function MenuApp() {
               </div>
             ) : null}
 
-            <TemplateHero templateId={templateId} presentation={presentation} heroDish={heroDish} />
+            <TemplateHero
+              templateId={templateId}
+              presentation={presentation}
+              heroDish={heroDish}
+              onPrimaryAction={handleNavigateMenu}
+            />
           </header>
 
           <main className="content-panel">
@@ -2492,7 +2860,7 @@ export default function MenuApp() {
 
             {status === 'ready' ? (
               <>
-                {templateId === 'pizzeria' || templateId === 'burger' ? (
+                {templateId === 'pizzeria' || templateId === 'burger' || templateId === 'host' ? (
                   <div data-menu-categories>
                     <TemplateCategorySelector
                       templateId={templateId}
@@ -2506,7 +2874,8 @@ export default function MenuApp() {
                 {templateId !== 'gelato' &&
                 templateId !== 'pizzeria' &&
                 templateId !== 'burger' &&
-                templateId !== 'blue-burger' ? (
+                templateId !== 'blue-burger' &&
+                templateId !== 'host' ? (
                   <section className="section-block" data-section="categories">
                     <div className="section-heading">
                       <h2>Categorias</h2>
@@ -2547,6 +2916,7 @@ export default function MenuApp() {
           {templateId !== 'gelato' &&
           templateId !== 'burger' &&
           templateId !== 'blue-burger' &&
+          templateId !== 'host' &&
           (templateId !== 'pizzeria' || hasOrderItems) ? (
             <footer className="order-bar">
               <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
@@ -2570,7 +2940,7 @@ export default function MenuApp() {
       {cartFeedback ? (
         <div
           key={cartFeedback.id}
-          className={`cart-added-toast ${templateId === 'burger' ? 'cart-added-toast-burger' : ''}`}
+          className={`cart-added-toast ${templateId === 'burger' || templateId === 'host' ? 'cart-added-toast-burger' : ''}`}
           role="status"
           aria-live="polite"
         >

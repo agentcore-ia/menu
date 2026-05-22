@@ -258,6 +258,42 @@ const presentationPresets = {
       mutedVideos: true,
     },
   },
+  host: {
+    template: 'host',
+    layout: 'host',
+    branding: {
+      wordmark: 'HOST',
+      subtitle: 'CRISPY HOUSE',
+    },
+    theme: {
+      id: 'host-crispy',
+      background: '#080707',
+      surface: '#111010',
+      surfaceAlt: '#0d0c0c',
+      text: '#fff6ea',
+      muted: 'rgba(255, 246, 234, 0.72)',
+      primary: '#ef3b2d',
+      primaryText: '#fff6ea',
+      accent: '#ff8a1e',
+      border: 'rgba(255, 255, 255, 0.12)',
+      shadow: 'rgba(0, 0, 0, 0.34)',
+      displayFont: 'Bebas Neue',
+      bodyFont: 'Montserrat',
+    },
+    hero: {
+      title: 'EL CRYSPY',
+      accent: 'NUNCA MIENTE!',
+      description: 'Pollo frito crujiente, sabroso y recien hecho para vos.',
+    },
+    cards: {
+      style: 'host-grid',
+    },
+    preview: {
+      productMedia: 'video-first',
+      autoplayVideos: true,
+      mutedVideos: true,
+    },
+  },
 }
 
 const accountPresentations = {
@@ -280,6 +316,7 @@ const accountPresentations = {
   'el-club': presentationPresets.burger,
   'blue-burger': presentationPresets.blueBurger,
   jburger: presentationPresets.blueBurger,
+  host: presentationPresets.host,
   'neurorest-demo': presentationPresets.default,
 }
 

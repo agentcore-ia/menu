@@ -65,6 +65,7 @@ const layoutDescriptions = {
   pizzeria: 'Menu visual para pizzeria con header grafico, tabs y cards de dos columnas.',
   burger: 'Menu oscuro para hamburgueseria con hero fuerte, categorias pill y cards bold.',
   'blue-burger': 'Menu claro y azul para hamburgueseria con hero amplio, beneficios y cards horizontales.',
+  host: 'Menu dark para crispy chicken con hero impactante, tabs compactos y cards de combos en dos columnas.',
 }
 
 const cardStyleDescriptions = {
@@ -75,6 +76,7 @@ const cardStyleDescriptions = {
   'pizzeria-grid': 'Grilla de dos columnas con media arriba y precio destacado.',
   'burger-grid': 'Cards oscuras, verticales y con imagen grande del producto.',
   'blue-burger-list': 'Cards horizontales blancas con foto grande, precio azul y boton circular.',
+  'host-grid': 'Cards oscuras con borde rojo, badge superior y boton rojo circular.',
 }
 
 const previewDescriptions = {
@@ -930,6 +932,7 @@ export default function AdminApp() {
                     <option value="pizzeria">Pizzeria</option>
                     <option value="burger">Burger</option>
                     <option value="blue-burger">Burger azul</option>
+                    <option value="host">Host crispy</option>
                   </select>
                   <small className="admin-help">{layoutDescriptions[presentation.layout]}</small>
                 </label>
@@ -947,6 +950,7 @@ export default function AdminApp() {
                     <option value="pizzeria-grid">Pizzeria dos columnas</option>
                     <option value="burger-grid">Burger oscuro</option>
                     <option value="blue-burger-list">Burger azul horizontal</option>
+                    <option value="host-grid">Host crispy</option>
                   </select>
                   <small className="admin-help">
                     {cardStyleDescriptions[presentation.cards.style]}
