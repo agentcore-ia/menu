@@ -21,30 +21,48 @@ function mapPresentationConfig(config) {
       : {}
   const inheritedPreset =
     themeOverrides.inheritPreset || getInheritedPresetFromThemeId(config.theme_id)
+  const inheritedPresentation = inheritedPreset
+    ? resolveMenuPresentation(inheritedPreset)
+    : null
+  const effectiveLayout =
+    inheritedPreset && config.layout === 'editorial'
+      ? inheritedPresentation?.layout
+      : config.layout
+  const effectiveCardsStyle =
+    inheritedPreset && config.cards_style === 'editorial-list'
+      ? inheritedPresentation?.cards?.style
+      : config.cards_style
+  const effectivePreviewMode =
+    inheritedPreset && config.preview_mode === 'image-with-video-chip'
+      ? inheritedPresentation?.preview?.productMedia ?? config.preview_mode
+      : config.preview_mode
 
   return {
-    template: config.layout || undefined,
-    layout: config.layout || undefined,
+    template: effectiveLayout || undefined,
+    layout: effectiveLayout || undefined,
     branding: {
-      wordmark: config.branding_wordmark || undefined,
-      subtitle: config.branding_subtitle || undefined,
+      wordmark: config.branding_wordmark || inheritedPresentation?.branding?.wordmark || undefined,
+      subtitle:
+        config.branding_subtitle || inheritedPresentation?.branding?.subtitle || undefined,
     },
     theme: {
+      ...(inheritedPresentation?.theme ?? {}),
       ...themeOverrides,
       ...(inheritedPreset ? { inheritPreset: inheritedPreset } : {}),
-      id: config.theme_id || themeOverrides.id || undefined,
+      id: config.theme_id || themeOverrides.id || inheritedPresentation?.theme?.id || undefined,
     },
     hero: {
-      image: config.hero_image_url || undefined,
-      title: config.hero_title || undefined,
-      accent: config.hero_accent || undefined,
-      description: config.hero_description || undefined,
+      image: config.hero_image_url || inheritedPresentation?.hero?.image || undefined,
+      title: config.hero_title || inheritedPresentation?.hero?.title || undefined,
+      accent: config.hero_accent || inheritedPresentation?.hero?.accent || undefined,
+      description:
+        config.hero_description || inheritedPresentation?.hero?.description || undefined,
     },
     cards: {
-      style: config.cards_style || undefined,
+      style: effectiveCardsStyle || undefined,
     },
     preview: {
-      productMedia: config.preview_mode || undefined,
+      productMedia: effectivePreviewMode || undefined,
       autoplayVideos:
         typeof config.autoplay_videos === 'boolean' ? config.autoplay_videos : undefined,
       mutedVideos:
@@ -84,9 +102,13 @@ function normalizePresentationInput(input, existingConfig) {
     inheritedPreset && input.hero?.image === DEFAULT_ADMIN_HERO_IMAGE
       ? existingConfig?.hero_image_url ?? null
       : input.hero?.image ?? null
+  const persistedLayout = inheritedPreset ? 'editorial' : input.layout ?? 'editorial'
+  const persistedCardsStyle = inheritedPreset
+    ? 'editorial-list'
+    : input.cards?.style ?? 'editorial-list'
 
   return {
-    layout: input.layout ?? 'editorial',
+    layout: persistedLayout,
     theme_id: themeId,
     theme_overrides: {
       ...(inheritedPreset ? { inheritPreset: inheritedPreset } : {}),
@@ -132,7 +154,7 @@ function normalizePresentationInput(input, existingConfig) {
     hero_title: input.hero?.title ?? null,
     hero_accent: input.hero?.accent ?? null,
     hero_description: input.hero?.description ?? null,
-    cards_style: input.cards?.style ?? 'editorial-list',
+    cards_style: persistedCardsStyle,
     preview_mode: input.preview?.productMedia ?? 'image-with-video-chip',
     autoplay_videos: Boolean(input.preview?.autoplayVideos),
     muted_videos: input.preview?.mutedVideos !== false,
