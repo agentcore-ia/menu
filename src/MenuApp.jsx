@@ -155,16 +155,6 @@ function IconDrumstick() {
   )
 }
 
-function IconPhoneCall() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M5.2 4.7h3.4l1.3 4-1.9 1.9a14.8 14.8 0 0 0 5.4 5.4l1.9-1.9 4 1.3v3.4c0 .8-.6 1.4-1.4 1.4C10.2 20.2 3.8 13.8 3.8 6.1c0-.8.6-1.4 1.4-1.4z" />
-      <path d="M14.2 5.8a5.2 5.2 0 0 1 4 4" />
-      <path d="M14.2 2.8a8.2 8.2 0 0 1 7 7" />
-    </svg>
-  )
-}
-
 function IconBurger() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1042,8 +1032,10 @@ function getVideoFrameSrc(videoUrl) {
   return `${videoUrl}#t=0.001`
 }
 
-function TemplateHero({ templateId, presentation, heroDish, onPrimaryAction }) {
-  if (!heroDish) {
+function TemplateHero({ templateId, presentation, heroDish }) {
+  const hasStandaloneHeroImage = Boolean(presentation?.hero?.image)
+
+  if (!heroDish && !(templateId === 'host' && hasStandaloneHeroImage)) {
     return null
   }
 
@@ -1089,63 +1081,19 @@ function TemplateHero({ templateId, presentation, heroDish, onPrimaryAction }) {
   }
 
   if (templateId === 'host') {
-    const heroArtImage = getHostHeroArtImage(presentation, heroDish)
+    const heroImage = getHostHeroArtImage(presentation, heroDish) || presentation.hero?.image
 
     return (
       <section className="hero-content hero-content-host">
-        <div className="host-hero-top">
-          <div className="host-brand-lockup">
-            {presentation.theme?.logoImage ? (
-              <img
-                className="host-brand-image"
-                src={presentation.theme.logoImage}
-                alt={presentation.branding?.wordmark ?? 'Host'}
-              />
-            ) : (
-              <>
-                <strong>HOST</strong>
-                <span />
-              </>
-            )}
-          </div>
-
-          <button type="button" className="host-hero-cta" onClick={onPrimaryAction}>
-            <IconPhoneCall />
-            <span>Pedi ahora</span>
-          </button>
-        </div>
-
-        <div className="host-hero-copy">
-          <h1>
-            <span>{presentation.hero?.title ?? 'EL CRYSPY'}</span>
-            <strong>{presentation.hero?.accent ?? 'NUNCA MIENTE!'}</strong>
-          </h1>
-          <p>{presentation.hero?.description ?? 'Pollo frito crujiente, sabroso y recien hecho para vos.'}</p>
-        </div>
-
-        <div className="host-hero-art">
-          <div className="host-hero-glow" aria-hidden="true" />
-          {heroArtImage ? (
-            <img src={heroArtImage} alt={heroDish.name} />
-          ) : (
-            <div className="host-hero-placeholder" aria-hidden="true" />
-          )}
-        </div>
-
-        <div className="host-hero-features" aria-hidden="true">
-          <span>
-            <IconFlame />
-            <small>Pollo 100% fresco</small>
-          </span>
-          <span>
-            <IconCart />
-            <small>Take away & delivery</small>
-          </span>
-          <span>
-            <IconPhoneCall />
-            <small>Lunes a domingo 20 a 00 hs</small>
-          </span>
-        </div>
+        {heroImage ? (
+          <img
+            className="host-header-image"
+            src={heroImage}
+            alt={presentation.branding?.wordmark ?? heroDish?.name ?? 'Host'}
+          />
+        ) : (
+          <div className="host-hero-placeholder" aria-hidden="true" />
+        )}
       </section>
     )
   }

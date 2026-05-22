@@ -6798,91 +6798,23 @@ button:focus-visible {
 }
 
 .template-host .hero {
-  min-height: 31.2rem;
+  min-height: auto;
   overflow: hidden;
   border-radius: 0 0 1.45rem 1.45rem;
-  background:
-    radial-gradient(circle at 82% 24%, rgba(255, 134, 31, 0.18), transparent 12rem),
-    radial-gradient(circle at 74% 80%, rgba(239, 59, 45, 0.14), transparent 14rem),
-    linear-gradient(135deg, #040404 0%, #100807 55%, #130807 100%);
-  box-shadow: 0 1.2rem 2.6rem rgba(0, 0, 0, 0.36);
+  background: transparent;
+  box-shadow: none;
 }
 
 .template-host .hero::after {
-  background:
-    radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.04), transparent 14rem),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.18) 54%, transparent 78%);
+  display: none;
 }
 
 .hero-content-host {
   position: relative;
-  min-height: 31.2rem;
-  padding: 1.35rem 1.15rem 1.05rem;
+  min-height: auto;
+  padding: 0;
 }
 
-.host-hero-top {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.85rem;
-}
-
-.host-brand-lockup {
-  display: grid;
-  gap: 0.1rem;
-  color: #fff6ea;
-}
-
-.host-brand-lockup strong {
-  font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: 4rem;
-  line-height: 0.86;
-  letter-spacing: 0.03em;
-  text-shadow: 0 0.18rem 0 rgba(0, 0, 0, 0.28);
-}
-
-.host-brand-lockup > span {
-  width: 6.2rem;
-  height: 0.56rem;
-  border-radius: 999px;
-  background:
-    linear-gradient(90deg, #ffd01f 0%, #f04a29 46%, #f04a29 86%, transparent 100%);
-  box-shadow: 0 0 1.25rem rgba(240, 74, 41, 0.36);
-  transform: translateY(-0.3rem) skewX(-26deg);
-}
-
-.host-brand-image {
-  width: min(10rem, 36vw);
-  height: auto;
-  object-fit: contain;
-}
-
-.host-hero-cta {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-height: 3.2rem;
-  padding: 0.7rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
-  color: #fff6ea;
-  box-shadow: inset 0 0 0 1px rgba(255, 133, 32, 0.12);
-  backdrop-filter: blur(12px);
-}
-
-.host-hero-cta span {
-  font-size: 1rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.host-hero-cta svg,
-.host-hero-features svg,
 .host-category-pill svg,
 .host-section-flame svg,
 .host-add-button svg,
@@ -6896,70 +6828,11 @@ button:focus-visible {
   stroke-linejoin: round;
 }
 
-.host-hero-copy {
-  position: relative;
-  z-index: 3;
-  width: min(47vw, 11.8rem);
-  margin-top: 1.1rem;
-}
-
-.host-hero-copy h1 {
-  margin: 0;
-  display: grid;
-  gap: 0.18rem;
-  font-family: 'Bebas Neue', Impact, sans-serif;
-  text-transform: uppercase;
-}
-
-.host-hero-copy h1 span {
-  color: #f8f4ef;
-  font-size: clamp(3.2rem, 13vw, 5rem);
-  line-height: 0.84;
-  letter-spacing: 0.04em;
-}
-
-.host-hero-copy h1 strong {
-  color: #ff5b2d;
-  font-size: clamp(2.15rem, 8.7vw, 3.5rem);
-  line-height: 0.9;
-  letter-spacing: 0.04em;
-  font-weight: 900;
-  text-shadow: 0 0.4rem 1.25rem rgba(239, 59, 45, 0.2);
-}
-
-.host-hero-copy p {
-  margin: 0.9rem 0 0;
-  max-width: 9.25rem;
-  color: rgba(255, 246, 234, 0.88);
-  font-size: 0.92rem;
-  line-height: 1.35;
-}
-
-.host-hero-art {
-  position: absolute;
-  right: -0.35rem;
-  bottom: 3.4rem;
-  z-index: 2;
-  width: min(58vw, 15.5rem);
-}
-
-.host-hero-glow {
-  position: absolute;
-  inset: 8% 14% 10%;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255, 126, 27, 0.44), rgba(239, 59, 45, 0.16) 52%, transparent 74%);
-  filter: blur(24px);
-}
-
-.host-hero-art img {
-  position: relative;
-  z-index: 1;
+.host-header-image {
   display: block;
   width: 100%;
   height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 1.8rem 2.6rem rgba(0, 0, 0, 0.38));
+  object-fit: cover;
 }
 
 .host-hero-placeholder,
@@ -7007,37 +6880,6 @@ button:focus-visible {
   min-height: 100%;
   border-radius: inherit;
   opacity: 0.96;
-}
-
-.host-hero-features {
-  position: absolute;
-  left: 1.15rem;
-  right: 1.15rem;
-  bottom: 1rem;
-  z-index: 4;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-
-.host-hero-features span {
-  display: grid;
-  justify-items: start;
-  gap: 0.35rem;
-  min-width: 0;
-  color: #fff6ea;
-}
-
-.host-hero-features small {
-  font-size: 0.62rem;
-  line-height: 1.15;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.host-hero-features svg {
-  color: #ffb11a;
 }
 
 .template-host .content-panel {
