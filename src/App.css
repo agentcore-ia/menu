@@ -6872,7 +6872,7 @@ button:focus-visible {
 
 .template-host .content-panel {
   margin-top: 0;
-  padding: 1.1rem 1rem 8.2rem;
+  padding: 0.2rem 1rem 8.2rem;
   border-radius: 0;
   background: #000;
   box-shadow: none;
@@ -6884,41 +6884,49 @@ button:focus-visible {
 }
 
 .host-category-shell {
-  padding: 0.38rem 0.42rem;
-  border-radius: 1.38rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: #050505;
+  margin-top: -0.08rem;
+  padding: 0.36rem 0.38rem;
+  border-radius: 1.42rem;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: #070707;
   box-shadow: none;
 }
 
 .host-category-row {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0.12rem;
+  gap: 0.08rem;
 }
 
 .host-category-pill {
-  min-height: 4.95rem;
-  padding: 0.46rem 0.14rem 0.34rem;
-  border-radius: 1rem;
+  min-height: 4.8rem;
+  min-width: 0;
+  padding: 0.42rem 0.12rem 0.3rem;
+  border-radius: 0.98rem;
   border: 0;
   background: transparent;
   color: rgba(255, 246, 234, 0.92);
   display: grid;
   justify-items: center;
   align-content: center;
-  gap: 0.24rem;
+  gap: 0.2rem;
   text-align: center;
   box-shadow: none;
 }
 
 .host-category-pill span {
   font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: 0.88rem;
-  line-height: 0.9;
-  letter-spacing: 0.025em;
+  display: block;
+  width: 100%;
+  max-width: 4.2rem;
+  font-size: 0.8rem;
+  line-height: 0.84;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
-  max-width: 4rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  transform: scaleX(0.86);
+  transform-origin: center;
 }
 
 .host-category-pill.active {
@@ -6928,8 +6936,8 @@ button:focus-visible {
 }
 
 .host-category-pill svg {
-  width: 1.48rem;
-  height: 1.48rem;
+  width: 1.34rem;
+  height: 1.34rem;
   stroke-width: 1.75;
 }
 
@@ -7302,22 +7310,23 @@ button:focus-visible {
   }
 
   .template-host .content-panel {
-    padding: 0.9rem 0.8rem 8rem;
+    padding: 0.14rem 0.8rem 8rem;
   }
 
   .host-category-pill {
-    min-height: 4.42rem;
-    padding: 0.42rem 0.08rem 0.32rem;
+    min-height: 4.34rem;
+    padding: 0.38rem 0.06rem 0.28rem;
   }
 
   .host-category-pill span {
-    font-size: 0.76rem;
-    max-width: 3.35rem;
+    max-width: 3.7rem;
+    font-size: 0.7rem;
+    line-height: 0.8;
   }
 
   .host-category-pill svg {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1.12rem;
+    height: 1.12rem;
   }
 
   .host-section-title h2 {
