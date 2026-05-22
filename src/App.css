@@ -6785,16 +6785,13 @@ button:focus-visible {
 .detail-phone.template-host {
   min-height: 100vh;
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at 82% 14%, rgba(255, 133, 32, 0.14), transparent 12rem),
-    radial-gradient(circle at 78% 52%, rgba(239, 59, 45, 0.1), transparent 16rem),
-    linear-gradient(180deg, #050505 0%, #0a0a0c 42%, #080707 100%);
+  background: #000;
   color: #fff6ea;
   font-family: 'Montserrat', var(--font-body, sans-serif);
 }
 
 .app-shell:has(.template-host) {
-  background: #050505;
+  background: #000;
 }
 
 .template-host .hero {
@@ -6844,22 +6841,13 @@ button:focus-visible {
   width: 100%;
   height: 100%;
   color: rgba(255, 226, 196, 0.9);
-  background:
-    radial-gradient(circle at 50% 28%, rgba(255, 125, 24, 0.28), transparent 28%),
-    radial-gradient(circle at 50% 100%, rgba(239, 59, 45, 0.24), transparent 58%),
-    linear-gradient(180deg, rgba(20, 18, 19, 0.98) 0%, rgba(10, 9, 10, 0.98) 100%);
-  box-shadow: inset 0 0 0 1px rgba(255, 108, 41, 0.12);
+  background: #090909;
+  box-shadow: none;
 }
 
 .host-hero-placeholder::after,
 .host-dish-placeholder::after {
-  content: '';
-  position: absolute;
-  inset: auto 18% 12%;
-  height: 0.7rem;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.4);
-  filter: blur(10px);
+  display: none;
 }
 
 .host-hero-placeholder svg,
@@ -6886,9 +6874,7 @@ button:focus-visible {
   margin-top: 0;
   padding: 1.1rem 1rem 8.2rem;
   border-radius: 0;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.04), transparent 12rem),
-    linear-gradient(180deg, #0a0a0c 0%, #050505 100%);
+  background: #000;
   box-shadow: none;
 }
 
@@ -6901,10 +6887,8 @@ button:focus-visible {
   padding: 0.38rem 0.42rem;
   border-radius: 1.38rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: linear-gradient(180deg, rgba(9, 9, 12, 0.96) 0%, rgba(12, 12, 15, 0.96) 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.025),
-    0 0.9rem 1.8rem rgba(0, 0, 0, 0.24);
+  background: #050505;
+  box-shadow: none;
 }
 
 .host-category-row {
@@ -6940,9 +6924,7 @@ button:focus-visible {
 .host-category-pill.active {
   background: linear-gradient(180deg, #ff4735 0%, #da3023 100%);
   color: #fff6ea;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 0.7rem 1.2rem rgba(217, 47, 35, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .host-category-pill svg {
@@ -6971,7 +6953,7 @@ button:focus-visible {
   border-radius: 999px;
   background: radial-gradient(circle at 50% 40%, #ffb81f 0%, #ff6d1e 58%, #ef3b2d 100%);
   color: #150d08;
-  box-shadow: 0 0.85rem 1.6rem rgba(239, 59, 45, 0.28);
+  box-shadow: none;
 }
 
 .host-section-title h2 {
@@ -7005,10 +6987,8 @@ button:focus-visible {
   align-content: start;
   border-radius: 1.45rem;
   border: 1px solid rgba(239, 59, 45, 0.26);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03), transparent 32%),
-    linear-gradient(180deg, #111012 0%, #0b0a0d 100%);
-  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.22);
+  background: #0a0a0a;
+  box-shadow: none;
 }
 
 .host-dish-badge {
@@ -7033,7 +7013,7 @@ button:focus-visible {
   min-height: 8.75rem;
   padding: 0;
   border: 0;
-  background: linear-gradient(180deg, rgba(255, 116, 28, 0.08), rgba(0, 0, 0, 0));
+  background: #0a0a0a;
 }
 
 .host-dish-media .dish-thumb {
@@ -7097,7 +7077,7 @@ button:focus-visible {
   border: 0;
   background: linear-gradient(180deg, #ff4633 0%, #d52f24 100%);
   color: #fff6ea;
-  box-shadow: 0 0.9rem 1.6rem rgba(239, 59, 45, 0.24);
+  box-shadow: none;
 }
 
 .host-add-button svg {
@@ -7115,7 +7095,7 @@ button:focus-visible {
   padding: 1.1rem 1rem;
   border-radius: 1.45rem;
   background: linear-gradient(135deg, #ffb417 0%, #ff8a1e 38%, #f4a01b 100%);
-  box-shadow: 0 1rem 2rem rgba(255, 138, 30, 0.2);
+  box-shadow: none;
 }
 
 .host-extra-copy h3 {
@@ -7183,7 +7163,7 @@ button:focus-visible {
   width: 9.8rem;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 1.2rem 2rem rgba(0, 0, 0, 0.22));
+  filter: none;
 }
 
 .host-extra-art .host-dish-placeholder {
@@ -7203,7 +7183,7 @@ button:focus-visible {
   height: 3.9rem;
   border-radius: 999px;
   border: 0.35rem solid rgba(255, 246, 234, 0.82);
-  box-shadow: 0 0.65rem 1.2rem rgba(0, 0, 0, 0.16);
+  box-shadow: none;
 }
 
 .host-extra-sauce-light {
@@ -7233,9 +7213,9 @@ button:focus-visible {
   padding: 0.8rem 0.9rem max(0.8rem, env(safe-area-inset-bottom));
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 1.3rem 1.3rem 0 0;
-  background: rgba(11, 11, 13, 0.96);
-  box-shadow: 0 -1rem 2.4rem rgba(0, 0, 0, 0.32);
-  backdrop-filter: blur(18px);
+  background: #0b0b0d;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .host-bottom-nav button {
@@ -7262,7 +7242,7 @@ button:focus-visible {
   border-radius: 999px;
   background: radial-gradient(circle at 50% 30%, #ff6143 0%, #ef3b2d 58%, #d02a1f 100%) !important;
   color: #fff6ea !important;
-  box-shadow: 0 1rem 2.2rem rgba(239, 59, 45, 0.3);
+  box-shadow: none;
 }
 
 .host-bottom-primary svg {
