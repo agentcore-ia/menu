@@ -6899,8 +6899,8 @@ button:focus-visible {
 .host-hero-copy {
   position: relative;
   z-index: 3;
-  width: min(54vw, 14rem);
-  margin-top: 1.4rem;
+  width: min(47vw, 11.8rem);
+  margin-top: 1.1rem;
 }
 
 .host-hero-copy h1 {
@@ -6913,14 +6913,14 @@ button:focus-visible {
 
 .host-hero-copy h1 span {
   color: #f8f4ef;
-  font-size: clamp(3.85rem, 15vw, 6rem);
-  line-height: 0.86;
+  font-size: clamp(3.2rem, 13vw, 5rem);
+  line-height: 0.84;
   letter-spacing: 0.04em;
 }
 
 .host-hero-copy h1 strong {
   color: #ff5b2d;
-  font-size: clamp(2.6rem, 10vw, 4.1rem);
+  font-size: clamp(2.15rem, 8.7vw, 3.5rem);
   line-height: 0.9;
   letter-spacing: 0.04em;
   font-weight: 900;
@@ -6928,19 +6928,19 @@ button:focus-visible {
 }
 
 .host-hero-copy p {
-  margin: 1.15rem 0 0;
-  max-width: 11.2rem;
+  margin: 0.9rem 0 0;
+  max-width: 9.25rem;
   color: rgba(255, 246, 234, 0.88);
-  font-size: 1rem;
-  line-height: 1.45;
+  font-size: 0.92rem;
+  line-height: 1.35;
 }
 
 .host-hero-art {
   position: absolute;
-  right: -0.55rem;
-  bottom: 2.4rem;
+  right: -0.35rem;
+  bottom: 3.4rem;
   z-index: 2;
-  width: min(66vw, 18rem);
+  width: min(58vw, 15.5rem);
 }
 
 .host-hero-glow {
@@ -6968,7 +6968,6 @@ button:focus-visible {
   z-index: 1;
   display: grid;
   place-items: center;
-  gap: 0.5rem;
   width: 100%;
   height: 100%;
   color: rgba(255, 226, 196, 0.9);
@@ -6992,28 +6991,22 @@ button:focus-visible {
 
 .host-hero-placeholder svg,
 .host-dish-placeholder svg {
-  width: 2.6rem;
-  height: 2.6rem;
+  width: 1.6rem;
+  height: 1.6rem;
   color: #ffb11a;
+  opacity: 0.82;
 }
 
 .host-hero-placeholder {
-  min-height: 15rem;
+  min-height: 14rem;
   border-radius: 2rem;
+  opacity: 0.36;
 }
 
 .host-dish-placeholder {
   min-height: 100%;
   border-radius: inherit;
-}
-
-.host-dish-placeholder span {
-  position: relative;
-  z-index: 1;
-  font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: 1.25rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  opacity: 0.96;
 }
 
 .host-hero-features {
@@ -7036,8 +7029,8 @@ button:focus-visible {
 }
 
 .host-hero-features small {
-  font-size: 0.72rem;
-  line-height: 1.22;
+  font-size: 0.62rem;
+  line-height: 1.15;
   font-weight: 800;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -7148,7 +7141,7 @@ button:focus-visible {
 .host-card-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.95rem;
+  gap: 0.85rem;
 }
 
 .host-dish-card {
@@ -7183,43 +7176,49 @@ button:focus-visible {
 
 .host-dish-media {
   width: 100%;
-  min-height: 11rem;
+  min-height: 8.75rem;
+  padding: 0;
+  border: 0;
   background: linear-gradient(180deg, rgba(255, 116, 28, 0.08), rgba(0, 0, 0, 0));
 }
 
 .host-dish-media .dish-thumb {
   width: 100%;
-  min-height: 11rem;
+  min-height: 8.75rem;
   object-fit: cover;
   display: block;
 }
 
 .host-dish-body {
   display: grid;
-  gap: 0.85rem;
-  padding: 0.92rem 0.9rem 1rem;
+  gap: 0.7rem;
+  padding: 0.86rem 0.82rem 0.92rem;
 }
 
 .host-dish-copy {
   min-width: 0;
   text-align: left;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
 }
 
 .host-dish-copy h3 {
   margin: 0;
   color: #fff6ea;
   font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: 2.05rem;
-  line-height: 0.9;
+  font-size: 1.52rem;
+  line-height: 0.92;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .host-dish-copy p {
-  margin: 0.45rem 0 0;
+  margin: 0.32rem 0 0;
   color: rgba(255, 246, 234, 0.76);
-  font-size: 0.98rem;
-  line-height: 1.32;
+  font-size: 0.84rem;
+  line-height: 1.24;
 }
 
 .host-dish-footer {
@@ -7232,14 +7231,14 @@ button:focus-visible {
 .host-dish-footer strong {
   color: #ff8a1e;
   font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: 2.4rem;
+  font-size: 2rem;
   line-height: 1;
   letter-spacing: 0.03em;
 }
 
 .host-add-button {
-  width: 3.3rem;
-  height: 3.3rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 999px;
   border: 0;
   background: linear-gradient(180deg, #ff4633 0%, #d52f24 100%);

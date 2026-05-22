@@ -969,11 +969,10 @@ function getHostDisplayTitle(item) {
   return String(item?.name ?? 'Combo Host').replace(/^combo\s+/i, 'Combo ').trim() || 'Combo Host'
 }
 
-function HostMediaPlaceholder({ label }) {
+function HostMediaPlaceholder() {
   return (
     <div className="host-dish-placeholder" aria-hidden="true">
       <IconDrumstick />
-      <span>{label}</span>
     </div>
   )
 }
@@ -1129,9 +1128,7 @@ function TemplateHero({ templateId, presentation, heroDish, onPrimaryAction }) {
           {heroArtImage ? (
             <img src={heroArtImage} alt={heroDish.name} />
           ) : (
-            <div className="host-hero-placeholder" aria-hidden="true">
-              <IconDrumstick />
-            </div>
+            <div className="host-hero-placeholder" aria-hidden="true" />
           )}
         </div>
 
@@ -1918,7 +1915,7 @@ function TemplateMenuCollection({
             {hostBannerImage ? (
               <img src={hostBannerImage} alt="" />
             ) : (
-              <HostMediaPlaceholder label="Extras" />
+              <HostMediaPlaceholder />
             )}
           </div>
         </article>
@@ -2504,7 +2501,7 @@ export default function MenuApp() {
 
   function renderProductMedia(item) {
     if (templateId === 'host' && !item.video && !item.hasCustomImage) {
-      return <HostMediaPlaceholder label={getHostCategoryLabel(item.badge ?? item.categoryLabel ?? 'Host')} />
+      return <HostMediaPlaceholder />
     }
 
     if (shouldRenderPreviewVideo(item, presentation)) {
