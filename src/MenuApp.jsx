@@ -155,6 +155,78 @@ function IconDrumstick() {
   )
 }
 
+function HostIconFlame() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 21c-3.9 0-6.6-2.6-6.6-6.3 0-2.5 1.4-4.2 2.9-5.8 1.2-1.4 2.2-2.8 2.2-4.8 2.9 1.5 4.6 3.8 4.6 6.6.8-.6 1.4-1.4 1.7-2.5 1.6 1.4 2.6 3.5 2.6 5.8 0 4.3-3 7-7.4 7z" />
+      <path d="M12.2 18.3c-1.5 0-2.5-1-2.5-2.3 0-.9.5-1.6 1.1-2.3.5-.6.9-1.2 1-2 1.4.9 2.3 2.1 2.3 3.7 0 1.8-.9 2.9-1.9 2.9z" />
+    </svg>
+  )
+}
+
+function HostIconDrumstick() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M14.7 5.2a4.3 4.3 0 0 1 4.3 4.3c0 1.4-.7 2.5-1.6 3.4l-4 3.1c-.8.7-1.9 1.1-3 1.1H9.3" />
+      <path d="M9.1 16.8a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6z" />
+      <path d="M6.5 15a1.4 1.4 0 0 1 1.9 1.9" />
+      <path d="M10.7 18.8a1.4 1.4 0 0 1-1.9 1.9" />
+      <path d="M11.9 8.3c.7-1.4 1.8-2.5 2.8-3.1" />
+    </svg>
+  )
+}
+
+function HostIconBurger() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5.2 11.2c.7-2.8 3-4.3 6.8-4.3s6.1 1.5 6.8 4.3H5.2z" />
+      <path d="M5.5 14.2h13" />
+      <path d="M6.7 17.3h10.6" />
+      <path d="M8.1 11.2c1.2.7 2.4.7 3.6 0 1.3.7 2.6.7 3.9 0" />
+    </svg>
+  )
+}
+
+function HostIconFries() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 9.2l1.1 10h7.8L17 9.2" />
+      <path d="M6.3 9.2h11.4" />
+      <path d="M8.1 8.4L7.5 4.9M10.9 8.4V4.3M13.7 8.4l.7-3.5M16.4 8.4l1.2-3" />
+    </svg>
+  )
+}
+
+function HostIconDrink() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8.1 5.2h7.8l-.9 12.5H9L8.1 5.2z" />
+      <path d="M10.4 5.2V3.8h3.7" />
+      <path d="M15 8l2.6-2.6" />
+    </svg>
+  )
+}
+
+function HostIconPlusCircle() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="7.3" />
+      <path d="M12 8.5v7M8.5 12h7" />
+    </svg>
+  )
+}
+
+function HostIconCloche() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5.2 13.4h13.6" />
+      <path d="M6.9 13.4a5.1 5.1 0 0 1 10.2 0" />
+      <path d="M4.3 17.1h15.4" />
+      <path d="M12 8.1v-.7" />
+    </svg>
+  )
+}
+
 function IconBurger() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -907,13 +979,13 @@ function getHostCategoryLabel(label) {
 
 function getHostCategoryIcon(label) {
   const key = slugify(label)
-  if (key.includes('combo')) return IconFlame
-  if (key.includes('pollo')) return IconDrumstick
-  if (key.includes('hamburgues') || key.includes('burger')) return IconBurger
-  if (key.includes('guarnicion') || key.includes('papa') || key.includes('acompa')) return IconFries
-  if (key.includes('bebida')) return IconDrink
-  if (key.includes('extra') || key.includes('salsa')) return IconPlus
-  return IconServe
+  if (key.includes('combo')) return HostIconFlame
+  if (key.includes('pollo')) return HostIconDrumstick
+  if (key.includes('hamburgues') || key.includes('burger')) return HostIconBurger
+  if (key.includes('guarnicion') || key.includes('papa') || key.includes('acompa')) return HostIconFries
+  if (key.includes('bebida')) return HostIconDrink
+  if (key.includes('extra') || key.includes('salsa')) return HostIconPlusCircle
+  return HostIconCloche
 }
 
 function getHostOrderedCategories(categories) {
