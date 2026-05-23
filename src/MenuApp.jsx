@@ -143,6 +143,18 @@ function IconDrink() {
   )
 }
 
+function IconShare() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="18" cy="5.5" r="2.1" />
+      <circle cx="6" cy="12" r="2.1" />
+      <circle cx="18" cy="18.5" r="2.1" />
+      <path d="M7.8 11l8-4.1" />
+      <path d="M7.8 13l8 4.1" />
+    </svg>
+  )
+}
+
 function IconDrumstick() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -556,8 +568,9 @@ function getProductKind(dish) {
   return 'comida'
 }
 
-function getUniqueMenuOptionNames(items, matcher) {
-  const uniqueNames = new Set()
+function getUniqueMenuOptionEntries(items, matcher) {
+  const seen = new Set()
+  const entries = []
 
   items.forEach((item) => {
     const itemText = `${item.categoryLabel ?? ''} ${item.name ?? ''} ${item.description ?? ''}`.toLowerCase()
@@ -566,20 +579,56 @@ function getUniqueMenuOptionNames(items, matcher) {
       return
     }
 
-    const name = String(item.name ?? '').trim()
+    const label = String(item.name ?? '').trim()
 
-    if (!name) {
+    if (!label) {
       return
     }
 
-    uniqueNames.add(name)
+    const key = slugify(label)
+
+    if (seen.has(key)) {
+      return
+    }
+
+    seen.add(key)
+    entries.push({
+      value: label,
+      label,
+      image: item.hasCustomImage ? item.image : '',
+      video: item.video ?? '',
+      hasMedia: Boolean(item.video || item.hasCustomImage),
+      subtitle: item.description ?? '',
+    })
   })
 
-  return Array.from(uniqueNames)
+  return entries
+}
+
+function normalizeOptionEntry(option) {
+  if (typeof option === 'string') {
+    return {
+      value: option,
+      label: option,
+      image: '',
+      video: '',
+      hasMedia: false,
+      subtitle: '',
+    }
+  }
+
+  return {
+    value: String(option.value ?? option.label ?? ''),
+    label: String(option.label ?? option.value ?? ''),
+    image: option.image ?? '',
+    video: option.video ?? '',
+    hasMedia: Boolean(option.hasMedia ?? option.video ?? option.image),
+    subtitle: option.subtitle ?? '',
+  }
 }
 
 function getHostMenuOptionPools(allItems = []) {
-  const sideOptions = getUniqueMenuOptionNames(
+  const sideOptions = getUniqueMenuOptionEntries(
     allItems,
     (_text, item) => {
       const categoryKey = slugify(item.categoryLabel ?? '')
@@ -587,7 +636,7 @@ function getHostMenuOptionPools(allItems = []) {
     },
   )
 
-  const sauceOptions = getUniqueMenuOptionNames(
+  const sauceOptions = getUniqueMenuOptionEntries(
     allItems,
     (_text, item) => {
       const categoryKey = slugify(item.categoryLabel ?? '')
@@ -595,9 +644,18 @@ function getHostMenuOptionPools(allItems = []) {
     },
   )
 
+  const drinkOptions = getUniqueMenuOptionEntries(
+    allItems,
+    (_text, item) => {
+      const categoryKey = slugify(item.categoryLabel ?? '')
+      return /bebida/.test(categoryKey)
+    },
+  )
+
   return {
     sideOptions,
     sauceOptions,
+    drinkOptions,
   }
 }
 
@@ -609,29 +667,40 @@ function getHostComboOptionGroups(dish, allItems = []) {
     return null
   }
 
-  const { sideOptions, sauceOptions } = getHostMenuOptionPools(allItems)
+  const { sideOptions, sauceOptions, drinkOptions } = getHostMenuOptionPools(allItems)
   const sauceCountMatch = text.match(/(\d+)\s*salsas?/)
   const sauceCount = Number(sauceCountMatch?.[1] ?? (sauceOptions.length ? 1 : 0))
+  const drinkCountMatch = text.match(/(\d+)\s*bebidas?/)
+  const drinkCount = Number(drinkCountMatch?.[1] ?? 0)
   const groups = []
 
   if (sideOptions.length) {
     groups.push({
       id: 'guarnicion',
-      title: 'Guarnicion',
+      title: 'Elegi tu acompanamiento',
       required: true,
       options: sideOptions,
     })
   }
 
   if (sauceOptions.length) {
-    for (let index = 0; index < sauceCount; index += 1) {
-      groups.push({
-        id: `salsa_${index + 1}`,
-        title: sauceCount > 1 ? `Salsa ${index + 1}` : 'Salsa',
-        required: true,
-        options: sauceOptions,
-      })
-    }
+    groups.push({
+      id: 'salsa',
+      title: 'Elegi tu salsa',
+      required: true,
+      selectionLimit: sauceCount > 1 ? sauceCount : 1,
+      options: sauceOptions,
+    })
+  }
+
+  if (drinkCount > 0 && drinkOptions.length) {
+    groups.push({
+      id: 'bebida',
+      title: 'Elegi tus bebidas',
+      required: true,
+      selectionLimit: drinkCount,
+      options: drinkOptions,
+    })
   }
 
   return groups.length ? groups : null
@@ -799,14 +868,34 @@ function buildProductOptionGroups(dish, allItems = []) {
 }
 
 function buildInitialSelections(groups) {
-  return Object.fromEntries(groups.map((group) => [group.id, group.options[0] ?? '']))
+  return Object.fromEntries(
+    groups.map((group) => {
+      const options = group.options.map(normalizeOptionEntry)
+
+      if ((group.selectionLimit ?? 1) > 1) {
+        return [group.id, options.slice(0, group.selectionLimit).map((option) => option.value)]
+      }
+
+      return [group.id, options[0]?.value ?? '']
+    }),
+  )
 }
 
 function buildSelectionSummary(groups, selections) {
   return groups
     .map((group) => {
       const value = selections[group.id]
-      return value ? `${group.title}: ${value}` : null
+      const options = group.options.map(normalizeOptionEntry)
+
+      if (Array.isArray(value)) {
+        const labels = value
+          .map((entry) => options.find((option) => option.value === entry)?.label ?? entry)
+          .filter(Boolean)
+        return labels.length ? `${group.title}: ${labels.join(', ')}` : null
+      }
+
+      const label = options.find((option) => option.value === value)?.label ?? value
+      return label ? `${group.title}: ${label}` : null
     })
     .filter(Boolean)
     .join(' | ')
@@ -846,6 +935,29 @@ function getDetailNote(dish) {
 function buildWhatsappNumberPreview(phone) {
   const digits = String(phone ?? '').replace(/\D/g, '')
   return digits ? `+${digits}` : ''
+}
+
+function renderDetailOptionMedia(option, presentation) {
+  const entry = normalizeOptionEntry(option)
+
+  if (entry.video) {
+    return (
+      <video
+        src={getVideoFrameSrc(entry.video)}
+        preload="auto"
+        autoPlay={shouldAutoplayVideoPreview(presentation)}
+        muted={presentation.preview?.mutedVideos ?? true}
+        loop={shouldAutoplayVideoPreview(presentation)}
+        playsInline
+      />
+    )
+  }
+
+  if (entry.image) {
+    return <img src={entry.image} alt={entry.label} />
+  }
+
+  return null
 }
 
 function buildCartRecommendations(cartItems, allItems) {
@@ -2567,6 +2679,38 @@ export default function MenuApp() {
     setSelectedOptions(buildInitialSelections(groups))
   }
 
+  function handleSelectDetailOption(group, optionValue) {
+    const limit = group.selectionLimit ?? 1
+
+    setSelectedOptions((current) => {
+      if (limit > 1) {
+        const currentValues = Array.isArray(current[group.id]) ? current[group.id] : []
+
+        if (currentValues.includes(optionValue)) {
+          return {
+            ...current,
+            [group.id]: currentValues.filter((entry) => entry !== optionValue),
+          }
+        }
+
+        const nextValues =
+          currentValues.length >= limit
+            ? [...currentValues.slice(1), optionValue]
+            : [...currentValues, optionValue]
+
+        return {
+          ...current,
+          [group.id]: nextValues,
+        }
+      }
+
+      return {
+        ...current,
+        [group.id]: optionValue,
+      }
+    })
+  }
+
   function handleOpenGelatoBuilder(formatId = 'kilo', initialStep = 1) {
     setGelatoFormat(formatId)
     setGelatoStep(initialStep)
@@ -2899,6 +3043,8 @@ export default function MenuApp() {
 
   const detailOptionGroups = selectedDish ? buildProductOptionGroups(selectedDish, allItems) : []
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
+  const isHostDetail = templateId === 'host' && Boolean(selectedDish)
+  const detailHasHeroMedia = Boolean(selectedDish?.video || selectedDish?.hasCustomImage)
   const appClassName = [
     'menu-app',
     `template-${templateId}`,
@@ -3307,167 +3453,312 @@ export default function MenuApp() {
             style={getPresentationStyles(presentation)}
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="detail-hero">
-              {selectedDish.video ? (
-                <video
-                  src={getVideoFrameSrc(selectedDish.video)}
-                  preload="auto"
-                  autoPlay={shouldAutoplayVideoPreview(presentation)}
-                  muted={presentation.preview?.mutedVideos ?? true}
-                  loop={shouldAutoplayVideoPreview(presentation)}
-                  playsInline
-                />
-              ) : (
-                <img src={selectedDish.image} alt={selectedDish.name} />
-              )}
-
-              <div className="detail-topbar">
-                <button
-                  type="button"
-                  className="floating-button light"
-                  onClick={() => setSelectedDish(null)}
-                  aria-label="Volver"
-                >
-                  <IconBack />
-                </button>
-                <button type="button" className="floating-button dark" aria-label="Favorito">
-                  <IconHeart />
-                </button>
-              </div>
-            </div>
-
-            <section className="detail-sheet">
-              <div className="sheet-handle" />
-
-              <div className="detail-head">
-                <div>
-                  <h2>{selectedDish.name}</h2>
-                  <strong>
-                    {formatPrice(
-                      selectedDish.unitPrice ?? toNumericPrice(selectedDish.price),
-                      currencySymbol,
+            {isHostDetail ? (
+              <>
+                {detailHasHeroMedia ? (
+                  <div className="detail-hero host-detail-hero">
+                    {selectedDish.video ? (
+                      <video
+                        src={getVideoFrameSrc(selectedDish.video)}
+                        preload="auto"
+                        autoPlay={shouldAutoplayVideoPreview(presentation)}
+                        muted={presentation.preview?.mutedVideos ?? true}
+                        loop={shouldAutoplayVideoPreview(presentation)}
+                        playsInline
+                      />
+                    ) : (
+                      <img src={selectedDish.image} alt={selectedDish.name} />
                     )}
-                  </strong>
-                </div>
-                {selectedDish.video ? (
-                  <span className="detail-badge">
-                    <IconPlay />
-                    Vista previa
-                  </span>
-                ) : (
-                  <span className="detail-badge">
-                    <IconSpark />
-                    Mas pedido
-                  </span>
-                )}
-              </div>
 
-              <p className="detail-description">{selectedDish.description}</p>
-
-              {detailOptionGroups.map((group) => (
-                <div key={group.id} className="option-group">
-                  <h3>{group.title}</h3>
-                  <p>{group.required ? 'Obligatorio: elige uno' : 'Opcional'}</p>
-                  <div className="option-grid">
-                    {group.options.map((option) => (
+                    <div className="detail-topbar host-detail-topbar">
                       <button
-                        key={option}
                         type="button"
-                        className={`option-card ${
-                          selectedOptions[group.id] === option ? 'selected' : ''
-                        }`}
-                        onClick={() =>
-                          setSelectedOptions((current) => ({
-                            ...current,
-                            [group.id]: option,
-                          }))
-                        }
+                        className="floating-button dark"
+                        onClick={() => setSelectedDish(null)}
+                        aria-label="Volver"
                       >
-                        {option}
+                        <IconBack />
                       </button>
-                    ))}
+                      <div className="host-detail-topbar-actions">
+                        <button type="button" className="floating-button dark" aria-label="Compartir">
+                          <IconShare />
+                        </button>
+                        <button type="button" className="floating-button dark" aria-label="Favorito">
+                          <IconHeart />
+                        </button>
+                      </div>
+                    </div>
+
+                    <span className="host-detail-hero-badge">Mas elegido</span>
+                  </div>
+                ) : null}
+
+                <section className={`detail-sheet host-detail-sheet ${detailHasHeroMedia ? '' : 'no-hero'}`}>
+                  {!detailHasHeroMedia ? (
+                    <div className="detail-topbar host-detail-topbar host-detail-topbar-inline">
+                      <button
+                        type="button"
+                        className="floating-button dark"
+                        onClick={() => setSelectedDish(null)}
+                        aria-label="Volver"
+                      >
+                        <IconBack />
+                      </button>
+                      <div className="host-detail-topbar-actions">
+                        <button type="button" className="floating-button dark" aria-label="Compartir">
+                          <IconShare />
+                        </button>
+                        <button type="button" className="floating-button dark" aria-label="Favorito">
+                          <IconHeart />
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="host-detail-head">
+                    <div className="host-detail-copy">
+                      <h2>{String(selectedDish.name ?? '').toUpperCase()}</h2>
+                      <p className="host-detail-summary">{selectedDish.description}</p>
+                      <p className="host-detail-note">{getDetailNote(selectedDish)}</p>
+                    </div>
+
+                    <div className="host-detail-price-stack">
+                      <strong>
+                        {formatPrice(
+                          selectedDish.unitPrice ?? toNumericPrice(selectedDish.price),
+                          currencySymbol,
+                        )}
+                      </strong>
+
+                      <div className="quantity-stepper host-quantity-stepper">
+                        <button
+                          type="button"
+                          onClick={() => setDetailQuantity((current) => Math.max(1, current - 1))}
+                          aria-label="Disminuir cantidad"
+                        >
+                          <IconMinus />
+                        </button>
+                        <span>{detailQuantity}</span>
+                        <button
+                          type="button"
+                          onClick={() => setDetailQuantity((current) => current + 1)}
+                          aria-label="Aumentar cantidad"
+                        >
+                          <IconPlus />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {detailOptionGroups.map((group, index) => (
+                    <div key={group.id} className="option-group host-option-group">
+                      <div className="host-option-head">
+                        <h3>
+                          {index + 1}. {String(group.title ?? '').toUpperCase()}
+                          {(group.selectionLimit ?? 1) > 1 ? ` (${group.selectionLimit})` : ''}
+                        </h3>
+                        <span>{group.required ? 'Obligatorio' : 'Opcional'}</span>
+                      </div>
+
+                      <div className="option-grid host-option-grid">
+                        {group.options.map((rawOption) => {
+                          const option = normalizeOptionEntry(rawOption)
+                          const selectedValue = selectedOptions[group.id]
+                          const isSelected = Array.isArray(selectedValue)
+                            ? selectedValue.includes(option.value)
+                            : selectedValue === option.value
+                          const optionMedia = renderDetailOptionMedia(option, presentation)
+
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              className={`option-card host-option-card ${
+                                isSelected ? 'selected' : ''
+                              } ${optionMedia ? 'has-media' : 'no-media'}`}
+                              onClick={() => handleSelectDetailOption(group, option.value)}
+                            >
+                              {optionMedia ? (
+                                <span className="host-option-media">
+                                  {optionMedia}
+                                </span>
+                              ) : null}
+                              <span className="host-option-label">{option.label}</span>
+                              {isSelected ? <span className="host-option-check">✓</span> : null}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </section>
+              </>
+            ) : (
+              <>
+                <div className="detail-hero">
+                  {selectedDish.video ? (
+                    <video
+                      src={getVideoFrameSrc(selectedDish.video)}
+                      preload="auto"
+                      autoPlay={shouldAutoplayVideoPreview(presentation)}
+                      muted={presentation.preview?.mutedVideos ?? true}
+                      loop={shouldAutoplayVideoPreview(presentation)}
+                      playsInline
+                    />
+                  ) : (
+                    <img src={selectedDish.image} alt={selectedDish.name} />
+                  )}
+
+                  <div className="detail-topbar">
+                    <button
+                      type="button"
+                      className="floating-button light"
+                      onClick={() => setSelectedDish(null)}
+                      aria-label="Volver"
+                    >
+                      <IconBack />
+                    </button>
+                    <button type="button" className="floating-button dark" aria-label="Favorito">
+                      <IconHeart />
+                    </button>
                   </div>
                 </div>
-              ))}
 
-              <div className="quantity-stepper">
-                <button
-                  type="button"
-                  onClick={() => setDetailQuantity((current) => Math.max(1, current - 1))}
-                  aria-label="Disminuir cantidad"
-                >
-                  <IconMinus />
-                </button>
-                <span>{detailQuantity}</span>
-                <button
-                  type="button"
-                  onClick={() => setDetailQuantity((current) => current + 1)}
-                  aria-label="Aumentar cantidad"
-                >
-                  <IconPlus />
-                </button>
-              </div>
+                <section className="detail-sheet">
+                  <div className="sheet-handle" />
 
-              <button
-                type="button"
-                className="primary-action"
-                onClick={() => {
-                  handleAddItem(selectedDish, detailQuantity, {
-                    summary: buildSelectionSummary(detailOptionGroups, selectedOptions),
-                  })
-                  setSelectedDish(null)
-                }}
-              >
-                <span>Agregar al pedido</span>
-                <strong>
-                  {formatPrice(
-                    (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) * detailQuantity,
-                    currencySymbol,
-                  )}
-                </strong>
-              </button>
+                  <div className="detail-head">
+                    <div>
+                      <h2>{selectedDish.name}</h2>
+                      <strong>
+                        {formatPrice(
+                          selectedDish.unitPrice ?? toNumericPrice(selectedDish.price),
+                          currencySymbol,
+                        )}
+                      </strong>
+                    </div>
+                    {selectedDish.video ? (
+                      <span className="detail-badge">
+                        <IconPlay />
+                        Vista previa
+                      </span>
+                    ) : (
+                      <span className="detail-badge">
+                        <IconSpark />
+                        Mas pedido
+                      </span>
+                    )}
+                  </div>
 
-              <p className="detail-note">{getDetailNote(selectedDish)}</p>
+                  <p className="detail-description">{selectedDish.description}</p>
 
-              <div className="option-group recommendation-group">
-                <h3>Tambien te puede gustar</h3>
-                <div className="recommendation-row">
-                  {recommendations.map((item) => (
-                    <article key={item.id} className="mini-card">
-                      {shouldRenderPreviewVideo(item, presentation) ? (
-                        <video
-                          src={getVideoFrameSrc(item.video)}
-                          preload="auto"
-                          autoPlay={shouldAutoplayVideoPreview(presentation)}
-                          muted={presentation.preview?.mutedVideos ?? true}
-                          loop={shouldAutoplayVideoPreview(presentation)}
-                          playsInline
-                        />
-                      ) : (
-                        <img src={item.image} alt={item.name} />
-                      )}
+                  {detailOptionGroups.map((group) => (
+                    <div key={group.id} className="option-group">
+                      <h3>{group.title}</h3>
+                      <p>{group.required ? 'Obligatorio: elige uno' : 'Opcional'}</p>
+                      <div className="option-grid">
+                        {group.options.map((rawOption) => {
+                          const option = normalizeOptionEntry(rawOption)
+                          const selectedValue = selectedOptions[group.id]
+                          const isSelected = Array.isArray(selectedValue)
+                            ? selectedValue.includes(option.value)
+                            : selectedValue === option.value
 
-                      <div className="mini-card-body">
-                        <h4>{item.name}</h4>
-                        <div className="mini-card-footer">
-                          <strong>{item.price}</strong>
-                          <button
-                            type="button"
-                            className="mini-add"
-                            onClick={() => handleAddItem(item)}
-                            aria-label={`Agregar ${item.name}`}
-                          >
-                            <IconPlus />
-                          </button>
-                        </div>
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              className={`option-card ${isSelected ? 'selected' : ''}`}
+                              onClick={() => handleSelectDetailOption(group, option.value)}
+                            >
+                              {option.label}
+                            </button>
+                          )
+                        })}
                       </div>
-                    </article>
+                    </div>
                   ))}
-                </div>
-              </div>
-            </section>
 
-            {templateId !== 'pizzeria' || hasOrderItems ? (
+                  <div className="quantity-stepper">
+                    <button
+                      type="button"
+                      onClick={() => setDetailQuantity((current) => Math.max(1, current - 1))}
+                      aria-label="Disminuir cantidad"
+                    >
+                      <IconMinus />
+                    </button>
+                    <span>{detailQuantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => setDetailQuantity((current) => current + 1)}
+                      aria-label="Aumentar cantidad"
+                    >
+                      <IconPlus />
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="primary-action"
+                    onClick={() => {
+                      handleAddItem(selectedDish, detailQuantity, {
+                        summary: buildSelectionSummary(detailOptionGroups, selectedOptions),
+                      })
+                      setSelectedDish(null)
+                    }}
+                  >
+                    <span>Agregar al pedido</span>
+                    <strong>
+                      {formatPrice(
+                        (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) * detailQuantity,
+                        currencySymbol,
+                      )}
+                    </strong>
+                  </button>
+
+                  <p className="detail-note">{getDetailNote(selectedDish)}</p>
+
+                  <div className="option-group recommendation-group">
+                    <h3>Tambien te puede gustar</h3>
+                    <div className="recommendation-row">
+                      {recommendations.map((item) => (
+                        <article key={item.id} className="mini-card">
+                          {shouldRenderPreviewVideo(item, presentation) ? (
+                            <video
+                              src={getVideoFrameSrc(item.video)}
+                              preload="auto"
+                              autoPlay={shouldAutoplayVideoPreview(presentation)}
+                              muted={presentation.preview?.mutedVideos ?? true}
+                              loop={shouldAutoplayVideoPreview(presentation)}
+                              playsInline
+                            />
+                          ) : (
+                            <img src={item.image} alt={item.name} />
+                          )}
+
+                          <div className="mini-card-body">
+                            <h4>{item.name}</h4>
+                            <div className="mini-card-footer">
+                              <strong>{item.price}</strong>
+                              <button
+                                type="button"
+                                className="mini-add"
+                                onClick={() => handleAddItem(item)}
+                                aria-label={`Agregar ${item.name}`}
+                              >
+                                <IconPlus />
+                              </button>
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              </>
+            )}
+
+            {(!isHostDetail && (templateId !== 'pizzeria' || hasOrderItems)) ? (
               <footer className="detail-order-bar">
                 <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                   <div className="order-bar-copy">
@@ -3481,6 +3772,33 @@ export default function MenuApp() {
                     {orderTotalLabel}
                     <span className="order-arrow">{'>'}</span>
                   </div>
+                </button>
+              </footer>
+            ) : null}
+
+            {isHostDetail ? (
+              <footer className="detail-order-bar host-detail-order-bar">
+                <div className="host-detail-total">
+                  <span>Total</span>
+                  <strong>
+                    {formatPrice(
+                      (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) * detailQuantity,
+                      currencySymbol,
+                    )}
+                  </strong>
+                </div>
+                <button
+                  type="button"
+                  className="host-detail-cart-button"
+                  onClick={() => {
+                    handleAddItem(selectedDish, detailQuantity, {
+                      summary: buildSelectionSummary(detailOptionGroups, selectedOptions),
+                    })
+                    setSelectedDish(null)
+                  }}
+                >
+                  <IconCart />
+                  <span>Agregar al carrito</span>
                 </button>
               </footer>
             ) : null}
