@@ -581,12 +581,18 @@ function getUniqueMenuOptionNames(items, matcher) {
 function getHostMenuOptionPools(allItems = []) {
   const sideOptions = getUniqueMenuOptionNames(
     allItems,
-    (text) => /(guarnicion|guarniciones|papa|papas|acompa|acompanamiento|ensalada|coleslaw|mandioca)/.test(text),
+    (_text, item) => {
+      const categoryKey = slugify(item.categoryLabel ?? '')
+      return /(guarnicion|guarniciones|acompa|acompanamiento|ensalada)/.test(categoryKey)
+    },
   )
 
   const sauceOptions = getUniqueMenuOptionNames(
     allItems,
-    (text) => /(extra|extras|salsa|salsas|bbq|barbacoa|ketchup|mostaza|mayonesa|alioli|cheddar)/.test(text),
+    (_text, item) => {
+      const categoryKey = slugify(item.categoryLabel ?? '')
+      return /(extra|extras|salsa|salsas)/.test(categoryKey)
+    },
   )
 
   return {
