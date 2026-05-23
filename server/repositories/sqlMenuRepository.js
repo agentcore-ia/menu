@@ -3,6 +3,27 @@ import pg from 'pg'
 
 const { Pool } = pg
 
+function parseSqlOptionGroups(value) {
+  if (!value) {
+    return []
+  }
+
+  if (Array.isArray(value)) {
+    return value
+  }
+
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  }
+
+  return []
+}
+
 export class SqlMenuRepository {
   constructor(config) {
     this.config = config
@@ -40,6 +61,7 @@ export class SqlMenuRepository {
             image: product.image_url ?? '/dishes/hero-steak.jpg',
             hasCustomImage: Boolean(product.image_url),
             video: product.video_url ?? null,
+            optionGroups: parseSqlOptionGroups(product.option_groups),
             badge: product.badge ?? '',
             dietary: product.dietary_tags
               ? product.dietary_tags.split(',').map((tag) => tag.trim()).filter(Boolean)
@@ -79,6 +101,7 @@ export class SqlMenuRepository {
         price_display,
         image_url,
         video_url,
+        option_groups,
         badge,
         dietary_tags
       from ${table}

@@ -36,6 +36,48 @@ function getProductVideo(product) {
   )
 }
 
+function parseProductOptionGroups(product) {
+  if (!Array.isArray(product.option_groups)) {
+    return []
+  }
+
+  return product.option_groups
+    .map((group) => {
+      const options = Array.isArray(group?.options)
+        ? group.options
+            .map((option) => ({
+              id: option?.id || null,
+              label: String(option?.label || '').trim(),
+              price: Number(option?.price || 0),
+            }))
+            .filter((option) => option.label)
+        : []
+
+      if (!String(group?.title || '').trim() || options.length === 0) {
+        return null
+      }
+
+      const selection = group?.selection === 'multiple' ? 'multiple' : 'single'
+      const maxSelect =
+        selection === 'multiple'
+          ? group?.maxSelect && Number(group.maxSelect) > 0
+            ? Number(group.maxSelect)
+            : null
+          : 1
+
+      return {
+        id: group?.id || `${String(group?.title || 'grupo').toLowerCase().replace(/\s+/g, '-')}`,
+        title: String(group.title).trim(),
+        required: Boolean(group?.required),
+        selection,
+        minSelect: Number(group?.minSelect || 0),
+        maxSelect,
+        options,
+      }
+    })
+    .filter(Boolean)
+}
+
 function getPizzeriaFallbackImage(accountId, product, index) {
   if (!['la-esquina', 'laesquina', 'laesquinacba'].includes(accountId)) {
     return null
@@ -231,6 +273,7 @@ export class SupabaseMenuRepository {
           fallbackImages[index % fallbackImages.length],
         hasCustomImage: Boolean(customImage),
         video: getProductVideo(product),
+        optionGroups: parseProductOptionGroups(product),
         badge: categoryName,
         dietary: [],
       })

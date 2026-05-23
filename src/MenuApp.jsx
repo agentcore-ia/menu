@@ -707,6 +707,9 @@ function getHostComboOptionGroups(dish, allItems = []) {
 }
 
 function buildProductOptionGroups(dish, allItems = []) {
+  if (Array.isArray(dish.optionGroups) && dish.optionGroups.length > 0) {
+    return dish.optionGroups
+  }
   const text = `${dish.categoryLabel ?? ''} ${dish.name ?? ''} ${dish.description ?? ''}`.toLowerCase()
   const kind = getProductKind(dish)
   const hostComboGroups = getHostComboOptionGroups(dish, allItems)
@@ -867,16 +870,48 @@ function buildProductOptionGroups(dish, allItems = []) {
   ]
 }
 
+function getGroupSelectionLimit(group) {
+  if (group.selection === 'multiple') {
+    if (group.maxSelect && Number(group.maxSelect) > 0) {
+      return Number(group.maxSelect)
+    }
+    if (group.selectionLimit && Number(group.selectionLimit) > 0) {
+      return Number(group.selectionLimit)
+    }
+    return null
+  }
+
+  if (group.selectionLimit && Number(group.selectionLimit) > 1) {
+    return Number(group.selectionLimit)
+  }
+
+  return 1
+}
+
+function isGroupMultiple(group) {
+  const limit = getGroupSelectionLimit(group)
+  return group.selection === 'multiple' || (typeof limit === 'number' && limit > 1)
+}
+
 function buildInitialSelections(groups) {
   return Object.fromEntries(
     groups.map((group) => {
       const options = group.options.map(normalizeOptionEntry)
+      const selectionLimit = getGroupSelectionLimit(group)
 
-      if ((group.selectionLimit ?? 1) > 1) {
-        return [group.id, options.slice(0, group.selectionLimit).map((option) => option.value)]
+      if (isGroupMultiple(group)) {
+        const requiredCount = Math.max(
+          0,
+          Number(group.minSelect || (group.required ? Math.min(selectionLimit || 1, options.length) : 0)),
+        )
+        return [group.id, requiredCount > 0 ? options.slice(0, requiredCount).map((option) => option.value) : []]
       }
 
-      return [group.id, options[0]?.value ?? '']
+      if (group.required) {
+        return [group.id, options[0]?.value ?? '']
+      }
+
+      return [group.id, '']
     }),
   )
 }
@@ -899,6 +934,64 @@ function buildSelectionSummary(groups, selections) {
     })
     .filter(Boolean)
     .join(' | ')
+}
+
+function getOptionPrice(group, optionLabel) {
+  const option = group.options.map(normalizeOptionEntry).find((entry) => entry.value === optionLabel)
+
+  if (!option) {
+    return 0
+  }
+
+  return Number(option.price || 0)
+}
+
+function calculateSelectionsExtraTotal(groups, selections) {
+  return groups.reduce((total, group) => {
+    const value = selections[group.id]
+
+    if (Array.isArray(value)) {
+      return (
+        total +
+        value.reduce((groupTotal, optionLabel) => groupTotal + getOptionPrice(group, optionLabel), 0)
+      )
+    }
+
+    return total + (value ? getOptionPrice(group, value) : 0)
+  }, 0)
+}
+
+function isSelectionValid(group, value) {
+  if (isGroupMultiple(group)) {
+    const selectedCount = Array.isArray(value) ? value.length : 0
+    const selectionLimit = getGroupSelectionLimit(group)
+    const min = Number(group.minSelect || (group.required ? 1 : 0))
+    const max = typeof selectionLimit === 'number' ? selectionLimit : null
+
+    if (group.required && selectedCount < Math.max(1, min)) {
+      return false
+    }
+
+    if (selectedCount < min) {
+      return false
+    }
+
+    if (max && selectedCount > max) {
+      return false
+    }
+
+    return true
+  }
+
+  if (group.required) {
+    return Boolean(value)
+  }
+
+  return true
+}
+
+function areSelectionsValid(groups, selections) {
+  return groups.every((group) => isSelectionValid(group, selections[group.id]))
 }
 
 function getDetailNote(dish) {
@@ -2611,7 +2704,7 @@ export default function MenuApp() {
   const cartPairings = buildCartPairingSuggestions(cartItems)
 
   function handleAddItem(item, quantity = 1, configuration = null) {
-    const unitPrice = item.unitPrice ?? toNumericPrice(item.price)
+    const unitPrice = configuration?.unitPrice ?? item.unitPrice ?? toNumericPrice(item.price)
     const notes = configuration?.summary ?? ''
     const lineId = `${item.id}::${notes || 'default'}`
 
@@ -2643,7 +2736,7 @@ export default function MenuApp() {
           lineId,
           id: item.id,
           name: item.name,
-          price: item.price,
+          price: formatPrice(unitPrice, currencySymbol),
           unitPrice,
           quantity,
           notes,
@@ -2680,10 +2773,10 @@ export default function MenuApp() {
   }
 
   function handleSelectDetailOption(group, optionValue) {
-    const limit = group.selectionLimit ?? 1
+    const limit = getGroupSelectionLimit(group)
 
     setSelectedOptions((current) => {
-      if (limit > 1) {
+      if (isGroupMultiple(group)) {
         const currentValues = Array.isArray(current[group.id]) ? current[group.id] : []
 
         if (currentValues.includes(optionValue)) {
@@ -2694,7 +2787,7 @@ export default function MenuApp() {
         }
 
         const nextValues =
-          currentValues.length >= limit
+          limit && currentValues.length >= limit
             ? [...currentValues.slice(1), optionValue]
             : [...currentValues, optionValue]
 
@@ -2706,7 +2799,7 @@ export default function MenuApp() {
 
       return {
         ...current,
-        [group.id]: optionValue,
+        [group.id]: current[group.id] === optionValue && !group.required ? '' : optionValue,
       }
     })
   }
@@ -3042,6 +3135,12 @@ export default function MenuApp() {
   }
 
   const detailOptionGroups = selectedDish ? buildProductOptionGroups(selectedDish, allItems) : []
+  const detailExtraTotal = selectedDish
+    ? calculateSelectionsExtraTotal(detailOptionGroups, selectedOptions)
+    : 0
+  const detailSelectionsValid = selectedDish
+    ? areSelectionsValid(detailOptionGroups, selectedOptions)
+    : true
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
   const isHostDetail = templateId === 'host' && Boolean(selectedDish)
   const detailHasHeroMedia = Boolean(selectedDish?.video || selectedDish?.hasCustomImage)
@@ -3655,7 +3754,15 @@ export default function MenuApp() {
                   {detailOptionGroups.map((group) => (
                     <div key={group.id} className="option-group">
                       <h3>{group.title}</h3>
-                      <p>{group.required ? 'Obligatorio: elige uno' : 'Opcional'}</p>
+                      <p>
+                        {isGroupMultiple(group)
+                          ? group.required
+                            ? `Obligatorio: elige ${group.minSelect || 1}${getGroupSelectionLimit(group) ? ` a ${getGroupSelectionLimit(group)}` : ' o más'}`
+                            : `Opcional${getGroupSelectionLimit(group) ? `: hasta ${getGroupSelectionLimit(group)}` : ''}`
+                          : group.required
+                            ? 'Obligatorio: elige uno'
+                            : 'Opcional'}
+                      </p>
                       <div className="option-grid">
                         {group.options.map((rawOption) => {
                           const option = normalizeOptionEntry(rawOption)
@@ -3671,7 +3778,10 @@ export default function MenuApp() {
                               className={`option-card ${isSelected ? 'selected' : ''}`}
                               onClick={() => handleSelectDetailOption(group, option.value)}
                             >
-                              {option.label}
+                              <span>{option.label}</span>
+                              {Number(option.price || 0) > 0 ? (
+                                <small>{formatPrice(Number(option.price || 0), currencySymbol)}</small>
+                              ) : null}
                             </button>
                           )
                         })}
@@ -3700,9 +3810,12 @@ export default function MenuApp() {
                   <button
                     type="button"
                     className="primary-action"
+                    disabled={!detailSelectionsValid}
                     onClick={() => {
                       handleAddItem(selectedDish, detailQuantity, {
                         summary: buildSelectionSummary(detailOptionGroups, selectedOptions),
+                        unitPrice:
+                          (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal,
                       })
                       setSelectedDish(null)
                     }}
@@ -3710,11 +3823,16 @@ export default function MenuApp() {
                     <span>Agregar al pedido</span>
                     <strong>
                       {formatPrice(
-                        (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) * detailQuantity,
+                        ((selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal) *
+                          detailQuantity,
                         currencySymbol,
                       )}
                     </strong>
                   </button>
+
+                  {!detailSelectionsValid ? (
+                    <p className="detail-note">Completa los opcionales obligatorios antes de agregar este producto.</p>
+                  ) : null}
 
                   <p className="detail-note">{getDetailNote(selectedDish)}</p>
 
