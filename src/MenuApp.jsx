@@ -556,9 +556,89 @@ function getProductKind(dish) {
   return 'comida'
 }
 
-function buildProductOptionGroups(dish) {
+function getUniqueMenuOptionNames(items, matcher) {
+  const uniqueNames = new Set()
+
+  items.forEach((item) => {
+    const itemText = `${item.categoryLabel ?? ''} ${item.name ?? ''} ${item.description ?? ''}`.toLowerCase()
+
+    if (!matcher(itemText, item)) {
+      return
+    }
+
+    const name = String(item.name ?? '').trim()
+
+    if (!name) {
+      return
+    }
+
+    uniqueNames.add(name)
+  })
+
+  return Array.from(uniqueNames)
+}
+
+function getHostMenuOptionPools(allItems = []) {
+  const sideOptions = getUniqueMenuOptionNames(
+    allItems,
+    (text) => /(guarnicion|guarniciones|papa|papas|acompa|acompanamiento|ensalada|coleslaw|mandioca)/.test(text),
+  )
+
+  const sauceOptions = getUniqueMenuOptionNames(
+    allItems,
+    (text) => /(extra|extras|salsa|salsas|bbq|barbacoa|ketchup|mostaza|mayonesa|alioli|cheddar)/.test(text),
+  )
+
+  return {
+    sideOptions,
+    sauceOptions,
+  }
+}
+
+function getHostComboOptionGroups(dish, allItems = []) {
+  const text = `${dish.categoryLabel ?? ''} ${dish.name ?? ''} ${dish.description ?? ''}`.toLowerCase()
+  const isHostCombo = /(bucket|box|combo|duo|familiar|individual|maxi)/.test(text)
+
+  if (!isHostCombo) {
+    return null
+  }
+
+  const { sideOptions, sauceOptions } = getHostMenuOptionPools(allItems)
+  const sauceCountMatch = text.match(/(\d+)\s*salsas?/)
+  const sauceCount = Number(sauceCountMatch?.[1] ?? (sauceOptions.length ? 1 : 0))
+  const groups = []
+
+  if (sideOptions.length) {
+    groups.push({
+      id: 'guarnicion',
+      title: 'Guarnicion',
+      required: true,
+      options: sideOptions,
+    })
+  }
+
+  if (sauceOptions.length) {
+    for (let index = 0; index < sauceCount; index += 1) {
+      groups.push({
+        id: `salsa_${index + 1}`,
+        title: sauceCount > 1 ? `Salsa ${index + 1}` : 'Salsa',
+        required: true,
+        options: sauceOptions,
+      })
+    }
+  }
+
+  return groups.length ? groups : null
+}
+
+function buildProductOptionGroups(dish, allItems = []) {
   const text = `${dish.categoryLabel ?? ''} ${dish.name ?? ''} ${dish.description ?? ''}`.toLowerCase()
   const kind = getProductKind(dish)
+  const hostComboGroups = getHostComboOptionGroups(dish, allItems)
+
+  if (hostComboGroups) {
+    return hostComboGroups
+  }
 
   if (kind === 'bebida') {
     return [
@@ -728,6 +808,11 @@ function buildSelectionSummary(groups, selections) {
 
 function getDetailNote(dish) {
   const kind = getProductKind(dish)
+  const text = `${dish.categoryLabel ?? ''} ${dish.name ?? ''} ${dish.description ?? ''}`.toLowerCase()
+
+  if (/(bucket|box|combo|duo|familiar|individual|maxi)/.test(text)) {
+    return 'Vamos a enviar tu combo con la guarnicion y las salsas que elijas.'
+  }
 
   if (kind === 'carne') {
     return 'Vamos a enviar tu punto de coccion y acompanamientos tal como los elegiste.'
@@ -2470,7 +2555,7 @@ export default function MenuApp() {
 
   function handleOpenDish(item) {
     const nextDish = { ...item, categoryLabel: item.categoryLabel ?? currentCategory?.label }
-    const groups = buildProductOptionGroups(nextDish)
+    const groups = buildProductOptionGroups(nextDish, allItems)
     setSelectedDish(nextDish)
     setDetailQuantity(1)
     setSelectedOptions(buildInitialSelections(groups))
@@ -2806,7 +2891,7 @@ export default function MenuApp() {
     }
   }
 
-  const detailOptionGroups = selectedDish ? buildProductOptionGroups(selectedDish) : []
+  const detailOptionGroups = selectedDish ? buildProductOptionGroups(selectedDish, allItems) : []
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
   const appClassName = [
     'menu-app',
