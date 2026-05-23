@@ -6980,9 +6980,9 @@ button:focus-visible {
 }
 
 .host-section-title-copy {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.9rem;
+  display: grid;
+  align-content: end;
+  gap: 0.22rem;
   min-width: 0;
 }
 
@@ -6990,19 +6990,19 @@ button:focus-visible {
   margin: 0;
   color: #fff6ea;
   font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: 3.15rem;
-  line-height: 0.86;
+  font-size: 2.32rem;
+  line-height: 0.9;
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 .host-section-title-copy p {
-  margin: 0 0 0.32rem;
+  margin: 0;
   color: rgba(255, 246, 234, 0.68);
-  font-size: 0.96rem;
-  line-height: 1.15;
-  white-space: nowrap;
-  max-width: 12rem;
+  font-size: 0.82rem;
+  line-height: 1.12;
+  white-space: normal;
+  max-width: none;
 }
 
 .host-card-grid {
