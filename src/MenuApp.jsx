@@ -1072,6 +1072,15 @@ function renderDetailOptionMedia(option, presentation) {
   return null
 }
 
+function getHostOptionKind(group) {
+  const key = slugify(group.id || group.title || '')
+
+  if (key.includes('salsa')) return 'sauce'
+  if (key.includes('bebida')) return 'drink'
+  if (key.includes('guarnicion') || key.includes('acompa')) return 'side'
+  return 'default'
+}
+
 function buildCartRecommendations(cartItems, allItems) {
   const cartIds = new Set(cartItems.map((item) => item.id))
   const cartCategories = new Set(cartItems.map((item) => item.categoryLabel).filter(Boolean))
@@ -3686,16 +3695,21 @@ export default function MenuApp() {
                   </div>
 
                   {detailOptionGroups.map((group, index) => (
-                    <div key={group.id} className="option-group host-option-group">
+                    <div
+                      key={group.id}
+                      className={`option-group host-option-group host-option-group-${getHostOptionKind(group)}`}
+                    >
                       <div className="host-option-head">
                         <h3>
                           {index + 1}. {String(group.title ?? '').toUpperCase()}
-                          {(group.selectionLimit ?? 1) > 1 ? ` (${group.selectionLimit})` : ''}
+                          {getHostOptionKind(group) === 'drink' && (group.selectionLimit ?? 1) > 1
+                            ? ` (${group.selectionLimit})`
+                            : ''}
                         </h3>
                         <span>{group.required ? 'Obligatorio' : 'Opcional'}</span>
                       </div>
 
-                      <div className="option-grid host-option-grid">
+                      <div className={`option-grid host-option-grid host-option-grid-${getHostOptionKind(group)}`}>
                         {group.options.map((rawOption) => {
                           const option = normalizeOptionEntry(rawOption)
                           const selectedValue = selectedOptions[group.id]
@@ -3703,6 +3717,7 @@ export default function MenuApp() {
                             ? selectedValue.includes(option.value)
                             : selectedValue === option.value
                           const optionMedia = renderDetailOptionMedia(option, presentation)
+                          const optionKind = getHostOptionKind(group)
 
                           return (
                             <button
@@ -3710,15 +3725,18 @@ export default function MenuApp() {
                               type="button"
                               className={`option-card host-option-card ${
                                 isSelected ? 'selected' : ''
-                              } ${optionMedia ? 'has-media' : 'no-media'}`}
+                              } ${optionMedia ? 'has-media' : 'no-media'} host-option-card-${optionKind}`}
                               onClick={() => handleSelectDetailOption(group, option.value)}
                             >
                               {optionMedia ? (
-                                <span className="host-option-media">
+                                <span className={`host-option-media host-option-media-${optionKind}`}>
                                   {optionMedia}
                                 </span>
                               ) : null}
                               <span className="host-option-label">{option.label}</span>
+                              {option.subtitle && optionKind === 'drink' ? (
+                                <small className="host-option-subtitle">{option.subtitle}</small>
+                              ) : null}
                               {Number(option.price || 0) > 0 ? (
                                 <small>{formatPrice(Number(option.price || 0), currencySymbol)}</small>
                               ) : null}
