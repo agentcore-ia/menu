@@ -274,6 +274,7 @@ export class SupabaseAdminRepository {
       const copyResult = await this.copyProductsFromAccount(restaurant.slug, payload.sourceAccountId, {
         replaceExisting: Boolean(payload.replaceProducts),
       })
+      await this.copyPresentationFromAccount(restaurant.slug, payload.sourceAccountId)
       copiedProducts = copyResult.copied
     }
 
@@ -346,6 +347,61 @@ export class SupabaseAdminRepository {
       source: sourceRestaurant,
       target: targetRestaurant,
     }
+  }
+
+  async copyPresentationFromAccount(targetAccountId, sourceAccountId) {
+    const [targetRestaurant, sourceRestaurant] = await Promise.all([
+      this.fetchRestaurantBySlug(targetAccountId),
+      this.fetchRestaurantBySlug(sourceAccountId),
+    ])
+
+    if (!targetRestaurant || !sourceRestaurant) {
+      return null
+    }
+
+    if (targetRestaurant.id === sourceRestaurant.id) {
+      return null
+    }
+
+    const sourcePresentation = await this.fetchPresentationByRestaurantId(sourceRestaurant.id)
+
+    if (!sourcePresentation) {
+      return null
+    }
+
+    const [copiedPresentation] = await this.request(
+      '/restaurant_menu_presentations?on_conflict=restaurant_id',
+      {
+        method: 'POST',
+        headers: {
+          Prefer: 'resolution=merge-duplicates,return=representation',
+        },
+        body: JSON.stringify([
+          {
+            restaurant_id: targetRestaurant.id,
+            layout: sourcePresentation.layout ?? 'editorial',
+            theme_id: sourcePresentation.theme_id ?? 'ivory-olive',
+            theme_overrides:
+              sourcePresentation.theme_overrides &&
+              typeof sourcePresentation.theme_overrides === 'object'
+                ? sourcePresentation.theme_overrides
+                : {},
+            branding_wordmark: sourcePresentation.branding_wordmark ?? null,
+            branding_subtitle: sourcePresentation.branding_subtitle ?? null,
+            hero_image_url: sourcePresentation.hero_image_url ?? null,
+            hero_title: sourcePresentation.hero_title ?? null,
+            hero_accent: sourcePresentation.hero_accent ?? null,
+            hero_description: sourcePresentation.hero_description ?? null,
+            cards_style: sourcePresentation.cards_style ?? 'editorial-list',
+            preview_mode: sourcePresentation.preview_mode ?? 'image-with-video-chip',
+            autoplay_videos: Boolean(sourcePresentation.autoplay_videos),
+            muted_videos: sourcePresentation.muted_videos !== false,
+          },
+        ]),
+      },
+    )
+
+    return copiedPresentation ?? null
   }
 
   async savePresentation(accountId, input) {
