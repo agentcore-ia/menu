@@ -478,8 +478,13 @@ function getHostHeroArtImage(presentation, heroDish) {
 
 function getInitialCategoryId(payload) {
   const templateId = payload?.presentation?.template ?? payload?.presentation?.layout
+  const useHostCategorySet = shouldUseHostCategorySet(
+    payload?.accountId,
+    templateId,
+    payload?.categories ?? [],
+  )
 
-  if (templateId === 'host') {
+  if (useHostCategorySet) {
     return (
       payload.categories.find((category) => slugify(category.label).includes('combo'))?.id ??
       payload.categories.find((category) => slugify(category.label).includes('pollo'))?.id ??
@@ -1338,6 +1343,29 @@ function getHostSectionSubtitle(label) {
   return 'Todo el sabor de la casa listo para pedir'
 }
 
+function shouldUseHostCategorySet(accountId, templateId, categories = []) {
+  if (templateId === 'host') {
+    return true
+  }
+
+  if (templateId !== 'burger') {
+    return false
+  }
+
+  const normalizedAccountId = slugify(accountId || '')
+
+  if (
+    normalizedAccountId === 'host' ||
+    normalizedAccountId === 'host-demo' ||
+    normalizedAccountId.startsWith('host-')
+  ) {
+    return true
+  }
+
+  const keys = categories.map((category) => slugify(category.label))
+  return keys.some((key) => key.includes('pollo')) && keys.some((key) => key.includes('salsa'))
+}
+
 function getHostBadgeText(item, index, categoryLabel) {
   const nameKey = slugify(item?.name ?? '')
   const categoryKey = slugify(categoryLabel ?? '')
@@ -1777,6 +1805,7 @@ function MenuLoadingScreen({ accountId }) {
 }
 
 function TemplateCategorySelector({
+  accountId,
   templateId,
   categories,
   currentCategory,
@@ -1787,7 +1816,10 @@ function TemplateCategorySelector({
   }
 
   if (templateId === 'burger') {
-    const orderedCategories = getBurgerOrderedCategories(categories)
+    const useHostCategorySet = shouldUseHostCategorySet(accountId, templateId, categories)
+    const orderedCategories = useHostCategorySet
+      ? getHostOrderedCategories(categories)
+      : getBurgerOrderedCategories(categories)
 
     return (
       <div className="burger-menu-head">
@@ -1800,7 +1832,9 @@ function TemplateCategorySelector({
 
         <div className="burger-category-row">
           {orderedCategories.map((category) => {
-            const Icon = getBurgerCategoryIcon(category.label)
+            const Icon = useHostCategorySet
+              ? getHostCategoryIcon(category.label)
+              : getBurgerCategoryIcon(category.label)
             const isActive = category.id === currentCategory?.id
 
             return (
@@ -1811,7 +1845,11 @@ function TemplateCategorySelector({
                 onClick={() => onSelectCategory(category.id)}
               >
                 <Icon />
-                <span>{getBurgerCategoryLabel(category.label)}</span>
+                <span>
+                  {useHostCategorySet
+                    ? getHostCategoryLabel(category.label)
+                    : getBurgerCategoryLabel(category.label)}
+                </span>
               </button>
             )
           })}
@@ -3266,6 +3304,7 @@ export default function MenuApp() {
                 {templateId === 'pizzeria' || templateId === 'burger' || templateId === 'host' ? (
                   <div data-menu-categories>
                     <TemplateCategorySelector
+                      accountId={accountId}
                       templateId={templateId}
                       categories={categories}
                       currentCategory={currentCategory}
