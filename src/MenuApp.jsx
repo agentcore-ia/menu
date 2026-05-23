@@ -661,6 +661,30 @@ function getHostMenuOptionPools(allItems = []) {
   }
 }
 
+function parseSelectionCount(text, regex, fallback = 0) {
+  const directMatch = text.match(regex)
+
+  if (directMatch?.[1]) {
+    return Number(directMatch[1])
+  }
+
+  const wordCounts = [
+    ['una', 1],
+    ['un', 1],
+    ['dos', 2],
+    ['tres', 3],
+    ['cuatro', 4],
+  ]
+
+  for (const [word, count] of wordCounts) {
+    if (new RegExp(`\\b${word}\\b`).test(text)) {
+      return count
+    }
+  }
+
+  return fallback
+}
+
 function getHostComboOptionGroups(dish, allItems = []) {
   const text = `${dish.categoryLabel ?? ''} ${dish.name ?? ''} ${dish.description ?? ''}`.toLowerCase()
   const isHostCombo = /(bucket|box|combo|duo|familiar|individual|maxi)/.test(text)
@@ -670,10 +694,8 @@ function getHostComboOptionGroups(dish, allItems = []) {
   }
 
   const { sideOptions, sauceOptions, drinkOptions } = getHostMenuOptionPools(allItems)
-  const sauceCountMatch = text.match(/(\d+)\s*salsas?/)
-  const sauceCount = Number(sauceCountMatch?.[1] ?? (sauceOptions.length ? 1 : 0))
-  const drinkCountMatch = text.match(/(\d+)\s*bebidas?/)
-  const drinkCount = Number(drinkCountMatch?.[1] ?? 0)
+  const sauceCount = parseSelectionCount(text, /(\d+)\s*salsas?/, sauceOptions.length ? 1 : 0)
+  const drinkCount = parseSelectionCount(text, /(\d+)\s*bebidas?/, 0)
   const groups = []
 
   if (sideOptions.length) {
@@ -899,14 +921,9 @@ function buildInitialSelections(groups) {
   return Object.fromEntries(
     groups.map((group) => {
       const options = group.options.map(normalizeOptionEntry)
-      const selectionLimit = getGroupSelectionLimit(group)
 
       if (isGroupMultiple(group)) {
-        const requiredCount = Math.max(
-          0,
-          Number(group.minSelect || (group.required ? Math.min(selectionLimit || 1, options.length) : 0)),
-        )
-        return [group.id, requiredCount > 0 ? options.slice(0, requiredCount).map((option) => option.value) : []]
+        return [group.id, []]
       }
 
       if (group.required) {
@@ -2804,10 +2821,11 @@ export default function MenuApp() {
           }
         }
 
-        const nextValues =
-          limit && currentValues.length >= limit
-            ? [...currentValues.slice(1), optionValue]
-            : [...currentValues, optionValue]
+        if (limit && currentValues.length >= limit) {
+          return current
+        }
+
+        const nextValues = [...currentValues, optionValue]
 
         return {
           ...current,
@@ -3923,7 +3941,8 @@ export default function MenuApp() {
                   <span>Total</span>
                   <strong>
                     {formatPrice(
-                      (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) * detailQuantity,
+                      ((selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal) *
+                        detailQuantity,
                       currencySymbol,
                     )}
                   </strong>
@@ -3931,9 +3950,12 @@ export default function MenuApp() {
                 <button
                   type="button"
                   className="host-detail-cart-button"
+                  disabled={!detailSelectionsValid}
                   onClick={() => {
                     handleAddItem(selectedDish, detailQuantity, {
                       summary: buildSelectionSummary(detailOptionGroups, selectedOptions),
+                      unitPrice:
+                        (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal,
                     })
                     setSelectedDish(null)
                   }}
