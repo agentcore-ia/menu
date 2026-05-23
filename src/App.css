@@ -4303,9 +4303,11 @@
 .host-option-grid-side,
 .host-option-grid-sauce,
 .host-option-grid-drink {
-  display: flex;
+  display: flex !important;
+  flex-wrap: nowrap !important;
   align-items: stretch;
   overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 0.2rem;
   scrollbar-width: none;
 }
@@ -4348,23 +4350,26 @@
 
 .host-option-card-side {
   min-height: 9.45rem;
-  flex: 0 0 8.85rem;
-  width: 8.85rem;
+  flex: 0 0 8.85rem !important;
+  width: 8.85rem !important;
+  max-width: 8.85rem;
   padding: 0.65rem 0.55rem 0.75rem;
 }
 
 .host-option-card-sauce {
   min-height: 7.2rem;
-  flex: 0 0 5.35rem;
-  width: 5.35rem;
+  flex: 0 0 5.35rem !important;
+  width: 5.35rem !important;
+  max-width: 5.35rem;
   padding: 0.55rem 0.35rem 0.65rem;
   gap: 0.35rem;
 }
 
 .host-option-card-drink {
   min-height: 9.8rem;
-  flex: 0 0 6.4rem;
-  width: 6.4rem;
+  flex: 0 0 6.4rem !important;
+  width: 6.4rem !important;
+  max-width: 6.4rem;
   padding: 0.6rem 0.42rem 0.75rem;
 }
 
