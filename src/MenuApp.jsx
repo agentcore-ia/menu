@@ -2171,7 +2171,7 @@ function TemplateMenuCollection({
           </button>
           <button type="button" onClick={onOpenLoyalty}>
             <IconAward />
-            <span>Nosotros</span>
+            <span>Mis puntos</span>
           </button>
           <button type="button" onClick={onOpenCart}>
             <IconCart />
@@ -2304,7 +2304,7 @@ function TemplateMenuCollection({
           </button>
           <button type="button" onClick={onOpenLoyalty}>
             <IconAward />
-            <span>Nosotros</span>
+            <span>Mis puntos</span>
           </button>
         </nav>
       </section>
