@@ -1862,13 +1862,18 @@ function TemplateMenuCollection({
     return (
       <section className="section-block section-block-host" data-menu-categories>
         <div className="host-section-head">
-          <div className="host-section-title">
-            <span className="host-section-flame">
-              <IconFlame />
+          <div className="host-section-heading-row">
+            <span className="host-section-flame-wrap">
+              <span className="host-section-flame">
+                <IconFlame />
+              </span>
+              <span className="host-section-flame-line" aria-hidden="true" />
             </span>
-            <h2>{String(currentCategory?.label ?? 'Combos').toUpperCase()}</h2>
+            <div className="host-section-title-copy">
+              <h2>{String(currentCategory?.label ?? 'Combos').toUpperCase()}</h2>
+              <p>{getHostSectionSubtitle(currentCategory?.label)}</p>
+            </div>
           </div>
-          <p>{getHostSectionSubtitle(currentCategory?.label)}</p>
         </div>
 
         <div className="host-card-grid">
