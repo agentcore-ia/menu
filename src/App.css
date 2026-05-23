@@ -7002,6 +7002,7 @@ button:focus-visible {
   font-size: 0.96rem;
   line-height: 1.15;
   white-space: nowrap;
+  max-width: 12rem;
 }
 
 .host-card-grid {
@@ -7365,16 +7366,22 @@ button:focus-visible {
   }
 
   .host-section-title-copy {
-    gap: 0.62rem;
+    display: grid;
+    align-items: end;
+    gap: 0.18rem;
   }
 
   .host-section-title-copy h2 {
-    font-size: 2.7rem;
+    font-size: 2.1rem;
+    line-height: 0.9;
   }
 
   .host-section-title-copy p {
-    margin-bottom: 0.28rem;
-    font-size: 0.82rem;
+    margin: 0;
+    max-width: none;
+    font-size: 0.78rem;
+    line-height: 1.12;
+    white-space: normal;
   }
 
   .host-card-grid {
