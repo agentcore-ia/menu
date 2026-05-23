@@ -1444,6 +1444,10 @@ function shouldAutoplayVideoPreview(presentation) {
   return presentation.preview?.productMedia === 'video-first'
 }
 
+function shouldForceVideoPreviewForBurgerHost(accountId, templateId, categories = []) {
+  return shouldUseHostCategorySet(accountId, templateId, categories)
+}
+
 function getVideoFrameSrc(videoUrl) {
   if (!videoUrl) {
     return videoUrl
@@ -2940,15 +2944,21 @@ export default function MenuApp() {
       return <HostMediaPlaceholder />
     }
 
-    if (shouldRenderPreviewVideo(item, presentation)) {
+    const useForcedHostVideoPreview = shouldForceVideoPreviewForBurgerHost(
+      accountId,
+      templateId,
+      categories,
+    )
+
+    if (shouldRenderPreviewVideo(item, presentation) || (item.video && useForcedHostVideoPreview)) {
       return (
         <video
           className="dish-thumb"
           src={getVideoFrameSrc(item.video)}
           preload="auto"
-          autoPlay={shouldAutoplayVideoPreview(presentation)}
+          autoPlay={shouldAutoplayVideoPreview(presentation) || useForcedHostVideoPreview}
           muted={presentation.preview?.mutedVideos ?? true}
-          loop={shouldAutoplayVideoPreview(presentation)}
+          loop={shouldAutoplayVideoPreview(presentation) || useForcedHostVideoPreview}
           playsInline
         />
       )
