@@ -1640,6 +1640,22 @@ function MenuLoadingScreen({ accountId }) {
   const copy = loadingCopy[loadingTemplate] ?? loadingCopy.default
   const previewRows = Array.from({ length: 3 }, (_, index) => index)
 
+  if (loadingTemplate === 'host') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-host-minimal">
+          <div className="host-loading-minimal" role="status" aria-live="polite" aria-label="Cargando menu">
+            <span className="host-loading-spinner" aria-hidden="true">
+              <span className="host-loading-spinner-core">
+                <IconFlame />
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="app-shell">
       <div className={`phone-surface menu-loading-screen loading-${loadingTemplate}`}>
