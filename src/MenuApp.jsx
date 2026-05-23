@@ -2005,6 +2005,7 @@ function TemplateCategorySelector({
 }
 
 function TemplateMenuCollection({
+  accountId,
   templateId,
   categories,
   currentCategory,
@@ -2024,6 +2025,7 @@ function TemplateMenuCollection({
 }) {
   if (templateId === 'burger') {
     const highlightedItems = categoryItems
+    const useHostCategorySet = shouldUseHostCategorySet(accountId, templateId, categories)
     const comboTarget =
       categories.find((category) => slugify(category.label).includes('combo')) ??
       categories.find((category) => slugify(category.label).includes('bebida')) ??
@@ -2034,21 +2036,28 @@ function TemplateMenuCollection({
         <div className="burger-card-grid">
           {highlightedItems.map((item) => {
             const [title, accent] = getBurgerDishParts(item)
+            const hasActualMedia = Boolean(item.video || item.hasCustomImage)
+            const hideEmptyMedia = useHostCategorySet && !hasActualMedia
 
             return (
-              <article key={item.id} className="burger-dish-card">
+              <article
+                key={item.id}
+                className={`burger-dish-card ${hideEmptyMedia ? 'no-media' : ''}`}
+              >
                 <button type="button" className="burger-favorite" aria-label="Guardar favorito">
                   <IconHeart />
                 </button>
 
-                <button
-                  type="button"
-                  className="burger-dish-media"
-                  onClick={() => onOpenDish(item)}
-                  aria-label={`Ver ${item.name}`}
-                >
-                  {renderProductMedia(item)}
-                </button>
+                {!hideEmptyMedia ? (
+                  <button
+                    type="button"
+                    className="burger-dish-media"
+                    onClick={() => onOpenDish(item)}
+                    aria-label={`Ver ${item.name}`}
+                  >
+                    {renderProductMedia(item)}
+                  </button>
+                ) : null}
 
                 <div className="burger-dish-body">
                   <button
@@ -3344,6 +3353,7 @@ export default function MenuApp() {
                 ) : null}
 
                 <TemplateMenuCollection
+                  accountId={accountId}
                   templateId={templateId}
                   categories={categories}
                   currentCategory={currentCategory}
