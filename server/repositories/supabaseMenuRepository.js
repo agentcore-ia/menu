@@ -47,10 +47,15 @@ function parseProductOptionGroups(product) {
         ? group.options
             .map((option) => ({
               id: option?.id || null,
+              value: String(option?.value || option?.productId || option?.label || '').trim(),
+              productId: option?.productId || null,
               label: String(option?.label || '').trim(),
               price: Number(option?.price || 0),
+              image: String(option?.image || '').trim(),
+              video: String(option?.video || '').trim(),
+              subtitle: String(option?.subtitle || '').trim(),
             }))
-            .filter((option) => option.label)
+            .filter((option) => option.label && option.value)
         : []
 
       if (!String(group?.title || '').trim() || options.length === 0) {

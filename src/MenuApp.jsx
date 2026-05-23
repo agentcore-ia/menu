@@ -610,6 +610,7 @@ function normalizeOptionEntry(option) {
     return {
       value: option,
       label: option,
+      price: 0,
       image: '',
       video: '',
       hasMedia: false,
@@ -620,6 +621,7 @@ function normalizeOptionEntry(option) {
   return {
     value: String(option.value ?? option.label ?? ''),
     label: String(option.label ?? option.value ?? ''),
+    price: Number(option.price ?? 0),
     image: option.image ?? '',
     video: option.video ?? '',
     hasMedia: Boolean(option.hasMedia ?? option.video ?? option.image),
@@ -3683,6 +3685,9 @@ export default function MenuApp() {
                                 </span>
                               ) : null}
                               <span className="host-option-label">{option.label}</span>
+                              {Number(option.price || 0) > 0 ? (
+                                <small>{formatPrice(Number(option.price || 0), currencySymbol)}</small>
+                              ) : null}
                               {isSelected ? <span className="host-option-check">✓</span> : null}
                             </button>
                           )
@@ -3770,14 +3775,16 @@ export default function MenuApp() {
                           const isSelected = Array.isArray(selectedValue)
                             ? selectedValue.includes(option.value)
                             : selectedValue === option.value
+                          const optionMedia = renderDetailOptionMedia(option, presentation)
 
                           return (
                             <button
                               key={option.value}
                               type="button"
-                              className={`option-card ${isSelected ? 'selected' : ''}`}
+                              className={`option-card ${isSelected ? 'selected' : ''} ${optionMedia ? 'has-media' : ''}`}
                               onClick={() => handleSelectDetailOption(group, option.value)}
                             >
+                              {optionMedia ? optionMedia : null}
                               <span>{option.label}</span>
                               {Number(option.price || 0) > 0 ? (
                                 <small>{formatPrice(Number(option.price || 0), currencySymbol)}</small>
