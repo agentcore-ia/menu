@@ -2987,6 +2987,33 @@ export default function MenuApp() {
     return <img src={item.image} alt={item.name} className="dish-thumb" />
   }
 
+  function renderMiniCardMedia(item) {
+    if (item.video) {
+      const useForcedHostVideoPreview = shouldForceVideoPreviewForBurgerHost(
+        accountId,
+        templateId,
+        categories,
+      )
+
+      return (
+        <video
+          src={getVideoFrameSrc(item.video)}
+          preload="auto"
+          autoPlay={shouldAutoplayVideoPreview(presentation) || useForcedHostVideoPreview}
+          muted={presentation.preview?.mutedVideos ?? true}
+          loop={shouldAutoplayVideoPreview(presentation) || useForcedHostVideoPreview}
+          playsInline
+        />
+      )
+    }
+
+    if (item.hasCustomImage) {
+      return <img src={item.image} alt={item.name} />
+    }
+
+    return null
+  }
+
   function renderRewardMedia(reward) {
     if (reward.videoUrl) {
       return (
@@ -3969,19 +3996,11 @@ export default function MenuApp() {
                     <h3>Tambien te puede gustar</h3>
                     <div className="recommendation-row">
                       {recommendations.map((item) => (
-                        <article key={item.id} className="mini-card">
-                          {shouldRenderPreviewVideo(item, presentation) ? (
-                            <video
-                              src={getVideoFrameSrc(item.video)}
-                              preload="auto"
-                              autoPlay={shouldAutoplayVideoPreview(presentation)}
-                              muted={presentation.preview?.mutedVideos ?? true}
-                              loop={shouldAutoplayVideoPreview(presentation)}
-                              playsInline
-                            />
-                          ) : (
-                            <img src={item.image} alt={item.name} />
-                          )}
+                        <article
+                          key={item.id}
+                          className={`mini-card ${item.video || item.hasCustomImage ? '' : 'no-media'}`}
+                        >
+                          {renderMiniCardMedia(item)}
 
                           <div className="mini-card-body">
                             <h4>{item.name}</h4>
@@ -4150,8 +4169,11 @@ export default function MenuApp() {
                       </div>
                       <div className="recommendation-row">
                         {cartRecommendations.map((item) => (
-                          <article key={item.id} className="mini-card">
-                            <img src={item.image} alt={item.name} />
+                          <article
+                            key={item.id}
+                            className={`mini-card ${item.video || item.hasCustomImage ? '' : 'no-media'}`}
+                          >
+                            {renderMiniCardMedia(item)}
                             <div className="mini-card-body">
                               <h4>{item.name}</h4>
                               <div className="mini-card-footer">
