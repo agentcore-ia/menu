@@ -363,6 +363,17 @@ function IconPlay() {
 }
 
 function getInitialAccountId() {
+  const hostname = window.location.hostname.toLowerCase()
+  const domainSuffix = '.menu.net.ar'
+
+  if (hostname.endsWith(domainSuffix)) {
+    const subdomain = hostname.slice(0, -domainSuffix.length).split('.').filter(Boolean).at(-1)
+
+    if (subdomain && subdomain !== 'www') {
+      return decodeURIComponent(subdomain)
+    }
+  }
+
   const pathAccount = window.location.pathname
     .split('/')
     .filter(Boolean)
