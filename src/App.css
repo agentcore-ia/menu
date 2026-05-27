@@ -2407,40 +2407,147 @@
   width: 100%;
   min-height: 100svh;
   min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.35rem;
+  padding: 2rem;
+  background: #000;
+  color: #fff7ed;
+  overflow: hidden;
+}
+
+.host-loading-minimal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255, 81, 36, 0.12), transparent 11rem),
+    radial-gradient(circle at 50% 64%, rgba(255, 172, 36, 0.08), transparent 10rem);
+  animation: host-loading-heat 2.8s ease-in-out infinite;
+}
+
+.host-loading-brand,
+.host-loading-ring,
+.host-loading-copy,
+.host-loading-progress {
+  position: relative;
+  z-index: 1;
+}
+
+.host-loading-brand {
+  width: min(11rem, 54vw);
+  aspect-ratio: 1;
   display: grid;
   place-items: center;
-  background: #000;
+  border-radius: 2rem;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04), transparent 72%);
+}
+
+.host-loading-brand img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 1rem 1.8rem rgba(239, 59, 45, 0.28));
+}
+
+.host-loading-ring {
+  width: 6.75rem;
+  height: 6.75rem;
+  display: grid;
+  place-items: center;
+}
+
+.host-loading-ring-orbit {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background:
+    conic-gradient(from 20deg, transparent 0 58%, rgba(255, 67, 43, 0.95), #ff9f1c, transparent 82%),
+    radial-gradient(circle, rgba(255, 98, 43, 0.12), transparent 58%);
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
+  mask: radial-gradient(circle, transparent 58%, #000 60%);
+  animation: host-loading-spin 1.15s linear infinite;
 }
 
 .host-loading-spinner {
-  width: 5.5rem;
-  height: 5.5rem;
+  width: 4.9rem;
+  height: 4.9rem;
   display: grid;
   place-items: center;
   border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  border-top-color: rgba(255, 98, 67, 0.95);
-  border-right-color: rgba(255, 164, 27, 0.88);
-  animation: host-loading-spin 0.95s linear infinite;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255, 143, 31, 0.18), transparent 54%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.01));
+  box-shadow:
+    inset 0 0 2rem rgba(255, 72, 38, 0.08),
+    0 1rem 2.5rem rgba(0, 0, 0, 0.45);
 }
 
 .host-loading-spinner-core {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.6rem;
+  height: 2.6rem;
   display: grid;
   place-items: center;
-  color: #ff6d1e;
-  animation: loading-pulse-soft 1.5s ease-in-out infinite;
+  border-radius: 999px;
+  color: #fff7ed;
+  background: linear-gradient(135deg, #ff3f30, #ff8d1e);
+  box-shadow: 0 0.9rem 2rem rgba(255, 63, 48, 0.32);
+  animation: host-loading-flame-pulse 1.35s ease-in-out infinite;
 }
 
 .host-loading-spinner-core svg {
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 1.45rem;
+  height: 1.45rem;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.8;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.host-loading-copy {
+  display: grid;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.host-loading-copy strong {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: clamp(2rem, 10vw, 3.2rem);
+  line-height: 0.92;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  text-shadow: 0.12rem 0.12rem 0 rgba(255, 73, 37, 0.34);
+}
+
+.host-loading-copy span {
+  max-width: 18rem;
+  color: rgba(255, 247, 237, 0.72);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.host-loading-progress {
+  width: min(13rem, 64vw);
+  height: 0.38rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.host-loading-progress span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff342c, #ff8d1e, #ff342c);
+  box-shadow: 0 0 1.25rem rgba(255, 91, 31, 0.42);
+  animation: host-loading-progress 1.2s ease-in-out infinite;
 }
 
 .loading-gelato {
@@ -2676,6 +2783,42 @@
 @keyframes host-loading-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes host-loading-heat {
+  0%,
+  100% {
+    opacity: 0.62;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes host-loading-flame-pulse {
+  0%,
+  100% {
+    transform: scale(0.96);
+    box-shadow: 0 0.85rem 1.8rem rgba(255, 63, 48, 0.28);
+  }
+
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 1rem 2.3rem rgba(255, 124, 30, 0.42);
+  }
+}
+
+@keyframes host-loading-progress {
+  0% {
+    transform: translateX(-105%);
+  }
+
+  100% {
+    transform: translateX(250%);
   }
 }
 

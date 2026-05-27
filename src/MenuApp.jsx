@@ -1732,11 +1732,24 @@ function MenuLoadingScreen({ accountId }) {
       <div className="app-shell">
         <div className="phone-surface menu-loading-screen loading-host-minimal">
           <div className="host-loading-minimal" role="status" aria-live="polite" aria-label="Cargando menu">
-            <span className="host-loading-spinner" aria-hidden="true">
-              <span className="host-loading-spinner-core">
-                <IconFlame />
+            <div className="host-loading-brand">
+              <img src="/assets/host-favicon.png" alt="HOST" />
+            </div>
+            <div className="host-loading-ring" aria-hidden="true">
+              <span className="host-loading-ring-orbit" />
+              <span className="host-loading-spinner">
+                <span className="host-loading-spinner-core">
+                  <IconFlame />
+                </span>
               </span>
-            </span>
+            </div>
+            <div className="host-loading-copy">
+              <strong>Preparando tu pedido</strong>
+              <span>Combos, pollo frito y extras al rojo vivo.</span>
+            </div>
+            <div className="host-loading-progress" aria-hidden="true">
+              <span />
+            </div>
           </div>
         </div>
       </div>
