@@ -387,6 +387,24 @@ function getInitialAccountId() {
   return params.get('account') ?? 'sandras-rose'
 }
 
+function getAccountFaviconHref(accountId) {
+  const key = slugify(accountId)
+  return key === 'host' || key.startsWith('host-') ? '/assets/host-favicon.png' : '/favicon.svg'
+}
+
+function setDocumentFavicon(href) {
+  let link = document.querySelector('link[rel="icon"]')
+
+  if (!link) {
+    link = document.createElement('link')
+    link.rel = 'icon'
+    document.head.appendChild(link)
+  }
+
+  link.type = href.endsWith('.svg') ? 'image/svg+xml' : 'image/png'
+  link.href = href
+}
+
 function getLoadingTemplate(accountId) {
   const key = slugify(accountId)
 
@@ -2694,6 +2712,10 @@ export default function MenuApp() {
     paymentMethod: 'cash',
     notes: '',
   })
+
+  useEffect(() => {
+    setDocumentFavicon(getAccountFaviconHref(accountId))
+  }, [accountId])
 
   useEffect(() => {
     let cancelled = false
