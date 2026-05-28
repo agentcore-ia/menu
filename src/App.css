@@ -4319,7 +4319,7 @@
 .host-detail-topbar .floating-button.dark {
   background: rgba(10, 10, 12, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  color: #fff6ea;
+  color: var(--host-copy-color);
 }
 
 .host-detail-topbar-actions {
@@ -4342,8 +4342,8 @@
   min-height: 2.6rem;
   padding: 0.4rem 0.95rem;
   border-radius: 999px;
-  background: var(--custom-card-price, var(--theme-primary, #ffbe31));
-  color: var(--theme-primary-text, #11100b);
+  background: var(--host-action-color);
+  color: var(--host-action-text-color);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 1.3rem;
   letter-spacing: 0.03em;
@@ -4369,7 +4369,7 @@
 
 .host-detail-copy h2 {
   margin: 0;
-  color: #fff6ea;
+  color: var(--host-copy-color);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 3.05rem;
   line-height: 0.88;
@@ -4379,14 +4379,14 @@
 
 .host-detail-summary {
   margin: 0.65rem 0 0;
-  color: rgba(255, 246, 234, 0.92);
+  color: var(--host-copy-color);
   font-size: 1rem;
   line-height: 1.42;
 }
 
 .host-detail-copy .host-detail-note {
   margin: 0.85rem 0 0;
-  color: rgba(255, 246, 234, 0.7);
+  color: var(--host-muted-color);
   font-size: 0.94rem;
   line-height: 1.55;
 }
@@ -4399,7 +4399,7 @@
 }
 
 .host-detail-price-stack strong {
-  color: var(--custom-card-price, var(--theme-primary, #ffbe31));
+  color: var(--host-action-color);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 2.8rem;
   line-height: 1;
@@ -4414,7 +4414,7 @@
 }
 
 .host-quantity-stepper button {
-  color: #fff6ea;
+  color: var(--host-copy-color);
   background: rgba(255, 255, 255, 0.04);
 }
 
@@ -4438,7 +4438,7 @@
 
 .host-option-head h3 {
   margin: 0;
-  color: #fff6ea;
+  color: var(--host-copy-color);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 2rem;
   line-height: 0.95;
@@ -4496,8 +4496,8 @@
   padding: 0.8rem 0.7rem 0.9rem;
   border-radius: 1.1rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(14, 14, 16, 0.92);
-  color: #fff6ea;
+  background: color-mix(in srgb, var(--host-card-color) 92%, transparent);
+  color: var(--host-copy-color);
 }
 
 .host-option-card.has-media {
@@ -4530,8 +4530,8 @@
 }
 
 .host-option-card.selected {
-  border-color: var(--custom-card-price, var(--theme-primary, #ffbe31));
-  box-shadow: inset 0 0 0 1px var(--custom-card-price, var(--theme-primary, #ffbe31));
+  border-color: var(--host-action-color);
+  box-shadow: inset 0 0 0 1px var(--host-action-color);
 }
 
 .host-option-media {
@@ -4619,8 +4619,8 @@
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: var(--custom-card-price, var(--theme-primary, #ffbe31));
-  color: var(--theme-primary-text, #150d08);
+  background: var(--host-action-color);
+  color: var(--host-action-text-color);
   font-size: 1rem;
   line-height: 1;
 }
@@ -4635,7 +4635,7 @@
   border-radius: 1.45rem;
   background: rgba(9, 9, 11, 0.98);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #fff6ea;
+  color: var(--host-copy-color);
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
 }
 
@@ -4647,14 +4647,14 @@
 }
 
 .host-detail-total span {
-  color: rgba(255, 246, 234, 0.7);
+  color: var(--host-muted-color);
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .host-detail-total strong {
-  color: var(--custom-card-price, var(--theme-primary, #ffbe31));
+  color: var(--host-action-color);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 2.2rem;
   line-height: 1;
@@ -4665,8 +4665,8 @@
   min-height: 4rem;
   border: 0;
   border-radius: 1.15rem;
-  background: var(--custom-add-bg, var(--theme-primary, #ffbe31));
-  color: var(--custom-add-text, var(--theme-primary-text, #150d08));
+  background: var(--custom-add-bg, var(--host-action-color));
+  color: var(--host-action-text-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -7429,6 +7429,11 @@ button:focus-visible {
   background: var(--custom-content-background, var(--theme-bg, #000));
   color: var(--theme-text, #fff6ea);
   font-family: 'Montserrat', var(--font-body, sans-serif);
+  --host-action-color: var(--custom-card-price, var(--theme-primary, #ffbe31));
+  --host-action-text-color: var(--custom-add-text, var(--theme-primary-text, #150d08));
+  --host-copy-color: var(--custom-card-text, var(--theme-text, #fff6ea));
+  --host-muted-color: var(--custom-card-muted, var(--theme-muted, rgba(255, 246, 234, 0.76)));
+  --host-card-color: var(--custom-card-bg, var(--theme-surface, #0a0a0a));
 }
 
 .app-shell:has(.template-host) {
@@ -7495,7 +7500,7 @@ button:focus-visible {
 .host-dish-placeholder svg {
   width: 1.6rem;
   height: 1.6rem;
-  color: #ffb11a;
+  color: var(--host-action-color);
   opacity: 0.82;
 }
 
@@ -7529,7 +7534,7 @@ button:focus-visible {
   padding: 0.2rem 0.28rem;
   border-radius: 1.18rem;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: var(--custom-category-bg, var(--theme-surface-alt, #070707));
+  background: var(--custom-category-bg, var(--theme-surface-alt, var(--host-card-color)));
   box-shadow: none;
 }
 
@@ -7546,7 +7551,7 @@ button:focus-visible {
   border-radius: 0.9rem;
   border: 0;
   background: transparent;
-  color: var(--custom-category-text, var(--theme-text, rgba(255, 246, 234, 0.92)));
+  color: var(--custom-category-text, var(--host-copy-color));
   display: grid;
   justify-items: center;
   align-content: center;
@@ -7572,8 +7577,8 @@ button:focus-visible {
 }
 
 .host-category-pill.active {
-  background: var(--custom-category-active-bg, linear-gradient(180deg, #ff4735 0%, #da3023 100%));
-  color: var(--custom-category-active-text, var(--theme-primary-text, #fff6ea));
+  background: var(--custom-category-active-bg, var(--host-action-color));
+  color: var(--custom-category-active-text, var(--host-action-text-color));
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
@@ -7608,11 +7613,11 @@ button:focus-visible {
   border-radius: 999px;
   background: radial-gradient(
     circle at 50% 40%,
-    var(--custom-card-price, var(--theme-primary, #ffb81f)) 0%,
+    var(--host-action-color) 0%,
     var(--theme-primary, #ffbe31) 58%,
     var(--theme-primary, #ef3b2d) 100%
   );
-  color: #150d08;
+  color: var(--host-action-text-color);
   box-shadow: none;
 }
 
@@ -7634,7 +7639,7 @@ button:focus-visible {
 
 .host-section-title-copy h2 {
   margin: 0;
-  color: var(--theme-text, #fff6ea);
+  color: var(--host-copy-color);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 2.32rem;
   line-height: 0.9;
@@ -7644,7 +7649,7 @@ button:focus-visible {
 
 .host-section-title-copy p {
   margin: 0;
-  color: var(--custom-card-muted, var(--theme-muted, rgba(255, 246, 234, 0.68)));
+  color: var(--host-muted-color);
   font-size: 0.82rem;
   line-height: 1.12;
   white-space: normal;
@@ -7663,8 +7668,8 @@ button:focus-visible {
   display: grid;
   align-content: start;
   border-radius: 1.45rem;
-  border: 1px solid color-mix(in srgb, var(--theme-primary, #ef3b2d) 34%, transparent);
-  background: var(--custom-card-bg, var(--theme-surface, #0a0a0a));
+  border: 1px solid color-mix(in srgb, var(--host-action-color) 34%, transparent);
+  background: var(--host-card-color);
   box-shadow: none;
 }
 
@@ -7681,8 +7686,8 @@ button:focus-visible {
   min-height: 1.95rem;
   padding: 0.35rem 0.62rem;
   border-radius: 999px;
-  background: var(--theme-primary, #ffbe31);
-  color: var(--theme-primary-text, #150d08);
+  background: var(--host-action-color);
+  color: var(--host-action-text-color);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 1rem;
   line-height: 1;
@@ -7695,7 +7700,7 @@ button:focus-visible {
   min-height: 8.75rem;
   padding: 0;
   border: 0;
-  background: var(--custom-card-bg, var(--theme-surface, #0a0a0a));
+  background: var(--host-card-color);
 }
 
 .host-dish-media .dish-thumb {
@@ -7722,7 +7727,7 @@ button:focus-visible {
 
 .host-dish-copy h3 {
   margin: 0;
-  color: var(--custom-card-text, var(--theme-text, #fff6ea));
+  color: var(--host-copy-color);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 1.52rem;
   line-height: 0.92;
@@ -7732,7 +7737,7 @@ button:focus-visible {
 
 .host-dish-copy p {
   margin: 0.32rem 0 0;
-  color: var(--custom-card-muted, var(--theme-muted, rgba(255, 246, 234, 0.76)));
+  color: var(--host-muted-color);
   font-size: 0.84rem;
   line-height: 1.24;
 }
@@ -7745,7 +7750,7 @@ button:focus-visible {
 }
 
 .host-dish-footer strong {
-  color: var(--custom-card-price, var(--theme-accent, #ff8a1e));
+  color: var(--host-action-color);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 2rem;
   line-height: 1;
@@ -7757,8 +7762,8 @@ button:focus-visible {
   height: 3rem;
   border-radius: 999px;
   border: 0;
-  background: var(--custom-add-bg, var(--theme-primary, #ef3b2d));
-  color: var(--custom-add-text, var(--theme-primary-text, #fff6ea));
+  background: var(--custom-add-bg, var(--host-action-color));
+  color: var(--host-action-text-color);
   box-shadow: none;
 }
 
@@ -7776,7 +7781,7 @@ button:focus-visible {
   align-items: center;
   padding: 1.1rem 1rem;
   border-radius: 1.45rem;
-  background: linear-gradient(135deg, #ffb417 0%, #ff8a1e 38%, #f4a01b 100%);
+  background: var(--host-action-color);
   box-shadow: none;
 }
 
@@ -7786,7 +7791,7 @@ button:focus-visible {
   align-items: baseline;
   flex-wrap: wrap;
   gap: 0.45rem;
-  color: #150d08;
+  color: var(--host-action-text-color);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 2.45rem;
   line-height: 0.9;
@@ -7795,12 +7800,12 @@ button:focus-visible {
 }
 
 .host-extra-copy h3 strong {
-  color: #ef3b2d;
+  color: var(--theme-accent, currentColor);
 }
 
 .host-extra-copy p {
   margin: 0.4rem 0 0.85rem;
-  color: rgba(21, 13, 8, 0.86);
+  color: color-mix(in srgb, var(--host-action-text-color) 86%, transparent);
   font-size: 0.98rem;
   font-weight: 600;
 }
@@ -7812,9 +7817,9 @@ button:focus-visible {
   min-height: 2.55rem;
   padding: 0.55rem 0.9rem;
   border-radius: 999px;
-  border: 1px solid rgba(21, 13, 8, 0.14);
-  background: rgba(255, 246, 234, 0.92);
-  color: #18100b;
+  border: 1px solid color-mix(in srgb, var(--host-action-text-color) 18%, transparent);
+  background: color-mix(in srgb, var(--host-action-text-color) 12%, transparent);
+  color: var(--host-action-text-color);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 1.2rem;
   letter-spacing: 0.03em;
@@ -7827,8 +7832,8 @@ button:focus-visible {
   width: 1.15rem;
   height: 1.15rem;
   border-radius: 999px;
-  background: #18100b;
-  color: #fff6ea;
+  background: var(--host-action-text-color);
+  color: var(--host-action-color);
   font-size: 0.9rem;
   line-height: 1;
 }
@@ -7914,7 +7919,7 @@ button:focus-visible {
 }
 
 .host-bottom-nav button.active {
-  color: var(--custom-card-price, var(--theme-accent, #ffb11a));
+  color: var(--host-action-color);
 }
 
 .host-bottom-primary {
@@ -7922,8 +7927,8 @@ button:focus-visible {
   height: 5.8rem;
   margin: -2rem auto 0;
   border-radius: 999px;
-  background: var(--custom-add-bg, var(--theme-primary, #ef3b2d)) !important;
-  color: var(--custom-add-text, var(--theme-primary-text, #fff6ea)) !important;
+  background: var(--custom-add-bg, var(--host-action-color)) !important;
+  color: var(--host-action-text-color) !important;
   box-shadow: none;
 }
 
