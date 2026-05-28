@@ -392,6 +392,30 @@ function getAccountFaviconHref(accountId) {
   return key === 'host' || key.startsWith('host-') ? '/assets/host-favicon.png' : '/favicon.svg'
 }
 
+function getAccountDocumentTitle(accountId, presentation) {
+  const key = slugify(accountId)
+
+  if (key === 'host' || key.startsWith('host-')) {
+    return 'HOST | Menu digital'
+  }
+
+  const brand = String(presentation?.branding?.wordmark ?? '')
+    .trim()
+    .replace(/\s+/g, ' ')
+
+  if (brand) {
+    return `${brand} | Menu digital`
+  }
+
+  const accountTitle = String(accountId ?? '')
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+
+  return `${accountTitle || 'NeuroRest'} | Menu digital`
+}
+
 function setDocumentFavicon(href) {
   let link = document.querySelector('link[rel="icon"]')
 
@@ -403,6 +427,10 @@ function setDocumentFavicon(href) {
 
   link.type = href.endsWith('.svg') ? 'image/svg+xml' : 'image/png'
   link.href = href
+}
+
+function setDocumentTitle(title) {
+  document.title = title
 }
 
 function getLoadingTemplate(accountId) {
@@ -2728,6 +2756,7 @@ export default function MenuApp() {
 
   useEffect(() => {
     setDocumentFavicon(getAccountFaviconHref(accountId))
+    setDocumentTitle(getAccountDocumentTitle(accountId))
   }, [accountId])
 
   useEffect(() => {
@@ -2785,6 +2814,11 @@ export default function MenuApp() {
 
   const presentation = menu?.presentation ?? defaultPresentation
   const categories = menu?.categories ?? emptyCategories
+
+  useEffect(() => {
+    setDocumentTitle(getAccountDocumentTitle(accountId, presentation))
+  }, [accountId, presentation])
+
   const currentCategory =
     categories.find((category) => category.id === selectedCategory) ?? categories[0] ?? null
   const categoryItems = currentCategory?.items ?? []
