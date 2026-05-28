@@ -4183,6 +4183,7 @@
   display: block;
   margin-top: 0.95rem;
   font-size: 1.15rem;
+  color: var(--custom-card-price, var(--theme-primary));
 }
 
 .detail-badge {
@@ -4193,8 +4194,8 @@
   min-height: 2.35rem;
   padding: 0.3rem 0.82rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--theme-primary) 12%, transparent);
-  color: var(--theme-accent);
+  background: color-mix(in srgb, var(--theme-primary) 14%, transparent);
+  color: var(--theme-primary);
   font-size: 0.86rem;
   font-weight: 700;
 }
@@ -4247,8 +4248,8 @@
 }
 
 .option-card.selected {
-  border-color: var(--theme-accent);
-  box-shadow: inset 0 0 0 1px var(--theme-accent);
+  border-color: var(--theme-primary);
+  box-shadow: inset 0 0 0 1px var(--theme-primary);
 }
 
 .quantity-stepper {
@@ -4341,8 +4342,8 @@
   min-height: 2.6rem;
   padding: 0.4rem 0.95rem;
   border-radius: 999px;
-  background: linear-gradient(180deg, #ffbf2c 0%, #ff9b12 100%);
-  color: #11100b;
+  background: var(--custom-card-price, var(--theme-primary, #ffbe31));
+  color: var(--theme-primary-text, #11100b);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 1.3rem;
   letter-spacing: 0.03em;
@@ -4398,7 +4399,7 @@
 }
 
 .host-detail-price-stack strong {
-  color: #ff921c;
+  color: var(--custom-card-price, var(--theme-primary, #ffbe31));
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 2.8rem;
   line-height: 1;
@@ -4529,8 +4530,8 @@
 }
 
 .host-option-card.selected {
-  border-color: #ff4d35;
-  box-shadow: inset 0 0 0 1px #ff4d35;
+  border-color: var(--custom-card-price, var(--theme-primary, #ffbe31));
+  box-shadow: inset 0 0 0 1px var(--custom-card-price, var(--theme-primary, #ffbe31));
 }
 
 .host-option-media {
@@ -4618,8 +4619,8 @@
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: #ff4d35;
-  color: #fff;
+  background: var(--custom-card-price, var(--theme-primary, #ffbe31));
+  color: var(--theme-primary-text, #150d08);
   font-size: 1rem;
   line-height: 1;
 }
@@ -4653,7 +4654,7 @@
 }
 
 .host-detail-total strong {
-  color: #ff921c;
+  color: var(--custom-card-price, var(--theme-primary, #ffbe31));
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 2.2rem;
   line-height: 1;
@@ -4664,8 +4665,8 @@
   min-height: 4rem;
   border: 0;
   border-radius: 1.15rem;
-  background: linear-gradient(180deg, #ff4633 0%, #d52f24 100%);
-  color: #fff6ea;
+  background: var(--custom-add-bg, var(--theme-primary, #ffbe31));
+  color: var(--custom-add-text, var(--theme-primary-text, #150d08));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -7607,8 +7608,8 @@ button:focus-visible {
   border-radius: 999px;
   background: radial-gradient(
     circle at 50% 40%,
-    var(--custom-card-price, var(--theme-accent, #ffb81f)) 0%,
-    var(--theme-accent, #ff6d1e) 58%,
+    var(--custom-card-price, var(--theme-primary, #ffb81f)) 0%,
+    var(--theme-primary, #ffbe31) 58%,
     var(--theme-primary, #ef3b2d) 100%
   );
   color: #150d08;
@@ -7680,8 +7681,8 @@ button:focus-visible {
   min-height: 1.95rem;
   padding: 0.35rem 0.62rem;
   border-radius: 999px;
-  background: var(--theme-accent, #ef3b2d);
-  color: #fff6ea;
+  background: var(--theme-primary, #ffbe31);
+  color: var(--theme-primary-text, #150d08);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 1rem;
   line-height: 1;
