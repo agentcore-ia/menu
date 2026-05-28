@@ -1773,7 +1773,6 @@ function MenuLoadingScreen({ accountId }) {
             </div>
             <div className="host-loading-copy">
               <strong>Preparando tu pedido</strong>
-              <span>Combos, pollo frito y extras al rojo vivo.</span>
             </div>
             <div className="host-loading-progress" aria-hidden="true">
               <span />
