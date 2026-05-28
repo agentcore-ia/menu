@@ -3302,6 +3302,15 @@ export default function MenuApp() {
       return
     }
 
+    const rawPhone = (orderForm.phone || loyaltyPhone).trim()
+    const phoneDigits = rawPhone.replace(/\D/g, '')
+
+    if (phoneDigits.length < 8) {
+      setCheckoutStatus('error')
+      setCheckoutMessage('Ingresa un celular valido para confirmar el pedido.')
+      return
+    }
+
     setCheckoutStatus('submitting')
     setCheckoutMessage('')
     const whatsappWindow = window.open('', '_blank')
@@ -3309,7 +3318,7 @@ export default function MenuApp() {
     const payload = {
       customer: {
         name: orderForm.name.trim(),
-        phone: (orderForm.phone || loyaltyPhone).trim(),
+        phone: rawPhone,
         address: orderForm.address.trim(),
         neighborhood: orderForm.neighborhood.trim(),
         city: orderForm.city.trim(),
@@ -4427,6 +4436,17 @@ export default function MenuApp() {
                     value={orderForm.name}
                     onChange={(event) => updateOrderForm('name', event.target.value)}
                     placeholder="Tu nombre"
+                    required
+                  />
+                </label>
+
+                <label className="checkout-field">
+                  <span>Celular</span>
+                  <input
+                    value={orderForm.phone}
+                    onChange={(event) => updateOrderForm('phone', event.target.value)}
+                    placeholder="549..."
+                    inputMode="tel"
                     required
                   />
                 </label>

@@ -132,6 +132,14 @@ app.post('/api/accounts/:accountId/orders', async (req, res) => {
       return
     }
 
+    if (!isValidCustomerPhone(payload.customer?.phone)) {
+      res.status(400).json({
+        error: 'CUSTOMER_PHONE_REQUIRED',
+        message: 'Nombre y celular son obligatorios para enviar el pedido.',
+      })
+      return
+    }
+
     const hasProducts = Array.isArray(payload.items) && payload.items.length > 0
     const hasRedemptions = Array.isArray(payload.redemptions) && payload.redemptions.length > 0
 
@@ -139,6 +147,14 @@ app.post('/api/accounts/:accountId/orders', async (req, res) => {
       res.status(400).json({
         error: 'ITEMS_REQUIRED',
         message: 'Agrega al menos un producto o canje al pedido.',
+      })
+      return
+    }
+
+    if (hasProducts && !payload.items.every(isValidOrderItem)) {
+      res.status(400).json({
+        error: 'INVALID_ITEMS',
+        message: 'Revisa los productos del pedido antes de enviarlo.',
       })
       return
     }
@@ -406,3 +422,23 @@ app.patch('/api/admin/products/:productId/media', async (req, res) => {
 app.listen(config.port, () => {
   console.log(`NeuroRest menu API listening on http://127.0.0.1:${config.port}`)
 })
+
+function isValidCustomerPhone(value) {
+  return String(value ?? '').replace(/\D/g, '').length >= 8
+}
+
+function isValidOrderItem(item) {
+  if (!item || typeof item !== 'object') return false
+
+  const quantity = Number(item.quantity)
+  const unitPrice = Number(item.unitPrice)
+
+  return (
+    typeof item.name === 'string' &&
+    item.name.trim().length > 0 &&
+    Number.isFinite(quantity) &&
+    quantity > 0 &&
+    Number.isFinite(unitPrice) &&
+    unitPrice >= 0
+  )
+}
