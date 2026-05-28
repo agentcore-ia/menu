@@ -6662,6 +6662,14 @@ button:focus-visible {
   height: 1.25rem;
 }
 
+.burger-category-pill .host-drumstick-icon,
+.host-category-pill .host-drumstick-icon {
+  width: 1.65rem;
+  height: 1.65rem;
+  margin-left: -0.2rem;
+  margin-right: -0.08rem;
+}
+
 .burger-category-pill.active {
   border-color: transparent;
   background: #f5b72e;
