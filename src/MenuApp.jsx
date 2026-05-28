@@ -3306,7 +3306,7 @@ export default function MenuApp() {
     const payload = {
       customer: {
         name: orderForm.name.trim(),
-        phone: orderForm.phone.trim(),
+        phone: (orderForm.phone || loyaltyPhone).trim(),
         address: orderForm.address.trim(),
         neighborhood: orderForm.neighborhood.trim(),
         city: orderForm.city.trim(),
@@ -4738,11 +4738,24 @@ export default function MenuApp() {
               <div className="confirmation-step">
                 <span />
                 <div>
-                  <strong>Confirmacion por WhatsApp</strong>
-                  <small>Te avisaremos el estado del pedido por ese canal.</small>
+                  <strong>Envio por WhatsApp</strong>
+                  <small>
+                    {lastOrder.customerWhatsapp?.url
+                      ? 'Se abrio el chat con el pedido listo para enviar.'
+                      : 'El negocio todavia no tiene WhatsApp configurado.'}
+                  </small>
                 </div>
               </div>
             </div>
+            {lastOrder.customerWhatsapp?.url ? (
+              <button
+                type="button"
+                className="confirmation-button confirmation-button-secondary"
+                onClick={() => openWhatsappOrderChat(lastOrder.customerWhatsapp.url)}
+              >
+                Abrir WhatsApp otra vez
+              </button>
+            ) : null}
             <button
               type="button"
               className="confirmation-button"

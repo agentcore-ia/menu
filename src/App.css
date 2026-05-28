@@ -5499,10 +5499,26 @@
   cursor: pointer;
 }
 
+.confirmation-button-secondary {
+  min-height: 3.1rem;
+  margin-top: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 22%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-primary) 8%, var(--theme-surface));
+  color: var(--theme-primary);
+}
+
 .confirmation-card-gelato .confirmation-button {
   background: linear-gradient(90deg, #ff5a92 0%, #ff7daf 100%);
   color: #fff;
   box-shadow: 0 16px 28px rgba(255, 90, 146, 0.22);
+}
+
+.confirmation-card-gelato .confirmation-button-secondary,
+.confirmation-card-burger .confirmation-button-secondary,
+.confirmation-card-pizzeria .confirmation-button-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  box-shadow: none;
 }
 
 .confirmation-card-burger .confirmation-button {

@@ -115,37 +115,44 @@ export class SupabaseOrderRepository {
         null,
     })
 
-    const confirmationMessage = this.buildWhatsappConfirmation({
-      orderNumber: pedido.order_number,
-      restaurant,
-      customer,
-      items: orderProducts,
-      redemptionItems: redemptionPreview?.lineItems ?? [],
-      total,
-      deliveryType: payload.deliveryType,
-      paymentMethod: payload.paymentMethod,
-      address: payload.customer.address,
-      notes: payload.notes,
-      loyalty: loyaltyEarn,
-    })
+    const shouldNotifyCustomer = this.hasRealCustomerPhone(customer.phone)
+    const confirmationMessage = shouldNotifyCustomer
+      ? this.buildWhatsappConfirmation({
+          orderNumber: pedido.order_number,
+          restaurant,
+          customer,
+          items: orderProducts,
+          redemptionItems: redemptionPreview?.lineItems ?? [],
+          total,
+          deliveryType: payload.deliveryType,
+          paymentMethod: payload.paymentMethod,
+          address: payload.customer.address,
+          notes: payload.notes,
+          loyalty: loyaltyEarn,
+        })
+      : ''
 
-    const whatsappMessage = await this.createOutgoingWhatsappMessage(
-      conversation.id,
-      confirmationMessage,
-    )
-    const whatsappDispatch = await this.dispatchWhatsappWebhook({
-      restaurant,
-      customer,
-      pedido,
-      conversation,
-      message: whatsappMessage,
-      content: confirmationMessage,
-      items: orderProducts,
-      redemptionItems: redemptionPreview?.lineItems ?? [],
-      total,
-      deliveryType: payload.deliveryType,
-      paymentMethod: payload.paymentMethod,
-    })
+    const whatsappMessage = shouldNotifyCustomer
+      ? await this.createOutgoingWhatsappMessage(conversation.id, confirmationMessage)
+      : null
+    const whatsappDispatch = shouldNotifyCustomer
+      ? await this.dispatchWhatsappWebhook({
+          restaurant,
+          customer,
+          pedido,
+          conversation,
+          message: whatsappMessage,
+          content: confirmationMessage,
+          items: orderProducts,
+          redemptionItems: redemptionPreview?.lineItems ?? [],
+          total,
+          deliveryType: payload.deliveryType,
+          paymentMethod: payload.paymentMethod,
+        })
+      : {
+          status: 'skipped',
+          reason: 'CUSTOMER_PHONE_NOT_PROVIDED',
+        }
     await this.touchConversation(conversation.id)
 
     const customerWhatsapp = this.buildCustomerToBusinessWhatsapp({
@@ -398,7 +405,7 @@ export class SupabaseOrderRepository {
     existingAccount,
     startingBalance,
   }) {
-    if (!loyaltySettings.enabled) {
+    if (!loyaltySettings.enabled || !this.hasRealCustomerPhone(customer.phone)) {
       return null
     }
 
@@ -691,12 +698,17 @@ export class SupabaseOrderRepository {
   }
 
   formatPhoneDisplay(value) {
-    if (String(value ?? '').startsWith('menu-sin-telefono-')) {
+    if (!this.hasRealCustomerPhone(value)) {
       return 'Se envia desde este chat'
     }
 
     const digits = String(value ?? '').replace(/\D/g, '')
     return digits ? `+${digits}` : 'No informado'
+  }
+
+  hasRealCustomerPhone(value) {
+    const phone = String(value ?? '')
+    return phone && !phone.startsWith('menu-sin-telefono-')
   }
 
   getPaymentLabel(value) {
