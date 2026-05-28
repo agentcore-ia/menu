@@ -7422,6 +7422,84 @@ button:focus-visible {
   color: #11100b;
 }
 
+.phone-surface.template-burger,
+.detail-phone.template-burger {
+  --burger-action-color: var(--custom-card-price, var(--theme-primary, #f5b72e));
+  --burger-action-text-color: var(--custom-add-text, var(--theme-primary-text, #11100b));
+  --burger-copy-color: var(--custom-card-text, var(--theme-text, #f8f3e8));
+  --burger-muted-color: var(--custom-card-muted, var(--theme-muted, rgba(248, 243, 232, 0.78)));
+  --burger-card-color: var(--custom-card-bg, var(--theme-surface, #0a0f10));
+  background: var(--custom-content-background, var(--theme-bg, #020404));
+  color: var(--burger-copy-color);
+}
+
+.app-shell:has(.template-burger) {
+  background: var(--menu-page-background, var(--theme-bg, #020404));
+}
+
+.template-burger .content-panel {
+  background: var(--custom-content-background, var(--theme-bg, #020404));
+}
+
+.template-burger .burger-menu-title-row h2,
+.template-burger .burger-search-button,
+.template-burger .burger-favorite {
+  color: var(--burger-copy-color);
+}
+
+.template-burger .burger-category-pill {
+  border-color: var(--custom-category-border, var(--theme-border, rgba(255, 255, 255, 0.16)));
+  background: var(--custom-category-bg, color-mix(in srgb, var(--burger-card-color) 92%, transparent));
+  color: var(--custom-category-text, var(--burger-copy-color));
+}
+
+.template-burger .burger-category-pill.active {
+  background: var(--custom-category-active-bg, var(--burger-action-color));
+  color: var(--custom-category-active-text, var(--burger-action-text-color));
+}
+
+.template-burger .burger-dish-card {
+  border-color: color-mix(in srgb, var(--burger-action-color) 28%, transparent);
+  background: var(--burger-card-color);
+}
+
+.template-burger .burger-dish-media {
+  background: var(--burger-card-color);
+}
+
+.template-burger .burger-dish-copy h3,
+.template-burger .burger-dish-copy h3 strong {
+  color: var(--burger-copy-color);
+}
+
+.template-burger .burger-dish-copy p {
+  color: var(--burger-muted-color);
+}
+
+.template-burger .burger-dish-footer strong {
+  color: var(--burger-action-color);
+}
+
+.template-burger .burger-add-button,
+.template-burger .burger-dish-badge {
+  background: var(--custom-add-bg, var(--burger-action-color));
+  color: var(--burger-action-text-color);
+}
+
+.template-burger .burger-bottom-nav button.active {
+  color: var(--burger-action-color);
+}
+
+.template-burger .burger-bottom-primary {
+  background: var(--custom-add-bg, var(--burger-action-color)) !important;
+  color: var(--burger-action-text-color) !important;
+}
+
+.template-burger .burger-bottom-primary svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
 .phone-surface.template-host,
 .detail-phone.template-host {
   min-height: 100vh;
