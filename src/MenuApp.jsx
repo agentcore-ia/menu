@@ -1530,6 +1530,10 @@ function shouldForceVideoPreviewForBurgerHost(accountId, templateId, categories 
   return shouldUseHostCategorySet(accountId, templateId, categories)
 }
 
+function hasProductMedia(item) {
+  return Boolean(item?.video || item?.hasCustomImage)
+}
+
 function getVideoFrameSrc(videoUrl) {
   if (!videoUrl) {
     return videoUrl
@@ -2362,43 +2366,49 @@ function TemplateMenuCollection({
         </div>
 
         <div className="host-card-grid">
-          {highlightedItems.map((item, index) => (
-            <article key={item.id} className="host-dish-card">
-              <span className="host-dish-badge">{getHostBadgeText(item, index, currentCategory?.label)}</span>
+          {highlightedItems.map((item, index) => {
+            const productMedia = renderProductMedia(item)
 
-              <button
-                type="button"
-                className="host-dish-media"
-                onClick={() => onOpenDish(item)}
-                aria-label={`Ver ${item.name}`}
-              >
-                {renderProductMedia(item)}
-              </button>
+            return (
+              <article key={item.id} className={`host-dish-card ${productMedia ? '' : 'no-media'}`}>
+                <span className="host-dish-badge">{getHostBadgeText(item, index, currentCategory?.label)}</span>
 
-              <div className="host-dish-body">
-                <button
-                  type="button"
-                  className="host-dish-copy"
-                  onClick={() => onOpenDish(item)}
-                >
-                  <h3>{getHostDisplayTitle(item)}</h3>
-                  <p>{item.description}</p>
-                </button>
-
-                <div className="host-dish-footer">
-                  <strong>{item.price}</strong>
+                {productMedia ? (
                   <button
                     type="button"
-                    className="host-add-button"
-                    onClick={() => onAddItem(item)}
-                    aria-label={`Agregar ${item.name}`}
+                    className="host-dish-media"
+                    onClick={() => onOpenDish(item)}
+                    aria-label={`Ver ${item.name}`}
                   >
-                    <IconPlus />
+                    {productMedia}
                   </button>
+                ) : null}
+
+                <div className="host-dish-body">
+                  <button
+                    type="button"
+                    className="host-dish-copy"
+                    onClick={() => onOpenDish(item)}
+                  >
+                    <h3>{getHostDisplayTitle(item)}</h3>
+                    <p>{item.description}</p>
+                  </button>
+
+                  <div className="host-dish-footer">
+                    <strong>{item.price}</strong>
+                    <button
+                      type="button"
+                      className="host-add-button"
+                      onClick={() => onAddItem(item)}
+                      aria-label={`Agregar ${item.name}`}
+                    >
+                      <IconPlus />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            )
+          })}
         </div>
 
         <article className="host-extra-banner" data-host-extras>
@@ -3053,8 +3063,8 @@ export default function MenuApp() {
   }
 
   function renderProductMedia(item) {
-    if (templateId === 'host' && !item.video && !item.hasCustomImage) {
-      return <HostMediaPlaceholder />
+    if (!hasProductMedia(item)) {
+      return null
     }
 
     const useForcedHostVideoPreview = shouldForceVideoPreviewForBurgerHost(
@@ -3391,7 +3401,7 @@ export default function MenuApp() {
     : true
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
   const isHostDetail = templateId === 'host' && Boolean(selectedDish)
-  const detailHasHeroMedia = Boolean(selectedDish?.video || selectedDish?.hasCustomImage)
+  const detailHasHeroMedia = hasProductMedia(selectedDish)
   const appClassName = [
     'menu-app',
     `template-${templateId}`,
@@ -3956,36 +3966,53 @@ export default function MenuApp() {
               </>
             ) : (
               <>
-                <div className="detail-hero">
-                  {selectedDish.video ? (
-                    <video
-                      src={getVideoFrameSrc(selectedDish.video)}
-                      preload="auto"
-                      autoPlay={shouldAutoplayVideoPreview(presentation)}
-                      muted={presentation.preview?.mutedVideos ?? true}
-                      loop={shouldAutoplayVideoPreview(presentation)}
-                      playsInline
-                    />
-                  ) : (
-                    <img src={selectedDish.image} alt={selectedDish.name} />
-                  )}
+                {detailHasHeroMedia ? (
+                  <div className="detail-hero">
+                    {selectedDish.video ? (
+                      <video
+                        src={getVideoFrameSrc(selectedDish.video)}
+                        preload="auto"
+                        autoPlay={shouldAutoplayVideoPreview(presentation)}
+                        muted={presentation.preview?.mutedVideos ?? true}
+                        loop={shouldAutoplayVideoPreview(presentation)}
+                        playsInline
+                      />
+                    ) : (
+                      <img src={selectedDish.image} alt={selectedDish.name} />
+                    )}
 
-                  <div className="detail-topbar">
-                    <button
-                      type="button"
-                      className="floating-button light"
-                      onClick={() => setSelectedDish(null)}
-                      aria-label="Volver"
-                    >
-                      <IconBack />
-                    </button>
-                    <button type="button" className="floating-button dark" aria-label="Favorito">
-                      <IconHeart />
-                    </button>
+                    <div className="detail-topbar">
+                      <button
+                        type="button"
+                        className="floating-button light"
+                        onClick={() => setSelectedDish(null)}
+                        aria-label="Volver"
+                      >
+                        <IconBack />
+                      </button>
+                      <button type="button" className="floating-button dark" aria-label="Favorito">
+                        <IconHeart />
+                      </button>
+                    </div>
                   </div>
-                </div>
+                ) : null}
 
-                <section className="detail-sheet">
+                <section className={`detail-sheet ${detailHasHeroMedia ? '' : 'no-hero'}`}>
+                  {!detailHasHeroMedia ? (
+                    <div className="detail-topbar detail-topbar-inline">
+                      <button
+                        type="button"
+                        className="floating-button light"
+                        onClick={() => setSelectedDish(null)}
+                        aria-label="Volver"
+                      >
+                        <IconBack />
+                      </button>
+                      <button type="button" className="floating-button dark" aria-label="Favorito">
+                        <IconHeart />
+                      </button>
+                    </div>
+                  ) : null}
                   <div className="sheet-handle" />
 
                   <div className="detail-head">

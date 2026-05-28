@@ -4146,6 +4146,18 @@
   background: var(--theme-surface);
 }
 
+.detail-sheet.no-hero {
+  min-height: 100dvh;
+  margin-top: 0;
+  padding-top: calc(1rem + env(safe-area-inset-top));
+  border-radius: 0;
+}
+
+.detail-topbar-inline {
+  position: static;
+  margin-bottom: 1rem;
+}
+
 .sheet-handle {
   width: 4rem;
   height: 0.34rem;
@@ -7653,6 +7665,11 @@ button:focus-visible {
   border: 1px solid color-mix(in srgb, var(--theme-primary, #ef3b2d) 34%, transparent);
   background: var(--custom-card-bg, var(--theme-surface, #0a0a0a));
   box-shadow: none;
+}
+
+.host-dish-card.no-media {
+  min-height: 15.5rem;
+  align-content: end;
 }
 
 .host-dish-badge {
