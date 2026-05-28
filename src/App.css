@@ -7556,6 +7556,58 @@ button:focus-visible {
   object-fit: cover;
 }
 
+.hero-image-slider {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+}
+
+.hero-image-slider[data-slider='true'] .hero-slider-image {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.hero-image-slider[data-slider='true'] .hero-slider-image:first-child {
+  position: relative;
+}
+
+.hero-image-slider .hero-slider-image.is-active {
+  opacity: 1;
+}
+
+.hero-slider-dots {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 3;
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.38rem 0.48rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(10px);
+}
+
+.hero-slider-dots span {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.46);
+  transition:
+    width 250ms ease,
+    background 250ms ease;
+}
+
+.hero-slider-dots span.is-active {
+  width: 1.1rem;
+  background: #fff;
+}
+
 .host-hero-placeholder,
 .host-dish-placeholder {
   position: relative;

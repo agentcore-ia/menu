@@ -510,8 +510,28 @@ function formatPrice(value, currencySymbol = '$') {
   })}`
 }
 
+function normalizeImageList(...groups) {
+  return Array.from(
+    new Set(
+      groups
+        .flatMap((group) => (Array.isArray(group) ? group : [group]))
+        .map((item) => String(item ?? '').trim())
+        .filter(Boolean),
+    ),
+  )
+}
+
 function getHeroImage(presentation, heroDish) {
   return presentation.hero?.image ?? heroDish?.image ?? '/dishes/hero-clean-cut.png'
+}
+
+function getHeroImages(presentation, fallbackImage) {
+  return normalizeImageList(
+    presentation.hero?.images,
+    presentation.theme?.headerImages,
+    presentation.hero?.image,
+    fallbackImage,
+  )
 }
 
 function getHostHeroArtImage(presentation, heroDish) {
@@ -1530,6 +1550,46 @@ function shouldForceVideoPreviewForBurgerHost(accountId, templateId, categories 
   return shouldUseHostCategorySet(accountId, templateId, categories)
 }
 
+function HeroImageSlider({ images, imageClassName, alt, placeholderClassName }) {
+  const safeImages = normalizeImageList(images)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const visibleIndex = safeImages.length ? activeIndex % safeImages.length : 0
+
+  useEffect(() => {
+    if (safeImages.length <= 1) return undefined
+
+    const intervalId = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % safeImages.length)
+    }, 4500)
+
+    return () => window.clearInterval(intervalId)
+  }, [safeImages.length])
+
+  if (!safeImages.length) {
+    return placeholderClassName ? <div className={placeholderClassName} aria-hidden="true" /> : null
+  }
+
+  return (
+    <div className="hero-image-slider" data-slider={safeImages.length > 1 ? 'true' : 'false'}>
+      {safeImages.map((image, index) => (
+        <img
+          key={image}
+          className={`${imageClassName} hero-slider-image ${index === visibleIndex ? 'is-active' : ''}`}
+          src={image}
+          alt={alt}
+        />
+      ))}
+      {safeImages.length > 1 ? (
+        <div className="hero-slider-dots" aria-hidden="true">
+          {safeImages.map((image, index) => (
+            <span key={image} className={index === visibleIndex ? 'is-active' : ''} />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 function hasProductMedia(item) {
   return Boolean(item?.video || item?.hasCustomImage)
 }
@@ -1547,7 +1607,8 @@ function getVideoFrameSrc(videoUrl) {
 }
 
 function TemplateHero({ templateId, presentation, heroDish }) {
-  const hasStandaloneHeroImage = Boolean(presentation?.hero?.image)
+  const standaloneHeroImages = getHeroImages(presentation)
+  const hasStandaloneHeroImage = standaloneHeroImages.length > 0
 
   if (!heroDish && !(templateId === 'host' && hasStandaloneHeroImage)) {
     return null
@@ -1573,9 +1634,9 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   if (templateId === 'pizzeria') {
     return (
       <section className="hero-content hero-content-pizzeria">
-        <img
-          className="pizzeria-header-image"
-          src={presentation.hero?.image ?? '/pizzeria/header.png'}
+        <HeroImageSlider
+          images={getHeroImages(presentation, '/pizzeria/header.png')}
+          imageClassName="pizzeria-header-image"
           alt="La Buona Pizzeria. Nuestro menu. Sabor que te hace volver."
         />
       </section>
@@ -1585,9 +1646,9 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   if (templateId === 'burger') {
     return (
       <section className="hero-content hero-content-burger">
-        <img
-          className="burger-header-image"
-          src={getHeroImage(presentation, heroDish)}
+        <HeroImageSlider
+          images={getHeroImages(presentation, heroDish?.image ?? '/dishes/hero-clean-cut.png')}
+          imageClassName="burger-header-image"
           alt="Grill House Burger Co. Hechas para gustar."
         />
       </section>
@@ -1595,19 +1656,19 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   }
 
   if (templateId === 'host') {
-    const heroImage = getHostHeroArtImage(presentation, heroDish) || presentation.hero?.image
+    const heroImages = getHeroImages(
+      presentation,
+      getHostHeroArtImage(presentation, heroDish) || undefined,
+    )
 
     return (
       <section className="hero-content hero-content-host">
-        {heroImage ? (
-          <img
-            className="host-header-image"
-            src={heroImage}
-            alt={presentation.branding?.wordmark ?? heroDish?.name ?? 'Host'}
-          />
-        ) : (
-          <div className="host-hero-placeholder" aria-hidden="true" />
-        )}
+        <HeroImageSlider
+          images={heroImages}
+          imageClassName="host-header-image"
+          alt={presentation.branding?.wordmark ?? heroDish?.name ?? 'Host'}
+          placeholderClassName="host-hero-placeholder"
+        />
       </section>
     )
   }
@@ -1615,9 +1676,9 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   if (templateId === 'blue-burger') {
     return (
       <section className="hero-content hero-content-blue-burger">
-        <img
-          className="blue-burger-header-image"
-          src={getHeroImage(presentation, heroDish)}
+        <HeroImageSlider
+          images={getHeroImages(presentation, heroDish?.image ?? '/dishes/hero-clean-cut.png')}
+          imageClassName="blue-burger-header-image"
           alt={`${presentation.branding?.wordmark ?? 'JBurger'} menu`}
         />
       </section>

@@ -24,6 +24,9 @@ function mapPresentationConfig(config) {
   const inheritedPresentation = inheritedPreset
     ? resolveMenuPresentation(inheritedPreset)
     : null
+  const headerImages = Array.isArray(themeOverrides.headerImages)
+    ? themeOverrides.headerImages.filter(Boolean)
+    : []
   const effectiveLayout =
     inheritedPreset && config.layout === 'editorial'
       ? inheritedPresentation?.layout
@@ -53,6 +56,7 @@ function mapPresentationConfig(config) {
     },
     hero: {
       image: config.hero_image_url || inheritedPresentation?.hero?.image || undefined,
+      images: headerImages.length ? headerImages : inheritedPresentation?.hero?.images || undefined,
       title: config.hero_title || inheritedPresentation?.hero?.title || undefined,
       accent: config.hero_accent || inheritedPresentation?.hero?.accent || undefined,
       description:
@@ -147,6 +151,7 @@ function normalizePresentationInput(input, existingConfig) {
       productImageHeight: input.theme?.productImageHeight,
       addButtonBackground: input.theme?.addButtonBackground,
       addButtonText: input.theme?.addButtonText,
+      headerImages: Array.isArray(input.hero?.images) ? input.hero.images.filter(Boolean) : undefined,
     },
     branding_wordmark: input.branding?.wordmark ?? null,
     branding_subtitle: input.branding?.subtitle ?? null,
