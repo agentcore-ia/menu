@@ -148,6 +148,21 @@ export class SupabaseOrderRepository {
     })
     await this.touchConversation(conversation.id)
 
+    const customerWhatsapp = this.buildCustomerToBusinessWhatsapp({
+      orderNumber: pedido.order_number,
+      restaurant,
+      customer,
+      items: orderProducts,
+      redemptionItems: redemptionPreview?.lineItems ?? [],
+      total,
+      deliveryType: payload.deliveryType,
+      paymentMethod: payload.paymentMethod,
+      address: payload.customer.address,
+      neighborhood: payload.customer.neighborhood,
+      city: payload.customer.city,
+      notes: payload.notes,
+    })
+
     return {
       id: pedido.id,
       orderNumber: pedido.order_number,
@@ -176,12 +191,13 @@ export class SupabaseOrderRepository {
               0,
           },
       whatsapp: whatsappDispatch,
+      customerWhatsapp,
     }
   }
 
   async fetchRestaurant(accountId) {
     const slug = slugify(accountId)
-    const select = 'id,slug,name,delivery_fee,city'
+    const select = 'id,slug,name,phone,delivery_fee,city'
     const exactRows = await this.request(
       `/restaurants?slug=eq.${encodeURIComponent(slug)}&select=${select}&limit=1`,
     )
@@ -579,6 +595,101 @@ export class SupabaseOrderRepository {
     ]
       .filter(Boolean)
       .join('\n')
+  }
+
+  buildCustomerToBusinessWhatsapp({
+    orderNumber,
+    restaurant,
+    customer,
+    items,
+    redemptionItems,
+    total,
+    deliveryType,
+    paymentMethod,
+    address,
+    neighborhood,
+    city,
+    notes,
+  }) {
+    const businessPhone = this.normalizeWhatsappDialNumber(restaurant.phone)
+
+    if (!businessPhone) {
+      return {
+        status: 'missing_business_phone',
+      }
+    }
+
+    const lines = items.map((item) => {
+      const itemTotal = Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0)
+      const noteText = item.notes ? ` (${item.notes})` : ''
+      return `- ${item.quantity} x ${item.name}${noteText}: $${this.formatMoney(itemTotal)}`
+    })
+    const rewardLines = redemptionItems.map((item) => `- ${item.quantity} x ${item.name} (canje)`)
+    const deliveryLine =
+      deliveryType === 'delivery'
+        ? `Entrega: Delivery${address ? ` a ${address}` : ''}`
+        : 'Entrega: Retiro en local'
+    const locationLines = [
+      neighborhood ? `Barrio/zona: ${neighborhood}` : null,
+      city ? `Ciudad: ${city}` : null,
+    ].filter(Boolean)
+    const createdAt = new Date().toLocaleString('es-AR', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+    const text = [
+      `Hola ${restaurant.name}! Quiero hacer un pedido, este es el detalle:`,
+      '',
+      `Pedido #${orderNumber}`,
+      createdAt,
+      customer.name ? `Cliente: ${customer.name}` : null,
+      '',
+      'Detalle:',
+      ...lines,
+      rewardLines.length ? '' : null,
+      rewardLines.length ? 'Canjes:' : null,
+      ...rewardLines,
+      '',
+      deliveryLine,
+      ...locationLines,
+      `Pago: ${this.getPaymentLabel(paymentMethod)}`,
+      notes ? `Notas: ${notes}` : null,
+      `Total: $${this.formatMoney(total)}`,
+      '',
+      `Mi WhatsApp: ${this.formatPhoneDisplay(customer.phone)}`,
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+    return {
+      status: 'ready',
+      to: businessPhone,
+      text,
+      url: `https://api.whatsapp.com/send/?phone=${businessPhone}&text=${encodeURIComponent(text)}&type=phone_number&app_absent=0`,
+    }
+  }
+
+  normalizeWhatsappDialNumber(value) {
+    const digits = String(value ?? '').replace(/\D/g, '').replace(/^00/, '')
+
+    if (!digits) {
+      return ''
+    }
+
+    if (digits.startsWith('54') || digits.length <= 10 || digits.startsWith('0')) {
+      return normalizePhone(digits)
+    }
+
+    return digits
+  }
+
+  formatPhoneDisplay(value) {
+    const digits = String(value ?? '').replace(/\D/g, '')
+    return digits ? `+${digits}` : 'No informado'
   }
 
   getPaymentLabel(value) {

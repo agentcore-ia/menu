@@ -1111,6 +1111,28 @@ function buildWhatsappNumberPreview(phone) {
   return digits ? `+${digits}` : ''
 }
 
+function openWhatsappOrderChat(url, targetWindow) {
+  if (!url) {
+    if (targetWindow && !targetWindow.closed) {
+      targetWindow.close()
+    }
+
+    return
+  }
+
+  if (targetWindow && !targetWindow.closed) {
+    targetWindow.location.href = url
+    targetWindow.focus()
+    return
+  }
+
+  const opened = window.open(url, '_blank', 'noopener,noreferrer')
+
+  if (!opened) {
+    window.location.href = url
+  }
+}
+
 function renderDetailOptionMedia(option, presentation) {
   const entry = normalizeOptionEntry(option)
 
@@ -3275,6 +3297,7 @@ export default function MenuApp() {
 
     setCheckoutStatus('submitting')
     setCheckoutMessage('')
+    const whatsappWindow = window.open('', '_blank')
 
     const payload = {
       customer: {
@@ -3319,6 +3342,7 @@ export default function MenuApp() {
       setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
       setCart([])
       setRewardRedemptions([])
+      openWhatsappOrderChat(result.customerWhatsapp?.url, whatsappWindow)
       setLoyaltyData((current) =>
         current
           ? {
@@ -3337,6 +3361,10 @@ export default function MenuApp() {
       setSelectedDish(null)
       setShowConfirmation(true)
     } catch (error) {
+      if (whatsappWindow && !whatsappWindow.closed) {
+        whatsappWindow.close()
+      }
+
       setCheckoutStatus('error')
       setCheckoutMessage(error instanceof Error ? error.message : 'No se pudo enviar el pedido.')
     }
