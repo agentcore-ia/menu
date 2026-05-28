@@ -526,9 +526,16 @@ function getHeroImage(presentation, heroDish) {
 }
 
 function getHeroImages(presentation, fallbackImage) {
-  return normalizeImageList(
+  const customImages = normalizeImageList(
     presentation.hero?.images,
     presentation.theme?.headerImages,
+  )
+
+  if (customImages.length) {
+    return customImages
+  }
+
+  return normalizeImageList(
     presentation.hero?.image,
     fallbackImage,
   )
