@@ -1772,7 +1772,7 @@ function MenuLoadingScreen({ accountId }) {
               </span>
             </div>
             <div className="host-loading-copy">
-              <strong>Preparando tu pedido</strong>
+              <strong>Cargando menú</strong>
             </div>
             <div className="host-loading-progress" aria-hidden="true">
               <span />
