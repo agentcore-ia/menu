@@ -7413,13 +7413,13 @@ button:focus-visible {
 .detail-phone.template-host {
   min-height: 100vh;
   overflow-x: hidden;
-  background: #000;
-  color: #fff6ea;
+  background: var(--custom-content-background, var(--theme-bg, #000));
+  color: var(--theme-text, #fff6ea);
   font-family: 'Montserrat', var(--font-body, sans-serif);
 }
 
 .app-shell:has(.template-host) {
-  background: #000;
+  background: var(--menu-page-background, var(--theme-bg, #000));
 }
 
 .template-host .hero {
@@ -7502,7 +7502,7 @@ button:focus-visible {
   margin-top: 0;
   padding: 0.2rem 1rem 8.2rem;
   border-radius: 0;
-  background: #000;
+  background: var(--custom-content-background, var(--theme-bg, #000));
   box-shadow: none;
 }
 
@@ -7516,7 +7516,7 @@ button:focus-visible {
   padding: 0.2rem 0.28rem;
   border-radius: 1.18rem;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: #070707;
+  background: var(--custom-category-bg, var(--theme-surface-alt, #070707));
   box-shadow: none;
 }
 
@@ -7533,7 +7533,7 @@ button:focus-visible {
   border-radius: 0.9rem;
   border: 0;
   background: transparent;
-  color: rgba(255, 246, 234, 0.92);
+  color: var(--custom-category-text, var(--theme-text, rgba(255, 246, 234, 0.92)));
   display: grid;
   justify-items: center;
   align-content: center;
@@ -7559,8 +7559,8 @@ button:focus-visible {
 }
 
 .host-category-pill.active {
-  background: linear-gradient(180deg, #ff4735 0%, #da3023 100%);
-  color: #fff6ea;
+  background: var(--custom-category-active-bg, linear-gradient(180deg, #ff4735 0%, #da3023 100%));
+  color: var(--custom-category-active-text, var(--theme-primary-text, #fff6ea));
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
@@ -7593,7 +7593,12 @@ button:focus-visible {
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: radial-gradient(circle at 50% 40%, #ffb81f 0%, #ff6d1e 58%, #ef3b2d 100%);
+  background: radial-gradient(
+    circle at 50% 40%,
+    var(--custom-card-price, var(--theme-accent, #ffb81f)) 0%,
+    var(--theme-accent, #ff6d1e) 58%,
+    var(--theme-primary, #ef3b2d) 100%
+  );
   color: #150d08;
   box-shadow: none;
 }
@@ -7604,7 +7609,7 @@ button:focus-visible {
   height: 0.18rem;
   margin-left: 0.12rem;
   border-radius: 999px;
-  background: linear-gradient(90deg, #ff4b39 0%, #ff2f22 100%);
+  background: var(--theme-primary, #ff4b39);
 }
 
 .host-section-title-copy {
@@ -7616,7 +7621,7 @@ button:focus-visible {
 
 .host-section-title-copy h2 {
   margin: 0;
-  color: #fff6ea;
+  color: var(--theme-text, #fff6ea);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 2.32rem;
   line-height: 0.9;
@@ -7626,7 +7631,7 @@ button:focus-visible {
 
 .host-section-title-copy p {
   margin: 0;
-  color: rgba(255, 246, 234, 0.68);
+  color: var(--custom-card-muted, var(--theme-muted, rgba(255, 246, 234, 0.68)));
   font-size: 0.82rem;
   line-height: 1.12;
   white-space: normal;
@@ -7645,8 +7650,8 @@ button:focus-visible {
   display: grid;
   align-content: start;
   border-radius: 1.45rem;
-  border: 1px solid rgba(239, 59, 45, 0.26);
-  background: #0a0a0a;
+  border: 1px solid color-mix(in srgb, var(--theme-primary, #ef3b2d) 34%, transparent);
+  background: var(--custom-card-bg, var(--theme-surface, #0a0a0a));
   box-shadow: none;
 }
 
@@ -7658,8 +7663,8 @@ button:focus-visible {
   min-height: 1.95rem;
   padding: 0.35rem 0.62rem;
   border-radius: 999px;
-  background: linear-gradient(180deg, #ff4633 0%, #d52f24 100%);
-  color: #fff6ea;
+  background: var(--theme-primary, #ef3b2d);
+  color: var(--theme-primary-text, #fff6ea);
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 1rem;
   line-height: 1;
@@ -7672,7 +7677,7 @@ button:focus-visible {
   min-height: 8.75rem;
   padding: 0;
   border: 0;
-  background: #0a0a0a;
+  background: var(--custom-card-bg, var(--theme-surface, #0a0a0a));
 }
 
 .host-dish-media .dish-thumb {
@@ -7699,7 +7704,7 @@ button:focus-visible {
 
 .host-dish-copy h3 {
   margin: 0;
-  color: #fff6ea;
+  color: var(--custom-card-text, var(--theme-text, #fff6ea));
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 1.52rem;
   line-height: 0.92;
@@ -7709,7 +7714,7 @@ button:focus-visible {
 
 .host-dish-copy p {
   margin: 0.32rem 0 0;
-  color: rgba(255, 246, 234, 0.76);
+  color: var(--custom-card-muted, var(--theme-muted, rgba(255, 246, 234, 0.76)));
   font-size: 0.84rem;
   line-height: 1.24;
 }
@@ -7722,7 +7727,7 @@ button:focus-visible {
 }
 
 .host-dish-footer strong {
-  color: #ff8a1e;
+  color: var(--custom-card-price, var(--theme-accent, #ff8a1e));
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 2rem;
   line-height: 1;
@@ -7734,8 +7739,8 @@ button:focus-visible {
   height: 3rem;
   border-radius: 999px;
   border: 0;
-  background: linear-gradient(180deg, #ff4633 0%, #d52f24 100%);
-  color: #fff6ea;
+  background: var(--custom-add-bg, var(--theme-primary, #ef3b2d));
+  color: var(--custom-add-text, var(--theme-primary-text, #fff6ea));
   box-shadow: none;
 }
 
@@ -7872,7 +7877,7 @@ button:focus-visible {
   padding: 0.8rem 0.9rem max(0.8rem, env(safe-area-inset-bottom));
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 1.3rem 1.3rem 0 0;
-  background: #0b0b0d;
+  background: var(--custom-category-bg, var(--theme-surface, #0b0b0d));
   box-shadow: none;
   backdrop-filter: none;
 }
@@ -7883,7 +7888,7 @@ button:focus-visible {
   justify-items: center;
   gap: 0.3rem;
   border: 0;
-  color: rgba(255, 246, 234, 0.72);
+  color: var(--custom-category-text, var(--theme-muted, rgba(255, 246, 234, 0.72)));
   background: transparent;
   font-size: 0.66rem;
   font-weight: 800;
@@ -7891,7 +7896,7 @@ button:focus-visible {
 }
 
 .host-bottom-nav button.active {
-  color: #ffb11a;
+  color: var(--custom-card-price, var(--theme-accent, #ffb11a));
 }
 
 .host-bottom-primary {
@@ -7899,8 +7904,8 @@ button:focus-visible {
   height: 5.8rem;
   margin: -2rem auto 0;
   border-radius: 999px;
-  background: radial-gradient(circle at 50% 30%, #ff6143 0%, #ef3b2d 58%, #d02a1f 100%) !important;
-  color: #fff6ea !important;
+  background: var(--custom-add-bg, var(--theme-primary, #ef3b2d)) !important;
+  color: var(--custom-add-text, var(--theme-primary-text, #fff6ea)) !important;
   box-shadow: none;
 }
 
