@@ -1107,6 +1107,10 @@ function getDetailNote(dish) {
 }
 
 function buildWhatsappNumberPreview(phone) {
+  if (String(phone ?? '').startsWith('menu-sin-telefono-')) {
+    return 'WhatsApp del chat'
+  }
+
   const digits = String(phone ?? '').replace(/\D/g, '')
   return digits ? `+${digits}` : ''
 }
@@ -4420,16 +4424,6 @@ export default function MenuApp() {
                     value={orderForm.name}
                     onChange={(event) => updateOrderForm('name', event.target.value)}
                     placeholder="Tu nombre"
-                    required
-                  />
-                </label>
-
-                <label className="checkout-field">
-                  <span>Celular</span>
-                  <input
-                    value={orderForm.phone}
-                    onChange={(event) => updateOrderForm('phone', event.target.value)}
-                    placeholder="549..."
                     required
                   />
                 </label>

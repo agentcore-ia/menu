@@ -124,10 +124,10 @@ app.post('/api/accounts/:accountId/orders', async (req, res) => {
   try {
     const payload = req.body ?? {}
 
-    if (!payload.customer?.phone || !payload.customer?.name) {
+    if (!payload.customer?.name) {
       res.status(400).json({
         error: 'CUSTOMER_REQUIRED',
-        message: 'Nombre y celular son obligatorios para enviar el pedido.',
+        message: 'El nombre es obligatorio para enviar el pedido.',
       })
       return
     }

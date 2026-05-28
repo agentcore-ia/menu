@@ -230,7 +230,10 @@ export class SupabaseOrderRepository {
   }
 
   async upsertCustomer(restaurant, customer) {
-    const normalizedPhone = normalizePhone(customer.phone)
+    const rawPhone = String(customer.phone ?? '').trim()
+    const normalizedPhone = rawPhone
+      ? normalizePhone(rawPhone)
+      : `menu-sin-telefono-${restaurant.slug}-${Date.now()}`
 
     const existingRows = await this.request(
       `/clientes?restaurant_id=eq.${restaurant.id}&phone=eq.${encodeURIComponent(normalizedPhone)}&select=*&limit=1`,
@@ -688,6 +691,10 @@ export class SupabaseOrderRepository {
   }
 
   formatPhoneDisplay(value) {
+    if (String(value ?? '').startsWith('menu-sin-telefono-')) {
+      return 'Se envia desde este chat'
+    }
+
     const digits = String(value ?? '').replace(/\D/g, '')
     return digits ? `+${digits}` : 'No informado'
   }
