@@ -7609,7 +7609,7 @@ button:focus-visible {
   height: 0.18rem;
   margin-left: 0.12rem;
   border-radius: 999px;
-  background: var(--theme-primary, #ff4b39);
+  background: var(--theme-accent, #ff4b39);
 }
 
 .host-section-title-copy {
@@ -7663,8 +7663,8 @@ button:focus-visible {
   min-height: 1.95rem;
   padding: 0.35rem 0.62rem;
   border-radius: 999px;
-  background: var(--theme-primary, #ef3b2d);
-  color: var(--theme-primary-text, #fff6ea);
+  background: var(--theme-accent, #ef3b2d);
+  color: #fff6ea;
   font-family: 'Bebas Neue', Impact, sans-serif;
   font-size: 1rem;
   line-height: 1;

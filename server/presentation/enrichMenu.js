@@ -40,6 +40,27 @@ const defaultAdminThemeValues = {
   shadow: 'rgba(45, 38, 24, 0.08)',
   displayFont: 'Cormorant Garamond',
   bodyFont: 'Manrope',
+  pageBackground: '#f4efe6',
+  contentBackground: '#f4efe6',
+  categoryActiveBackground: '#445d39',
+  categoryActiveText: '#ffffff',
+  categoryText: '#1b1b18',
+  cardBackground: '#fffdfa',
+  cardText: '#1b1b18',
+  cardPrice: '#445d39',
+  addButtonBackground: '#445d39',
+  addButtonText: '#ffffff',
+}
+const hostLegacyEditorValues = {
+  background: '#020404',
+  pageBackground: '#020404',
+  contentBackground: '#080d0e',
+  surfaceAlt: '#050808',
+  text: '#f8f3e8',
+  cardText: '#f8f3e8',
+  categoryText: '#f8f3e8',
+  primary: '#445d39',
+  accent: '#4f6546',
 }
 const defaultAdminHeroImage = '/dishes/hero-clean-cut.png'
 
@@ -109,6 +130,14 @@ function sanitizePresentationConfig(preset, config, options = {}) {
     sanitized.theme = Object.fromEntries(
       Object.entries(sanitized.theme).filter(
         ([key, value]) => defaultAdminThemeValues[key] !== value,
+      ),
+    )
+  }
+
+  if (preset.template === 'host' && isObject(sanitized.theme)) {
+    sanitized.theme = Object.fromEntries(
+      Object.entries(sanitized.theme).filter(
+        ([key, value]) => hostLegacyEditorValues[key] !== value,
       ),
     )
   }
