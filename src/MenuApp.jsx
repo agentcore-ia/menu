@@ -1761,7 +1761,7 @@ function MenuLoadingScreen({ accountId }) {
         <div className="phone-surface menu-loading-screen loading-host-minimal">
           <div className="host-loading-minimal" role="status" aria-live="polite" aria-label="Cargando menu">
             <div className="host-loading-brand">
-              <img src="/assets/host-favicon.png" alt="HOST" />
+              <img src="/assets/host-logo-transparent.png" alt="HOST" />
             </div>
             <div className="host-loading-ring" aria-hidden="true">
               <span className="host-loading-ring-orbit" />
