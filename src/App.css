@@ -6664,15 +6664,10 @@ button:focus-visible {
 
 .burger-category-pill .host-drumstick-icon,
 .host-category-pill .host-drumstick-icon {
-  width: 1.9rem;
-  height: 1.9rem;
-  margin-left: -0.32rem;
-  margin-right: -0.08rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 3.15;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: -0.14rem;
+  stroke-width: 1.75;
 }
 
 .burger-category-pill.active {
