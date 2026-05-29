@@ -547,6 +547,14 @@ function findPromosCategory(categories = []) {
   )
 }
 
+function findExplicitPromosCategory(categories = []) {
+  return categories.find((category) => isPromoCategoryLabel(category.label) && category.items?.length) ?? null
+}
+
+function findCombosCategory(categories = []) {
+  return categories.find((category) => isComboCategoryLabel(category.label) && category.items?.length) ?? null
+}
+
 function toNumericPrice(value) {
   if (typeof value === 'number' && Number.isFinite(value)) {
     return value
@@ -2423,7 +2431,6 @@ function TemplateMenuCollection({
   onOpenCart,
   onOpenLoyalty,
   onNavigateHome,
-  onNavigateMenu,
   onNavigatePromos,
   gelatoFormats,
   onOpenGelatoBuilder,
@@ -2431,8 +2438,10 @@ function TemplateMenuCollection({
   if (templateId === 'burger') {
     const highlightedItems = categoryItems
     const useHostCategorySet = shouldUseHostCategorySet(accountId, templateId, categories)
+    const promoTarget = findExplicitPromosCategory(categories)
     const comboTarget =
-      findPromosCategory(categories) ??
+      promoTarget ??
+      findCombosCategory(categories) ??
       categories.find((category) => slugify(category.label).includes('bebida')) ??
       currentCategory
 
@@ -2494,36 +2503,43 @@ function TemplateMenuCollection({
           })}
         </div>
 
-        <article className="burger-combo-banner burger-footer-banner" data-burger-promos>
-          <button
-            type="button"
-            onClick={() => {
-              onSelectCategory?.(comboTarget?.id)
-              onNavigatePromos?.()
-            }}
-            aria-label="Ver combo clasico"
-          >
-            <img src="/burger/footer.png" alt="El match perfecto. Combo clasico." />
-          </button>
-        </article>
+        {comboTarget ? (
+          <article className="burger-combo-banner burger-footer-banner" data-burger-promos>
+            <button
+              type="button"
+              onClick={() => {
+                onSelectCategory?.(comboTarget?.id)
+                onNavigatePromos?.()
+              }}
+              aria-label="Ver combo clasico"
+            >
+              <img src="/burger/footer.png" alt="El match perfecto. Combo clasico." />
+            </button>
+          </article>
+        ) : null}
 
         <nav className="burger-bottom-nav" aria-label="Navegacion del menu">
-          <button type="button" className="active" onClick={onNavigateHome}>
+          <button type="button" className="active bottom-nav-home" onClick={onNavigateHome}>
             <IconFlame />
             <span>Inicio</span>
-          </button>
-          <button type="button" onClick={onNavigateMenu}>
-            <IconBurger />
-            <span>Menu</span>
           </button>
           <button type="button" className="burger-bottom-primary" onClick={onOpenCart}>
             <IconFlame />
           </button>
-          <button type="button" onClick={onNavigatePromos}>
-            <IconTicket />
-            <span>Promos</span>
-          </button>
-          <button type="button" onClick={onOpenLoyalty}>
+          {promoTarget ? (
+            <button
+              type="button"
+              className="bottom-nav-promo"
+              onClick={() => {
+                onSelectCategory?.(promoTarget.id)
+                onNavigatePromos?.()
+              }}
+            >
+              <IconTicket />
+              <span>Promos</span>
+            </button>
+          ) : null}
+          <button type="button" className="bottom-nav-points" onClick={onOpenLoyalty}>
             <IconAward />
             <span>Mis puntos</span>
           </button>
@@ -2534,10 +2550,11 @@ function TemplateMenuCollection({
 
   if (templateId === 'blue-burger') {
     const highlightedItems = categoryItems.slice(0, 3)
+    const comboCategory = findCombosCategory(categories) ?? findExplicitPromosCategory(categories)
     const comboTarget =
-      findPromosCategory(categories) ??
-      categories.find((category) => slugify(category.label).includes('bebida')) ??
-      currentCategory
+      comboCategory ??
+      categories.find((category) => slugify(category.label).includes('bebida') && category.items?.length) ??
+      null
 
     return (
       <section className="section-block section-block-blue-burger" data-menu-categories>
@@ -2586,50 +2603,54 @@ function TemplateMenuCollection({
           ))}
         </div>
 
-        <article className="blue-burger-combo-card" data-burger-promos>
-          <div>
-            <h3>Combos que te encantan</h3>
-            <button
-              type="button"
-              onClick={() => {
-                onSelectCategory?.(comboTarget?.id)
-                onNavigatePromos?.()
-              }}
-            >
-              <IconTicket />
-              Ver combos
-            </button>
-          </div>
-          <div className="blue-burger-combo-art" aria-hidden="true">
-            <IconFries />
-            <IconDrink />
-          </div>
-        </article>
+        {comboTarget ? (
+          <article className="blue-burger-combo-card" data-burger-promos>
+            <div>
+              <h3>Combos que te encantan</h3>
+              <button
+                type="button"
+                onClick={() => {
+                  onSelectCategory?.(comboTarget.id)
+                  onNavigatePromos?.()
+                }}
+              >
+                <IconTicket />
+                Ver combos
+              </button>
+            </div>
+            <div className="blue-burger-combo-art" aria-hidden="true">
+              <IconFries />
+              <IconDrink />
+            </div>
+          </article>
+        ) : null}
 
-        <nav className="blue-burger-bottom-nav" aria-label="Navegacion del menu">
-          <button type="button" className="active" onClick={onNavigateHome}>
+        <nav
+          className={`blue-burger-bottom-nav ${comboTarget ? 'has-secondary-action' : 'no-secondary-action'}`}
+          aria-label="Navegacion del menu"
+        >
+          <button type="button" className="active bottom-nav-home" onClick={onNavigateHome}>
             <IconHome />
             <span>Inicio</span>
           </button>
-          <button type="button" onClick={onNavigateMenu}>
-            <IconBurger />
-            <span>Menu</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onSelectCategory?.(comboTarget?.id)
-              onNavigatePromos?.()
-            }}
-          >
-            <IconFries />
-            <span>Combos</span>
-          </button>
-          <button type="button" onClick={onOpenLoyalty}>
+          {comboTarget ? (
+            <button
+              type="button"
+              className="bottom-nav-promo"
+              onClick={() => {
+                onSelectCategory?.(comboTarget.id)
+                onNavigatePromos?.()
+              }}
+            >
+              <IconFries />
+              <span>Combos</span>
+            </button>
+          ) : null}
+          <button type="button" className="bottom-nav-points" onClick={onOpenLoyalty}>
             <IconAward />
             <span>Mis puntos</span>
           </button>
-          <button type="button" onClick={onOpenCart}>
+          <button type="button" className="bottom-nav-cart" onClick={onOpenCart}>
             <IconCart />
             <span>Contacto</span>
           </button>
@@ -2640,6 +2661,7 @@ function TemplateMenuCollection({
 
   if (templateId === 'host') {
     const highlightedItems = categoryItems
+    const promoTarget = findExplicitPromosCategory(categories)
     const extrasTarget =
       categories.find((category) => {
         const key = slugify(category.label)
@@ -2748,23 +2770,28 @@ function TemplateMenuCollection({
         </article>
 
         <nav className="host-bottom-nav" aria-label="Navegacion del menu">
-          <button type="button" className="active" onClick={onNavigateHome}>
+          <button type="button" className="active bottom-nav-home" onClick={onNavigateHome}>
             <IconHome />
             <span>Inicio</span>
           </button>
-          <button type="button" onClick={onNavigatePromos}>
-            <IconSpark />
-            <span>Promos</span>
-          </button>
+          {promoTarget ? (
+            <button
+              type="button"
+              className="bottom-nav-promo"
+              onClick={() => {
+                onSelectCategory?.(promoTarget.id)
+                onNavigatePromos?.()
+              }}
+            >
+              <IconSpark />
+              <span>Promos</span>
+            </button>
+          ) : null}
           <button type="button" className="host-bottom-primary" onClick={onOpenCart}>
             <IconFlame />
             <span>Pedi ahora</span>
           </button>
-          <button type="button" onClick={onNavigateMenu}>
-            <IconCart />
-            <span>Pedidos</span>
-          </button>
-          <button type="button" onClick={onOpenLoyalty}>
+          <button type="button" className="bottom-nav-points" onClick={onOpenLoyalty}>
             <IconAward />
             <span>Mis puntos</span>
           </button>
@@ -3875,7 +3902,6 @@ export default function MenuApp() {
                   onOpenCart={() => setIsCartOpen(true)}
                   onOpenLoyalty={handleOpenLoyalty}
                   onNavigateHome={handleNavigateHome}
-                  onNavigateMenu={handleNavigateMenu}
                   onNavigatePromos={handleNavigatePromos}
                   gelatoFormats={gelatoFormats}
                   onOpenGelatoBuilder={handleOpenGelatoBuilder}

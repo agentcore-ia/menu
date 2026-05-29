@@ -7189,6 +7189,23 @@ button:focus-visible {
   color: #f5b72e;
 }
 
+.burger-bottom-nav .bottom-nav-home {
+  grid-column: 1;
+}
+
+.burger-bottom-nav .bottom-nav-promo {
+  grid-column: 2;
+}
+
+.burger-bottom-nav .burger-bottom-primary {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.burger-bottom-nav .bottom-nav-points {
+  grid-column: 5;
+}
+
 .burger-bottom-nav svg {
   width: 1.35rem;
   height: 1.35rem;
@@ -8261,6 +8278,23 @@ button:focus-visible {
   color: var(--host-action-color);
 }
 
+.host-bottom-nav .bottom-nav-home {
+  grid-column: 1;
+}
+
+.host-bottom-nav .bottom-nav-promo {
+  grid-column: 2;
+}
+
+.host-bottom-nav .host-bottom-primary {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.host-bottom-nav .bottom-nav-points {
+  grid-column: 5;
+}
+
 .host-bottom-primary {
   width: 5.8rem;
   height: 5.8rem;
@@ -8997,6 +9031,26 @@ button:focus-visible {
 
 .blue-burger-bottom-nav button.active {
   color: #2553ac;
+}
+
+.blue-burger-bottom-nav .bottom-nav-home {
+  grid-column: 1;
+}
+
+.blue-burger-bottom-nav .bottom-nav-promo {
+  grid-column: 2;
+}
+
+.blue-burger-bottom-nav .bottom-nav-points {
+  grid-column: 4;
+}
+
+.blue-burger-bottom-nav.no-secondary-action .bottom-nav-points {
+  grid-column: 3;
+}
+
+.blue-burger-bottom-nav .bottom-nav-cart {
+  grid-column: 5;
 }
 
 .blue-burger-bottom-nav svg {
