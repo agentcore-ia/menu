@@ -85,6 +85,38 @@ const previewDescriptions = {
   'video-first': 'El video se usa como vista principal cuando el producto tiene video.',
 }
 
+const headerTextFieldsByLayout = {
+  editorial: {
+    title: ['Titulo principal', 'Frase grande de la portada.'],
+    accent: ['Texto destacado', 'Parte secundaria o resaltada del titulo.'],
+    description: ['Descripcion principal', 'Texto corto que aparece en la portada del menu.'],
+  },
+  bistro: {
+    title: ['Titulo principal', 'Primera linea del hero.'],
+    accent: ['Texto destacado', 'Segunda linea resaltada del hero.'],
+    description: ['Descripcion principal', 'Texto corto debajo del titulo.'],
+  },
+  luxe: {
+    title: ['Titulo principal', 'Primera linea del hero.'],
+    accent: ['Texto destacado', 'Segunda linea resaltada del hero.'],
+    description: ['Descripcion principal', 'Texto corto debajo del titulo.'],
+  },
+  gelato: {
+    title: ['Saludo principal', 'Texto grande del inicio, por ejemplo: Hola!'],
+    accent: ['Subtitulo', 'Pregunta o frase debajo del saludo.'],
+  },
+}
+
+const imageOnlyHeaderLayouts = new Set(['pizzeria', 'burger', 'blue-burger', 'host'])
+
+function getHeaderTextFields(layout) {
+  if (imageOnlyHeaderLayouts.has(layout)) {
+    return null
+  }
+
+  return headerTextFieldsByLayout[layout] ?? headerTextFieldsByLayout.editorial
+}
+
 function getInitialAdminAccount() {
   const params = new URLSearchParams(window.location.search)
   return params.get('account') ?? ''
@@ -151,6 +183,7 @@ export default function AdminApp() {
   const products = useMemo(() => editor?.products ?? [], [editor])
   const restaurant = editor?.restaurant ?? null
   const menuPublicUrl = selectedAccount ? `${window.location.origin}/${selectedAccount}` : ''
+  const headerTextFields = getHeaderTextFields(presentation.layout)
   const productStats = useMemo(
     () => ({
       total: products.length,
@@ -1063,35 +1096,58 @@ export default function AdminApp() {
                   <small className="admin-help">Controla como encaja la imagen del header.</small>
                 </label>
 
-                <label className="admin-field">
-                  <span>Titulo principal</span>
-                  <input
-                    value={presentation.hero.title}
-                    onChange={(event) => updatePresentation('hero.title', event.target.value)}
-                  />
-                  <small className="admin-help">Frase grande de la portada.</small>
-                </label>
+                {headerTextFields ? (
+                  <>
+                    {headerTextFields.title ? (
+                      <label className="admin-field">
+                        <span>{headerTextFields.title[0]}</span>
+                        <input
+                          value={presentation.hero.title}
+                          onChange={(event) =>
+                            updatePresentation('hero.title', event.target.value)
+                          }
+                        />
+                        <small className="admin-help">{headerTextFields.title[1]}</small>
+                      </label>
+                    ) : null}
 
-                <label className="admin-field">
-                  <span>Texto destacado</span>
-                  <input
-                    value={presentation.hero.accent}
-                    onChange={(event) => updatePresentation('hero.accent', event.target.value)}
-                  />
-                  <small className="admin-help">Parte secundaria o resaltada del titulo.</small>
-                </label>
+                    {headerTextFields.accent ? (
+                      <label className="admin-field">
+                        <span>{headerTextFields.accent[0]}</span>
+                        <input
+                          value={presentation.hero.accent}
+                          onChange={(event) =>
+                            updatePresentation('hero.accent', event.target.value)
+                          }
+                        />
+                        <small className="admin-help">{headerTextFields.accent[1]}</small>
+                      </label>
+                    ) : null}
 
-                <label className="admin-field admin-field-wide">
-                  <span>Descripcion principal</span>
-                  <textarea
-                    rows="3"
-                    value={presentation.hero.description}
-                    onChange={(event) =>
-                      updatePresentation('hero.description', event.target.value)
-                    }
-                  />
-                  <small className="admin-help">Texto corto que aparece en la portada del menu.</small>
-                </label>
+                    {headerTextFields.description ? (
+                      <label className="admin-field admin-field-wide">
+                        <span>{headerTextFields.description[0]}</span>
+                        <textarea
+                          rows="3"
+                          value={presentation.hero.description}
+                          onChange={(event) =>
+                            updatePresentation('hero.description', event.target.value)
+                          }
+                        />
+                        <small className="admin-help">{headerTextFields.description[1]}</small>
+                      </label>
+                    ) : null}
+                  </>
+                ) : (
+                  <div className="admin-field admin-field-wide admin-context-note">
+                    <span>Textos del header no visibles</span>
+                    <small className="admin-help">
+                      Este diseno usa una imagen completa como header. El titulo, destacado y
+                      descripcion no aparecen en el menu; cambia esos textos editando la imagen
+                      principal.
+                    </small>
+                  </div>
+                )}
 
                 <label className="admin-field">
                   <span>Fondo general</span>

@@ -6000,6 +6000,17 @@ button:focus-visible {
   grid-column: 1 / -1;
 }
 
+.admin-context-note {
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(84, 73, 45, 0.12);
+  border-radius: 1rem;
+  background: rgba(68, 93, 57, 0.06);
+}
+
+.admin-context-note span {
+  color: #1f241b;
+}
+
 .admin-checkbox {
   align-items: center;
   grid-auto-flow: column;
