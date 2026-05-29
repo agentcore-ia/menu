@@ -49,6 +49,62 @@ function IconMenu() {
   )
 }
 
+function IconExternalLink() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M14 5h5v5" />
+      <path d="M19 5l-9 9" />
+      <path d="M19 14v4.5H5.5V5H10" />
+    </svg>
+  )
+}
+
+function IconInstagram() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="5" y="5" width="14" height="14" rx="4" />
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M16.7 7.4h.01" />
+    </svg>
+  )
+}
+
+function IconFacebook() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M14.5 8.2h2V5.3c-.6-.1-1.4-.2-2.4-.2-2.4 0-4 1.5-4 4.2v2.1H7.5v3.2h2.6V20h3.3v-5.4h2.5l.4-3.2h-2.9V9.6c0-.9.3-1.4 1.1-1.4z" />
+    </svg>
+  )
+}
+
+function IconTiktok() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M14 5v9.2a4 4 0 1 1-3.2-3.9" />
+      <path d="M14 5c.7 2.4 2.3 3.9 5 4.1" />
+    </svg>
+  )
+}
+
+function IconWhatsapp() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5.3 19l1-3.1A7.5 7.5 0 1 1 9 18.3z" />
+      <path d="M9.2 8.9c.3 3 2.1 4.8 5.4 5.7l1.2-1.4" />
+    </svg>
+  )
+}
+
+function IconWebsite() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" />
+      <path d="M4 12h16" />
+      <path d="M12 4c2 2.2 3 4.8 3 8s-1 5.8-3 8c-2-2.2-3-4.8-3-8s1-5.8 3-8z" />
+    </svg>
+  )
+}
+
 function IconCart() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1180,6 +1236,65 @@ function openWhatsappOrderChat(url, targetWindow) {
   }
 }
 
+const socialLinkDefinitions = [
+  { key: 'instagram', label: 'Instagram', icon: IconInstagram },
+  { key: 'facebook', label: 'Facebook', icon: IconFacebook },
+  { key: 'tiktok', label: 'TikTok', icon: IconTiktok },
+  { key: 'whatsapp', label: 'WhatsApp', icon: IconWhatsapp },
+  { key: 'website', label: 'Web', icon: IconWebsite },
+]
+
+function normalizeSocialUsername(value) {
+  return String(value ?? '')
+    .trim()
+    .replace(/^@+/, '')
+    .replace(/^\/+|\/+$/g, '')
+}
+
+function normalizeSocialUrl(key, value) {
+  const raw = String(value ?? '').trim()
+  if (!raw) return ''
+  if (/^https?:\/\//i.test(raw)) return raw
+
+  if (key === 'instagram') {
+    const username = normalizeSocialUsername(raw)
+    return username ? `https://instagram.com/${encodeURIComponent(username)}` : ''
+  }
+
+  if (key === 'tiktok') {
+    const username = normalizeSocialUsername(raw)
+    return username ? `https://www.tiktok.com/@${encodeURIComponent(username)}` : ''
+  }
+
+  if (key === 'facebook') {
+    const username = normalizeSocialUsername(raw)
+    return username ? `https://facebook.com/${encodeURIComponent(username)}` : ''
+  }
+
+  if (key === 'whatsapp') {
+    const digits = raw.replace(/\D/g, '')
+    return digits ? `https://wa.me/${digits}` : ''
+  }
+
+  if (key === 'website') {
+    return `https://${raw.replace(/^\/+/, '')}`
+  }
+
+  return ''
+}
+
+function getMenuSocialLinks(presentation) {
+  const rawLinks = presentation?.theme?.socialLinks
+  const links = rawLinks && typeof rawLinks === 'object' && !Array.isArray(rawLinks) ? rawLinks : {}
+
+  return socialLinkDefinitions
+    .map((definition) => {
+      const href = normalizeSocialUrl(definition.key, links[definition.key])
+      return href ? { ...definition, href } : null
+    })
+    .filter(Boolean)
+}
+
 function renderDetailOptionMedia(option, presentation) {
   const entry = normalizeOptionEntry(option)
 
@@ -1993,6 +2108,53 @@ function MenuLoadingScreen({ accountId }) {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function SocialMenuDrawer({ open, links, accountName, onClose }) {
+  if (!open) return null
+
+  return (
+    <div className="social-menu-overlay" role="presentation" onClick={onClose}>
+      <aside
+        className="social-menu-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Redes del negocio"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="social-menu-handle" aria-hidden="true" />
+        <div className="social-menu-heading">
+          <span>Redes</span>
+          <h2>{accountName || 'Menu digital'}</h2>
+          <p>Conecta con el negocio desde sus canales oficiales.</p>
+        </div>
+
+        <div className="social-menu-links">
+          {links.length ? (
+            links.map((link) => {
+              const LinkIcon = link.icon
+
+              return (
+                <a key={link.key} href={link.href} target="_blank" rel="noopener noreferrer">
+                  <span className="social-menu-link-icon">
+                    <LinkIcon />
+                  </span>
+                  <span>{link.label}</span>
+                  <IconExternalLink />
+                </a>
+              )
+            })
+          ) : (
+            <p className="social-menu-empty">Este negocio todavia no cargo sus redes.</p>
+          )}
+        </div>
+
+        <button type="button" className="social-menu-close" onClick={onClose}>
+          Volver al menu
+        </button>
+      </aside>
     </div>
   )
 }
@@ -2856,6 +3018,7 @@ export default function MenuApp() {
   const [lastOrder, setLastOrder] = useState(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [isLoyaltyOpen, setIsLoyaltyOpen] = useState(false)
+  const [isSocialMenuOpen, setIsSocialMenuOpen] = useState(false)
   const [loyaltyPhone, setLoyaltyPhone] = useState('')
   const [loyaltyStatus, setLoyaltyStatus] = useState('idle')
   const [loyaltyMessage, setLoyaltyMessage] = useState('')
@@ -3501,6 +3664,7 @@ export default function MenuApp() {
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
   const isHostDetail = templateId === 'host' && Boolean(selectedDish)
   const detailHasHeroMedia = hasProductMedia(selectedDish)
+  const socialLinks = getMenuSocialLinks(presentation)
   const appClassName = [
     'menu-app',
     `template-${templateId}`,
@@ -3518,17 +3682,17 @@ export default function MenuApp() {
       <div className="app-shell">
         <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation)}>
           <header className={`hero hero-${templateId}`} data-menu-hero>
-            {templateId !== 'host' ? (
-              <div className="hero-topbar">
-                <button
-                  type="button"
-                  className="icon-button"
-                  aria-label="Abrir menu"
-                  onClick={handleNavigateMenu}
-                >
-                  <IconMenu />
-                </button>
+            <div className="hero-topbar">
+              <button
+                type="button"
+                className="icon-button"
+                aria-label="Abrir redes del negocio"
+                onClick={() => setIsSocialMenuOpen(true)}
+              >
+                <IconMenu />
+              </button>
 
+              {templateId !== 'host' ? (
                 <button
                   type="button"
                   className="cart-button"
@@ -3538,8 +3702,10 @@ export default function MenuApp() {
                   <IconCart />
                   {orderCount > 0 ? <span className="cart-badge">{orderCount}</span> : null}
                 </button>
-              </div>
-            ) : null}
+              ) : (
+                <span className="hero-topbar-spacer" aria-hidden="true" />
+              )}
+            </div>
 
             {templateId !== 'gelato' &&
             templateId !== 'pizzeria' &&
@@ -3651,6 +3817,13 @@ export default function MenuApp() {
               </button>
             </footer>
           ) : null}
+
+          <SocialMenuDrawer
+            open={isSocialMenuOpen}
+            links={socialLinks}
+            accountName={presentation.branding?.wordmark ?? menu?.accountName}
+            onClose={() => setIsSocialMenuOpen(false)}
+          />
         </div>
       </div>
 

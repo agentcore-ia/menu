@@ -1450,6 +1450,11 @@
   padding: 1.15rem 1.35rem 0;
 }
 
+.hero-topbar-spacer {
+  width: 2.8rem;
+  height: 2.8rem;
+}
+
 .icon-button,
 .cart-button,
 .floating-button,
@@ -1555,6 +1560,143 @@
   justify-content: center;
   font-size: 0.72rem;
   font-weight: 700;
+}
+
+.social-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.social-menu-panel {
+  width: min(100%, 27rem);
+  border: 1px solid color-mix(in srgb, var(--theme-border, rgba(0, 0, 0, 0.12)) 80%, transparent);
+  border-radius: 2rem;
+  background:
+    radial-gradient(circle at 82% 8%, color-mix(in srgb, var(--theme-primary) 18%, transparent), transparent 10rem),
+    var(--theme-surface, #fffdfa);
+  color: var(--theme-text, #1b1b18);
+  box-shadow: 0 1.6rem 4rem rgba(0, 0, 0, 0.34);
+  padding: 0.75rem;
+  animation: social-menu-in 180ms ease-out;
+}
+
+.social-menu-handle {
+  width: 3.6rem;
+  height: 0.32rem;
+  margin: 0.35rem auto 1rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-text) 18%, transparent);
+}
+
+.social-menu-heading {
+  padding: 0.2rem 0.75rem 0.85rem;
+}
+
+.social-menu-heading span {
+  display: inline-flex;
+  margin-bottom: 0.4rem;
+  color: var(--theme-primary);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.social-menu-heading h2 {
+  margin: 0;
+  font-family: var(--font-display, 'Cormorant Garamond', serif);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.social-menu-heading p {
+  margin: 0.55rem 0 0;
+  color: var(--theme-muted, rgba(27, 27, 24, 0.72));
+  font-size: 0.96rem;
+  line-height: 1.45;
+}
+
+.social-menu-links {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.social-menu-links a {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 3.85rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--theme-text) 10%, transparent);
+  border-radius: 1.2rem;
+  background: color-mix(in srgb, var(--theme-surface-alt, #f8f4ec) 74%, transparent);
+  color: inherit;
+  text-decoration: none;
+  font-weight: 850;
+}
+
+.social-menu-link-icon {
+  width: 2.45rem;
+  height: 2.45rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--theme-primary);
+  color: var(--theme-primary-text);
+}
+
+.social-menu-links svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.social-menu-links > a > svg {
+  opacity: 0.62;
+}
+
+.social-menu-empty {
+  margin: 0;
+  padding: 1.1rem 0.9rem;
+  border: 1px dashed color-mix(in srgb, var(--theme-text) 18%, transparent);
+  border-radius: 1.2rem;
+  color: var(--theme-muted);
+  font-weight: 700;
+}
+
+.social-menu-close {
+  width: 100%;
+  min-height: 3.4rem;
+  margin-top: 0.75rem;
+  border: 0;
+  border-radius: 1.25rem;
+  background: var(--theme-primary);
+  color: var(--theme-primary-text);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+@keyframes social-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .cart-badge,
@@ -7536,6 +7678,31 @@ button:focus-visible {
   border-radius: 0 0 1.45rem 1.45rem;
   background: transparent;
   box-shadow: none;
+}
+
+.template-host .hero-topbar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 5;
+  padding: 1rem 1rem 0;
+  pointer-events: none;
+}
+
+.template-host .hero-topbar .icon-button {
+  width: 3rem;
+  height: 3rem;
+  color: #fff6ea;
+  background: rgba(0, 0, 0, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0.85rem 1.8rem rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(10px);
+  pointer-events: auto;
+}
+
+.template-host .hero-topbar .icon-button svg {
+  width: 1.7rem;
+  height: 1.7rem;
+  stroke-width: 2;
 }
 
 .template-host .hero::after {
