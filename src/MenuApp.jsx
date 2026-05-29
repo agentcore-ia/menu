@@ -772,6 +772,7 @@ function normalizeOptionEntry(option) {
       value: option,
       label: option,
       price: 0,
+      quantity: 1,
       image: '',
       video: '',
       hasMedia: false,
@@ -783,6 +784,7 @@ function normalizeOptionEntry(option) {
     value: String(option.value ?? option.label ?? ''),
     label: String(option.label ?? option.value ?? ''),
     price: Number(option.price ?? 0),
+    quantity: Math.max(1, Number(option.quantity ?? 1)),
     image: option.image ?? '',
     video: option.video ?? '',
     hasMedia: Boolean(option.hasMedia ?? option.video ?? option.image),
@@ -1053,6 +1055,19 @@ function buildProductOptionGroups(dish, allItems = []) {
       options: ['Receta original', 'Suave', 'Intenso'],
     },
   ]
+}
+
+function isIncludedOptionGroup(group) {
+  const key = slugify(`${group?.display ?? ''} ${group?.type ?? ''} ${group?.title ?? ''}`)
+  return key.includes('included') || key.includes('incluye')
+}
+
+function getSelectableOptionGroups(groups = []) {
+  return groups.filter((group) => !isIncludedOptionGroup(group))
+}
+
+function getIncludedOptionGroups(groups = []) {
+  return groups.filter(isIncludedOptionGroup)
 }
 
 function getGroupSelectionLimit(group) {
@@ -3271,7 +3286,7 @@ export default function MenuApp() {
     const groups = buildProductOptionGroups(nextDish, allItems)
     setSelectedDish(nextDish)
     setDetailQuantity(1)
-    setSelectedOptions(buildInitialSelections(groups))
+    setSelectedOptions(buildInitialSelections(getSelectableOptionGroups(groups)))
   }
 
   function handleSelectDetailOption(group, optionValue) {
@@ -3694,11 +3709,13 @@ export default function MenuApp() {
   }
 
   const detailOptionGroups = selectedDish ? buildProductOptionGroups(selectedDish, allItems) : []
+  const detailIncludedGroups = getIncludedOptionGroups(detailOptionGroups)
+  const detailSelectableGroups = getSelectableOptionGroups(detailOptionGroups)
   const detailExtraTotal = selectedDish
-    ? calculateSelectionsExtraTotal(detailOptionGroups, selectedOptions)
+    ? calculateSelectionsExtraTotal(detailSelectableGroups, selectedOptions)
     : 0
   const detailSelectionsValid = selectedDish
-    ? areSelectionsValid(detailOptionGroups, selectedOptions)
+    ? areSelectionsValid(detailSelectableGroups, selectedOptions)
     : true
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
   const isHostDetail = templateId === 'host' && Boolean(selectedDish)
@@ -3711,6 +3728,38 @@ export default function MenuApp() {
     `cards-${presentation.cards?.style ?? 'editorial-list'}`,
     `theme-${presentation.theme.id}`,
   ].join(' ')
+
+  function renderIncludedProductsBlock() {
+    if (!detailIncludedGroups.length) {
+      return null
+    }
+
+    return detailIncludedGroups.map((group) => (
+      <div key={group.id} className="option-group included-option-group">
+        <h3>{group.title || 'Incluye'}</h3>
+        <p>Incluido en esta promo</p>
+        <div className="option-grid">
+          {group.options.map((rawOption) => {
+            const option = normalizeOptionEntry(rawOption)
+            const optionMedia = renderDetailOptionMedia(option, presentation)
+
+            return (
+              <div
+                key={option.value}
+                className={`option-card selected ${optionMedia ? 'has-media' : ''}`}
+              >
+                {optionMedia ? optionMedia : null}
+                <span>{option.label}</span>
+                <small>
+                  {option.quantity > 1 ? `${option.quantity} unidades` : 'Incluido'}
+                </small>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    ))
+  }
 
   if (status === 'loading') {
     return <MenuLoadingScreen accountId={accountId} />
@@ -4220,7 +4269,9 @@ export default function MenuApp() {
                     </div>
                   </div>
 
-                  {detailOptionGroups.map((group, index) => (
+                  {renderIncludedProductsBlock()}
+
+                  {detailSelectableGroups.map((group, index) => (
                     <div
                       key={group.id}
                       className={`option-group host-option-group host-option-group-${getHostOptionKind(group)}`}
@@ -4351,7 +4402,9 @@ export default function MenuApp() {
 
                   <p className="detail-description">{selectedDish.description}</p>
 
-                  {detailOptionGroups.map((group) => (
+                  {renderIncludedProductsBlock()}
+
+                  {detailSelectableGroups.map((group) => (
                     <div key={group.id} className="option-group">
                       <h3>{group.title}</h3>
                       <p>
@@ -4415,7 +4468,7 @@ export default function MenuApp() {
                     disabled={!detailSelectionsValid}
                     onClick={() => {
                       handleAddItem(selectedDish, detailQuantity, {
-                        summary: buildSelectionSummary(detailOptionGroups, selectedOptions),
+                        summary: buildSelectionSummary(detailSelectableGroups, selectedOptions),
                         unitPrice:
                           (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal,
                       })
@@ -4506,7 +4559,7 @@ export default function MenuApp() {
                   disabled={!detailSelectionsValid}
                   onClick={() => {
                     handleAddItem(selectedDish, detailQuantity, {
-                      summary: buildSelectionSummary(detailOptionGroups, selectedOptions),
+                      summary: buildSelectionSummary(detailSelectableGroups, selectedOptions),
                       unitPrice:
                         (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal,
                     })
