@@ -57,16 +57,59 @@ const defaultPresentation = {
   },
 }
 
-const layoutDescriptions = {
-  editorial: 'Diseno clasico y elegante: portada, categorias y productos en una lista limpia.',
-  bistro: 'Diseno mas visual: una carta moderna con imagenes destacadas y ritmo tipo revista.',
-  luxe: 'Diseno premium: mas dramatico y sofisticado, pensado para marcas gastronomicas elegantes.',
-  gelato: 'Flujo de heladeria con formatos, tamanos, sabores y estetica dulce.',
-  pizzeria: 'Menu visual para pizzeria con header grafico, tabs y cards de dos columnas.',
-  burger: 'Menu oscuro para hamburgueseria con hero fuerte, categorias pill y cards bold.',
-  'blue-burger': 'Menu claro y azul para hamburgueseria con hero amplio, beneficios y cards horizontales.',
-  host: 'Menu dark para crispy chicken con hero impactante, tabs compactos y cards de combos en dos columnas.',
+const layoutConfigs = {
+  editorial: {
+    description: 'Diseno clasico y elegante: portada, categorias y productos en una lista limpia.',
+    headerTextFields: {
+      title: ['Titulo principal', 'Frase grande de la portada.'],
+      accent: ['Texto destacado', 'Parte secundaria o resaltada del titulo.'],
+      description: ['Descripcion principal', 'Texto corto que aparece en la portada del menu.'],
+    },
+  },
+  bistro: {
+    description: 'Diseno mas visual: una carta moderna con imagenes destacadas y ritmo tipo revista.',
+    headerTextFields: {
+      title: ['Titulo principal', 'Primera linea del hero.'],
+      accent: ['Texto destacado', 'Segunda linea resaltada del hero.'],
+      description: ['Descripcion principal', 'Texto corto debajo del titulo.'],
+    },
+  },
+  luxe: {
+    description: 'Diseno premium: mas dramatico y sofisticado, pensado para marcas gastronomicas elegantes.',
+    headerTextFields: {
+      title: ['Titulo principal', 'Primera linea del hero.'],
+      accent: ['Texto destacado', 'Segunda linea resaltada del hero.'],
+      description: ['Descripcion principal', 'Texto corto debajo del titulo.'],
+    },
+  },
+  gelato: {
+    description: 'Flujo de heladeria con formatos, tamanos, sabores y estetica dulce.',
+    headerTextFields: {
+      title: ['Saludo principal', 'Texto grande del inicio, por ejemplo: Hola!'],
+      accent: ['Subtitulo', 'Pregunta o frase debajo del saludo.'],
+    },
+  },
+  pizzeria: {
+    description: 'Menu visual para pizzeria con header grafico, tabs y cards de dos columnas.',
+    headerTextFields: null,
+  },
+  burger: {
+    description: 'Menu oscuro para hamburgueseria con hero fuerte, categorias pill y cards bold.',
+    headerTextFields: null,
+  },
+  'blue-burger': {
+    description: 'Menu claro y azul para hamburgueseria con hero amplio, beneficios y cards horizontales.',
+    headerTextFields: null,
+  },
+  host: {
+    description: 'Menu dark para crispy chicken con hero impactante, tabs compactos y cards de combos en dos columnas.',
+    headerTextFields: null,
+  },
 }
+
+const layoutDescriptions = Object.fromEntries(
+  Object.entries(layoutConfigs).map(([layout, config]) => [layout, config.description]),
+)
 
 const cardStyleDescriptions = {
   'editorial-list': 'Productos en lista, facil de leer y rapido para pedir.',
@@ -85,36 +128,8 @@ const previewDescriptions = {
   'video-first': 'El video se usa como vista principal cuando el producto tiene video.',
 }
 
-const headerTextFieldsByLayout = {
-  editorial: {
-    title: ['Titulo principal', 'Frase grande de la portada.'],
-    accent: ['Texto destacado', 'Parte secundaria o resaltada del titulo.'],
-    description: ['Descripcion principal', 'Texto corto que aparece en la portada del menu.'],
-  },
-  bistro: {
-    title: ['Titulo principal', 'Primera linea del hero.'],
-    accent: ['Texto destacado', 'Segunda linea resaltada del hero.'],
-    description: ['Descripcion principal', 'Texto corto debajo del titulo.'],
-  },
-  luxe: {
-    title: ['Titulo principal', 'Primera linea del hero.'],
-    accent: ['Texto destacado', 'Segunda linea resaltada del hero.'],
-    description: ['Descripcion principal', 'Texto corto debajo del titulo.'],
-  },
-  gelato: {
-    title: ['Saludo principal', 'Texto grande del inicio, por ejemplo: Hola!'],
-    accent: ['Subtitulo', 'Pregunta o frase debajo del saludo.'],
-  },
-}
-
-const imageOnlyHeaderLayouts = new Set(['pizzeria', 'burger', 'blue-burger', 'host'])
-
 function getHeaderTextFields(layout) {
-  if (imageOnlyHeaderLayouts.has(layout)) {
-    return null
-  }
-
-  return headerTextFieldsByLayout[layout] ?? headerTextFieldsByLayout.editorial
+  return layoutConfigs[layout]?.headerTextFields ?? layoutConfigs.editorial.headerTextFields
 }
 
 function getInitialAdminAccount() {
