@@ -474,6 +474,23 @@ function slugify(value) {
     .replace(/^-|-$/g, '')
 }
 
+function isPromoCategoryLabel(label) {
+  const key = slugify(label ?? '')
+  return key.includes('promo') || key.includes('oferta') || key.includes('descuento')
+}
+
+function isComboCategoryLabel(label) {
+  return slugify(label ?? '').includes('combo')
+}
+
+function findPromosCategory(categories = []) {
+  return (
+    categories.find((category) => isPromoCategoryLabel(category.label)) ??
+    categories.find((category) => isComboCategoryLabel(category.label)) ??
+    null
+  )
+}
+
 function toNumericPrice(value) {
   if (typeof value === 'number' && Number.isFinite(value)) {
     return value
@@ -615,6 +632,7 @@ function getInitialCategoryId(payload) {
 function getCategoryIcon(label) {
   const key = slugify(label)
 
+  if (isPromoCategoryLabel(label)) return IconTicket
   if (key.includes('entrada')) return IconLeafMark
   if (key.includes('pasta')) return IconLeafMark
   if (key.includes('pizza')) return IconPizza
@@ -1327,6 +1345,7 @@ function getPizzeriaCategoryLabel(label) {
   const key = slugify(label)
   if (key.includes('pizza')) return 'Pizzas'
   if (key.includes('empanada')) return 'Empanadas'
+  if (isPromoCategoryLabel(label)) return 'Promos'
   if (key.includes('bebida')) return 'Bebidas'
   if (key.includes('postre')) return 'Postres'
   return label
@@ -1338,7 +1357,7 @@ function shouldShowPizzeriaCategory(category) {
 }
 
 function getPizzeriaOrderedCategories(categories) {
-  const order = ['pizza', 'empanada', 'bebida', 'postre']
+  const order = ['pizza', 'empanada', 'promo', 'oferta', 'descuento', 'bebida', 'postre']
 
   return categories.filter(shouldShowPizzeriaCategory).sort((left, right) => {
     const leftKey = slugify(left.label)
@@ -1353,6 +1372,7 @@ function getPizzeriaOrderedCategories(categories) {
 function getBurgerCategoryLabel(label) {
   const key = slugify(label)
   if (key.includes('hamburgues') || key.includes('burger')) return 'Hamburguesas'
+  if (isPromoCategoryLabel(label)) return 'Promos'
   if (key.includes('combo')) return 'Combos'
   if (key.includes('entrada') || key.includes('papa')) return 'Entradas'
   if (key.includes('bebida')) return 'Bebidas'
@@ -1363,6 +1383,7 @@ function getBurgerCategoryLabel(label) {
 function getBurgerCategoryIcon(label) {
   const key = slugify(label)
   if (key.includes('hamburgues') || key.includes('burger')) return IconBurger
+  if (isPromoCategoryLabel(label)) return IconTicket
   if (key.includes('combo')) return IconBurger
   if (key.includes('entrada') || key.includes('papa')) return IconFries
   if (key.includes('bebida')) return IconDrink
@@ -1371,7 +1392,7 @@ function getBurgerCategoryIcon(label) {
 }
 
 function getBurgerOrderedCategories(categories) {
-  const order = ['hamburgues', 'burger', 'combo', 'entrada', 'papa', 'bebida', 'postre']
+  const order = ['hamburgues', 'burger', 'promo', 'oferta', 'descuento', 'combo', 'entrada', 'papa', 'bebida', 'postre']
 
   return [...categories].sort((left, right) => {
     const leftKey = slugify(left.label)
@@ -1405,6 +1426,7 @@ function getBlueBurgerTitle(item) {
 
 function getHostCategoryLabel(label) {
   const key = slugify(label)
+  if (isPromoCategoryLabel(label)) return 'Promos'
   if (key.includes('combo')) return 'Combos'
   if (key.includes('pollo')) return 'Pollo frito'
   if (key.includes('hamburgues') || key.includes('burger')) return 'Burgers'
@@ -1416,6 +1438,7 @@ function getHostCategoryLabel(label) {
 
 function getHostCategoryIcon(label) {
   const key = slugify(label)
+  if (isPromoCategoryLabel(label)) return HostIconFlame
   if (key.includes('combo')) return HostIconFlame
   if (key.includes('pollo')) return HostIconDrumstick
   if (key.includes('hamburgues') || key.includes('burger')) return HostIconBurger
@@ -1426,7 +1449,7 @@ function getHostCategoryIcon(label) {
 }
 
 function getHostOrderedCategories(categories) {
-  const order = ['combo', 'pollo', 'hamburgues', 'burger', 'guarnicion', 'papa', 'bebida', 'extra', 'salsa']
+  const order = ['promo', 'oferta', 'descuento', 'combo', 'pollo', 'hamburgues', 'burger', 'guarnicion', 'papa', 'bebida', 'extra', 'salsa']
 
   return [...categories].sort((left, right) => {
     const leftKey = slugify(left.label)
@@ -1440,6 +1463,7 @@ function getHostOrderedCategories(categories) {
 
 function getHostSectionSubtitle(label) {
   const key = slugify(label)
+  if (isPromoCategoryLabel(label)) return 'Promos especiales para aprovechar hoy'
   if (key.includes('combo')) return 'Lo mejor para compartir (o no)'
   if (key.includes('pollo')) return 'Crujiente real, recien hecho para vos'
   if (key.includes('hamburgues') || key.includes('burger')) return 'Burgers con actitud y mucho sabor'
@@ -2192,7 +2216,7 @@ function TemplateMenuCollection({
     const highlightedItems = categoryItems
     const useHostCategorySet = shouldUseHostCategorySet(accountId, templateId, categories)
     const comboTarget =
-      categories.find((category) => slugify(category.label).includes('combo')) ??
+      findPromosCategory(categories) ??
       categories.find((category) => slugify(category.label).includes('bebida')) ??
       currentCategory
 
@@ -2295,7 +2319,7 @@ function TemplateMenuCollection({
   if (templateId === 'blue-burger') {
     const highlightedItems = categoryItems.slice(0, 3)
     const comboTarget =
-      categories.find((category) => slugify(category.label).includes('combo')) ??
+      findPromosCategory(categories) ??
       categories.find((category) => slugify(category.label).includes('bebida')) ??
       currentCategory
 
@@ -3316,6 +3340,14 @@ export default function MenuApp() {
   }
 
   function handleNavigatePromos() {
+    const promosCategory = findPromosCategory(categories)
+
+    if (promosCategory?.id) {
+      setSelectedCategory(promosCategory.id)
+      scrollToMenuTarget('[data-menu-categories]', 'start')
+      return
+    }
+
     scrollToMenuTarget('[data-burger-promos]', 'center')
   }
 
