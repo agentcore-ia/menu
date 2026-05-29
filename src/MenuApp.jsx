@@ -1339,7 +1339,18 @@ function buildCartRecommendations(cartItems, allItems) {
   return (crossSell.length ? crossSell : sameFlow).slice(0, 4)
 }
 
-function buildCartPairingSuggestions(cartItems) {
+function findPairingProduct(allItems, cartItems, matchers) {
+  const cartIds = new Set(cartItems.map((item) => item.id))
+
+  return allItems.find((item) => {
+    if (cartIds.has(item.id)) return false
+
+    const text = slugify(`${item.categoryLabel ?? ''} ${item.name ?? ''} ${item.description ?? ''}`)
+    return matchers.some((matcher) => text.includes(matcher))
+  })
+}
+
+function buildCartPairingSuggestions(cartItems, allItems) {
   const text = cartItems
     .map((item) => `${item.categoryLabel ?? ''} ${item.name ?? ''} ${item.notes ?? ''}`.toLowerCase())
     .join(' ')
@@ -1347,26 +1358,54 @@ function buildCartPairingSuggestions(cartItems) {
   const suggestions = []
 
   if (/(carne|bife|filete|lomo|burger|hamburguesa|milanesa|pollo)/.test(text)) {
-    suggestions.push('Papas rostizadas', 'Ensalada fresca', 'Gaseosa fria')
+    suggestions.push(
+      { label: 'Papas rostizadas', matchers: ['papa', 'papas', 'frita', 'fries'] },
+      { label: 'Ensalada fresca', matchers: ['ensalada'] },
+      { label: 'Gaseosa fria', matchers: ['gaseosa', 'coca', 'sprite', 'fanta', 'bebida', 'agua'] },
+    )
   }
 
   if (/pizza/.test(text)) {
-    suggestions.push('Faina crocante', 'Dip picante', 'Limonada de la casa')
+    suggestions.push(
+      { label: 'Faina crocante', matchers: ['faina'] },
+      { label: 'Dip picante', matchers: ['dip', 'salsa'] },
+      { label: 'Limonada de la casa', matchers: ['limonada', 'bebida'] },
+    )
   }
 
   if (/(pasta|raviol|sorrentino|fideo|ñoqui|noqui)/.test(text)) {
-    suggestions.push('Queso extra', 'Pan de ajo', 'Tonica botanica')
+    suggestions.push(
+      { label: 'Queso extra', matchers: ['queso'] },
+      { label: 'Pan de ajo', matchers: ['pan-de-ajo', 'ajo'] },
+      { label: 'Tonica botanica', matchers: ['tonica', 'bebida', 'agua'] },
+    )
   }
 
   if (/(postre|torta|helado|brownie|flan)/.test(text)) {
-    suggestions.push('Cafe espresso', 'Agua con gas')
+    suggestions.push(
+      { label: 'Cafe espresso', matchers: ['cafe'] },
+      { label: 'Agua con gas', matchers: ['agua-con-gas', 'agua'] },
+    )
   }
 
   if (!suggestions.length) {
-    suggestions.push('Bebida fresca', 'Postre del dia', 'Extra de salsa')
+    suggestions.push(
+      { label: 'Bebida fresca', matchers: ['bebida', 'gaseosa', 'coca', 'sprite', 'agua'] },
+      { label: 'Postre del dia', matchers: ['postre', 'torta', 'helado', 'brownie', 'flan'] },
+      { label: 'Extra de salsa', matchers: ['salsa', 'dip'] },
+    )
   }
 
-  return [...new Set(suggestions)].slice(0, 4)
+  const uniqueProducts = new Map()
+
+  suggestions.forEach((suggestion) => {
+    const product = findPairingProduct(allItems, cartItems, suggestion.matchers)
+    if (product && !uniqueProducts.has(product.id)) {
+      uniqueProducts.set(product.id, { label: suggestion.label, product })
+    }
+  })
+
+  return [...uniqueProducts.values()].slice(0, 4)
 }
 
 function getGelatoFlavorLimit(sizeName) {
@@ -3164,7 +3203,7 @@ export default function MenuApp() {
       : 'Sin productos'
   const pointsName = loyaltyData?.settings?.pointsName ?? menu?.loyalty?.settings?.pointsName ?? 'puntos'
   const cartRecommendations = buildCartRecommendations(cartItems, allItems)
-  const cartPairings = buildCartPairingSuggestions(cartItems)
+  const cartPairings = buildCartPairingSuggestions(cartItems, allItems)
 
   function handleAddItem(item, quantity = 1, configuration = null) {
     const unitPrice = configuration?.unitPrice ?? item.unitPrice ?? toNumericPrice(item.price)
@@ -4607,10 +4646,17 @@ export default function MenuApp() {
                         <h2>Acompanamientos sugeridos</h2>
                       </div>
                       <div className="pairing-grid">
-                        {cartPairings.map((pairing) => (
-                          <span key={pairing} className="pairing-chip">
-                            {pairing}
-                          </span>
+                        {cartPairings.map(({ label, product }) => (
+                          <button
+                            key={product.id}
+                            type="button"
+                            className="pairing-chip pairing-chip-action"
+                            onClick={() => handleAddItem(product)}
+                            aria-label={`Agregar ${product.name}`}
+                          >
+                            <span>{product.name || label}</span>
+                            <IconPlus />
+                          </button>
                         ))}
                       </div>
                     </section>

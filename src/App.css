@@ -4976,14 +4976,44 @@
 .pairing-chip {
   display: inline-flex;
   align-items: center;
+  gap: 0.45rem;
   min-height: 2.4rem;
   padding: 0.45rem 0.85rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--theme-primary) 10%, white);
   border: 1px solid color-mix(in srgb, var(--theme-primary) 18%, white);
   color: var(--theme-accent);
+  font: inherit;
   font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.pairing-chip-action:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--theme-primary) 16%, white);
+  border-color: color-mix(in srgb, var(--theme-primary) 28%, white);
+}
+
+.pairing-chip small {
+  max-width: 8.5rem;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--theme-text) 72%, var(--theme-muted));
+  font-size: 0.75rem;
   font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pairing-chip svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: 0 0 auto;
+  stroke-width: 2.4;
 }
 
 .cart-summary-card {
