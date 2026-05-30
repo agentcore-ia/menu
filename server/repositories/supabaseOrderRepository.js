@@ -624,16 +624,6 @@ export class SupabaseOrderRepository {
   buildCustomerToBusinessWhatsapp({
     orderNumber,
     restaurant,
-    customer,
-    items,
-    redemptionItems,
-    total,
-    deliveryType,
-    paymentMethod,
-    address,
-    neighborhood,
-    city,
-    notes,
   }) {
     const businessPhone = this.normalizeWhatsappDialNumber(restaurant.phone)
 
@@ -643,51 +633,7 @@ export class SupabaseOrderRepository {
       }
     }
 
-    const lines = items.map((item) => {
-      const itemTotal = Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0)
-      const noteText = item.notes ? ` (${item.notes})` : ''
-      return `- ${item.quantity} x ${item.name}${noteText}: $${this.formatMoney(itemTotal)}`
-    })
-    const rewardLines = redemptionItems.map((item) => `- ${item.quantity} x ${item.name} (canje)`)
-    const deliveryLine =
-      deliveryType === 'delivery'
-        ? `Entrega: Delivery${address ? ` a ${address}` : ''}`
-        : 'Entrega: Retiro en local'
-    const locationLines = [
-      neighborhood ? `Barrio/zona: ${neighborhood}` : null,
-      city ? `Ciudad: ${city}` : null,
-    ].filter(Boolean)
-    const createdAt = new Date().toLocaleString('es-AR', {
-      timeZone: 'America/Argentina/Buenos_Aires',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-    const text = [
-      `Hola ${restaurant.name}! Quiero hacer un pedido, este es el detalle:`,
-      '',
-      `Pedido #${orderNumber}`,
-      createdAt,
-      customer.name ? `Cliente: ${customer.name}` : null,
-      '',
-      'Detalle:',
-      ...lines,
-      rewardLines.length ? '' : null,
-      rewardLines.length ? 'Canjes:' : null,
-      ...rewardLines,
-      '',
-      deliveryLine,
-      ...locationLines,
-      `Pago: ${this.getPaymentLabel(paymentMethod)}`,
-      notes ? `Notas: ${notes}` : null,
-      `Total: $${this.formatMoney(total)}`,
-      '',
-      `Mi WhatsApp: ${this.formatPhoneDisplay(customer.phone)}`,
-    ]
-      .filter(Boolean)
-      .join('\n')
+    const text = `Hola! Confirmo mi pedido #${orderNumber}.`
 
     return {
       status: 'ready',
