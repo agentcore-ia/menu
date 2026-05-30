@@ -1700,13 +1700,42 @@ function HostMediaPlaceholder() {
   )
 }
 
+function isDarkSolidColor(value) {
+  const raw = String(value ?? '').trim()
+  const match = raw.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i)
+
+  if (!match) {
+    return false
+  }
+
+  const hex = match[1].length === 3
+    ? match[1].split('').map((digit) => digit + digit).join('')
+    : match[1]
+  const red = Number.parseInt(hex.slice(0, 2), 16)
+  const green = Number.parseInt(hex.slice(2, 4), 16)
+  const blue = Number.parseInt(hex.slice(4, 6), 16)
+  const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255
+
+  return luminance < 0.18
+}
+
+function getMenuPageBackground(theme) {
+  if (theme.pageBackground) {
+    return theme.pageBackground
+  }
+
+  if (isDarkSolidColor(theme.background)) {
+    return theme.background
+  }
+
+  return `linear-gradient(180deg, ${theme.surfaceAlt} 0%, ${theme.background} 100%)`
+}
+
 function getPresentationStyles(presentation) {
   const theme = presentation.theme
 
   return {
-    '--menu-page-background':
-      theme.pageBackground ||
-      `linear-gradient(180deg, ${theme.surfaceAlt} 0%, ${theme.background} 100%)`,
+    '--menu-page-background': getMenuPageBackground(theme),
     '--theme-bg': theme.background,
     '--theme-surface': theme.surface,
     '--theme-surface-alt': theme.surfaceAlt,
