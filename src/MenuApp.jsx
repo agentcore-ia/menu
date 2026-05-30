@@ -1719,25 +1719,27 @@ function isDarkSolidColor(value) {
   return luminance < 0.18
 }
 
-function isPureBlackColor(value) {
-  const raw = String(value ?? '').trim().toLowerCase()
-  return raw === '#000' || raw === '#000000'
+function isHostLikeAccount(accountId, templateId) {
+  const accountKey = slugify(accountId ?? '')
+  return templateId === 'host' || accountKey === 'host' || accountKey.startsWith('host-')
 }
 
-function getThemeBackground(theme, templateId) {
-  if (templateId === 'host' && isPureBlackColor(theme.background)) {
-    return '#080D0E'
+function getThemeBackground(theme, templateId, accountId) {
+  if (isHostLikeAccount(accountId, templateId) && isDarkSolidColor(theme.background)) {
+    return '#000000'
   }
 
   return theme.background
 }
 
-function getMenuPageBackground(theme, templateId) {
+function getMenuPageBackground(theme, templateId, accountId) {
   if (theme.pageBackground) {
-    return theme.pageBackground
+    return isHostLikeAccount(accountId, templateId) && isDarkSolidColor(theme.pageBackground)
+      ? '#000000'
+      : theme.pageBackground
   }
 
-  const background = getThemeBackground(theme, templateId)
+  const background = getThemeBackground(theme, templateId, accountId)
 
   if (isDarkSolidColor(background)) {
     return background
@@ -1746,13 +1748,18 @@ function getMenuPageBackground(theme, templateId) {
   return `linear-gradient(180deg, ${theme.surfaceAlt} 0%, ${background} 100%)`
 }
 
-function getPresentationStyles(presentation) {
+function getPresentationStyles(presentation, accountId) {
   const theme = presentation.theme
   const templateId = presentation.template ?? presentation.layout
+  const forceHostBlack = isHostLikeAccount(accountId, templateId)
+  const contentBackground =
+    forceHostBlack && isDarkSolidColor(theme.contentBackground)
+      ? '#000000'
+      : theme.contentBackground
 
   return {
-    '--menu-page-background': getMenuPageBackground(theme, templateId),
-    '--theme-bg': getThemeBackground(theme, templateId),
+    '--menu-page-background': getMenuPageBackground(theme, templateId, accountId),
+    '--theme-bg': getThemeBackground(theme, templateId, accountId),
     '--theme-surface': theme.surface,
     '--theme-surface-alt': theme.surfaceAlt,
     '--theme-text': theme.text,
@@ -1768,7 +1775,7 @@ function getPresentationStyles(presentation) {
     '--custom-hero-radius': theme.heroRadius || undefined,
     '--custom-hero-min-height': theme.heroMinHeight || undefined,
     '--custom-header-object-fit': theme.headerObjectFit || undefined,
-    '--custom-content-background': theme.contentBackground || undefined,
+    '--custom-content-background': contentBackground || undefined,
     '--custom-category-bg': theme.categoryBackground || undefined,
     '--custom-category-active-bg': theme.categoryActiveBackground || undefined,
     '--custom-category-text': theme.categoryText || undefined,
@@ -3801,6 +3808,7 @@ export default function MenuApp() {
   const socialLinks = getMenuSocialLinks(presentation)
   const appClassName = [
     'menu-app',
+    `account-${slugify(accountId)}`,
     `template-${templateId}`,
     `layout-${presentation.layout}`,
     `cards-${presentation.cards?.style ?? 'editorial-list'}`,
@@ -3846,7 +3854,7 @@ export default function MenuApp() {
   return (
     <>
       <div className="app-shell">
-        <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation)}>
+        <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation, accountId)}>
           <header className={`hero hero-${templateId}`} data-menu-hero>
             <div className="hero-topbar">
               <button
@@ -4016,7 +4024,7 @@ export default function MenuApp() {
         <div className="detail-screen" role="presentation" onClick={() => setGelatoBuilderOpen(false)}>
           <div
             className={`detail-phone ${appClassName}`}
-            style={getPresentationStyles(presentation)}
+            style={getPresentationStyles(presentation, accountId)}
             onClick={(event) => event.stopPropagation()}
           >
             <section className="gelato-builder">
@@ -4246,7 +4254,7 @@ export default function MenuApp() {
         <div className="detail-screen" role="presentation" onClick={() => setSelectedDish(null)}>
           <div
             className={`detail-phone ${appClassName}`}
-            style={getPresentationStyles(presentation)}
+            style={getPresentationStyles(presentation, accountId)}
             onClick={(event) => event.stopPropagation()}
           >
             {isHostDetail ? (
@@ -4656,7 +4664,7 @@ export default function MenuApp() {
         <div className="detail-screen" role="presentation" onClick={() => setIsCartOpen(false)}>
           <div
             className={`detail-phone ${appClassName}`}
-            style={getPresentationStyles(presentation)}
+            style={getPresentationStyles(presentation, accountId)}
             onClick={(event) => event.stopPropagation()}
           >
             <section className="checkout-sheet">
@@ -4826,7 +4834,7 @@ export default function MenuApp() {
         <div className="detail-screen" role="presentation" onClick={() => setIsCheckoutOpen(false)}>
           <div
             className={`detail-phone ${appClassName}`}
-            style={getPresentationStyles(presentation)}
+            style={getPresentationStyles(presentation, accountId)}
             onClick={(event) => event.stopPropagation()}
           >
             <section className="checkout-sheet">
@@ -5012,7 +5020,7 @@ export default function MenuApp() {
         <div className="detail-screen" role="presentation" onClick={() => setIsLoyaltyOpen(false)}>
           <div
             className={`detail-phone ${appClassName}`}
-            style={getPresentationStyles(presentation)}
+            style={getPresentationStyles(presentation, accountId)}
             onClick={(event) => event.stopPropagation()}
           >
             <section className="checkout-sheet loyalty-sheet">

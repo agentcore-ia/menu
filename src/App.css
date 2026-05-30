@@ -2537,7 +2537,7 @@
   min-height: 100svh;
   min-height: 100dvh;
   padding: 0;
-  background: #080d0e !important;
+  background: #000 !important;
 }
 
 .loading-host-minimal::before,
@@ -2555,7 +2555,7 @@
   justify-content: center;
   gap: 1.35rem;
   padding: 2rem;
-  background: #080d0e;
+  background: #000;
   color: #fff7ed;
   overflow: hidden;
 }
@@ -4444,12 +4444,12 @@
 }
 
 .detail-phone.template-host {
-  background: var(--menu-page-background, #080d0e);
+  background: var(--menu-page-background, #000);
 }
 
 .host-detail-hero {
   height: min(33rem, 60vh);
-  background: var(--menu-page-background, #080d0e);
+  background: var(--menu-page-background, #000);
 }
 
 .host-detail-topbar {
@@ -4496,7 +4496,7 @@
   margin-top: 0;
   padding: 1.15rem 1rem 8rem;
   border-radius: 0;
-  background: var(--menu-page-background, #080d0e);
+  background: var(--menu-page-background, #000);
 }
 
 .host-detail-sheet.no-hero {
@@ -7399,7 +7399,7 @@ button:focus-visible {
 }
 
 .template-burger .content-panel {
-  background: linear-gradient(180deg, #020404 0%, #080d0e 100%);
+  background: #000;
 }
 
 .template-burger .burger-category-pill {
@@ -7595,7 +7595,7 @@ button:focus-visible {
 }
 
 .template-burger .content-panel {
-  background: linear-gradient(180deg, #020404 0%, #080d0e 100%);
+  background: #000;
 }
 
 .template-burger .burger-category-pill {
@@ -7660,8 +7660,16 @@ button:focus-visible {
   background: var(--menu-page-background, var(--theme-bg, #020404));
 }
 
+.app-shell:has(.account-host) {
+  background: #000;
+}
+
 .template-burger .content-panel {
   background: var(--custom-content-background, var(--theme-bg, #020404));
+}
+
+.account-host.template-burger .hero {
+  background: #000;
 }
 
 .template-burger .burger-menu-title-row h2,
@@ -7727,7 +7735,7 @@ button:focus-visible {
 .detail-phone.template-host {
   min-height: 100vh;
   overflow-x: hidden;
-  --host-base-bg: var(--menu-page-background, var(--theme-bg, #080d0e));
+  --host-base-bg: var(--menu-page-background, var(--theme-bg, #000));
   background: var(--custom-content-background, var(--host-base-bg));
   color: var(--theme-text, #fff6ea);
   font-family: 'Montserrat', var(--font-body, sans-serif);
@@ -7739,7 +7747,7 @@ button:focus-visible {
 }
 
 .app-shell:has(.template-host) {
-  background: var(--menu-page-background, var(--theme-bg, #080d0e));
+  background: var(--menu-page-background, var(--theme-bg, #000));
 }
 
 .template-host .hero {
@@ -7866,7 +7874,7 @@ button:focus-visible {
   width: 100%;
   height: 100%;
   color: rgba(255, 226, 196, 0.9);
-  background: #080d0e;
+  background: #000;
   box-shadow: none;
 }
 
@@ -7899,7 +7907,7 @@ button:focus-visible {
   margin-top: 0;
   padding: 0.2rem 1rem 8.2rem;
   border-radius: 0;
-  background: var(--custom-content-background, var(--host-base-bg, #080d0e));
+  background: var(--custom-content-background, var(--host-base-bg, #000));
   box-shadow: none;
 }
 
@@ -7913,7 +7921,7 @@ button:focus-visible {
   padding: 0.2rem 0.28rem;
   border-radius: 1.18rem;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: var(--custom-category-bg, var(--theme-surface-alt, var(--host-base-bg, #080d0e)));
+  background: var(--custom-category-bg, var(--theme-surface-alt, var(--host-base-bg, #000)));
   box-shadow: none;
 }
 
@@ -8279,7 +8287,7 @@ button:focus-visible {
   padding: 0.8rem 0.9rem max(0.8rem, env(safe-area-inset-bottom));
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 1.3rem 1.3rem 0 0;
-  background: var(--custom-category-bg, var(--theme-surface, var(--host-base-bg, #080d0e)));
+  background: var(--custom-category-bg, var(--theme-surface, var(--host-base-bg, #000)));
   box-shadow: none;
   backdrop-filter: none;
 }
