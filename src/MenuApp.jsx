@@ -1065,14 +1065,7 @@ function buildProductOptionGroups(dish, allItems = []) {
     ]
   }
 
-  return [
-    {
-      id: 'preferencia',
-      title: 'Preferencia',
-      required: true,
-      options: ['Receta original', 'Suave', 'Intenso'],
-    },
-  ]
+  return []
 }
 
 function isIncludedOptionGroup(group) {
