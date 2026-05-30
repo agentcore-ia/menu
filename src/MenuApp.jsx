@@ -600,6 +600,51 @@ function formatPrice(value, currencySymbol = '$') {
   })}`
 }
 
+function parsePositiveNumber(value, fallback = 0) {
+  const parsed = Number(value ?? fallback)
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
+function parsePositiveInteger(value, fallback = 0) {
+  const parsed = Number.parseInt(String(value ?? ''), 10)
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
+function calculateLoyaltyEarnPreview(subtotal, settings) {
+  if (!settings?.enabled) {
+    return 0
+  }
+
+  const eligibleSubtotal = Math.max(0, parsePositiveNumber(subtotal, 0))
+  const minimumOrderTotal = Math.max(0, parsePositiveNumber(settings.minimumOrderTotal, 0))
+  const spendAmountStep = Math.max(1, parsePositiveNumber(settings.spendAmountStep, 1))
+  const pointsPerStep = Math.max(1, parsePositiveInteger(settings.pointsPerStep, 1))
+
+  if (eligibleSubtotal < minimumOrderTotal) {
+    return 0
+  }
+
+  return Math.max(0, Math.floor(eligibleSubtotal / spendAmountStep) * pointsPerStep)
+}
+
+function getLoyaltyEarnPreviewText(points, pointsName, subtotal, settings, currencySymbol) {
+  if (!settings?.enabled) {
+    return ''
+  }
+
+  if (points > 0) {
+    return `Esta compra suma ${points} ${pointsName}.`
+  }
+
+  const minimumOrderTotal = Math.max(0, parsePositiveNumber(settings.minimumOrderTotal, 0))
+
+  if (minimumOrderTotal > subtotal) {
+    return `Esta compra suma 0 ${pointsName}. Sumás desde ${formatPrice(minimumOrderTotal, currencySymbol)}.`
+  }
+
+  return `Esta compra suma 0 ${pointsName}.`
+}
+
 function normalizeImageList(...groups) {
   return Array.from(
     new Set(
@@ -3332,7 +3377,22 @@ export default function MenuApp() {
     : redemptionCount > 0
       ? 'Canje'
       : 'Sin productos'
-  const pointsName = loyaltyData?.settings?.pointsName ?? menu?.loyalty?.settings?.pointsName ?? 'puntos'
+  const loyaltySettings = menu?.loyalty?.settings ?? null
+  const pointsName = loyaltyData?.settings?.pointsName ?? loyaltySettings?.pointsName ?? 'puntos'
+  const loyaltyEarnPreview = useMemo(
+    () => calculateLoyaltyEarnPreview(cartTotal, loyaltySettings),
+    [cartTotal, loyaltySettings],
+  )
+  const loyaltyEarnPreviewText =
+    loyaltySettings?.enabled && hasOrderItems
+      ? getLoyaltyEarnPreviewText(
+          loyaltyEarnPreview,
+          pointsName,
+          cartTotal,
+          loyaltySettings,
+          currencySymbol,
+        )
+      : ''
   const cartRecommendations = buildCartRecommendations(cartItems, allItems)
   const cartPairings = buildCartPairingSuggestions(cartItems, allItems)
   const orderingStatus = menu?.businessHours
@@ -4905,6 +4965,7 @@ export default function MenuApp() {
                           Canje: {redemptionPointsTotal} {pointsName}
                         </small>
                       ) : null}
+                      {loyaltyEarnPreviewText ? <small>{loyaltyEarnPreviewText}</small> : null}
                     </div>
                     <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
                   </div>
@@ -5014,6 +5075,21 @@ export default function MenuApp() {
                   </div>
                 ))}
               </div>
+
+              {hasOrderItems ? (
+                <div className="cart-summary-card checkout-points-summary">
+                  <div>
+                    <span>Total actual</span>
+                    {redemptionPointsTotal > 0 ? (
+                      <small>
+                        Canje: {redemptionPointsTotal} {pointsName}
+                      </small>
+                    ) : null}
+                    {loyaltyEarnPreviewText ? <small>{loyaltyEarnPreviewText}</small> : null}
+                  </div>
+                  <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
+                </div>
+              ) : null}
 
               <form className="checkout-form" onSubmit={handleSubmitOrder}>
                 <label className="checkout-field">
