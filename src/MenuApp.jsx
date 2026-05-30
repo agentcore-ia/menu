@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { getBusinessOpenStatus } from '../shared/businessHours.js'
 
@@ -563,6 +563,33 @@ function findExplicitPromosCategory(categories = []) {
 
 function findCombosCategory(categories = []) {
   return categories.find((category) => isComboCategoryLabel(category.label) && category.items?.length) ?? null
+}
+
+function normalizeSearchText(value) {
+  return slugify(value ?? '').replace(/-/g, ' ').trim()
+}
+
+function getMenuItemSearchText(item) {
+  return normalizeSearchText([
+    item.name,
+    item.description,
+    item.categoryLabel,
+    item.price,
+    item.badge,
+  ].filter(Boolean).join(' '))
+}
+
+function searchMenuItems(items, query) {
+  const tokens = normalizeSearchText(query).split(/\s+/).filter(Boolean)
+
+  if (!tokens.length) {
+    return []
+  }
+
+  return items.filter((item) => {
+    const haystack = getMenuItemSearchText(item)
+    return tokens.every((token) => haystack.includes(token))
+  })
 }
 
 function toNumericPrice(value) {
@@ -2327,6 +2354,11 @@ function TemplateCategorySelector({
   categories,
   currentCategory,
   onSelectCategory,
+  searchQuery = '',
+  onSearchQueryChange,
+  isSearchOpen = false,
+  onOpenSearch,
+  onCloseSearch,
 }) {
   if (templateId === 'gelato') {
     return null
@@ -2342,9 +2374,42 @@ function TemplateCategorySelector({
       <div className="burger-menu-head">
         <div className="burger-menu-title-row">
           <h2>NUESTRO MENU</h2>
-          <button type="button" className="burger-search-button" aria-label="Buscar">
-            <IconSearch />
-          </button>
+          {isSearchOpen || searchQuery ? (
+            <form
+              className="burger-search-form"
+              role="search"
+              onSubmit={(event) => event.preventDefault()}
+            >
+              <IconSearch />
+              <input
+                value={searchQuery}
+                onChange={(event) => onSearchQueryChange?.(event.target.value)}
+                placeholder="Buscar productos..."
+                aria-label="Buscar productos"
+                autoFocus
+              />
+              <button
+                type="button"
+                className="burger-search-clear"
+                aria-label="Cerrar busqueda"
+                onClick={() => {
+                  onSearchQueryChange?.('')
+                  onCloseSearch?.()
+                }}
+              >
+                x
+              </button>
+            </form>
+          ) : (
+            <button
+              type="button"
+              className="burger-search-button"
+              aria-label="Buscar"
+              onClick={onOpenSearch}
+            >
+              <IconSearch />
+            </button>
+          )}
         </div>
 
         <div className="burger-category-row">
@@ -2534,6 +2599,8 @@ function TemplateMenuCollection({
   onNavigatePromos,
   gelatoFormats,
   onOpenGelatoBuilder,
+  searchQuery = '',
+  isSearchActive = false,
 }) {
   if (templateId === 'burger') {
     const highlightedItems = categoryItems
@@ -2553,63 +2620,73 @@ function TemplateMenuCollection({
 
     return (
       <section className="section-block section-block-burger">
-        <div className="burger-card-grid">
-          {highlightedItems.map((item) => {
-            const [title, accent] = getBurgerDishParts(item)
-            const hasActualMedia = Boolean(item.video || item.hasCustomImage)
-            const hideEmptyMedia = useHostCategorySet && !hasActualMedia
+        {isSearchActive ? (
+          <p className="burger-search-results">
+            {highlightedItems.length
+              ? `${highlightedItems.length} resultado${highlightedItems.length === 1 ? '' : 's'} para "${searchQuery}"`
+              : `No encontramos productos para "${searchQuery}"`}
+          </p>
+        ) : null}
 
-            return (
-              <article
-                key={item.id}
-                className={`burger-dish-card ${hideEmptyMedia ? 'no-media' : ''}`}
-              >
-                <button type="button" className="burger-favorite" aria-label="Guardar favorito">
-                  <IconHeart />
-                </button>
+        {highlightedItems.length ? (
+          <div className="burger-card-grid">
+            {highlightedItems.map((item) => {
+              const [title, accent] = getBurgerDishParts(item)
+              const hasActualMedia = Boolean(item.video || item.hasCustomImage)
+              const hideEmptyMedia = useHostCategorySet && !hasActualMedia
 
-                {!hideEmptyMedia ? (
-                  <button
-                    type="button"
-                    className="burger-dish-media"
-                    onClick={() => onOpenDish(item)}
-                    aria-label={`Ver ${item.name}`}
-                  >
-                    {renderProductMedia(item)}
-                  </button>
-                ) : null}
-
-                <div className="burger-dish-body">
-                  <button
-                    type="button"
-                    className="burger-dish-copy"
-                    onClick={() => onOpenDish(item)}
-                  >
-                    <h3>
-                      <span>{title}</span>
-                      <strong>{accent}</strong>
-                    </h3>
-                    <p>{item.description}</p>
+              return (
+                <article
+                  key={item.id}
+                  className={`burger-dish-card ${hideEmptyMedia ? 'no-media' : ''}`}
+                >
+                  <button type="button" className="burger-favorite" aria-label="Guardar favorito">
+                    <IconHeart />
                   </button>
 
-                  <div className="burger-dish-footer">
-                    <strong>{item.price}</strong>
+                  {!hideEmptyMedia ? (
                     <button
                       type="button"
-                      className="burger-add-button"
-                      onClick={() => onAddItem(item)}
-                      aria-label={`Agregar ${item.name}`}
+                      className="burger-dish-media"
+                      onClick={() => onOpenDish(item)}
+                      aria-label={`Ver ${item.name}`}
                     >
-                      <IconPlus />
+                      {renderProductMedia(item)}
                     </button>
-                  </div>
-                </div>
-              </article>
-            )
-          })}
-        </div>
+                  ) : null}
 
-        {comboTarget ? (
+                  <div className="burger-dish-body">
+                    <button
+                      type="button"
+                      className="burger-dish-copy"
+                      onClick={() => onOpenDish(item)}
+                    >
+                      <h3>
+                        <span>{title}</span>
+                        <strong>{accent}</strong>
+                      </h3>
+                      <p>{item.description}</p>
+                    </button>
+
+                    <div className="burger-dish-footer">
+                      <strong>{item.price}</strong>
+                      <button
+                        type="button"
+                        className="burger-add-button"
+                        onClick={() => onAddItem(item)}
+                        aria-label={`Agregar ${item.name}`}
+                      >
+                        <IconPlus />
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        ) : null}
+
+        {comboTarget && !isSearchActive ? (
           <article className="burger-combo-banner burger-footer-banner" data-burger-promos>
             <button
               type="button"
@@ -3206,6 +3283,8 @@ export default function MenuApp() {
   const [selectedOptions, setSelectedOptions] = useState({})
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const [checkoutStatus, setCheckoutStatus] = useState('idle')
   const [checkoutMessage, setCheckoutMessage] = useState('')
   const [lastOrder, setLastOrder] = useState(null)
@@ -3332,6 +3411,14 @@ export default function MenuApp() {
       categoryLabel: category.label,
     })),
   )
+  const deferredSearchQuery = useDeferredValue(searchQuery)
+  const normalizedSearchQuery = normalizeSearchText(deferredSearchQuery)
+  const isSearchActive = normalizedSearchQuery.length > 0
+  const searchResults = useMemo(
+    () => searchMenuItems(allItems, deferredSearchQuery),
+    [allItems, deferredSearchQuery],
+  )
+  const visibleCategoryItems = isSearchActive ? searchResults : categoryItems
   const gelatoFormats = getGelatoFormats()
   const gelatoSizeOptions = [
     ...(categories.find((category) => slugify(category.label).includes('formato-tamano'))?.items ?? []),
@@ -4069,6 +4156,11 @@ export default function MenuApp() {
                       categories={categories}
                       currentCategory={currentCategory}
                       onSelectCategory={setSelectedCategory}
+                      searchQuery={searchQuery}
+                      onSearchQueryChange={setSearchQuery}
+                      isSearchOpen={isSearchOpen}
+                      onOpenSearch={() => setIsSearchOpen(true)}
+                      onCloseSearch={() => setIsSearchOpen(false)}
                     />
                   </div>
                 ) : null}
@@ -4098,7 +4190,7 @@ export default function MenuApp() {
                   templateId={templateId}
                   categories={categories}
                   currentCategory={currentCategory}
-                  categoryItems={categoryItems}
+                  categoryItems={visibleCategoryItems}
                   presentation={presentation}
                   renderProductMedia={renderProductMedia}
                   onOpenDish={handleOpenDish}
@@ -4110,6 +4202,8 @@ export default function MenuApp() {
                   onNavigatePromos={handleNavigatePromos}
                   gelatoFormats={gelatoFormats}
                   onOpenGelatoBuilder={handleOpenGelatoBuilder}
+                  searchQuery={deferredSearchQuery}
+                  isSearchActive={isSearchActive}
                 />
               </>
             ) : null}

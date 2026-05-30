@@ -6905,6 +6905,59 @@ button:focus-visible {
   height: 1.55rem;
 }
 
+.burger-search-form {
+  flex: 1;
+  min-width: 0;
+  height: 3.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 0.85rem 0 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+  color: #f8f3e8;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.burger-search-form svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: 0 0 auto;
+}
+
+.burger-search-form input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: currentColor;
+  font: 700 0.95rem/1 var(--font-body, sans-serif);
+}
+
+.burger-search-form input::placeholder {
+  color: rgba(248, 243, 232, 0.55);
+}
+
+.burger-search-clear {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: currentColor;
+  font-weight: 900;
+}
+
+.burger-search-results {
+  margin: -0.35rem 0 0.15rem;
+  color: rgba(248, 243, 232, 0.72);
+  font: 800 0.86rem/1.35 var(--font-body, sans-serif);
+}
+
 .burger-category-row {
   display: flex;
   gap: 0.85rem;
@@ -7757,8 +7810,13 @@ button:focus-visible {
 
 .template-burger .burger-menu-title-row h2,
 .template-burger .burger-search-button,
+.template-burger .burger-search-form,
 .template-burger .burger-favorite {
   color: var(--burger-copy-color);
+}
+
+.template-burger .burger-search-results {
+  color: var(--burger-muted-color);
 }
 
 .template-burger .burger-category-pill {
