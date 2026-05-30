@@ -4086,7 +4086,7 @@ export default function MenuApp() {
                 <IconMenu />
               </button>
 
-              {templateId !== 'host' ? (
+              {!isHostLikeAccount(accountId, templateId) ? (
                 <button
                   type="button"
                   className="cart-button"
