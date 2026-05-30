@@ -2518,7 +2518,10 @@ function TemplateMenuCollection({
           </article>
         ) : null}
 
-        <nav className="burger-bottom-nav" aria-label="Navegacion del menu">
+        <nav
+          className={`burger-bottom-nav ${promoTarget ? 'has-secondary-action' : 'no-secondary-action'}`}
+          aria-label="Navegacion del menu"
+        >
           <button type="button" className="active bottom-nav-home" onClick={onNavigateHome}>
             <IconFlame />
             <span>Inicio</span>
@@ -2769,7 +2772,10 @@ function TemplateMenuCollection({
           </div>
         </article>
 
-        <nav className="host-bottom-nav" aria-label="Navegacion del menu">
+        <nav
+          className={`host-bottom-nav ${promoTarget ? 'has-secondary-action' : 'no-secondary-action'}`}
+          aria-label="Navegacion del menu"
+        >
           <button type="button" className="active bottom-nav-home" onClick={onNavigateHome}>
             <IconHome />
             <span>Inicio</span>
