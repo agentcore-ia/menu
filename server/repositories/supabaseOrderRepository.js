@@ -5,6 +5,7 @@ import {
   normalizePhone,
   parseInteger,
 } from './loyaltyUtils.js'
+import { getBusinessOpenStatus } from '../../shared/businessHours.js'
 
 export class SupabaseOrderRepository {
   constructor(config) {
@@ -16,6 +17,19 @@ export class SupabaseOrderRepository {
 
     if (!restaurant) {
       return null
+    }
+
+    const orderingStatus = getBusinessOpenStatus(restaurant.horarios)
+
+    if (orderingStatus.configured && !orderingStatus.isOpen) {
+      const error = new Error(
+        orderingStatus.message ||
+          'El local esta cerrado ahora. Los pedidos se habilitan en horario de atencion.',
+      )
+      error.code = 'RESTAURANT_CLOSED'
+      error.statusCode = 409
+      error.ordering = orderingStatus
+      throw error
     }
 
     const loyaltySettings = await this.fetchLoyaltySettings(restaurant.id)
@@ -204,7 +218,7 @@ export class SupabaseOrderRepository {
 
   async fetchRestaurant(accountId) {
     const slug = slugify(accountId)
-    const select = 'id,slug,name,phone,delivery_fee,city'
+    const select = 'id,slug,name,phone,delivery_fee,city,horarios'
     const exactRows = await this.request(
       `/restaurants?slug=eq.${encodeURIComponent(slug)}&select=${select}&limit=1`,
     )

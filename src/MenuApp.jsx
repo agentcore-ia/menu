@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
+import { getBusinessOpenStatus } from '../shared/businessHours.js'
 
 const emptyCategories = []
 
@@ -39,6 +40,15 @@ const defaultPresentation = {
     autoplayVideos: false,
     mutedVideos: true,
   },
+}
+
+function getOrderingClosedMessage(orderingStatus) {
+  const baseMessage =
+    orderingStatus?.message ||
+    'El local esta cerrado ahora. Podes ver el menu, pero los pedidos se habilitan en horario de atencion.'
+  const nextOpenText = orderingStatus?.nextOpenText ? ` ${orderingStatus.nextOpenText}.` : ''
+
+  return `${baseMessage}${nextOpenText}`
 }
 
 function IconMenu() {
@@ -3169,6 +3179,8 @@ export default function MenuApp() {
   const [loyaltyMessage, setLoyaltyMessage] = useState('')
   const [loyaltyData, setLoyaltyData] = useState(null)
   const [cartFeedback, setCartFeedback] = useState(null)
+  const [orderingNotice, setOrderingNotice] = useState('')
+  const [currentTime, setCurrentTime] = useState(() => Date.now())
   const cartFeedbackIdRef = useRef(0)
   const [gelatoBuilderOpen, setGelatoBuilderOpen] = useState(false)
   const [gelatoStep, setGelatoStep] = useState(1)
@@ -3245,6 +3257,26 @@ export default function MenuApp() {
     return () => window.clearTimeout(timeout)
   }, [cartFeedback])
 
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setCurrentTime(Date.now())
+    }, 60000)
+
+    return () => window.clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    if (!orderingNotice) {
+      return undefined
+    }
+
+    const timeout = window.setTimeout(() => {
+      setOrderingNotice('')
+    }, 2800)
+
+    return () => window.clearTimeout(timeout)
+  }, [orderingNotice])
+
   const presentation = menu?.presentation ?? defaultPresentation
   const categories = menu?.categories ?? emptyCategories
 
@@ -3310,8 +3342,28 @@ export default function MenuApp() {
   const pointsName = loyaltyData?.settings?.pointsName ?? menu?.loyalty?.settings?.pointsName ?? 'puntos'
   const cartRecommendations = buildCartRecommendations(cartItems, allItems)
   const cartPairings = buildCartPairingSuggestions(cartItems, allItems)
+  const orderingStatus = menu?.businessHours
+    ? getBusinessOpenStatus(menu.businessHours, new Date(currentTime))
+    : menu?.ordering ?? {
+        configured: false,
+        isOpen: true,
+        message: '',
+        nextOpenText: '',
+        scheduleText: '',
+      }
+  const orderingBlocked = Boolean(orderingStatus.configured && !orderingStatus.isOpen)
+  const orderingClosedMessage = getOrderingClosedMessage(orderingStatus)
+
+  function showOrderingClosedNotice() {
+    setOrderingNotice(orderingClosedMessage)
+  }
 
   function handleAddItem(item, quantity = 1, configuration = null) {
+    if (orderingBlocked) {
+      showOrderingClosedNotice()
+      return
+    }
+
     const unitPrice = configuration?.unitPrice ?? item.unitPrice ?? toNumericPrice(item.price)
     const notes = configuration?.summary ?? ''
     const lineId = `${item.id}::${notes || 'default'}`
@@ -3414,6 +3466,11 @@ export default function MenuApp() {
   }
 
   function handleOpenGelatoBuilder(formatId = 'kilo', initialStep = 1) {
+    if (orderingBlocked) {
+      showOrderingClosedNotice()
+      return
+    }
+
     setGelatoFormat(formatId)
     setGelatoStep(initialStep)
     setGelatoSizeId(gelatoSizeOptions[0]?.id ?? '')
@@ -3437,6 +3494,11 @@ export default function MenuApp() {
   }
 
   function handleAddGelatoOrder() {
+    if (orderingBlocked) {
+      showOrderingClosedNotice()
+      return
+    }
+
     if (!selectedGelatoSize || !gelatoSelectedFlavors.length) {
       return
     }
@@ -3553,6 +3615,12 @@ export default function MenuApp() {
   }
 
   function handleAddRewardRedemption(reward) {
+    if (orderingBlocked) {
+      setLoyaltyMessage(orderingClosedMessage)
+      showOrderingClosedNotice()
+      return
+    }
+
     const availablePoints = loyaltyData?.balance ?? 0
     const pointsCost = Number(reward.pointsCost ?? 0)
 
@@ -3703,6 +3771,12 @@ export default function MenuApp() {
 
   async function handleSubmitOrder(event) {
     event.preventDefault()
+
+    if (orderingBlocked) {
+      setCheckoutStatus('error')
+      setCheckoutMessage(orderingClosedMessage)
+      return
+    }
 
     if (!hasOrderItems) {
       setCheckoutMessage('Agrega productos o canjes antes de enviar el pedido.')
@@ -3919,6 +3993,19 @@ export default function MenuApp() {
               </section>
             ) : null}
 
+            {status === 'ready' && orderingBlocked ? (
+              <section className="closed-order-banner" role="status" aria-live="polite">
+                <div>
+                  <strong>Estamos cerrados ahora</strong>
+                  <p>Podes mirar el menu, pero los pedidos se habilitan en horario de atencion.</p>
+                </div>
+                <span>
+                  {orderingStatus.nextOpenText ||
+                    (orderingStatus.scheduleText ? `Hoy: ${orderingStatus.scheduleText}` : 'Pedidos pausados')}
+                </span>
+              </section>
+            ) : null}
+
             {status === 'ready' ? (
               <>
                 {templateId === 'pizzeria' || templateId === 'burger' || templateId === 'host' ? (
@@ -4023,6 +4110,17 @@ export default function MenuApp() {
               {cartFeedback.name}
             </p>
           </div>
+        </div>
+      ) : null}
+
+      {orderingNotice ? (
+        <div
+          className={`ordering-closed-toast ${templateId === 'burger' || templateId === 'host' ? 'ordering-closed-toast-dark' : ''}`}
+          role="status"
+          aria-live="polite"
+        >
+          <strong>Pedidos pausados</strong>
+          <p>{orderingNotice}</p>
         </div>
       ) : null}
 
@@ -4556,7 +4654,7 @@ export default function MenuApp() {
                   <button
                     type="button"
                     className="primary-action"
-                    disabled={!detailSelectionsValid}
+                    disabled={!detailSelectionsValid || orderingBlocked}
                     onClick={() => {
                       handleAddItem(selectedDish, detailQuantity, {
                         summary: buildSelectionSummary(detailSelectableGroups, selectedOptions),
@@ -4566,7 +4664,7 @@ export default function MenuApp() {
                       setSelectedDish(null)
                     }}
                   >
-                    <span>Agregar al pedido</span>
+                    <span>{orderingBlocked ? 'Pedidos cerrados' : 'Agregar al pedido'}</span>
                     <strong>
                       {formatPrice(
                         ((selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal) *
@@ -4647,7 +4745,7 @@ export default function MenuApp() {
                 <button
                   type="button"
                   className="host-detail-cart-button"
-                  disabled={!detailSelectionsValid}
+                  disabled={!detailSelectionsValid || orderingBlocked}
                   onClick={() => {
                     handleAddItem(selectedDish, detailQuantity, {
                       summary: buildSelectionSummary(detailSelectableGroups, selectedOptions),
@@ -4658,7 +4756,7 @@ export default function MenuApp() {
                   }}
                 >
                   <IconCart />
-                  <span>Agregar al carrito</span>
+                  <span>{orderingBlocked ? 'Pedidos cerrados' : 'Agregar al carrito'}</span>
                 </button>
               </footer>
             ) : null}
@@ -4818,15 +4916,25 @@ export default function MenuApp() {
                     <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
                   </div>
 
+                  {orderingBlocked ? (
+                    <p className="checkout-message error">{orderingClosedMessage}</p>
+                  ) : null}
+
                   <button
                     type="button"
                     className="primary-action"
+                    disabled={orderingBlocked}
                     onClick={() => {
+                      if (orderingBlocked) {
+                        showOrderingClosedNotice()
+                        return
+                      }
+
                       setIsCartOpen(false)
                       setIsCheckoutOpen(true)
                     }}
                   >
-                    <span>Continuar con tus datos</span>
+                    <span>{orderingBlocked ? 'Pedidos cerrados' : 'Continuar con tus datos'}</span>
                     <strong>{orderTotalLabel}</strong>
                   </button>
                 </>
@@ -5006,14 +5114,21 @@ export default function MenuApp() {
                 </label>
 
                 {checkoutMessage ? <p className={`checkout-message ${checkoutStatus}`}>{checkoutMessage}</p> : null}
+                {orderingBlocked ? <p className="checkout-message error">{orderingClosedMessage}</p> : null}
                 {lastOrder ? <p className="checkout-message success">Ultimo pedido confirmado: #{lastOrder.orderNumber}</p> : null}
 
                 <button
                   type="submit"
                   className="primary-action"
-                  disabled={checkoutStatus === 'submitting'}
+                  disabled={checkoutStatus === 'submitting' || orderingBlocked}
                 >
-                  <span>{checkoutStatus === 'submitting' ? 'Enviando pedido...' : 'Enviar pedido'}</span>
+                  <span>
+                    {orderingBlocked
+                      ? 'Pedidos cerrados'
+                      : checkoutStatus === 'submitting'
+                        ? 'Enviando pedido...'
+                        : 'Enviar pedido'}
+                  </span>
                   <strong>{orderTotalLabel}</strong>
                 </button>
               </form>

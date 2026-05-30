@@ -3,6 +3,7 @@ import {
   mapLoyaltySettingsRow,
   mapRewardRow,
 } from './loyaltyUtils.js'
+import { getBusinessOpenStatus } from '../../shared/businessHours.js'
 
 const fallbackImages = [
   '/dishes/hero-steak.jpg',
@@ -150,6 +151,8 @@ export class SupabaseMenuRepository {
       presentationConfig,
       categories,
       loyalty,
+      businessHours: restaurant.horarios ?? null,
+      ordering: getBusinessOpenStatus(restaurant.horarios),
     }
   }
 

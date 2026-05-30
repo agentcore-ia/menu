@@ -55,6 +55,15 @@ export default async function handler(req, res) {
 
     res.status(201).json(order)
   } catch (error) {
+    if (error?.code === 'RESTAURANT_CLOSED') {
+      res.status(error.statusCode ?? 409).json({
+        error: 'RESTAURANT_CLOSED',
+        message: error.message,
+        ordering: error.ordering ?? null,
+      })
+      return
+    }
+
     res.status(500).json({
       error: 'ORDER_CREATE_FAILED',
       message: error instanceof Error ? error.message : 'No se pudo crear el pedido.',
