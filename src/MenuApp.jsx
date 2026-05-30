@@ -1719,24 +1719,40 @@ function isDarkSolidColor(value) {
   return luminance < 0.18
 }
 
-function getMenuPageBackground(theme) {
+function isPureBlackColor(value) {
+  const raw = String(value ?? '').trim().toLowerCase()
+  return raw === '#000' || raw === '#000000'
+}
+
+function getThemeBackground(theme, templateId) {
+  if (templateId === 'host' && isPureBlackColor(theme.background)) {
+    return '#080D0E'
+  }
+
+  return theme.background
+}
+
+function getMenuPageBackground(theme, templateId) {
   if (theme.pageBackground) {
     return theme.pageBackground
   }
 
-  if (isDarkSolidColor(theme.background)) {
-    return theme.background
+  const background = getThemeBackground(theme, templateId)
+
+  if (isDarkSolidColor(background)) {
+    return background
   }
 
-  return `linear-gradient(180deg, ${theme.surfaceAlt} 0%, ${theme.background} 100%)`
+  return `linear-gradient(180deg, ${theme.surfaceAlt} 0%, ${background} 100%)`
 }
 
 function getPresentationStyles(presentation) {
   const theme = presentation.theme
+  const templateId = presentation.template ?? presentation.layout
 
   return {
-    '--menu-page-background': getMenuPageBackground(theme),
-    '--theme-bg': theme.background,
+    '--menu-page-background': getMenuPageBackground(theme, templateId),
+    '--theme-bg': getThemeBackground(theme, templateId),
     '--theme-surface': theme.surface,
     '--theme-surface-alt': theme.surfaceAlt,
     '--theme-text': theme.text,
