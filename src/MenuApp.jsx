@@ -2491,6 +2491,12 @@ function TemplateMenuCollection({
     const highlightedItems = categoryItems
     const useHostCategorySet = shouldUseHostCategorySet(accountId, templateId, categories)
     const promoTarget = findExplicitPromosCategory(categories)
+    const comboBannerSrc = isHostLikeAccount(accountId, templateId)
+      ? '/host/banner.png'
+      : '/burger/footer.png'
+    const comboBannerAlt = isHostLikeAccount(accountId, templateId)
+      ? 'Banner promocional Host.'
+      : 'El match perfecto. Combo clasico.'
     const comboTarget =
       promoTarget ??
       findCombosCategory(categories) ??
@@ -2565,7 +2571,7 @@ function TemplateMenuCollection({
               }}
               aria-label="Ver combo clasico"
             >
-              <img src="/burger/footer.png" alt="El match perfecto. Combo clasico." />
+              <img src={comboBannerSrc} alt={comboBannerAlt} />
             </button>
           </article>
         ) : null}
