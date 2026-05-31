@@ -40,15 +40,18 @@ export class SupabaseOrderRepository {
       (total, item) => total + Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0),
       0,
     )
-    const shouldChargeDelivery = payload.deliveryType === 'delivery'
-    const deliveryFee = shouldChargeDelivery ? Number(restaurant.delivery_fee ?? 0) : 0
-    const total = subtotal + deliveryFee
     const redemptionPreview = await this.prepareRewardRedemptions({
       restaurant,
       customer,
       redemptions: payload.redemptions,
       loyaltySettings,
+      subtotal,
     })
+    const discountAmount = redemptionPreview?.discountAmount ?? 0
+    const discountedSubtotal = Math.max(0, subtotal - discountAmount)
+    const shouldChargeDelivery = payload.deliveryType === 'delivery'
+    const deliveryFee = shouldChargeDelivery ? Number(restaurant.delivery_fee ?? 0) : 0
+    const total = discountedSubtotal + deliveryFee
 
     const [pedido] = await this.request('/pedidos', {
       method: 'POST',
@@ -66,6 +69,10 @@ export class SupabaseOrderRepository {
           address: payload.customer.address || null,
           subtotal,
           delivery_fee: deliveryFee,
+          discount_amount: discountAmount,
+          discount_percent: redemptionPreview?.discountPercent ?? null,
+          discount_label: redemptionPreview?.discountLabel ?? null,
+          discount_source: discountAmount > 0 ? 'loyalty' : null,
           total,
           notes: payload.notes || null,
           customer_name: customer.name || payload.customer.name || null,
@@ -75,7 +82,7 @@ export class SupabaseOrderRepository {
             channel: 'menu_digital',
             customer: payload.customer,
             items: orderProducts,
-            redemptions: redemptionPreview?.lineItems ?? [],
+            redemptions: redemptionPreview?.allRedemptions ?? redemptionPreview?.lineItems ?? [],
           },
         },
       ]),
@@ -119,7 +126,7 @@ export class SupabaseOrderRepository {
       restaurant,
       customer,
       pedido,
-      subtotal,
+      subtotal: discountedSubtotal,
       loyaltySettings,
       existingAccount: redemptionResult?.account ?? redemptionPreview?.account ?? null,
       startingBalance:
@@ -137,6 +144,7 @@ export class SupabaseOrderRepository {
           customer,
           items: orderProducts,
           redemptionItems: redemptionPreview?.lineItems ?? [],
+          discountItems: redemptionPreview?.discountItems ?? [],
           total,
           deliveryType: payload.deliveryType,
           paymentMethod: payload.paymentMethod,
@@ -159,6 +167,7 @@ export class SupabaseOrderRepository {
           content: confirmationMessage,
           items: orderProducts,
           redemptionItems: redemptionPreview?.lineItems ?? [],
+          discountItems: redemptionPreview?.discountItems ?? [],
           total,
           deliveryType: payload.deliveryType,
           paymentMethod: payload.paymentMethod,
@@ -175,6 +184,7 @@ export class SupabaseOrderRepository {
       customer,
       items: orderProducts,
       redemptionItems: redemptionPreview?.lineItems ?? [],
+      discountItems: redemptionPreview?.discountItems ?? [],
       total,
       deliveryType: payload.deliveryType,
       paymentMethod: payload.paymentMethod,
@@ -293,7 +303,7 @@ export class SupabaseOrderRepository {
     return created
   }
 
-  async prepareRewardRedemptions({ restaurant, customer, redemptions, loyaltySettings }) {
+  async prepareRewardRedemptions({ restaurant, customer, redemptions, loyaltySettings, subtotal }) {
     if (!loyaltySettings.enabled || loyaltySettings.allowRedemption === false) {
       return null
     }
@@ -329,7 +339,18 @@ export class SupabaseOrderRepository {
     const selectedRewards = normalized.map((item) => ({
       ...item,
       reward: rewardsById.get(item.rewardId),
+    })).map((item) => ({
+      ...item,
+      quantity: item.reward?.rewardType === 'discount' ? 1 : item.quantity,
     }))
+    const hasDiscountOnly =
+      selectedRewards.length > 0 &&
+      selectedRewards.every((item) => item.reward.rewardType === 'discount') &&
+      Number(subtotal || 0) <= 0
+
+    if (hasDiscountOnly) {
+      throw new Error('Agrega productos al pedido para poder usar un descuento.')
+    }
     const totalPointsCost = selectedRewards.reduce(
       (sum, item) => sum + item.reward.pointsCost * item.quantity,
       0,
@@ -339,19 +360,69 @@ export class SupabaseOrderRepository {
       throw new Error('No alcanzan los puntos disponibles para completar el canje.')
     }
 
-    return {
-      account,
-      selectedRewards,
-      totalPointsCost,
-      balanceAfter: account.pointsBalance - totalPointsCost,
-      lineItems: selectedRewards.map((item) => ({
+    const discountItems = selectedRewards
+      .filter((item) => item.reward.rewardType === 'discount')
+      .map((item) => {
+        const amount = this.calculateRewardDiscountAmount(item.reward, subtotal)
+        return {
+          rewardId: item.reward.id,
+          productId: null,
+          quantity: 1,
+          name: item.reward.title,
+          notes: `Canje por ${item.reward.pointsCost} ${loyaltySettings.pointsName}`,
+          discountType: item.reward.discountType,
+          discountValue: item.reward.discountValue,
+          discountMaxAmount: item.reward.discountMaxAmount,
+          discountAmount: amount,
+        }
+      })
+    const discountAmount = Math.min(
+      Number(subtotal || 0),
+      discountItems.reduce((sum, item) => sum + item.discountAmount, 0),
+    )
+    const discountPercent =
+      discountItems.length === 1 && discountItems[0].discountType === 'percent'
+        ? Math.round(Number(discountItems[0].discountValue || 0))
+        : null
+    const discountLabel =
+      discountItems.length > 0 ? discountItems.map((item) => item.name).join(' + ') : null
+    const productLineItems = selectedRewards
+      .filter((item) => item.reward.rewardType !== 'discount')
+      .map((item) => ({
         rewardId: item.reward.id,
         productId: item.reward.productId,
         quantity: item.quantity,
         name: item.reward.title,
         notes: `Canje por ${item.reward.pointsCost * item.quantity} ${loyaltySettings.pointsName}`,
-      })),
+      }))
+
+    return {
+      account,
+      selectedRewards,
+      totalPointsCost,
+      balanceAfter: account.pointsBalance - totalPointsCost,
+      lineItems: productLineItems,
+      discountItems,
+      discountAmount,
+      discountPercent,
+      discountLabel,
+      allRedemptions: [...productLineItems, ...discountItems],
     }
+  }
+
+  calculateRewardDiscountAmount(reward, subtotal) {
+    const base = Math.max(0, Number(subtotal || 0))
+    const value = Math.max(0, Number(reward.discountValue || 0))
+    const maxAmount = Number(reward.discountMaxAmount || 0)
+    let amount = reward.discountType === 'fixed'
+      ? value
+      : Math.round((base * value) / 100)
+
+    if (maxAmount > 0) {
+      amount = Math.min(amount, maxAmount)
+    }
+
+    return Math.min(base, Math.max(0, amount))
   }
 
   async commitRewardRedemptions({ preview, restaurant, customer, pedido }) {
@@ -383,6 +454,12 @@ export class SupabaseOrderRepository {
             metadata: {
               quantity: item.quantity,
               points_cost_per_unit: item.reward.pointsCost,
+              reward_type: item.reward.rewardType,
+              discount_type: item.reward.discountType,
+              discount_value: item.reward.discountValue,
+              discount_amount: item.reward.rewardType === 'discount'
+                ? this.calculateRewardDiscountAmount(item.reward, pedido.subtotal)
+                : 0,
               source: 'menu_digital',
             },
           },
@@ -492,8 +569,12 @@ export class SupabaseOrderRepository {
       return rows.map((row) => ({
         id: row.id,
         productId: row.product_id ?? null,
+        rewardType: row.reward_type === 'discount' ? 'discount' : 'product',
         title: row.title || productMap.get(row.product_id)?.name || 'Canje',
         pointsCost: parseInteger(row.points_cost, 0),
+        discountType: row.discount_type === 'fixed' ? 'fixed' : row.discount_type === 'percent' ? 'percent' : null,
+        discountValue: row.discount_value == null ? null : Number(row.discount_value),
+        discountMaxAmount: row.discount_max_amount == null ? null : Number(row.discount_max_amount),
       }))
     } catch (error) {
       if (isMissingSupabaseRelationError(error, 'restaurant_loyalty_rewards')) {
@@ -576,6 +657,7 @@ export class SupabaseOrderRepository {
     customer,
     items,
     redemptionItems,
+    discountItems,
     total,
     deliveryType,
     paymentMethod,
@@ -590,6 +672,9 @@ export class SupabaseOrderRepository {
       return `- ${item.quantity} x ${item.name}${noteText}: $${this.formatMoney(itemTotal)}`
     })
     const rewardLines = redemptionItems.map((item) => `- ${item.quantity} x ${item.name} (canje)`)
+    const discountLines = (discountItems ?? []).map(
+      (item) => `- ${item.name}: -$${this.formatMoney(item.discountAmount)}`,
+    )
 
     const deliveryLine =
       deliveryType === 'delivery'
@@ -606,6 +691,9 @@ export class SupabaseOrderRepository {
       rewardLines.length ? '' : null,
       rewardLines.length ? 'Canjes:' : null,
       ...rewardLines,
+      discountLines.length ? '' : null,
+      discountLines.length ? 'Descuentos:' : null,
+      ...discountLines,
       '',
       deliveryLine,
       `Pago: ${paymentLabel}`,
@@ -763,6 +851,7 @@ export class SupabaseOrderRepository {
     content,
     items,
     redemptionItems,
+    discountItems,
     total,
     deliveryType,
     paymentMethod,
@@ -804,6 +893,7 @@ export class SupabaseOrderRepository {
             paymentMethod,
             items,
             redemptions: redemptionItems,
+            discounts: discountItems ?? [],
           },
           conversation: {
             id: conversation.id,

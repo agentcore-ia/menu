@@ -672,6 +672,27 @@ function getLoyaltyEarnPreviewText(points, pointsName, subtotal, settings, curre
   return `Esta compra suma 0 ${pointsName}.`
 }
 
+function calculateRedemptionDiscountTotal(redemptions, subtotal) {
+  const base = Math.max(0, Number(subtotal || 0))
+  const total = (redemptions || []).reduce((sum, reward) => {
+    if (reward.rewardType !== 'discount') {
+      return sum
+    }
+
+    const value = Math.max(0, Number(reward.discountValue || 0))
+    const maxAmount = Math.max(0, Number(reward.discountMaxAmount || 0))
+    const rawDiscount =
+      reward.discountType === 'fixed'
+        ? value
+        : Math.round((base * value) / 100)
+    const cappedDiscount = maxAmount > 0 ? Math.min(rawDiscount, maxAmount) : rawDiscount
+
+    return sum + Math.max(0, cappedDiscount)
+  }, 0)
+
+  return Math.min(base, total)
+}
+
 function normalizeImageList(...groups) {
   return Array.from(
     new Set(
@@ -3443,7 +3464,7 @@ export default function MenuApp() {
 
   const cartCount = useMemo(() => cart.reduce((total, line) => total + line.quantity, 0), [cart])
 
-  const cartTotal = useMemo(
+  const cartSubtotal = useMemo(
     () => cart.reduce((total, line) => total + line.unitPrice * line.quantity, 0),
     [cart],
   )
@@ -3457,6 +3478,12 @@ export default function MenuApp() {
     () => rewardRedemptions.reduce((total, line) => total + line.pointsCost * line.quantity, 0),
     [rewardRedemptions],
   )
+  const redemptionDiscountTotal = useMemo(
+    () => calculateRedemptionDiscountTotal(rewardRedemptions, cartSubtotal),
+    [rewardRedemptions, cartSubtotal],
+  )
+  const cartTotal = Math.max(0, cartSubtotal - redemptionDiscountTotal)
+  const hasDiscountRedemptions = rewardRedemptions.some((line) => line.rewardType === 'discount')
   const orderCount = cartCount + redemptionCount
   const hasOrderItems = orderCount > 0
   const orderTotalLabel = cartTotal > 0
@@ -3779,8 +3806,13 @@ export default function MenuApp() {
 
     setRewardRedemptions((current) => {
       const existing = current.find((line) => line.rewardId === reward.id)
+      const isDiscount = reward.rewardType === 'discount'
 
       if (existing) {
+        if (isDiscount) {
+          return current
+        }
+
         return current.map((line) =>
           line.rewardId === reward.id
             ? {
@@ -3796,10 +3828,14 @@ export default function MenuApp() {
         {
           rewardId: reward.id,
           title: reward.title,
+          rewardType: reward.rewardType,
           pointsCost,
           quantity: 1,
           imageUrl: reward.imageUrl,
           videoUrl: reward.videoUrl,
+          discountType: reward.discountType,
+          discountValue: reward.discountValue,
+          discountMaxAmount: reward.discountMaxAmount,
         },
       ]
     })
@@ -3816,6 +3852,10 @@ export default function MenuApp() {
       const lineToUpdate = current.find((line) => line.rewardId === rewardId)
 
       if (!lineToUpdate) {
+        return current
+      }
+
+      if (lineToUpdate.rewardType === 'discount' && quantity > 1) {
         return current
       }
 
@@ -3920,6 +3960,12 @@ export default function MenuApp() {
 
     if (!hasOrderItems) {
       setCheckoutMessage('Agrega productos o canjes antes de enviar el pedido.')
+      return
+    }
+
+    if (cartCount === 0 && hasDiscountRedemptions) {
+      setCheckoutStatus('error')
+      setCheckoutMessage('Agrega productos al pedido para poder usar el descuento.')
       return
     }
 
@@ -4966,7 +5012,9 @@ export default function MenuApp() {
                         <div>
                           <strong>{item.title}</strong>
                           <span>
-                            Canje: {item.pointsCost} {pointsName} c/u
+                            {item.rewardType === 'discount'
+                              ? `Descuento: -${formatPrice(calculateRedemptionDiscountTotal([item], cartSubtotal), currencySymbol)}`
+                              : `Canje: ${item.pointsCost} ${pointsName} c/u`}
                           </span>
                         </div>
                         <div className="checkout-item-controls">
@@ -4977,12 +5025,14 @@ export default function MenuApp() {
                             <IconMinus />
                           </button>
                           <span>{item.quantity}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity + 1)}
-                          >
-                            <IconPlus />
-                          </button>
+                          {item.rewardType === 'discount' ? null : (
+                            <button
+                              type="button"
+                              onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity + 1)}
+                            >
+                              <IconPlus />
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -5058,6 +5108,9 @@ export default function MenuApp() {
                         <small>
                           Canje: {redemptionPointsTotal} {pointsName}
                         </small>
+                      ) : null}
+                      {redemptionDiscountTotal > 0 ? (
+                        <small>Descuento: -{formatPrice(redemptionDiscountTotal, currencySymbol)}</small>
                       ) : null}
                       {loyaltyEarnPreviewText ? <small>{loyaltyEarnPreviewText}</small> : null}
                     </div>
@@ -5148,7 +5201,9 @@ export default function MenuApp() {
                     <div>
                       <strong>{item.title}</strong>
                       <span>
-                        Canje: {item.pointsCost} {pointsName} c/u
+                        {item.rewardType === 'discount'
+                          ? `Descuento: -${formatPrice(calculateRedemptionDiscountTotal([item], cartSubtotal), currencySymbol)}`
+                          : `Canje: ${item.pointsCost} ${pointsName} c/u`}
                       </span>
                     </div>
                     <div className="checkout-item-controls">
@@ -5159,12 +5214,14 @@ export default function MenuApp() {
                         <IconMinus />
                       </button>
                       <span>{item.quantity}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity + 1)}
-                      >
-                        <IconPlus />
-                      </button>
+                      {item.rewardType === 'discount' ? null : (
+                        <button
+                          type="button"
+                          onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity + 1)}
+                        >
+                          <IconPlus />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -5178,6 +5235,9 @@ export default function MenuApp() {
                       <small>
                         Canje: {redemptionPointsTotal} {pointsName}
                       </small>
+                    ) : null}
+                    {redemptionDiscountTotal > 0 ? (
+                      <small>Descuento: -{formatPrice(redemptionDiscountTotal, currencySymbol)}</small>
                     ) : null}
                     {loyaltyEarnPreviewText ? <small>{loyaltyEarnPreviewText}</small> : null}
                   </div>
@@ -5377,10 +5437,12 @@ export default function MenuApp() {
                               const selectedReward = rewardRedemptions.find(
                                 (line) => line.rewardId === reward.id,
                               )
+                              const isDiscountReward = reward.rewardType === 'discount'
                               const selectedPoints =
                                 redemptionPointsTotal - (selectedReward?.pointsCost ?? 0) * (selectedReward?.quantity ?? 0)
                               const canAdd =
                                 reward.redeemable &&
+                                (!isDiscountReward || !selectedReward) &&
                                 selectedPoints +
                                   (selectedReward?.pointsCost ?? reward.pointsCost) *
                                     ((selectedReward?.quantity ?? 0) + 1) <=
@@ -5395,7 +5457,11 @@ export default function MenuApp() {
                                   <div>
                                     <strong>{reward.title}</strong>
                                     <span>
-                                      {reward.pointsCost} {loyaltyData.settings?.pointsName ?? 'puntos'}
+                                      {reward.rewardType === 'discount'
+                                        ? `${reward.discountType === 'fixed'
+                                            ? formatPrice(reward.discountValue, currencySymbol)
+                                            : `${reward.discountValue}%`} OFF · ${reward.pointsCost} ${loyaltyData.settings?.pointsName ?? 'puntos'}`
+                                        : `${reward.pointsCost} ${loyaltyData.settings?.pointsName ?? 'puntos'}`}
                                     </span>
                                     {selectedReward ? (
                                       <em>{selectedReward.quantity} en tu pedido</em>

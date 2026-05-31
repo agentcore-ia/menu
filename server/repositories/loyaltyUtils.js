@@ -131,9 +131,13 @@ export function mapRewardRow(row) {
     id: row.id,
     restaurantId: row.restaurant_id,
     productId: row.product_id ?? null,
+    rewardType: row.reward_type === 'discount' ? 'discount' : 'product',
     title: row.title ?? '',
     description: row.description ?? '',
     pointsCost: parseInteger(row.points_cost, 0),
+    discountType: row.discount_type === 'fixed' ? 'fixed' : row.discount_type === 'percent' ? 'percent' : null,
+    discountValue: row.discount_value == null ? null : parseAmount(row.discount_value, 0),
+    discountMaxAmount: row.discount_max_amount == null ? null : parseAmount(row.discount_max_amount, 0),
     imageUrl: row.image_url ?? null,
     videoUrl: row.video_url ?? null,
     isActive: row.is_active !== false,
@@ -145,9 +149,24 @@ export function mapRewardRow(row) {
 export function normalizeRewardInput(input) {
   return {
     product_id: input?.productId || null,
+    reward_type: input?.rewardType === 'discount' ? 'discount' : 'product',
     title: String(input?.title || '').trim() || null,
     description: String(input?.description || '').trim() || null,
     points_cost: Math.max(1, parseInteger(input?.pointsCost, 0)),
+    discount_type:
+      input?.rewardType === 'discount'
+        ? input?.discountType === 'fixed'
+          ? 'fixed'
+          : 'percent'
+        : null,
+    discount_value:
+      input?.rewardType === 'discount'
+        ? Math.max(0, parseAmount(input?.discountValue, 0))
+        : null,
+    discount_max_amount:
+      input?.rewardType === 'discount' && parseAmount(input?.discountMaxAmount, 0) > 0
+        ? parseAmount(input?.discountMaxAmount, 0)
+        : null,
     image_url: String(input?.imageUrl || '').trim() || null,
     is_active: input?.isActive !== false,
     sort_order: Math.max(0, parseInteger(input?.sortOrder, 0)),
