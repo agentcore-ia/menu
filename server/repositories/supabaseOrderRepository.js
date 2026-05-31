@@ -218,7 +218,7 @@ export class SupabaseOrderRepository {
 
   async fetchRestaurant(accountId) {
     const slug = slugify(accountId)
-    const select = 'id,slug,name,phone,delivery_fee,city,horarios'
+    const select = 'id,slug,name,phone,delivery_fee,city,horarios,plan_code'
     const exactRows = await this.request(
       `/restaurants?slug=eq.${encodeURIComponent(slug)}&select=${select}&limit=1`,
     )
@@ -583,6 +583,7 @@ export class SupabaseOrderRepository {
     notes,
     loyalty,
   }) {
+    const isMenuOnlyPlan = restaurant.plan_code === 'menu'
     const lines = items.map((item) => {
       const itemTotal = Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0)
       const noteText = item.notes ? ` (${item.notes})` : ''
@@ -614,8 +615,8 @@ export class SupabaseOrderRepository {
         ? `Ganaste ${loyalty.pointsEarned} ${loyalty.pointsEarned === 1 ? 'punto' : 'puntos'}.`
         : null,
       typeof loyalty?.balance === 'number' ? `Saldo actual: ${loyalty.balance} puntos.` : null,
-      '',
-      'Te avisamos por este medio cuando avance.',
+      isMenuOnlyPlan ? null : '',
+      isMenuOnlyPlan ? null : 'Te avisamos por este medio cuando avance.',
     ]
       .filter(Boolean)
       .join('\n')
@@ -686,12 +687,28 @@ export class SupabaseOrderRepository {
   }
 
   async ensureWhatsappConversation(restaurant, customer) {
+    const isMenuOnlyPlan = restaurant.plan_code === 'menu'
     const rows = await this.request(
       `/conversaciones?restaurant_id=eq.${restaurant.id}&cliente_id=eq.${customer.id}&source=eq.whatsapp&select=*&limit=1`,
     )
     const existing = rows[0] ?? null
 
     if (existing) {
+      if (isMenuOnlyPlan && (existing.ai_active !== false || existing.ai_mode !== 'disabled')) {
+        const [updated] = await this.request(`/conversaciones?id=eq.${existing.id}`, {
+          method: 'PATCH',
+          headers: {
+            Prefer: 'return=representation',
+          },
+          body: JSON.stringify({
+            ai_active: false,
+            ai_mode: 'disabled',
+          }),
+        })
+
+        return updated
+      }
+
       return existing
     }
 
@@ -705,8 +722,8 @@ export class SupabaseOrderRepository {
           restaurant_id: restaurant.id,
           cliente_id: customer.id,
           status: 'active',
-          ai_active: true,
-          ai_mode: 'normal',
+          ai_active: !isMenuOnlyPlan,
+          ai_mode: isMenuOnlyPlan ? 'disabled' : 'normal',
           source: 'whatsapp',
           last_message_at: new Date().toISOString(),
         },
@@ -772,6 +789,7 @@ export class SupabaseOrderRepository {
             id: restaurant.id,
             slug: restaurant.slug,
             name: restaurant.name,
+            planCode: restaurant.plan_code ?? null,
           },
           customer: {
             id: customer.id,
