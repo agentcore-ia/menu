@@ -36,6 +36,7 @@ export class SupabaseOrderRepository {
     const customer = await this.upsertCustomer(restaurant, payload.customer)
     const conversation = await this.ensureWhatsappConversation(restaurant, customer)
     const orderProducts = Array.isArray(payload.items) ? payload.items : []
+    await this.validateStockForOrder(restaurant, orderProducts)
     const subtotal = orderProducts.reduce(
       (total, item) => total + Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0),
       0,
@@ -107,13 +108,23 @@ export class SupabaseOrderRepository {
       })),
     ]
 
-    await this.request('/items_pedido', {
-      method: 'POST',
-      headers: {
-        Prefer: 'return=representation',
-      },
-      body: JSON.stringify(orderItems),
-    })
+    try {
+      await this.request('/items_pedido', {
+        method: 'POST',
+        headers: {
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify(orderItems),
+      })
+    } catch (error) {
+      await this.request(`/pedidos?id=eq.${pedido.id}`, {
+        method: 'DELETE',
+        headers: {
+          Prefer: 'return=minimal',
+        },
+      }).catch(() => null)
+      throw error
+    }
 
     const redemptionResult = await this.commitRewardRedemptions({
       preview: redemptionPreview,
@@ -228,7 +239,7 @@ export class SupabaseOrderRepository {
 
   async fetchRestaurant(accountId) {
     const slug = slugify(accountId)
-    const select = 'id,slug,name,phone,delivery_fee,city,horarios,plan_code'
+    const select = 'id,slug,name,phone,delivery_fee,city,horarios,plan_code,stock_strict_mode'
     const exactRows = await this.request(
       `/restaurants?slug=eq.${encodeURIComponent(slug)}&select=${select}&limit=1`,
     )
@@ -407,6 +418,39 @@ export class SupabaseOrderRepository {
       discountPercent,
       discountLabel,
       allRedemptions: [...productLineItems, ...discountItems],
+    }
+  }
+
+  async validateStockForOrder(restaurant, orderProducts) {
+    try {
+      const result = await this.rpc('validate_order_stock', {
+        p_restaurant_id: restaurant.id,
+        p_items: orderProducts.map((item) => ({
+          productId: item.productId || null,
+          name: item.name,
+          quantity: Number(item.quantity || 0),
+        })),
+      })
+
+      if (result && result.ok === false) {
+        const error = new Error(result.message || 'No hay stock suficiente para completar el pedido.')
+        error.code = 'OUT_OF_STOCK'
+        error.statusCode = 409
+        error.stock = result
+        throw error
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      if (
+        message.includes('validate_order_stock') ||
+        message.includes('PGRST') ||
+        message.includes('42P01') ||
+        message.includes('42883')
+      ) {
+        return
+      }
+
+      throw error
     }
   }
 
@@ -958,6 +1002,27 @@ export class SupabaseOrderRepository {
 
     if (response.status === 204) {
       return []
+    }
+
+    return response.json()
+  }
+
+  async rpc(functionName, payload = {}) {
+    const apiKey = this.config.supabaseWriteApiKey
+
+    const response = await fetch(`${this.config.supabaseUrl}/rest/v1/rpc/${functionName}`, {
+      method: 'POST',
+      headers: {
+        apikey: apiKey,
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) {
+      const detail = await response.text()
+      throw new Error(`Supabase order RPC error: ${response.status} ${detail}`)
     }
 
     return response.json()

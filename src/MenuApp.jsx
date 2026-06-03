@@ -3531,6 +3531,21 @@ export default function MenuApp() {
       return
     }
 
+    const maxQuantity = typeof item.maxQuantity === 'number' ? item.maxQuantity : null
+    const currentQuantity = cart.reduce(
+      (total, line) => total + (line.id === item.id ? Number(line.quantity || 0) : 0),
+      0,
+    )
+
+    if (item.availableForOrder === false || (maxQuantity !== null && currentQuantity + quantity > maxQuantity)) {
+      setOrderingNotice(
+        maxQuantity === 0
+          ? `${item.name} esta sin stock.`
+          : `Solo quedan ${maxQuantity} unidades disponibles de ${item.name}.`,
+      )
+      return
+    }
+
     const unitPrice = configuration?.unitPrice ?? item.unitPrice ?? toNumericPrice(item.price)
     const notes = configuration?.summary ?? ''
     const lineId = `${item.id}::${notes || 'default'}`
@@ -3566,6 +3581,8 @@ export default function MenuApp() {
           price: formatPrice(unitPrice, currencySymbol),
           unitPrice,
           quantity,
+          maxQuantity,
+          availableForOrder: item.availableForOrder,
           notes,
           image: item.image,
           categoryLabel: item.categoryLabel ?? currentCategory?.label ?? '',
@@ -3584,7 +3601,10 @@ export default function MenuApp() {
         line.lineId === lineId
           ? {
               ...line,
-              quantity,
+              quantity:
+                typeof line.maxQuantity === 'number'
+                  ? Math.min(quantity, line.maxQuantity)
+                  : quantity,
             }
           : line,
       )
@@ -4068,6 +4088,11 @@ export default function MenuApp() {
   const detailSelectionsValid = selectedDish
     ? areSelectionsValid(detailSelectableGroups, selectedOptions)
     : true
+  const detailStockBlocked = Boolean(
+    selectedDish &&
+      (selectedDish.availableForOrder === false ||
+        (typeof selectedDish.maxQuantity === 'number' && detailQuantity > selectedDish.maxQuantity)),
+  )
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
   const isHostDetail = templateId === 'host' && Boolean(selectedDish)
   const detailHasHeroMedia = hasProductMedia(selectedDish)
@@ -4847,7 +4872,7 @@ export default function MenuApp() {
                   <button
                     type="button"
                     className="primary-action"
-                    disabled={!detailSelectionsValid || orderingBlocked}
+                    disabled={!detailSelectionsValid || orderingBlocked || detailStockBlocked}
                     onClick={() => {
                       handleAddItem(selectedDish, detailQuantity, {
                         summary: buildSelectionSummary(detailSelectableGroups, selectedOptions),
@@ -4857,7 +4882,7 @@ export default function MenuApp() {
                       setSelectedDish(null)
                     }}
                   >
-                    <span>{orderingBlocked ? 'Pedidos cerrados' : 'Agregar al pedido'}</span>
+                    <span>{orderingBlocked ? 'Pedidos cerrados' : detailStockBlocked ? 'Sin stock' : 'Agregar al pedido'}</span>
                     <strong>
                       {formatPrice(
                         ((selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal) *
@@ -4938,7 +4963,7 @@ export default function MenuApp() {
                 <button
                   type="button"
                   className="host-detail-cart-button"
-                  disabled={!detailSelectionsValid || orderingBlocked}
+                  disabled={!detailSelectionsValid || orderingBlocked || detailStockBlocked}
                   onClick={() => {
                     handleAddItem(selectedDish, detailQuantity, {
                       summary: buildSelectionSummary(detailSelectableGroups, selectedOptions),
@@ -4949,7 +4974,7 @@ export default function MenuApp() {
                   }}
                 >
                   <IconCart />
-                  <span>{orderingBlocked ? 'Pedidos cerrados' : 'Agregar al carrito'}</span>
+                  <span>{orderingBlocked ? 'Pedidos cerrados' : detailStockBlocked ? 'Sin stock' : 'Agregar al carrito'}</span>
                 </button>
               </footer>
             ) : null}

@@ -129,10 +129,11 @@ export class SupabaseMenuRepository {
       return null
     }
 
-    const [products, presentationConfig, loyalty] = await Promise.all([
+    const [products, presentationConfig, loyalty, stockAvailability] = await Promise.all([
       this.fetchProducts(restaurant.id),
       this.fetchPresentationConfig(restaurant.id),
       this.fetchLoyaltyProgram(restaurant.id),
+      this.fetchStockAvailability(restaurant.id),
     ])
 
     if (presentationConfig?.isDeleted) {
@@ -141,7 +142,12 @@ export class SupabaseMenuRepository {
 
     this.accountIdForFallback =
       presentationConfig?.theme?.inheritPreset || presentationConfig?.layout || restaurant.slug
-    const categories = this.groupProductsByCategory(products)
+    const stockByProductId = new Map(stockAvailability.map((entry) => [entry.product_id, entry]))
+    const categories = this.groupProductsByCategory(
+      products,
+      stockByProductId,
+      Boolean(restaurant.stock_strict_mode),
+    )
 
     return {
       accountId: restaurant.slug,
@@ -177,6 +183,26 @@ export class SupabaseMenuRepository {
     return this.request(
       `/products?restaurant_id=eq.${restaurantId}&available=eq.true&select=*&order=category.asc,name.asc`,
     )
+  }
+
+  async fetchStockAvailability(restaurantId) {
+    try {
+      return this.rpc('get_product_stock_availability', {
+        p_restaurant_id: restaurantId,
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      if (
+        message.includes('get_product_stock_availability') ||
+        message.includes('PGRST') ||
+        message.includes('42P01') ||
+        message.includes('42883')
+      ) {
+        return []
+      }
+
+      throw error
+    }
   }
 
   async fetchPresentationConfig(restaurantId) {
@@ -252,13 +278,21 @@ export class SupabaseMenuRepository {
     }
   }
 
-  groupProductsByCategory(products) {
+  groupProductsByCategory(products, stockByProductId = new Map(), stockStrictMode = false) {
     const groups = new Map()
 
     products.forEach((product, index) => {
       const categoryName = product.category?.trim() || 'Menu'
       const categoryId = this.slugify(categoryName)
       const customImage = String(product.image_url ?? '').trim()
+      const stockInfo = stockByProductId.get(product.id) ?? null
+      const isStockTracked = Boolean(stockInfo?.is_stock_tracked)
+      const maxAvailable = stockInfo?.max_available == null ? null : Number(stockInfo.max_available)
+      const availableForOrder = !(
+        stockStrictMode &&
+        isStockTracked &&
+        Number(maxAvailable ?? 0) <= 0
+      )
 
       if (!groups.has(categoryId)) {
         groups.set(categoryId, {
@@ -284,6 +318,14 @@ export class SupabaseMenuRepository {
         optionGroups: parseProductOptionGroups(product),
         badge: categoryName,
         dietary: [],
+        availableForOrder,
+        maxQuantity: stockStrictMode && isStockTracked ? Math.max(0, Number(maxAvailable || 0)) : null,
+        stock: {
+          strict: stockStrictMode,
+          tracked: isStockTracked,
+          status: stockInfo?.stock_status ?? 'untracked',
+          maxAvailable,
+        },
       })
     })
 
@@ -375,6 +417,25 @@ export class SupabaseMenuRepository {
     if (!response.ok) {
       const detail = await response.text()
       throw new Error(`Supabase error: ${response.status} ${detail}`)
+    }
+
+    return response.json()
+  }
+
+  async rpc(functionName, payload = {}) {
+    const response = await fetch(`${this.config.supabaseUrl}/rest/v1/rpc/${functionName}`, {
+      method: 'POST',
+      headers: {
+        apikey: this.config.supabaseApiKey,
+        Authorization: `Bearer ${this.config.supabaseApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) {
+      const detail = await response.text()
+      throw new Error(`Supabase RPC error: ${response.status} ${detail}`)
     }
 
     return response.json()
