@@ -37,6 +37,11 @@ function getProductVideo(product) {
   )
 }
 
+function normalizeProductImageAnimation(value) {
+  const normalized = String(value ?? '').trim()
+  return ['zoom-loop', 'spin-loop', 'float-loop'].includes(normalized) ? normalized : 'none'
+}
+
 function parseProductOptionGroups(product) {
   if (!Array.isArray(product.option_groups)) {
     return []
@@ -315,6 +320,7 @@ export class SupabaseMenuRepository {
           fallbackImages[index % fallbackImages.length],
         hasCustomImage: Boolean(customImage),
         video: getProductVideo(product),
+        imageAnimation: normalizeProductImageAnimation(product.image_animation),
         optionGroups: parseProductOptionGroups(product),
         badge: categoryName,
         dietary: [],

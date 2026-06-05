@@ -4146,6 +4146,56 @@
   display: block;
 }
 
+.product-image-animation {
+  transform-origin: center;
+  will-change: transform;
+}
+
+.product-image-animation-zoom-loop {
+  animation: product-image-zoom-loop 4.8s ease-in-out infinite;
+}
+
+.product-image-animation-spin-loop {
+  animation: product-image-spin-loop 5.6s ease-in-out infinite;
+}
+
+.product-image-animation-float-loop {
+  animation: product-image-float-loop 4.2s ease-in-out infinite;
+}
+
+@keyframes product-image-zoom-loop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.09);
+  }
+}
+
+@keyframes product-image-spin-loop {
+  0%,
+  100% {
+    transform: scale(1.04) rotate(-1.8deg);
+  }
+
+  50% {
+    transform: scale(1.08) rotate(1.8deg);
+  }
+}
+
+@keyframes product-image-float-loop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.03);
+  }
+
+  50% {
+    transform: translateY(-3.5%) scale(1.06);
+  }
+}
+
 .dish-badge {
   position: absolute;
   top: 0.55rem;
@@ -4323,6 +4373,7 @@
 .detail-hero {
   position: relative;
   height: 27.2rem;
+  overflow: hidden;
   background: color-mix(in srgb, var(--theme-text) 24%, #171715);
 }
 
@@ -5903,6 +5954,13 @@
   height: 6.2rem;
   object-fit: cover;
   display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-image-animation {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 .mini-card.no-media {

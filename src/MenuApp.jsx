@@ -1961,6 +1961,16 @@ function getVideoFrameSrc(videoUrl) {
   return `${videoUrl}#t=0.001`
 }
 
+function getImageAnimationClass(item) {
+  const animation = String(item?.imageAnimation ?? '').trim()
+
+  if (!['zoom-loop', 'spin-loop', 'float-loop'].includes(animation)) {
+    return ''
+  }
+
+  return `product-image-animation product-image-animation-${animation}`
+}
+
 function TemplateHero({ templateId, presentation, heroDish }) {
   const standaloneHeroImages = getHeroImages(presentation)
   const hasStandaloneHeroImage = standaloneHeroImages.length > 0
@@ -3735,7 +3745,7 @@ export default function MenuApp() {
       )
     }
 
-    return <img src={item.image} alt={item.name} className="dish-thumb" />
+    return <img src={item.image} alt={item.name} className={`dish-thumb ${getImageAnimationClass(item)}`} />
   }
 
   function renderMiniCardMedia(item) {
@@ -3759,7 +3769,7 @@ export default function MenuApp() {
     }
 
     if (item.hasCustomImage) {
-      return <img src={item.image} alt={item.name} />
+      return <img src={item.image} alt={item.name} className={getImageAnimationClass(item)} />
     }
 
     return null
@@ -4593,7 +4603,11 @@ export default function MenuApp() {
                         playsInline
                       />
                     ) : (
-                      <img src={selectedDish.image} alt={selectedDish.name} />
+                      <img
+                        src={selectedDish.image}
+                        alt={selectedDish.name}
+                        className={getImageAnimationClass(selectedDish)}
+                      />
                     )}
 
                     <div className="detail-topbar host-detail-topbar">
@@ -4747,7 +4761,11 @@ export default function MenuApp() {
                         playsInline
                       />
                     ) : (
-                      <img src={selectedDish.image} alt={selectedDish.name} />
+                      <img
+                        src={selectedDish.image}
+                        alt={selectedDish.name}
+                        className={getImageAnimationClass(selectedDish)}
+                      />
                     )}
 
                     <div className="detail-topbar">
