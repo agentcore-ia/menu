@@ -1893,12 +1893,12 @@ function getPresentationStyles(presentation, accountId) {
 
 function shouldRenderPreviewVideo(item, presentation) {
   return Boolean(
-    item.video && presentation.preview?.productMedia === 'video-first',
+    item.video && presentation.preview?.productMedia !== 'image-only',
   )
 }
 
 function shouldAutoplayVideoPreview(presentation) {
-  return presentation.preview?.productMedia === 'video-first'
+  return presentation.preview?.productMedia !== 'image-only'
 }
 
 function shouldForceVideoPreviewForBurgerHost(accountId, templateId, categories = []) {
