@@ -304,6 +304,53 @@ const presentationPresets = {
       mutedVideos: true,
     },
   },
+  kika: {
+    template: 'kika',
+    layout: 'kika',
+    branding: {
+      wordmark: 'KIKA',
+      subtitle: 'CAFE',
+    },
+    theme: {
+      id: 'kika-cafe',
+      background: '#f5efe6',
+      pageBackground: '#f5efe6',
+      contentBackground: '#fffaf3',
+      surface: '#fffaf3',
+      surfaceAlt: '#f1e7da',
+      text: '#263420',
+      muted: 'rgba(38, 52, 32, 0.7)',
+      primary: '#557348',
+      primaryText: '#fffaf3',
+      accent: '#5f7755',
+      border: 'rgba(88, 105, 70, 0.18)',
+      shadow: 'rgba(60, 46, 28, 0.13)',
+      displayFont: 'Cormorant Garamond',
+      bodyFont: 'Manrope',
+      categoryActiveBackground: '#557348',
+      categoryActiveText: '#fffaf3',
+      cardBackground: '#fffdf8',
+      cardText: '#263420',
+      cardMuted: 'rgba(38, 52, 32, 0.66)',
+      cardPrice: '#557348',
+      addButtonBackground: '#557348',
+      addButtonText: '#fffaf3',
+    },
+    hero: {
+      image: '/kika/header.png',
+      title: 'Tu nuevo',
+      accent: 'lugar favorito',
+      description: 'Cafe, pasteleria y buenos momentos.',
+    },
+    cards: {
+      style: 'kika-cards',
+    },
+    preview: {
+      productMedia: 'video-first',
+      autoplayVideos: true,
+      mutedVideos: true,
+    },
+  },
 }
 
 const accountPresentations = {
@@ -327,6 +374,7 @@ const accountPresentations = {
   'blue-burger': presentationPresets.blueBurger,
   jburger: presentationPresets.blueBurger,
   host: presentationPresets.host,
+  kika: presentationPresets.kika,
   'neurorest-demo': presentationPresets.default,
 }
 

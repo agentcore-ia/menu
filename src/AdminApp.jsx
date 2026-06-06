@@ -105,6 +105,47 @@ const layoutConfigs = {
     description: 'Menu dark para crispy chicken con hero impactante, tabs compactos y cards de combos en dos columnas.',
     headerTextFields: null,
   },
+  kika: {
+    description: 'Menu claro para cafeteria/pasteleria con portada fotografica, categorias circulares y secciones por rubro.',
+    headerTextFields: null,
+  },
+}
+
+const inheritedLayoutDefaults = {
+  kika: {
+    branding: { wordmark: 'KIKA', subtitle: 'CAFE' },
+    theme: {
+      id: 'inherits-kika',
+      inheritPreset: 'kika',
+      background: '#f5efe6',
+      pageBackground: '#f5efe6',
+      contentBackground: '#fffaf3',
+      surface: '#fffaf3',
+      surfaceAlt: '#f1e7da',
+      text: '#263420',
+      muted: 'rgba(38, 52, 32, 0.7)',
+      primary: '#557348',
+      primaryText: '#fffaf3',
+      accent: '#5f7755',
+      border: 'rgba(88, 105, 70, 0.18)',
+      shadow: 'rgba(60, 46, 28, 0.13)',
+      categoryActiveBackground: '#557348',
+      categoryActiveText: '#fffaf3',
+      cardBackground: '#fffdf8',
+      cardText: '#263420',
+      cardMuted: 'rgba(38, 52, 32, 0.66)',
+      cardPrice: '#557348',
+      addButtonBackground: '#557348',
+      addButtonText: '#fffaf3',
+    },
+    hero: { image: '/kika/header.png' },
+    cards: { style: 'kika-cards' },
+    preview: {
+      productMedia: 'video-first',
+      autoplayVideos: true,
+      mutedVideos: true,
+    },
+  },
 }
 
 const layoutDescriptions = Object.fromEntries(
@@ -120,6 +161,7 @@ const cardStyleDescriptions = {
   'burger-grid': 'Cards oscuras, verticales y con imagen grande del producto.',
   'blue-burger-list': 'Cards horizontales blancas con foto grande, precio azul y boton circular.',
   'host-grid': 'Cards oscuras con borde rojo, badge superior y boton rojo circular.',
+  'kika-cards': 'Cards claras para cafeteria, con imagen suave, texto compacto y estilo Kika.',
 }
 
 const previewDescriptions = {
@@ -130,6 +172,48 @@ const previewDescriptions = {
 
 function getHeaderTextFields(layout) {
   return layoutConfigs[layout]?.headerTextFields ?? layoutConfigs.editorial.headerTextFields
+}
+
+function applyLayoutSelection(current, layout) {
+  const next = structuredClone(current)
+  const inheritedDefaults = inheritedLayoutDefaults[layout]
+
+  next.layout = layout
+
+  if (!inheritedDefaults) {
+    if (next.theme?.inheritPreset) {
+      delete next.theme.inheritPreset
+    }
+
+    if (typeof next.theme?.id === 'string' && next.theme.id.startsWith('inherits-')) {
+      next.theme.id = layout === 'editorial' ? defaultPresentation.theme.id : layout
+    }
+
+    return next
+  }
+
+  next.branding = {
+    ...next.branding,
+    ...inheritedDefaults.branding,
+  }
+  next.theme = {
+    ...next.theme,
+    ...inheritedDefaults.theme,
+  }
+  next.hero = {
+    ...next.hero,
+    ...inheritedDefaults.hero,
+  }
+  next.cards = {
+    ...next.cards,
+    ...inheritedDefaults.cards,
+  }
+  next.preview = {
+    ...next.preview,
+    ...inheritedDefaults.preview,
+  }
+
+  return next
 }
 
 function getInitialAdminAccount() {
@@ -367,6 +451,10 @@ export default function AdminApp() {
 
   function updatePresentation(path, value) {
     setPresentation((current) => {
+      if (path === 'layout') {
+        return applyLayoutSelection(current, value)
+      }
+
       const next = structuredClone(current)
       const parts = path.split('.')
       let target = next
@@ -981,6 +1069,7 @@ export default function AdminApp() {
                     <option value="burger">Burger</option>
                     <option value="blue-burger">Burger azul</option>
                     <option value="host">Host crispy</option>
+                    <option value="kika">Kika cafe</option>
                   </select>
                   <small className="admin-help">{layoutDescriptions[presentation.layout]}</small>
                 </label>
@@ -999,6 +1088,7 @@ export default function AdminApp() {
                     <option value="burger-grid">Burger oscuro</option>
                     <option value="blue-burger-list">Burger azul horizontal</option>
                     <option value="host-grid">Host crispy</option>
+                    <option value="kika-cards">Kika cafe</option>
                   </select>
                   <small className="admin-help">
                     {cardStyleDescriptions[presentation.cards.style]}

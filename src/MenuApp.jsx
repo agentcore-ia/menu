@@ -370,6 +370,109 @@ function IconAward() {
   )
 }
 
+function IconKikaCup() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M9 13.5h11.8l-1.1 10.1H10.3L9 13.5z" />
+      <path d="M20.7 15.4h2.1c1.6 0 2.8 1.1 2.8 2.6s-1.2 2.6-2.8 2.6h-2.2" />
+      <path d="M12 13.4c-.9-1.1-.4-2 .4-2.8M15.4 13.4c-.9-1.1-.4-2 .4-2.8M18.8 13.4c-.9-1.1-.4-2 .4-2.8" />
+      <path d="M8.2 24.8h12.7" />
+    </svg>
+  )
+}
+
+function IconKikaCake() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M7.8 16.3h16.4l-1.7 8H9.5l-1.7-8z" />
+      <path d="M10.1 16.1c1.1-3.3 3-5 5.9-5s4.8 1.7 5.9 5" />
+      <path d="M16 8.2v3" />
+      <path d="M15.1 8.6c.8-2.1 2.3-2.3 3.3-1.3-1 .5-2.1.8-3.3 1.3z" />
+      <path d="M8.4 20h15.1" />
+    </svg>
+  )
+}
+
+function IconKikaCroissant() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M8.2 17.7c1.3-5 5-7.9 10.7-7.4 3.6.3 5.4 2.3 5.8 5.2-1.8-.6-4.3-.6-6.6 1.1-2 1.4-2.8 3.6-2.5 6.2-4.4-.2-7.1-2-7.4-5.1z" />
+      <path d="M8.3 17.6c-1.3.4-2.7.2-3.2-1.1-.5-1.4.7-2.8 2.4-2.7" />
+      <path d="M16 22.8c.1 1.4-1 2.5-2.4 2.2-1.2-.2-1.7-1.2-1.5-2.4" />
+      <path d="M13.1 11.8c1.8 1 3.1 2.7 3.7 5" />
+    </svg>
+  )
+}
+
+function IconKikaLeaf() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M8.2 22.8c9.8-.3 14.7-6.2 16.4-15.6-8.9 1.2-14.3 5.2-16.4 15.6z" />
+      <path d="M8.2 22.8c3.2-4.6 7.4-8 12.8-10.1" />
+      <path d="M11.6 18.3c-2.6-.2-4.8-1.2-6.3-3.6" />
+    </svg>
+  )
+}
+
+function IconKikaSandwich() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M7.5 14.4h17.8c.2-4.1-3.4-6.8-9-6.8-5.8 0-9.4 2.7-8.8 6.8z" />
+      <path d="M6.5 17.3h19" />
+      <path d="M8.2 20.7h16" />
+      <path d="M10.3 17.4c1.2 1.1 2.4 1.1 3.7 0 1.2 1.1 2.6 1.1 3.8 0 1.2 1.1 2.5 1.1 3.7 0" />
+    </svg>
+  )
+}
+
+function IconKikaSalad() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M7.8 16.3h16.4l-1.5 7.5H9.3l-1.5-7.5z" />
+      <path d="M10 15.8c-.5-3 1.4-5.2 4.4-5.2.9-2 3.8-2.2 5 .1 2.7.2 4.2 2.1 3.5 5.1" />
+      <path d="M12.5 12.7l3.2 3.1M18.3 12.7l-3.2 3.1" />
+    </svg>
+  )
+}
+
+function IconKikaBook() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 5.5h6.3c1 0 1.7.4 2.2 1.1.5-.7 1.2-1.1 2.2-1.1H21v14h-5.7c-1.1 0-1.9.3-2.3 1-.4-.7-1.2-1-2.3-1H5z" />
+      <path d="M13 6.6v13.9" />
+    </svg>
+  )
+}
+
+function IconKikaBag() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6.5 9h13l-1 11h-11z" />
+      <path d="M9.5 9V7a3 3 0 0 1 6 0v2" />
+    </svg>
+  )
+}
+
+function IconKikaPin() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 21s6-5.4 6-11a6 6 0 1 0-12 0c0 5.6 6 11 6 11z" />
+      <circle cx="12" cy="10" r="2.2" />
+    </svg>
+  )
+}
+
+function IconKikaUsers() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="9" cy="8" r="3" />
+      <path d="M3.8 19c.7-3.2 2.5-4.8 5.2-4.8s4.5 1.6 5.2 4.8" />
+      <path d="M15.5 11.2a2.6 2.6 0 1 0-.2-5.2" />
+      <path d="M15.7 14.5c2.4.3 3.8 1.8 4.5 4.5" />
+    </svg>
+  )
+}
+
 function IconSpark() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -463,6 +566,10 @@ function getAccountDocumentTitle(accountId, presentation) {
     return 'HOST | Menu digital'
   }
 
+  if (key === 'kika') {
+    return 'Kika Cafe | Menu digital'
+  }
+
   const brand = String(presentation?.branding?.wordmark ?? '')
     .trim()
     .replace(/\s+/g, ' ')
@@ -502,6 +609,10 @@ function getLoadingTemplate(accountId) {
 
   if (key.includes('host')) {
     return 'host'
+  }
+
+  if (key.includes('kika')) {
+    return 'kika'
   }
 
   if (
@@ -809,6 +920,191 @@ function getCategoryIcon(label) {
   if (key.includes('entrada') || key.includes('papas')) return IconFries
   if (key.includes('hamburgues') || key.includes('burger')) return IconBurger
   return IconServe
+}
+
+const kikaCategoryOrder = [
+  'bebidas',
+  'pasteleria',
+  'panaderia',
+  'sin-gluten',
+  'sandwiches',
+  'ensaladas',
+  'cafeteria',
+  'brunch',
+  'tapeos',
+  'omelettes',
+]
+
+const kikaPrimaryCategoryKeys = new Set(['bebidas', 'pasteleria', 'panaderia', 'sin-gluten'])
+
+function getKikaCategoryRank(label) {
+  const key = slugify(label)
+  const index = kikaCategoryOrder.findIndex((entry) => key.includes(entry))
+  return index === -1 ? kikaCategoryOrder.length : index
+}
+
+function getKikaOrderedCategories(categories = []) {
+  return [...categories].sort((a, b) => {
+    const rankDiff = getKikaCategoryRank(a.label) - getKikaCategoryRank(b.label)
+    return rankDiff || String(a.label).localeCompare(String(b.label), 'es')
+  })
+}
+
+function getKikaCategoryMeta(label) {
+  const key = slugify(label)
+
+  if (key.includes('bebida')) {
+    return {
+      label: 'Café Frío',
+      sectionTitle: 'Café Frío',
+      subtitle: 'Bebidas frías, cremosas y llenas de sabor.',
+      icon: IconKikaCup,
+      art: 'drink',
+      featured: true,
+    }
+  }
+
+  if (key.includes('pasteleria')) {
+    return {
+      label: 'Pastelería',
+      sectionTitle: 'Pastelería',
+      subtitle: 'Postres artesanales para cada antojo.',
+      icon: IconKikaCake,
+      art: 'cake',
+      featured: true,
+    }
+  }
+
+  if (key.includes('panaderia')) {
+    return {
+      label: 'Panadería',
+      sectionTitle: 'Panadería',
+      subtitle: 'Hecho cada día, con ingredientes de calidad.',
+      icon: IconKikaCroissant,
+      art: 'bread',
+      featured: true,
+    }
+  }
+
+  if (key.includes('sin-gluten')) {
+    return {
+      label: 'Sin Gluten',
+      sectionTitle: 'Sin Gluten',
+      subtitle: 'Opciones simples para consultar variedades disponibles.',
+      icon: IconKikaLeaf,
+      art: 'leaf',
+      featured: true,
+    }
+  }
+
+  if (key.includes('sandwich')) {
+    return {
+      label: 'Sandwiches',
+      sectionTitle: 'Sandwiches',
+      subtitle: 'Pan fresco, rellenos nobles y combinaciones listas para disfrutar.',
+      icon: IconKikaSandwich,
+      art: 'sandwich',
+    }
+  }
+
+  if (key.includes('ensalada')) {
+    return {
+      label: 'Ensaladas',
+      sectionTitle: 'Ensaladas',
+      subtitle: 'Frescas, livianas y preparadas al momento.',
+      icon: IconKikaSalad,
+      art: 'salad',
+    }
+  }
+
+  if (key.includes('cafeteria')) {
+    return {
+      label: 'Cafetería',
+      sectionTitle: 'Cafetería',
+      subtitle: 'Café de especialidad para acompañar cualquier momento.',
+      icon: IconKikaCup,
+      art: 'coffee',
+    }
+  }
+
+  if (key.includes('brunch')) {
+    return {
+      label: 'Brunch',
+      sectionTitle: 'Brunch',
+      subtitle: 'A toda hora, con sabores suaves y abundantes.',
+      icon: IconKikaSandwich,
+      art: 'brunch',
+    }
+  }
+
+  if (key.includes('tapeo')) {
+    return {
+      label: 'Tapeos',
+      sectionTitle: 'Tapeos',
+      subtitle: 'Para compartir con panera y buenos momentos.',
+      icon: IconServe,
+      art: 'tapas',
+    }
+  }
+
+  if (key.includes('omelette')) {
+    return {
+      label: 'Omelettes',
+      sectionTitle: 'Omelettes',
+      subtitle: 'Hechos al momento y combinados como quieras.',
+      icon: IconKikaSalad,
+      art: 'omelette',
+    }
+  }
+
+  return {
+    label,
+    sectionTitle: label,
+    subtitle: 'Selección especial de Kika Café.',
+    icon: IconServe,
+    art: 'default',
+  }
+}
+
+function getKikaPrimaryCategories(categories = []) {
+  const orderedCategories = getKikaOrderedCategories(categories)
+  const primaryCategories = orderedCategories.filter((category) =>
+    kikaPrimaryCategoryKeys.has(slugify(category.label)),
+  )
+
+  return primaryCategories.length ? primaryCategories : orderedCategories.slice(0, 4)
+}
+
+function getKikaSections(categories = []) {
+  return getKikaOrderedCategories(categories).filter((category) => category.items?.length)
+}
+
+function KikaProductVisual({ item, category }) {
+  if (item.video) {
+    return (
+      <video
+        src={getVideoFrameSrc(item.video)}
+        preload="auto"
+        autoPlay
+        muted
+        loop
+        playsInline
+      />
+    )
+  }
+
+  if (item.hasCustomImage) {
+    return <img src={item.image} alt={item.name} />
+  }
+
+  const meta = getKikaCategoryMeta(category?.label ?? item.badge)
+  const Icon = meta.icon
+
+  return (
+    <span className={`kika-product-placeholder kika-product-placeholder-${meta.art}`} aria-hidden="true">
+      <Icon />
+    </span>
+  )
 }
 
 function getProductKind(dish) {
@@ -2050,6 +2346,18 @@ function TemplateHero({ templateId, presentation, heroDish }) {
     )
   }
 
+  if (templateId === 'kika') {
+    return (
+      <section className="hero-content hero-content-kika">
+        <HeroImageSlider
+          images={getHeroImages(presentation, '/kika/header.png')}
+          imageClassName="kika-header-image"
+          alt="Kika Cafe. Tu nuevo lugar favorito."
+        />
+      </section>
+    )
+  }
+
   if (templateId === 'pizzeria') {
     return (
       <section className="hero-content hero-content-pizzeria">
@@ -2155,6 +2463,16 @@ function MenuLoadingScreen({ accountId }) {
       message: 'Estamos preparando combos, pollo frito, burgers y extras para que elijas sin esperar.',
       chips: ['Combos', 'Pollo frito', 'Burgers'],
       section: 'COMBOS',
+    },
+    kika: {
+      title: 'KIKA',
+      subtitle: 'cafe',
+      icon: <IconKikaCup />,
+      kicker: 'Café y pastelería',
+      headline: 'Preparando tu momento',
+      message: 'Estamos sirviendo café, pastelería y panadería para que elijas tranquilo.',
+      chips: ['Café Frío', 'Pastelería', 'Panadería'],
+      section: 'KIKA CAFE',
     },
     gelato: {
       title: 'Dolce',
@@ -2498,6 +2816,32 @@ function TemplateCategorySelector({
     )
   }
 
+  if (templateId === 'kika') {
+    return (
+      <div className="kika-category-row" aria-label="Categorias de Kika">
+        {getKikaPrimaryCategories(categories).map((category) => {
+          const meta = getKikaCategoryMeta(category.label)
+          const Icon = meta.icon
+          const isActive = category.id === currentCategory?.id
+
+          return (
+            <button
+              key={category.id}
+              type="button"
+              className={`kika-category-button ${isActive ? 'active' : ''}`}
+              onClick={() => onSelectCategory(category.id)}
+            >
+              <span className="kika-category-icon">
+                <Icon />
+              </span>
+              <span>{meta.label}</span>
+            </button>
+          )
+        })}
+      </div>
+    )
+  }
+
   if (templateId === 'pizzeria') {
     const orderedCategories = getPizzeriaOrderedCategories(categories)
     return (
@@ -2626,6 +2970,7 @@ function TemplateMenuCollection({
   onSelectCategory,
   onOpenCart,
   onOpenLoyalty,
+  onOpenSocialMenu,
   onNavigateHome,
   onNavigatePromos,
   gelatoFormats,
@@ -2633,6 +2978,146 @@ function TemplateMenuCollection({
   searchQuery = '',
   isSearchActive = false,
 }) {
+  if (templateId === 'kika') {
+    const sections = isSearchActive
+      ? [
+          {
+            id: 'busqueda',
+            label: `Resultados para "${searchQuery}"`,
+            items: categoryItems,
+          },
+        ]
+      : getKikaSections(categories)
+    const glutenTarget =
+      categories.find((category) => slugify(category.label).includes('sin-gluten')) ??
+      currentCategory
+
+    return (
+      <section className="section-block section-block-kika" data-menu-categories>
+        {isSearchActive ? (
+          <p className="kika-search-results">
+            {categoryItems.length
+              ? `${categoryItems.length} resultado${categoryItems.length === 1 ? '' : 's'} para "${searchQuery}"`
+              : `No encontramos productos para "${searchQuery}"`}
+          </p>
+        ) : null}
+
+        {sections.map((section, sectionIndex) => {
+          const meta = getKikaCategoryMeta(section.label)
+          const visibleItems = isSearchActive
+            ? section.items
+            : section.items.slice(
+                0,
+                sectionIndex === 0 ? 3 : meta.art === 'cake' ? 4 : meta.art === 'bread' ? 5 : 4,
+              )
+          const isCompact = sectionIndex > 0
+
+          if (!visibleItems.length) {
+            return null
+          }
+
+          return (
+            <article
+              key={section.id}
+              className={`kika-menu-section ${isCompact ? 'is-compact' : 'is-featured'}`}
+            >
+              <div className="kika-section-head">
+                <div>
+                  <h2>
+                    {meta.sectionTitle}
+                    <span aria-hidden="true">
+                      <IconKikaLeaf />
+                    </span>
+                  </h2>
+                  <p>{meta.subtitle}</p>
+                </div>
+                {!isSearchActive ? (
+                  <button type="button" onClick={() => onSelectCategory?.(section.id)}>
+                    Ver todo
+                    <span>{'>'}</span>
+                  </button>
+                ) : null}
+              </div>
+
+              <div className={`kika-card-row ${isCompact ? 'compact' : 'featured'}`}>
+                {visibleItems.map((item) => (
+                  <article key={item.id} className="kika-product-card">
+                    <button
+                      type="button"
+                      className="kika-product-media"
+                      onClick={() => onOpenDish(item)}
+                      aria-label={`Ver ${item.name}`}
+                    >
+                      <KikaProductVisual item={item} category={section} />
+                    </button>
+                    <div className="kika-product-body">
+                      <button
+                        type="button"
+                        className="kika-product-copy"
+                        onClick={() => onOpenDish(item)}
+                      >
+                        <h3>{item.name}</h3>
+                        {item.description ? <p>{item.description}</p> : null}
+                      </button>
+                      <button
+                        type="button"
+                        className="kika-favorite"
+                        onClick={() => onAddItem(item)}
+                        aria-label={`Agregar ${item.name}`}
+                      >
+                        <IconHeart />
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </article>
+          )
+        })}
+
+        {!isSearchActive ? (
+          <button
+            type="button"
+            className="kika-gluten-banner"
+            onClick={() => onSelectCategory?.(glutenTarget?.id)}
+          >
+            <span>
+              <IconKikaLeaf />
+            </span>
+            <strong>
+              Opciones sin gluten
+              <small>y saludables</small>
+            </strong>
+            <em>{'>'}</em>
+          </button>
+        ) : null}
+
+        <nav className="kika-bottom-nav" aria-label="Navegacion del menu">
+          <button type="button" className="active" onClick={onNavigateHome}>
+            <IconHome />
+            <span>Inicio</span>
+          </button>
+          <button type="button" onClick={onNavigatePromos}>
+            <IconKikaBook />
+            <span>Menu</span>
+          </button>
+          <button type="button" onClick={onOpenCart}>
+            <IconKikaBag />
+            <span>Pedidos</span>
+          </button>
+          <button type="button" onClick={onNavigateHome}>
+            <IconKikaPin />
+            <span>Ubicación</span>
+          </button>
+          <button type="button" onClick={onOpenSocialMenu}>
+            <IconKikaUsers />
+            <span>Nosotros</span>
+          </button>
+        </nav>
+      </section>
+    )
+  }
+
   if (templateId === 'burger') {
     const highlightedItems = categoryItems
     const useHostCategorySet = shouldUseHostCategorySet(accountId, templateId, categories)
@@ -4167,7 +4652,7 @@ export default function MenuApp() {
                 <IconMenu />
               </button>
 
-              {!isHostLikeAccount(accountId, templateId) ? (
+              {!isHostLikeAccount(accountId, templateId) && templateId !== 'kika' ? (
                 <button
                   type="button"
                   className="cart-button"
@@ -4186,7 +4671,8 @@ export default function MenuApp() {
             templateId !== 'pizzeria' &&
             templateId !== 'burger' &&
             templateId !== 'blue-burger' &&
-            templateId !== 'host' ? (
+            templateId !== 'host' &&
+            templateId !== 'kika' ? (
               <div className="brand hero-brand">
                 <span className="brand-mark">
                   <IconLeafMark />
@@ -4229,7 +4715,10 @@ export default function MenuApp() {
 
             {status === 'ready' ? (
               <>
-                {templateId === 'pizzeria' || templateId === 'burger' || templateId === 'host' ? (
+                {templateId === 'pizzeria' ||
+                templateId === 'burger' ||
+                templateId === 'host' ||
+                templateId === 'kika' ? (
                   <div data-menu-categories>
                     <TemplateCategorySelector
                       accountId={accountId}
@@ -4250,7 +4739,8 @@ export default function MenuApp() {
                 templateId !== 'pizzeria' &&
                 templateId !== 'burger' &&
                 templateId !== 'blue-burger' &&
-                templateId !== 'host' ? (
+                templateId !== 'host' &&
+                templateId !== 'kika' ? (
                   <section className="section-block" data-section="categories">
                     <div className="section-heading">
                       <h2>Categorias</h2>
@@ -4279,6 +4769,7 @@ export default function MenuApp() {
                   onSelectCategory={setSelectedCategory}
                   onOpenCart={() => setIsCartOpen(true)}
                   onOpenLoyalty={handleOpenLoyalty}
+                  onOpenSocialMenu={() => setIsSocialMenuOpen(true)}
                   onNavigateHome={handleNavigateHome}
                   onNavigatePromos={handleNavigatePromos}
                   gelatoFormats={gelatoFormats}
@@ -4294,6 +4785,7 @@ export default function MenuApp() {
           templateId !== 'burger' &&
           templateId !== 'blue-burger' &&
           templateId !== 'host' &&
+          templateId !== 'kika' &&
           (templateId !== 'pizzeria' || hasOrderItems) ? (
             <footer className="order-bar">
               <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>

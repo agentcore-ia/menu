@@ -9431,3 +9431,576 @@ button:focus-visible {
 .template-blue-burger .content-panel {
   padding-top: 2.25rem;
 }
+
+/* Kika Cafe: soft editorial cafe layout. Kept fully scoped to avoid bleeding into other menus. */
+.phone-surface.template-kika,
+.detail-phone.template-kika {
+  background:
+    radial-gradient(circle at 82% 6%, rgba(255, 255, 255, 0.78), transparent 26rem),
+    linear-gradient(180deg, #f7f1e9 0%, #fffaf3 34%, #f5efe6 100%);
+  color: #263420;
+  --kika-green: #557348;
+  --kika-green-dark: #2f432b;
+  --kika-cream: #fffaf3;
+  --kika-card: #fffdf8;
+  --kika-line: rgba(85, 115, 72, 0.32);
+  --kika-ink-soft: rgba(38, 52, 32, 0.68);
+}
+
+.app-shell:has(.template-kika) {
+  background: #171717;
+}
+
+.template-kika .hero {
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 1.65rem 1.65rem 0 0;
+  background: #f7f1e9;
+}
+
+.template-kika .hero::before,
+.template-kika .hero::after {
+  display: none;
+}
+
+.template-kika .hero-topbar {
+  position: absolute;
+  inset: 2.2rem 2rem auto auto;
+  z-index: 4;
+  width: auto;
+  padding: 0;
+  justify-content: flex-end;
+}
+
+.template-kika .hero-topbar-spacer {
+  display: none;
+}
+
+.template-kika .hero-topbar .icon-button {
+  width: 3rem;
+  height: 3rem;
+  border: 0;
+  background: transparent;
+  color: #344b31;
+  box-shadow: none;
+}
+
+.template-kika .hero-topbar .icon-button svg {
+  width: 2.05rem;
+  height: 2.05rem;
+  stroke-width: 2.1;
+}
+
+.hero-content-kika {
+  min-height: 0;
+  padding: 0;
+}
+
+.kika-header-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.template-kika .content-panel {
+  margin-top: 0;
+  padding: 1.05rem 1.7rem 7.8rem;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.95), transparent 18rem),
+    linear-gradient(180deg, #fffaf3 0%, #f8f1e8 100%);
+}
+
+.template-kika .closed-order-banner {
+  display: none;
+}
+
+.kika-category-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.75rem, 3vw, 2.2rem);
+  align-items: start;
+  margin: 0.15rem 0 2.05rem;
+  padding: 0 0.35rem;
+}
+
+.kika-category-button {
+  display: grid;
+  place-items: center;
+  gap: 0.58rem;
+  border: 0;
+  background: transparent;
+  color: #283626;
+  font-family: var(--font-body, 'Manrope', sans-serif);
+  font-size: clamp(0.72rem, 2.3vw, 0.98rem);
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.kika-category-icon {
+  display: grid;
+  place-items: center;
+  width: clamp(3.8rem, 12vw, 5.25rem);
+  height: clamp(3.8rem, 12vw, 5.25rem);
+  border: 1px solid rgba(103, 89, 58, 0.17);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 40% 24%, rgba(255, 255, 255, 0.96), rgba(255, 250, 243, 0.72)),
+    #fffdf8;
+  color: #557348;
+  box-shadow: 0 0.8rem 1.8rem rgba(72, 50, 24, 0.05);
+}
+
+.kika-category-button.active .kika-category-icon {
+  background: #557348;
+  color: #fffaf3;
+  border-color: #557348;
+  box-shadow: 0 1rem 2.1rem rgba(85, 115, 72, 0.18);
+}
+
+.kika-category-icon svg,
+.kika-product-placeholder svg,
+.kika-section-head h2 svg,
+.kika-gluten-banner svg,
+.kika-bottom-nav svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.section-block-kika {
+  margin: 0;
+  padding: 0;
+}
+
+.kika-search-results {
+  margin: 0 0 1.2rem;
+  color: var(--kika-ink-soft);
+  font-weight: 700;
+}
+
+.kika-menu-section {
+  margin: 0 0 2.25rem;
+}
+
+.kika-section-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+  margin: 0 0 0.9rem;
+}
+
+.kika-section-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(3rem, 9vw, 4.8rem);
+  font-weight: 400;
+  line-height: 0.88;
+  color: #557348;
+}
+
+.kika-section-head h2 span {
+  display: inline-grid;
+  color: rgba(85, 115, 72, 0.42);
+  transform: translateY(0.18rem);
+}
+
+.kika-section-head h2 svg {
+  width: 1.9rem;
+  height: 1.9rem;
+  stroke-width: 1.15;
+}
+
+.kika-section-head p {
+  position: relative;
+  margin: 0.35rem 0 0;
+  padding-top: 0.45rem;
+  color: #2f322a;
+  font-size: clamp(0.82rem, 2.25vw, 1.05rem);
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.kika-section-head p::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(28rem, 74vw);
+  height: 1px;
+  background: #557348;
+  opacity: 0.72;
+}
+
+.kika-section-head button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 6.5rem;
+  margin-bottom: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgba(85, 115, 72, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 250, 243, 0.82);
+  color: #394b34;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.kika-section-head button span {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.kika-card-row {
+  display: grid;
+  gap: 1rem;
+}
+
+.kika-card-row.featured {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.kika-card-row.compact {
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(7.2rem, 1fr);
+  overflow-x: auto;
+  padding: 0.1rem 0.15rem 0.35rem;
+  scroll-snap-type: x proximity;
+}
+
+.kika-card-row.compact::-webkit-scrollbar {
+  display: none;
+}
+
+.kika-product-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(103, 89, 58, 0.13);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #fffdf8 0%, #fffaf3 100%);
+  box-shadow: 0 0.9rem 2rem rgba(67, 45, 21, 0.07);
+  scroll-snap-align: start;
+}
+
+.kika-product-media {
+  width: 100%;
+  height: clamp(7.2rem, 21vw, 11rem);
+  display: block;
+  overflow: hidden;
+  border: 0;
+  background: #efe4d5;
+  padding: 0;
+}
+
+.kika-card-row.compact .kika-product-media {
+  height: clamp(5.2rem, 15vw, 7.2rem);
+}
+
+.kika-product-media img,
+.kika-product-media video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.kika-product-placeholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #557348;
+  background:
+    radial-gradient(circle at 75% 18%, rgba(255, 255, 255, 0.86), transparent 34%),
+    linear-gradient(135deg, #efe4d5 0%, #fbf6ed 56%, #e9decd 100%);
+}
+
+.kika-product-placeholder::before {
+  content: '';
+  position: absolute;
+  width: 8rem;
+  height: 8rem;
+  border: 1px solid rgba(85, 115, 72, 0.12);
+  border-radius: 999px;
+  transform: translate(16%, 12%);
+}
+
+.kika-product-placeholder svg {
+  position: relative;
+  z-index: 1;
+  width: clamp(2.8rem, 8vw, 4.6rem);
+  height: clamp(2.8rem, 8vw, 4.6rem);
+  stroke-width: 1.25;
+}
+
+.kika-product-placeholder-cake {
+  color: #8b6e45;
+  background: linear-gradient(135deg, #f4e5d4 0%, #fff7ef 55%, #ead7bd 100%);
+}
+
+.kika-product-placeholder-bread {
+  color: #9a6b2f;
+  background: linear-gradient(135deg, #f7e7cd 0%, #fff8ed 55%, #ead5b1 100%);
+}
+
+.kika-product-placeholder-leaf,
+.kika-product-placeholder-salad {
+  color: #557348;
+  background: linear-gradient(135deg, #edf1e5 0%, #fffaf3 58%, #dfe8d9 100%);
+}
+
+.kika-product-placeholder-drink,
+.kika-product-placeholder-coffee {
+  color: #557348;
+  background: linear-gradient(135deg, #e9e1d2 0%, #fffaf3 55%, #efe3d3 100%);
+}
+
+.kika-product-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: end;
+  min-height: 5.9rem;
+  padding: 0.85rem 0.9rem 0.9rem;
+}
+
+.kika-card-row.compact .kika-product-body {
+  min-height: 4.6rem;
+  padding: 0.62rem 0.7rem 0.7rem;
+}
+
+.kika-product-copy {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #253320;
+  text-align: left;
+}
+
+.kika-product-copy h3 {
+  margin: 0;
+  color: #253320;
+  font-size: clamp(0.88rem, 2.2vw, 1.05rem);
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.kika-card-row.compact .kika-product-copy h3 {
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+.kika-product-copy p {
+  display: -webkit-box;
+  margin: 0.34rem 0 0;
+  overflow: hidden;
+  color: rgba(38, 52, 32, 0.82);
+  font-size: clamp(0.68rem, 1.9vw, 0.82rem);
+  line-height: 1.28;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.kika-card-row.compact .kika-product-copy p {
+  display: none;
+}
+
+.kika-favorite {
+  width: 1.9rem;
+  height: 1.9rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #557348;
+  padding: 0;
+}
+
+.kika-favorite svg {
+  width: 1.48rem;
+  height: 1.48rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+}
+
+.kika-gluten-banner {
+  width: calc(100% - 0.6rem);
+  min-height: 4rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.4rem auto 1rem;
+  padding: 0.85rem 1.15rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #557348 0%, #466b3c 100%);
+  color: #fffaf3;
+  text-align: left;
+  box-shadow: 0 1rem 2rem rgba(64, 82, 48, 0.2);
+}
+
+.kika-gluten-banner > span {
+  display: grid;
+  place-items: center;
+  width: 3.1rem;
+  height: 3.1rem;
+  border-right: 1px solid rgba(255, 250, 243, 0.14);
+}
+
+.kika-gluten-banner svg {
+  width: 2rem;
+  height: 2rem;
+  stroke-width: 1.15;
+}
+
+.kika-gluten-banner strong {
+  display: grid;
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.kika-gluten-banner small {
+  font-size: 0.96rem;
+  font-weight: 600;
+}
+
+.kika-gluten-banner em {
+  font-style: normal;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.kika-bottom-nav {
+  position: fixed;
+  left: max(0.9rem, env(safe-area-inset-left));
+  right: max(0.9rem, env(safe-area-inset-right));
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
+  z-index: 18;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.2rem;
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 0.72rem 0.8rem;
+  border: 1px solid rgba(103, 89, 58, 0.12);
+  border-radius: 1.25rem;
+  background: rgba(255, 253, 248, 0.92);
+  color: rgba(38, 52, 32, 0.46);
+  box-shadow: 0 0.9rem 2rem rgba(57, 42, 22, 0.18);
+  backdrop-filter: blur(18px);
+}
+
+.kika-bottom-nav button {
+  display: grid;
+  place-items: center;
+  gap: 0.32rem;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 0.64rem;
+  font-weight: 850;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.kika-bottom-nav button.active {
+  color: #557348;
+}
+
+.kika-bottom-nav svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  stroke-width: 1.55;
+}
+
+.loading-kika {
+  background:
+    radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.95), transparent 18rem),
+    linear-gradient(180deg, #f7f1e9 0%, #fffaf3 100%);
+  color: #263420;
+}
+
+.loading-kika .menu-loading-brand-icon,
+.loading-kika .menu-loading-category-row span.active {
+  background: #557348;
+  color: #fffaf3;
+}
+
+.loading-kika .menu-loading-brand-copy strong,
+.loading-kika .menu-loading-hero-copy h2 {
+  color: #263420;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+@media (max-width: 430px) {
+  .template-kika .content-panel {
+    padding-inline: 1.05rem;
+  }
+
+  .template-kika .hero-topbar {
+    inset: 1.45rem 1.25rem auto auto;
+  }
+
+  .template-kika .hero-topbar .icon-button {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+
+  .template-kika .hero-topbar .icon-button svg {
+    width: 1.72rem;
+    height: 1.72rem;
+  }
+
+  .kika-category-row {
+    gap: 0.45rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .kika-category-icon {
+    width: 3.45rem;
+    height: 3.45rem;
+  }
+
+  .kika-category-icon svg {
+    width: 1.55rem;
+    height: 1.55rem;
+  }
+
+  .kika-card-row.featured {
+    gap: 0.75rem;
+  }
+
+  .kika-product-media {
+    height: 6.6rem;
+  }
+
+  .kika-product-body {
+    min-height: 5.3rem;
+    padding: 0.72rem 0.72rem 0.78rem;
+  }
+
+  .kika-product-copy p {
+    -webkit-line-clamp: 3;
+  }
+}
