@@ -9934,6 +9934,470 @@ button:focus-visible {
   stroke-width: 1.55;
 }
 
+.detail-phone.template-kika {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.94), transparent 23rem),
+    linear-gradient(180deg, #f7f1e9 0%, #fffaf3 42%, #f6efe5 100%);
+}
+
+.template-kika .kika-detail-hero {
+  position: relative;
+  min-height: clamp(35rem, 76vw, 48rem);
+  overflow: hidden;
+  border-radius: 1.7rem 1.7rem 0 0;
+  background:
+    radial-gradient(circle at 75% 35%, rgba(255, 255, 255, 0.55), transparent 17rem),
+    linear-gradient(135deg, #ede6db 0%, #fffaf3 55%, #e7dccd 100%);
+}
+
+.template-kika .kika-detail-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(248, 241, 231, 0.92) 0%, rgba(248, 241, 231, 0.62) 33%, rgba(248, 241, 231, 0.08) 62%),
+    linear-gradient(180deg, rgba(255, 250, 243, 0.1) 0%, rgba(255, 250, 243, 0.52) 100%);
+}
+
+.template-kika .kika-detail-hero > img,
+.template-kika .kika-detail-hero > video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kika-detail-hero-fallback {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 68% 38%, rgba(255, 255, 255, 0.76), transparent 13rem),
+    linear-gradient(135deg, #ebe3d7 0%, #fffaf3 52%, #ded0bd 100%);
+}
+
+.kika-detail-fallback-plant {
+  position: absolute;
+  left: 42%;
+  top: 8%;
+  width: 6.7rem;
+  height: 8.2rem;
+  border-radius: 0 0 1.5rem 1.5rem;
+  background:
+    linear-gradient(90deg, transparent 44%, rgba(85, 115, 72, 0.5) 45% 48%, transparent 49%),
+    radial-gradient(ellipse at 45% 16%, rgba(85, 115, 72, 0.62) 0 12%, transparent 13%),
+    radial-gradient(ellipse at 56% 22%, rgba(85, 115, 72, 0.56) 0 13%, transparent 14%),
+    radial-gradient(ellipse at 36% 35%, rgba(85, 115, 72, 0.5) 0 12%, transparent 13%),
+    radial-gradient(ellipse at 65% 42%, rgba(85, 115, 72, 0.48) 0 12%, transparent 13%),
+    linear-gradient(180deg, #f7f3ec 48%, #ffffff 49%);
+  opacity: 0.65;
+  filter: blur(0.06rem);
+}
+
+.kika-detail-fallback-glass {
+  position: absolute;
+  right: clamp(1.2rem, 5vw, 4rem);
+  top: clamp(6rem, 17vw, 9rem);
+  width: clamp(13rem, 42vw, 22rem);
+  height: clamp(18rem, 54vw, 29rem);
+  border-radius: 1.2rem 1.2rem 2.1rem 2.1rem;
+  border: 0.22rem solid rgba(255, 255, 255, 0.82);
+  background:
+    radial-gradient(circle at 50% 10%, #c0833d 0 8%, transparent 9%),
+    radial-gradient(circle at 62% 14%, #8d5a28 0 4%, transparent 5%),
+    linear-gradient(180deg, rgba(180, 106, 43, 0.82) 0 18%, rgba(235, 196, 134, 0.74) 26%, rgba(249, 236, 205, 0.8) 68%, rgba(214, 160, 86, 0.7) 100%);
+  box-shadow: 0 2.4rem 3.4rem rgba(82, 58, 28, 0.18);
+}
+
+.kika-detail-fallback-glass span {
+  position: absolute;
+  left: 11%;
+  right: 11%;
+  top: 7%;
+  height: 16%;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 46% 42%, rgba(255, 255, 255, 0.9) 0 8%, transparent 9%),
+    radial-gradient(circle at 40% 44%, transparent 0 20%, rgba(255, 250, 243, 0.7) 21% 28%, transparent 29%),
+    rgba(136, 76, 26, 0.72);
+}
+
+.kika-detail-fallback-plate {
+  position: absolute;
+  right: clamp(0.8rem, 4vw, 3rem);
+  bottom: 7.6rem;
+  width: clamp(16rem, 48vw, 26rem);
+  height: clamp(4.4rem, 13vw, 6.5rem);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 0 0 0.22rem rgba(226, 216, 203, 0.55), 0 1.2rem 2.4rem rgba(74, 52, 27, 0.08);
+}
+
+.kika-detail-topbar {
+  position: absolute;
+  left: clamp(1.8rem, 6vw, 4.5rem);
+  right: clamp(1.8rem, 6vw, 4.5rem);
+  top: calc(2rem + env(safe-area-inset-top));
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kika-detail-floating {
+  width: clamp(3.45rem, 9.5vw, 4.7rem);
+  height: clamp(3.45rem, 9.5vw, 4.7rem);
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.94);
+  color: #2f432b;
+  box-shadow: 0 1.1rem 2rem rgba(63, 45, 25, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.kika-detail-floating svg {
+  width: 1.85rem;
+  height: 1.85rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kika-detail-intro {
+  position: absolute;
+  left: clamp(2.2rem, 8vw, 5.4rem);
+  top: clamp(10rem, 26vw, 15rem);
+  z-index: 3;
+  width: min(23rem, 48%);
+}
+
+.kika-detail-logo {
+  width: clamp(5.2rem, 14vw, 7.25rem);
+  height: clamp(5.2rem, 14vw, 7.25rem);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.18rem;
+  margin-bottom: clamp(2rem, 5vw, 3.2rem);
+  border: 1px solid rgba(36, 49, 32, 0.26);
+  border-radius: 999px;
+  background:
+    linear-gradient(#fffdf8, #fffdf8) padding-box,
+    conic-gradient(from 220deg, #f5a623, #ed355d, #557348, #f5a623) border-box;
+  color: #171915;
+  letter-spacing: 0.34em;
+  box-shadow: 0 1rem 2rem rgba(63, 45, 25, 0.07);
+}
+
+.kika-detail-logo strong {
+  font-size: clamp(1rem, 2.6vw, 1.42rem);
+  line-height: 1;
+}
+
+.kika-detail-logo small {
+  font-size: clamp(0.5rem, 1.45vw, 0.68rem);
+  font-weight: 900;
+  letter-spacing: 0.28em;
+}
+
+.kika-detail-intro h2 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', serif;
+  color: #30452e;
+  font-size: clamp(3.1rem, 8.4vw, 5.7rem);
+  font-weight: 800;
+  line-height: 0.97;
+  letter-spacing: -0.035em;
+}
+
+.kika-detail-intro p {
+  max-width: 17rem;
+  margin: 1.15rem 0 0;
+  color: #171915;
+  font-size: clamp(1.06rem, 2.6vw, 1.55rem);
+  line-height: 1.33;
+  font-weight: 500;
+}
+
+.kika-detail-price {
+  display: block;
+  margin-top: 1.65rem;
+  color: #30452e;
+  font-size: clamp(1.9rem, 5vw, 2.8rem);
+  line-height: 1;
+  font-weight: 900;
+}
+
+.template-kika .kika-detail-stepper {
+  position: absolute;
+  right: clamp(1.8rem, 6vw, 5rem);
+  bottom: clamp(3.6rem, 8vw, 5.4rem);
+  z-index: 3;
+  width: clamp(9.8rem, 25vw, 13.2rem);
+  margin: 0;
+  padding: 0.38rem;
+  border: 0;
+  background: rgba(255, 253, 248, 0.86);
+  box-shadow: 0 0.8rem 1.9rem rgba(57, 42, 22, 0.13);
+  backdrop-filter: blur(16px);
+}
+
+.template-kika .kika-detail-stepper button {
+  color: #30452e;
+}
+
+.template-kika .kika-detail-sheet {
+  position: relative;
+  z-index: 2;
+  margin-top: -1.2rem;
+  padding: 2.9rem clamp(2.25rem, 7vw, 5.3rem) 7.6rem;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.92), transparent 24rem),
+    linear-gradient(180deg, #fffaf3 0%, #f8f1e8 100%);
+}
+
+.kika-detail-wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -2.1rem;
+  height: 4rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.kika-detail-wave span {
+  position: absolute;
+  left: -5%;
+  top: 1.45rem;
+  width: 110%;
+  height: 3rem;
+  border-top: 1.3px solid rgba(85, 115, 72, 0.78);
+  border-radius: 48% 52% 0 0;
+  transform: rotate(-2.3deg);
+}
+
+.kika-detail-wave::after {
+  content: '';
+  position: absolute;
+  right: clamp(2rem, 8vw, 5.6rem);
+  top: 0.4rem;
+  width: 4.5rem;
+  height: 3.2rem;
+  border-left: 1.3px solid rgba(85, 115, 72, 0.76);
+  border-bottom: 1.3px solid rgba(85, 115, 72, 0.76);
+  border-radius: 65% 45% 72% 38%;
+  transform: rotate(-21deg);
+}
+
+.kika-detail-section {
+  margin: 0 0 clamp(2.2rem, 5vw, 3.4rem);
+}
+
+.kika-detail-section h3 {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0 0 1rem;
+  padding-bottom: 0.45rem;
+  font-family: 'Great Vibes', cursive;
+  color: #557348;
+  font-size: clamp(2.55rem, 6.5vw, 4.1rem);
+  font-weight: 400;
+  line-height: 0.9;
+}
+
+.kika-detail-section h3::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: rgba(85, 115, 72, 0.78);
+}
+
+.kika-detail-section h3 svg {
+  width: 2.4rem;
+  height: 2.4rem;
+  fill: none;
+  stroke: rgba(85, 115, 72, 0.58);
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kika-detail-description-block p {
+  max-width: 43rem;
+  margin: 0;
+  color: #1d211b;
+  font-size: clamp(1.02rem, 2.5vw, 1.35rem);
+  line-height: 1.55;
+}
+
+.kika-addon-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(0.75rem, 2.4vw, 1.9rem);
+  align-items: start;
+}
+
+.kika-addon-option {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 0.7rem;
+  border: 0;
+  background: transparent;
+  color: #1d211b;
+  font-size: clamp(0.82rem, 2.2vw, 1.12rem);
+  font-weight: 650;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.kika-addon-icon {
+  width: clamp(4.45rem, 11vw, 6.2rem);
+  height: clamp(4.45rem, 11vw, 6.2rem);
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(103, 89, 58, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.66);
+  color: #557348;
+  box-shadow: 0 0.8rem 1.5rem rgba(57, 42, 22, 0.05);
+}
+
+.kika-addon-icon svg {
+  width: 2.45rem;
+  height: 2.45rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kika-addon-option.selected .kika-addon-icon {
+  border-color: #30452e;
+  box-shadow: inset 0 0 0 1px #30452e, 0 1rem 1.7rem rgba(85, 115, 72, 0.12);
+}
+
+.kika-addon-option em {
+  position: absolute;
+  right: calc(50% - clamp(2.35rem, 5.6vw, 3.2rem));
+  top: calc(clamp(4.45rem, 11vw, 6.2rem) - 1.35rem);
+  width: 1.65rem;
+  height: 1.65rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #557348;
+  color: #fffaf3;
+  font-style: normal;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.kika-select-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.9rem, 3vw, 1.8rem);
+}
+
+.kika-select-field {
+  display: grid;
+  gap: 0.75rem;
+  color: #1d211b;
+  font-size: clamp(0.92rem, 2.2vw, 1.16rem);
+  font-weight: 600;
+}
+
+.kika-select-field select {
+  width: 100%;
+  min-height: clamp(3rem, 7vw, 3.9rem);
+  border: 1px solid rgba(103, 89, 58, 0.18);
+  border-radius: 999px;
+  background:
+    linear-gradient(45deg, transparent 50%, #557348 50%) right 1.25rem center / 0.45rem 0.45rem no-repeat,
+    linear-gradient(135deg, #fffdf8 0%, #f8f1e8 100%);
+  color: #1d211b;
+  padding: 0 2.35rem 0 1.15rem;
+  font: inherit;
+  appearance: none;
+  box-shadow: 0 0.8rem 1.45rem rgba(57, 42, 22, 0.04);
+}
+
+.kika-detail-note-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1.15rem;
+  margin: 0 0 2rem;
+  padding: clamp(1rem, 2.5vw, 1.35rem) clamp(1.15rem, 3vw, 1.75rem);
+  border-radius: 1.05rem;
+  background: linear-gradient(90deg, rgba(232, 221, 207, 0.7), rgba(255, 253, 248, 0.58));
+  color: #273821;
+  font-size: clamp(0.98rem, 2.35vw, 1.22rem);
+  line-height: 1.4;
+}
+
+.kika-detail-note-card svg {
+  width: 2.55rem;
+  height: 2.55rem;
+  fill: none;
+  stroke: rgba(85, 115, 72, 0.58);
+  stroke-width: 1.15;
+}
+
+.kika-detail-add {
+  width: 100%;
+  min-height: clamp(4rem, 9vw, 5.2rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #557348 0%, #466b3c 100%);
+  color: #fffaf3;
+  padding: 0 clamp(1.5rem, 5vw, 3.4rem);
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  font-weight: 850;
+  box-shadow: 0 1rem 2rem rgba(64, 82, 48, 0.2);
+}
+
+.kika-detail-add span {
+  text-align: center;
+}
+
+.kika-detail-add strong {
+  min-width: 7.2rem;
+  border-left: 1px solid rgba(255, 250, 243, 0.35);
+  padding-left: clamp(1rem, 3vw, 2.4rem);
+  text-align: right;
+}
+
+.kika-detail-add:disabled {
+  opacity: 0.72;
+}
+
+.kika-detail-bottom-nav {
+  z-index: 40;
+}
+
 .loading-kika {
   background:
     radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.95), transparent 18rem),
@@ -10002,5 +10466,121 @@ button:focus-visible {
 
   .kika-product-copy p {
     -webkit-line-clamp: 3;
+  }
+
+  .template-kika .kika-detail-hero {
+    min-height: 29rem;
+  }
+
+  .kika-detail-intro {
+    left: 1.95rem;
+    top: 7.45rem;
+    width: 52%;
+  }
+
+  .kika-detail-logo {
+    width: 4.65rem;
+    height: 4.65rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .kika-detail-logo strong {
+    font-size: 0.92rem;
+  }
+
+  .kika-detail-logo small {
+    font-size: 0.46rem;
+  }
+
+  .kika-detail-intro h2 {
+    font-size: 2.72rem;
+  }
+
+  .kika-detail-intro p {
+    max-width: 12.5rem;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .kika-detail-price {
+    margin-top: 0.85rem;
+    font-size: 1.5rem;
+  }
+
+  .template-kika .kika-detail-stepper {
+    right: 1.4rem;
+    bottom: 1.9rem;
+    width: 9.2rem;
+  }
+
+  .template-kika .kika-detail-sheet {
+    padding: 1.75rem 1.35rem 8.2rem;
+  }
+
+  .kika-detail-section {
+    margin-bottom: 1.65rem;
+  }
+
+  .kika-detail-section h3 {
+    margin-bottom: 0.72rem;
+    font-size: 2.35rem;
+  }
+
+  .kika-detail-description-block p {
+    font-size: 0.92rem;
+    line-height: 1.42;
+  }
+
+  .kika-addon-row {
+    gap: 0.35rem;
+  }
+
+  .kika-addon-icon {
+    width: 3.35rem;
+    height: 3.35rem;
+  }
+
+  .kika-addon-icon svg {
+    width: 1.78rem;
+    height: 1.78rem;
+  }
+
+  .kika-addon-option {
+    gap: 0.52rem;
+    font-size: 0.76rem;
+  }
+
+  .kika-addon-option em {
+    right: calc(50% - 1.8rem);
+    top: 2.42rem;
+    width: 1.45rem;
+    height: 1.45rem;
+  }
+
+  .kika-select-grid {
+    gap: 0.6rem;
+  }
+
+  .kika-select-field {
+    font-size: 0.82rem;
+    gap: 0.5rem;
+  }
+
+  .kika-select-field select {
+    min-height: 3rem;
+    padding-left: 0.85rem;
+    padding-right: 1.85rem;
+    background:
+      linear-gradient(45deg, transparent 50%, #557348 50%) right 0.95rem center / 0.38rem 0.38rem no-repeat,
+      linear-gradient(135deg, #fffdf8 0%, #f8f1e8 100%);
+  }
+
+  .kika-detail-add {
+    padding-inline: 1.45rem;
+  }
+
+  .kika-detail-add strong {
+    min-width: 5.9rem;
+    padding-left: 1rem;
   }
 }

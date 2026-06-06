@@ -473,6 +473,59 @@ function IconKikaUsers() {
   )
 }
 
+function IconKikaHazelnut() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M8.2 17.1c1.5-5.4 5.6-8.6 10.1-8 4 .5 6.4 3.4 6 7.1-.4 4.4-4.1 7.5-9.1 7.8-4.6.2-7.9-2.4-7-6.9z" />
+      <path d="M14.2 9.6c.8-2.5 2.4-3.9 4.7-4.4 0 1.8-.9 3.2-2.8 4.3" />
+      <path d="M18.9 16.5c-1.3 1.6-3.2 2.5-5.5 2.7" />
+    </svg>
+  )
+}
+
+function IconKikaCoconut() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M8.4 20.1c.2-5.7 4.1-10.6 10.3-11.5 2.7 4.4 2 10.4-2.1 13.7-2.7 2.2-6.2 1.4-8.2-2.2z" />
+      <path d="M10.5 18.9c1.8-2.5 4-4.5 6.8-6" />
+      <path d="M19.8 8.7c1.7.9 2.8 2.2 3.2 3.9" />
+      <path d="M7.6 20.4c-1.3.1-2.3-.6-2.5-1.8" />
+    </svg>
+  )
+}
+
+function IconKikaCaramel() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M10.1 9.6h11.8v11.8H10.1z" />
+      <path d="M10.1 12.4L6.8 10.7v9.6l3.3-1.7" />
+      <path d="M21.9 12.4l3.3-1.7v9.6l-3.3-1.7" />
+      <path d="M13 13.5h5.9M13 17.2h5.9" />
+    </svg>
+  )
+}
+
+function IconKikaPistachio() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M10.8 20.7c-1.6-3.9-.4-8.3 3.6-12.9 4.6 3 6.9 6.7 6.2 10.5-.6 3.4-3.5 5.6-6.3 5-1.6-.3-2.8-1.2-3.5-2.6z" />
+      <path d="M15.4 8.4c-.3 5.5.6 9.5 2.8 12" />
+      <path d="M9.1 22.2c3.9.5 7.6.4 11-.5" />
+    </svg>
+  )
+}
+
+function IconKikaVanilla() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M16 7.6l2.4 5.9 6.4.5-4.9 4.1 1.5 6.2-5.4-3.3-5.4 3.3 1.5-6.2L7.2 14l6.4-.5z" />
+      <path d="M16 11.4v6.8" />
+      <path d="M12.6 15.3l6.8 3.5" />
+      <path d="M19.4 15.3l-6.8 3.5" />
+    </svg>
+  )
+}
+
 function IconSpark() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1103,6 +1156,120 @@ function KikaProductVisual({ item, category }) {
   return (
     <span className={`kika-product-placeholder kika-product-placeholder-${meta.art}`} aria-hidden="true">
       <Icon />
+    </span>
+  )
+}
+
+function getKikaOptionIcon(label) {
+  const key = slugify(label)
+
+  if (key.includes('avellana')) return <IconKikaHazelnut />
+  if (key.includes('coco')) return <IconKikaCoconut />
+  if (key.includes('caramelo')) return <IconKikaCaramel />
+  if (key.includes('pistacho')) return <IconKikaPistachio />
+  if (key.includes('vainilla')) return <IconKikaVanilla />
+  if (key.includes('almendra') || key.includes('avena')) return <IconKikaLeaf />
+  if (key.includes('fria') || key.includes('hielo')) return <IconKikaCup />
+
+  return <IconKikaCup />
+}
+
+function getKikaProductOptionGroups(dish, fallbackGroups = []) {
+  if (Array.isArray(dish?.optionGroups) && dish.optionGroups.length > 0) {
+    return fallbackGroups
+  }
+
+  return [
+    {
+      id: 'agregado',
+      title: 'Elige tu agregado',
+      required: true,
+      display: 'icons',
+      options: ['Avellana', 'Coco', 'Caramelo', 'Pistacho', 'Vainilla'],
+    },
+    {
+      id: 'tipo-leche',
+      title: 'Tipo de leche',
+      required: true,
+      display: 'select',
+      options: ['Entera', 'Deslactosada', 'Almendra', 'Avena'],
+    },
+    {
+      id: 'dulzor',
+      title: 'Nivel de dulzor',
+      required: true,
+      display: 'select',
+      options: ['Normal', 'Bajo', 'Sin azúcar'],
+    },
+    {
+      id: 'temperatura',
+      title: 'Temperatura',
+      required: true,
+      display: 'select',
+      options: ['Caliente', 'Fría', 'Con hielo'],
+    },
+  ]
+}
+
+function getTemplateProductOptionGroups(templateId, dish, allItems = []) {
+  const fallbackGroups = buildProductOptionGroups(dish, allItems)
+
+  if (templateId === 'kika') {
+    return getKikaProductOptionGroups(dish, fallbackGroups)
+  }
+
+  return fallbackGroups
+}
+
+function getKikaDetailDescription(dish) {
+  const description = String(dish?.description ?? '').trim()
+
+  if (description) {
+    return description
+  }
+
+  const categoryKey = slugify(`${dish?.categoryLabel ?? ''} ${dish?.badge ?? ''}`)
+
+  if (categoryKey.includes('bebida') || categoryKey.includes('cafeteria')) {
+    return 'Bebida preparada al momento con ingredientes frescos y el estilo suave de Kika Café.'
+  }
+
+  if (categoryKey.includes('pasteleria')) {
+    return 'Preparación artesanal, pensada para acompañar café, encuentros y momentos tranquilos.'
+  }
+
+  if (categoryKey.includes('panaderia')) {
+    return 'Elaborado cada dia con ingredientes simples, textura suave y sabor casero.'
+  }
+
+  return 'Preparación seleccionada por Kika Café para disfrutar en cualquier momento del día.'
+}
+
+function KikaDetailHeroVisual({ dish, presentation }) {
+  if (dish?.video) {
+    return (
+      <video
+        src={getVideoFrameSrc(dish.video)}
+        preload="auto"
+        autoPlay={shouldAutoplayVideoPreview(presentation)}
+        muted={presentation.preview?.mutedVideos ?? true}
+        loop={shouldAutoplayVideoPreview(presentation)}
+        playsInline
+      />
+    )
+  }
+
+  if (dish?.hasCustomImage) {
+    return <img src={dish.image} alt={dish.name} className={getImageAnimationClass(dish)} />
+  }
+
+  return (
+    <span className="kika-detail-hero-fallback" aria-hidden="true">
+      <span className="kika-detail-fallback-plant" />
+      <span className="kika-detail-fallback-glass">
+        <span />
+      </span>
+      <span className="kika-detail-fallback-plate" />
     </span>
   )
 }
@@ -4108,7 +4275,7 @@ export default function MenuApp() {
 
   function handleOpenDish(item) {
     const nextDish = { ...item, categoryLabel: item.categoryLabel ?? currentCategory?.label }
-    const groups = buildProductOptionGroups(nextDish, allItems)
+    const groups = getTemplateProductOptionGroups(templateId, nextDish, allItems)
     setSelectedDish(nextDish)
     setDetailQuantity(1)
     setSelectedOptions(buildInitialSelections(getSelectableOptionGroups(groups)))
@@ -4574,7 +4741,10 @@ export default function MenuApp() {
     }
   }
 
-  const detailOptionGroups = selectedDish ? buildProductOptionGroups(selectedDish, allItems) : []
+  const templateId = presentation.template ?? presentation.layout ?? 'editorial'
+  const detailOptionGroups = selectedDish
+    ? getTemplateProductOptionGroups(templateId, selectedDish, allItems)
+    : []
   const detailIncludedGroups = getIncludedOptionGroups(detailOptionGroups)
   const detailSelectableGroups = getSelectableOptionGroups(detailOptionGroups)
   const detailExtraTotal = selectedDish
@@ -4588,8 +4758,8 @@ export default function MenuApp() {
       (selectedDish.availableForOrder === false ||
         (typeof selectedDish.maxQuantity === 'number' && detailQuantity > selectedDish.maxQuantity)),
   )
-  const templateId = presentation.template ?? presentation.layout ?? 'editorial'
   const isHostDetail = templateId === 'host' && Boolean(selectedDish)
+  const isKikaDetail = templateId === 'kika' && Boolean(selectedDish)
   const detailHasHeroMedia = hasProductMedia(selectedDish)
   const socialLinks = getMenuSocialLinks(presentation)
   const appClassName = [
@@ -5081,7 +5251,188 @@ export default function MenuApp() {
             style={getPresentationStyles(presentation, accountId)}
             onClick={(event) => event.stopPropagation()}
           >
-            {isHostDetail ? (
+            {isKikaDetail ? (
+              <>
+                <section className="kika-detail-hero">
+                  <KikaDetailHeroVisual dish={selectedDish} presentation={presentation} />
+
+                  <div className="kika-detail-topbar">
+                    <button
+                      type="button"
+                      className="kika-detail-floating"
+                      onClick={() => setSelectedDish(null)}
+                      aria-label="Volver"
+                    >
+                      <IconBack />
+                    </button>
+                    <button type="button" className="kika-detail-floating" aria-label="Favorito">
+                      <IconHeart />
+                    </button>
+                  </div>
+
+                  <div className="kika-detail-intro">
+                    <span className="kika-detail-logo">
+                      <strong>KIKA</strong>
+                      <small>CAFÉ</small>
+                    </span>
+                    <h2>{selectedDish.name}</h2>
+                    <p>{selectedDish.description || getKikaDetailDescription(selectedDish)}</p>
+                    <strong className="kika-detail-price">
+                      {formatPrice(
+                        selectedDish.unitPrice ?? toNumericPrice(selectedDish.price),
+                        currencySymbol,
+                      )}
+                    </strong>
+                  </div>
+
+                  <div className="quantity-stepper kika-detail-stepper">
+                    <button
+                      type="button"
+                      onClick={() => setDetailQuantity((current) => Math.max(1, current - 1))}
+                      aria-label="Disminuir cantidad"
+                    >
+                      <IconMinus />
+                    </button>
+                    <span>{detailQuantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => setDetailQuantity((current) => current + 1)}
+                      aria-label="Aumentar cantidad"
+                    >
+                      <IconPlus />
+                    </button>
+                  </div>
+                </section>
+
+                <section className="kika-detail-sheet">
+                  <div className="kika-detail-wave" aria-hidden="true">
+                    <span />
+                  </div>
+
+                  <section className="kika-detail-section kika-detail-description-block">
+                    <h3>
+                      <IconKikaLeaf />
+                      <span>Descripción</span>
+                    </h3>
+                    <p>{getKikaDetailDescription(selectedDish)}</p>
+                  </section>
+
+                  {detailSelectableGroups
+                    .filter((group) => group.display !== 'select')
+                    .map((group) => (
+                      <section key={group.id} className="kika-detail-section">
+                        <h3>{group.title}</h3>
+                        <div className="kika-addon-row">
+                          {group.options.map((rawOption) => {
+                            const option = normalizeOptionEntry(rawOption)
+                            const selectedValue = selectedOptions[group.id]
+                            const isSelected = Array.isArray(selectedValue)
+                              ? selectedValue.includes(option.value)
+                              : selectedValue === option.value
+
+                            return (
+                              <button
+                                key={option.value}
+                                type="button"
+                                className={`kika-addon-option ${isSelected ? 'selected' : ''}`}
+                                onClick={() => handleSelectDetailOption(group, option.value)}
+                              >
+                                <span className="kika-addon-icon">{getKikaOptionIcon(option.label)}</span>
+                                <span>{option.label}</span>
+                                {isSelected ? <em aria-hidden="true">✓</em> : null}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </section>
+                    ))}
+
+                  {detailSelectableGroups.some((group) => group.display === 'select') ? (
+                    <section className="kika-detail-section">
+                      <h3>Personaliza tu bebida</h3>
+                      <div className="kika-select-grid">
+                        {detailSelectableGroups
+                          .filter((group) => group.display === 'select')
+                          .map((group) => (
+                            <label key={group.id} className="kika-select-field">
+                              <span>{group.title}</span>
+                              <select
+                                value={selectedOptions[group.id] ?? ''}
+                                onChange={(event) => handleSelectDetailOption(group, event.target.value)}
+                              >
+                                {group.options.map((rawOption) => {
+                                  const option = normalizeOptionEntry(rawOption)
+
+                                  return (
+                                    <option key={option.value} value={option.value}>
+                                      {option.label}
+                                    </option>
+                                  )
+                                })}
+                              </select>
+                            </label>
+                          ))}
+                      </div>
+                    </section>
+                  ) : null}
+
+                  <article className="kika-detail-note-card">
+                    <IconKikaLeaf />
+                    <span>Todos nuestros cafés son elaborados con granos de especialidad.</span>
+                  </article>
+
+                  {!detailSelectionsValid ? (
+                    <p className="detail-note">Completa los opcionales obligatorios antes de agregar este producto.</p>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    className="kika-detail-add"
+                    disabled={!detailSelectionsValid || orderingBlocked || detailStockBlocked}
+                    onClick={() => {
+                      handleAddItem(selectedDish, detailQuantity, {
+                        summary: buildSelectionSummary(detailSelectableGroups, selectedOptions),
+                        unitPrice:
+                          (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal,
+                      })
+                      setSelectedDish(null)
+                    }}
+                  >
+                    <span>{orderingBlocked ? 'Pedidos cerrados' : detailStockBlocked ? 'Sin stock' : 'Agregar al pedido'}</span>
+                    <strong>
+                      {formatPrice(
+                        ((selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal) *
+                          detailQuantity,
+                        currencySymbol,
+                      )}
+                    </strong>
+                  </button>
+                </section>
+
+                <nav className="kika-bottom-nav kika-detail-bottom-nav" aria-label="Navegacion del menu Kika">
+                  <button type="button" className="active" onClick={() => setSelectedDish(null)}>
+                    <IconHome />
+                    <span>Inicio</span>
+                  </button>
+                  <button type="button" onClick={() => setSelectedDish(null)}>
+                    <IconKikaBook />
+                    <span>Menu</span>
+                  </button>
+                  <button type="button" onClick={() => setIsCartOpen(true)}>
+                    <IconKikaBag />
+                    <span>Pedidos</span>
+                  </button>
+                  <button type="button">
+                    <IconKikaPin />
+                    <span>Ubicación</span>
+                  </button>
+                  <button type="button" onClick={() => setIsSocialMenuOpen(true)}>
+                    <IconKikaUsers />
+                    <span>Nosotros</span>
+                  </button>
+                </nav>
+              </>
+            ) : isHostDetail ? (
               <>
                 {detailHasHeroMedia ? (
                   <div className="detail-hero host-detail-hero">
@@ -5440,7 +5791,7 @@ export default function MenuApp() {
               </>
             )}
 
-            {(!isHostDetail && (templateId !== 'pizzeria' || hasOrderItems)) ? (
+            {(!isHostDetail && !isKikaDetail && (templateId !== 'pizzeria' || hasOrderItems)) ? (
               <footer className="detail-order-bar">
                 <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                   <div className="order-bar-copy">
