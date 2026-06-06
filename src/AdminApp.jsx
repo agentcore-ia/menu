@@ -45,6 +45,7 @@ const defaultPresentation = {
   },
   hero: {
     image: '/dishes/hero-clean-cut.png',
+    video: '',
     title: '',
     accent: '',
     description: '',
@@ -460,6 +461,9 @@ export default function AdminApp() {
       let target = next
 
       for (let index = 0; index < parts.length - 1; index += 1) {
+        if (!target[parts[index]] || typeof target[parts[index]] !== 'object') {
+          target[parts[index]] = {}
+        }
         target = target[parts[index]]
       }
 
@@ -1156,6 +1160,32 @@ export default function AdminApp() {
                       }
                     />
                     <span>Subir imagen header</span>
+                  </span>
+                </label>
+
+                <label className="admin-field">
+                  <span>Video header</span>
+                  <input
+                    value={presentation.hero.video ?? ''}
+                    onChange={(event) => updatePresentation('hero.video', event.target.value)}
+                    placeholder="https://.../header.mp4"
+                  />
+                  <small className="admin-help">
+                    Opcional: si cargas un video, se reproduce en el header. La imagen queda como respaldo.
+                  </small>
+                  <span className="admin-upload admin-inline-upload">
+                    <input
+                      type="file"
+                      accept="video/mp4,video/webm,video/quicktime"
+                      onChange={(event) =>
+                        handleUploadPresentationAsset(
+                          'hero.video',
+                          event.target.files?.[0],
+                          'header-video',
+                        )
+                      }
+                    />
+                    <span>Subir video header</span>
                   </span>
                 </label>
 

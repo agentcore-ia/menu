@@ -386,6 +386,7 @@ export class SupabaseMenuRepository {
       hero: {
         image: config.hero_image_url || undefined,
         images: headerImages.length ? headerImages : undefined,
+        video: themeOverrides.heroVideo || undefined,
         title: config.hero_title || undefined,
         accent: config.hero_accent || undefined,
         description: config.hero_description || undefined,
