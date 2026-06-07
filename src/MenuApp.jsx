@@ -983,6 +983,10 @@ function getInitialCategoryId(payload) {
     )
   }
 
+  if (templateId === 'kika') {
+    return normalizeKikaCategories(payload?.categories ?? [])[0]?.id ?? payload?.categories?.[0]?.id ?? ''
+  }
+
   return payload?.categories?.[0]?.id ?? ''
 }
 
@@ -1003,7 +1007,6 @@ function getCategoryIcon(label) {
 
 const kikaCategoryOrder = [
   'cafeteria',
-  'bebidas',
   'pasteleria',
   'panaderia',
   'sin-gluten',
@@ -1014,10 +1017,39 @@ const kikaCategoryOrder = [
   'omelettes',
 ]
 
-const kikaPrimaryCategoryKeys = new Set(['cafeteria', 'bebidas', 'pasteleria', 'panaderia', 'sin-gluten'])
+const kikaPrimaryCategoryKeys = new Set(['cafeteria', 'pasteleria', 'panaderia', 'sin-gluten'])
+
+const kikaCanonicalCategoryLabels = {
+  cafeteria: 'Cafetería',
+  pasteleria: 'Pastelería',
+  panaderia: 'Panadería',
+  'sin-gluten': 'Sin Gluten',
+  sandwiches: 'Sandwiches',
+  ensaladas: 'Ensaladas',
+  brunch: 'Brunch',
+  tapeos: 'Tapeos',
+  omelettes: 'Omelettes',
+}
+
+function getKikaCanonicalCategoryKey(label) {
+  const key = slugify(label ?? '')
+
+  if (!key) return ''
+  if (key.includes('sin-gluten') || key.includes('sin-tacc') || key.includes('gluten')) return 'sin-gluten'
+  if (key.includes('pasteleria') || key.includes('postre') || key.includes('torta') || key.includes('cheesecake') || key.includes('tiramisu')) return 'pasteleria'
+  if (key.includes('panaderia') || key.includes('medialuna') || key.includes('chipa') || key.includes('scon') || key.includes('vigilante')) return 'panaderia'
+  if (key.includes('sandwich') || key.includes('sandwiche') || key.includes('ciabatta') || key.includes('baguette') || key.includes('tostado')) return 'sandwiches'
+  if (key.includes('ensalada') || key.includes('cesar') || key.includes('quinoa')) return 'ensaladas'
+  if (key.includes('brunch') || key.includes('toast') || key.includes('keto') || key.includes('huevo') || key.includes('pizza-de-masa-madre')) return 'brunch'
+  if (key.includes('tapeo') || key.includes('tapas') || key.includes('queso') || key.includes('jamon') || key.includes('mortadela') || key.includes('aceituna') || key.includes('tortilla') || key.includes('chorizo') || key.includes('salame')) return 'tapeos'
+  if (key.includes('omelette') || key.includes('omelet')) return 'omelettes'
+  if (key.includes('cafeteria') || key.includes('cafe') || key.includes('bebida') || key.includes('latte') || key.includes('espresso') || key.includes('capuccino') || key.includes('cappuccino') || key.includes('americano') || key.includes('cortado') || key.includes('ristretto') || key.includes('moka') || key.includes('macchiato') || key.includes('monaco') || key.includes('afogato') || key.includes('frio') || key.includes('licuado') || key.includes('limonada') || key.includes('jugo') || key.includes('agua') || key.includes('gaseosa') || key.includes('energizante')) return 'cafeteria'
+
+  return key
+}
 
 function getKikaCategoryRank(label) {
-  const key = slugify(label)
+  const key = getKikaCanonicalCategoryKey(label)
   const index = kikaCategoryOrder.findIndex((entry) => key.includes(entry))
   return index === -1 ? kikaCategoryOrder.length : index
 }
@@ -1029,16 +1061,57 @@ function getKikaOrderedCategories(categories = []) {
   })
 }
 
-function getKikaCategoryMeta(label) {
-  const key = slugify(label)
+function normalizeKikaCategories(categories = []) {
+  const groupedCategories = new Map()
+  const seenItems = new Set()
 
-  if (key.includes('bebida')) {
+  categories.forEach((category, categoryIndex) => {
+    const canonicalKey =
+      getKikaCanonicalCategoryKey(category.label) ||
+      slugify(category.label ?? category.id ?? `categoria-${categoryIndex}`)
+    const canonicalLabel = kikaCanonicalCategoryLabels[canonicalKey] ?? category.label
+
+    if (!groupedCategories.has(canonicalKey)) {
+      groupedCategories.set(canonicalKey, {
+        ...category,
+        id: canonicalKey,
+        label: canonicalLabel,
+        items: [],
+      })
+    }
+
+    const groupedCategory = groupedCategories.get(canonicalKey)
+
+    ;(category.items ?? []).forEach((item, itemIndex) => {
+      const itemKey = item.id ?? `${canonicalKey}-${item.name ?? itemIndex}`
+
+      if (seenItems.has(itemKey)) {
+        return
+      }
+
+      seenItems.add(itemKey)
+      groupedCategory.items.push({
+        ...item,
+        categoryLabel: canonicalLabel,
+      })
+    })
+  })
+
+  return getKikaOrderedCategories([...groupedCategories.values()]).filter(
+    (category) => category.items?.length,
+  )
+}
+
+function getKikaCategoryMeta(label) {
+  const key = getKikaCanonicalCategoryKey(label)
+
+  if (key.includes('cafeteria')) {
     return {
-      label: 'Café Frío',
-      sectionTitle: 'Café Frío',
-      subtitle: 'Bebidas frías, cremosas y llenas de sabor.',
+      label: 'Cafetería',
+      sectionTitle: 'Cafetería',
+      subtitle: 'Café de especialidad, bebidas y momentos suaves para acompañar el día.',
       icon: IconKikaCup,
-      art: 'drink',
+      art: 'coffee',
       featured: true,
     }
   }
@@ -1096,16 +1169,6 @@ function getKikaCategoryMeta(label) {
     }
   }
 
-  if (key.includes('cafeteria')) {
-    return {
-      label: 'Cafetería',
-      sectionTitle: 'Cafetería',
-      subtitle: 'Café de especialidad para acompañar cualquier momento.',
-      icon: IconKikaCup,
-      art: 'coffee',
-    }
-  }
-
   if (key.includes('brunch')) {
     return {
       label: 'Brunch',
@@ -1146,7 +1209,7 @@ function getKikaCategoryMeta(label) {
 }
 
 function getKikaPrimaryCategories(categories = []) {
-  const orderedCategories = getKikaOrderedCategories(categories)
+  const orderedCategories = normalizeKikaCategories(categories)
   const primaryCategories = orderedCategories.filter((category) =>
     kikaPrimaryCategoryKeys.has(slugify(category.label)),
   )
@@ -1155,7 +1218,7 @@ function getKikaPrimaryCategories(categories = []) {
 }
 
 function getKikaSections(categories = []) {
-  return getKikaOrderedCategories(categories).filter((category) => category.items?.length)
+  return normalizeKikaCategories(categories)
 }
 
 function KikaProductVisual({ item, category }) {
@@ -2738,7 +2801,7 @@ function MenuLoadingScreen({ accountId }) {
       kicker: 'Café y pastelería',
       headline: 'Preparando tu momento',
       message: 'Estamos sirviendo café, pastelería y panadería para que elijas tranquilo.',
-      chips: ['Cafetería', 'Café Frío', 'Pastelería'],
+      chips: ['Cafetería', 'Pastelería', 'Panadería'],
       section: 'KIKA CAFE',
     },
     gelato: {
@@ -4178,7 +4241,12 @@ export default function MenuApp() {
   }, [orderingNotice])
 
   const presentation = menu?.presentation ?? defaultPresentation
-  const categories = menu?.categories ?? emptyCategories
+  const templateId = presentation.template ?? presentation.layout ?? 'editorial'
+  const rawCategories = menu?.categories ?? emptyCategories
+  const categories = useMemo(
+    () => (templateId === 'kika' ? normalizeKikaCategories(rawCategories) : rawCategories),
+    [rawCategories, templateId],
+  )
 
   useEffect(() => {
     setDocumentTitle(getAccountDocumentTitle(accountId, presentation))
@@ -4841,7 +4909,6 @@ export default function MenuApp() {
     }
   }
 
-  const templateId = presentation.template ?? presentation.layout ?? 'editorial'
   const detailOptionGroups = selectedDish
     ? getTemplateProductOptionGroups(templateId, selectedDish, allItems)
     : []
