@@ -10472,6 +10472,206 @@ button:focus-visible {
 .loading-kika {
   background: #F4F2EF;
   color: #263420;
+  --loading-bg: #F4F2EF;
+  --loading-frame: rgba(85, 115, 72, 0.16);
+  --loading-frame-glow: none;
+  --loading-floor-glow: transparent;
+  --loading-panel-bg: rgba(255, 253, 248, 0.72);
+  --loading-panel-border: rgba(85, 115, 72, 0.16);
+  --loading-panel-shadow: rgba(66, 54, 37, 0.1);
+  --loading-text: #2f432b;
+  --loading-muted: rgba(38, 52, 32, 0.66);
+  --loading-accent: #557348;
+  --loading-accent-contrast: #fffaf3;
+  --loading-mark-color: #fffaf3;
+  --loading-track: rgba(85, 115, 72, 0.12);
+  --loading-chip-bg: rgba(255, 253, 248, 0.7);
+  --loading-chip-border: rgba(85, 115, 72, 0.16);
+  --loading-chip-text: #2f432b;
+  --loading-surface: rgba(255, 253, 248, 0.76);
+  --loading-skeleton: rgba(85, 115, 72, 0.1);
+  --loading-shimmer: rgba(255, 255, 255, 0.78);
+  --loading-divider: rgba(85, 115, 72, 0.2);
+  --loading-dock-bg: rgba(255, 253, 248, 0.86);
+  --loading-top-icon-bg: transparent;
+  --loading-top-icon-border: transparent;
+  --loading-top-icon-shadow: transparent;
+  --loading-top-icon-color: #2f432b;
+  --loading-visual-bg: rgba(85, 115, 72, 0.08);
+  --loading-hero-overlay: linear-gradient(135deg, rgba(85, 115, 72, 0.06), transparent 62%);
+  --loading-orbit-a: rgba(85, 115, 72, 0.08);
+  --loading-orbit-b: rgba(85, 115, 72, 0.12);
+  --loading-orbit-c: rgba(255, 253, 248, 0.7);
+  --kika-script-font: 'HeatwoodKika', 'Heatwood', 'Great Vibes', 'Cormorant Garamond', cursive;
+}
+
+.loading-kika::before {
+  inset: auto 0 0;
+  height: clamp(4.5rem, 18vw, 9rem);
+  border: 0;
+  border-radius: 0;
+  background: url('/kika/asset.png') bottom center / 100% auto no-repeat;
+  opacity: 0.95;
+}
+
+.loading-kika::after {
+  display: none;
+}
+
+.loading-kika .menu-loader-orbit {
+  opacity: 0.48;
+}
+
+.loading-kika .menu-loading-shell {
+  width: min(100%, 27.2rem);
+  gap: 1rem;
+}
+
+.loading-kika .menu-loading-topbar {
+  padding-top: clamp(0.9rem, 4vw, 2rem);
+}
+
+.loading-kika .menu-loading-top-icon {
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.loading-kika .menu-loading-brand-lockup {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.loading-kika .menu-loading-brand-copy {
+  justify-items: center;
+}
+
+.loading-kika .menu-loading-brand-copy strong {
+  color: #1f261e;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2rem, 8vw, 3.8rem);
+  font-weight: 500;
+  letter-spacing: 0.28em;
+}
+
+.loading-kika .menu-loading-brand-copy p {
+  color: #2f432b;
+  font-size: clamp(0.56rem, 1.7vw, 0.72rem);
+  letter-spacing: 0.38em;
+}
+
+.loading-kika .menu-loading-mark {
+  width: auto;
+  height: auto;
+  color: #557348;
+  background: transparent;
+  box-shadow: none;
+}
+
+.loading-kika .menu-loading-mark svg {
+  width: clamp(1.25rem, 4vw, 1.9rem);
+  height: clamp(1.25rem, 4vw, 1.9rem);
+  stroke-width: 1.45;
+}
+
+.loading-kika .menu-loading-hero-card {
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: clamp(0.6rem, 2.4vw, 1.35rem);
+  padding: clamp(1.45rem, 5vw, 2.2rem);
+  border-radius: 2rem;
+}
+
+.loading-kika .menu-loading-hero-card::before {
+  background:
+    radial-gradient(circle at 82% 8%, rgba(85, 115, 72, 0.1), transparent 9rem),
+    var(--loading-hero-overlay);
+}
+
+.loading-kika .menu-loading-hero-copy {
+  justify-items: start;
+  gap: 0.85rem;
+}
+
+.loading-kika .menu-loading-kicker {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(47, 67, 43, 0.72);
+  font-size: clamp(0.64rem, 1.9vw, 0.82rem);
+}
+
+.loading-kika .menu-loading-hero-copy h2 {
+  color: #2f432b;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2.25rem, 8.8vw, 4rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+
+.loading-kika .menu-loading-hero-copy p {
+  max-width: 18rem;
+  color: rgba(38, 52, 32, 0.72);
+  font-size: clamp(0.88rem, 2.6vw, 1.08rem);
+}
+
+.loading-kika .menu-loading-visual {
+  display: none;
+}
+
+.loading-kika .menu-loading-bar {
+  height: 0.18rem;
+  background: rgba(85, 115, 72, 0.18);
+}
+
+.loading-kika .menu-loading-bar span {
+  width: 35%;
+  background: #557348;
+}
+
+.loading-kika .menu-loading-chip-row span,
+.loading-kika .menu-loading-category-row span {
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.loading-kika .menu-loading-category-row span.active {
+  background: #557348;
+  color: #fffaf3;
+}
+
+.loading-kika .menu-loading-section-head {
+  grid-template-columns: minmax(2rem, 1fr) auto minmax(2rem, 1fr);
+}
+
+.loading-kika .menu-loading-section-head strong {
+  color: #2f432b;
+  font-family: var(--kika-script-font);
+  font-size: clamp(1.55rem, 5vw, 2.4rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.loading-kika .menu-loading-item {
+  border-radius: 1.45rem;
+}
+
+.loading-kika .menu-loading-item-media {
+  background:
+    radial-gradient(circle at 50% 48%, rgba(85, 115, 72, 0.08), transparent 64%),
+    rgba(255, 253, 248, 0.86);
+}
+
+.loading-kika .menu-loading-dock {
+  border-radius: 1.6rem;
+  box-shadow: 0 0.9rem 2.2rem rgba(66, 54, 37, 0.12);
 }
 
 .loading-kika .menu-loading-brand-icon,
