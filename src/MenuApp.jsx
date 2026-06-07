@@ -1002,19 +1002,19 @@ function getCategoryIcon(label) {
 }
 
 const kikaCategoryOrder = [
+  'cafeteria',
   'bebidas',
   'pasteleria',
   'panaderia',
   'sin-gluten',
   'sandwiches',
   'ensaladas',
-  'cafeteria',
   'brunch',
   'tapeos',
   'omelettes',
 ]
 
-const kikaPrimaryCategoryKeys = new Set(['bebidas', 'pasteleria', 'panaderia', 'sin-gluten'])
+const kikaPrimaryCategoryKeys = new Set(['cafeteria', 'bebidas', 'pasteleria', 'panaderia', 'sin-gluten'])
 
 function getKikaCategoryRank(label) {
   const key = slugify(label)
@@ -2737,7 +2737,7 @@ function MenuLoadingScreen({ accountId }) {
       kicker: 'Café y pastelería',
       headline: 'Preparando tu momento',
       message: 'Estamos sirviendo café, pastelería y panadería para que elijas tranquilo.',
-      chips: ['Café Frío', 'Pastelería', 'Panadería'],
+      chips: ['Cafetería', 'Café Frío', 'Pastelería'],
       section: 'KIKA CAFE',
     },
     gelato: {
