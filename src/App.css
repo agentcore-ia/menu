@@ -9552,9 +9552,9 @@ button:focus-visible {
 
 .kika-hero-copy {
   position: absolute;
-  top: clamp(3.45rem, 14vw, 12.6rem);
-  left: clamp(1.45rem, 6.6vw, 5.9rem);
-  width: min(61%, 38rem);
+  top: clamp(4rem, 15.4vw, 12.8rem);
+  left: clamp(1.55rem, 6.8vw, 6rem);
+  width: min(58%, 36rem);
   color: #2f432b;
   text-shadow: 0 0.05rem 0.16rem rgba(255, 250, 243, 0.52);
 }
@@ -9562,9 +9562,9 @@ button:focus-visible {
 .kika-hero-copy h1 {
   display: grid;
   gap: 0.02em;
-  margin: 0 0 clamp(1rem, 3.35vw, 2.85rem);
+  margin: 0 0 clamp(1.15rem, 4.1vw, 3.15rem);
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(2.35rem, 10.75vw, 7rem);
+  font-size: clamp(2.16rem, 9.7vw, 6.55rem);
   font-weight: 700;
   line-height: 0.9;
   letter-spacing: -0.045em;
@@ -9575,9 +9575,9 @@ button:focus-visible {
   gap: 0.04em;
   margin: 0;
   font-family: var(--kika-script-font);
-  font-size: clamp(0.68rem, 2.45vw, 2.15rem);
+  font-size: clamp(0.86rem, 3.35vw, 2.5rem);
   font-weight: 400;
-  line-height: 0.9;
+  line-height: 0.84;
   letter-spacing: 0.012em;
   color: #2f432b;
 }
