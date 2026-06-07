@@ -9442,6 +9442,14 @@ button:focus-visible {
   padding-top: 2.25rem;
 }
 
+@font-face {
+  font-family: 'HeatwoodKika';
+  src: url('/kika/Heatwood.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Kika Cafe: soft editorial cafe layout. Kept fully scoped to avoid bleeding into other menus. */
 .phone-surface.template-kika,
 .detail-phone.template-kika {
@@ -9455,7 +9463,8 @@ button:focus-visible {
   --kika-card: #fffdf8;
   --kika-line: rgba(85, 115, 72, 0.32);
   --kika-ink-soft: rgba(38, 52, 32, 0.68);
-  --kika-category-font: 'Heatwood', 'Great Vibes', 'Cormorant Garamond', cursive;
+  --kika-script-font: 'HeatwoodKika', 'Heatwood', 'Great Vibes', 'Cormorant Garamond', cursive;
+  --kika-category-font: var(--font-body, 'Manrope', sans-serif);
 }
 
 .app-shell:has(.template-kika) {
@@ -9542,7 +9551,7 @@ button:focus-visible {
 .kika-hero-copy h1 {
   display: grid;
   gap: 0.06em;
-  margin: 0 0 clamp(0.32rem, 1.2vw, 1.15rem);
+  margin: 0 0 clamp(0.42rem, 1.45vw, 1.2rem);
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: clamp(2rem, 9vw, 5.65rem);
   font-weight: 700;
@@ -9550,22 +9559,14 @@ button:focus-visible {
   letter-spacing: -0.045em;
 }
 
-.kika-hero-address {
-  margin: 0 0 clamp(0.28rem, 1vw, 0.9rem);
-  font-family: var(--font-body, 'Manrope', sans-serif);
-  font-size: clamp(0.68rem, 2.15vw, 1.35rem);
-  font-weight: 800;
-  line-height: 1.2;
-}
-
 .kika-hero-script {
   display: grid;
   gap: 0.02em;
   margin: 0;
-  font-family: var(--kika-category-font);
-  font-size: clamp(1.18rem, 4.75vw, 3.2rem);
+  font-family: var(--kika-script-font);
+  font-size: clamp(1.05rem, 4.12vw, 2.9rem);
   font-weight: 400;
-  line-height: 0.92;
+  line-height: 0.9;
   letter-spacing: 0.005em;
 }
 
@@ -9594,13 +9595,13 @@ button:focus-visible {
 .kika-category-button {
   display: grid;
   place-items: center;
-  gap: 0.58rem;
+  gap: 0.46rem;
   border: 0;
   background: transparent;
   color: #283626;
   font-family: var(--kika-category-font);
-  font-size: clamp(1.05rem, 3.1vw, 1.42rem);
-  font-weight: 400;
+  font-size: clamp(0.72rem, 2.3vw, 0.98rem);
+  font-weight: 800;
   letter-spacing: 0.01em;
   line-height: 1.1;
   text-align: center;
@@ -9669,10 +9670,10 @@ button:focus-visible {
   align-items: center;
   gap: 0.6rem;
   margin: 0;
-  font-family: var(--kika-category-font);
-  font-size: clamp(3rem, 9vw, 4.8rem);
+  font-family: var(--kika-script-font);
+  font-size: clamp(1.42rem, 5.65vw, 3rem);
   font-weight: 400;
-  line-height: 0.88;
+  line-height: 0.86;
   color: #557348;
 }
 

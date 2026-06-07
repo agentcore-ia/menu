@@ -114,7 +114,6 @@ function KikaHeroOverlay() {
           <span>Tu nuevo</span>
           <span>lugar favorito</span>
         </h1>
-        <p className="kika-hero-address">Pellegrini 67, Chivilcoy</p>
         <p className="kika-hero-script">
           Café, pastelería
           <span>y buenos momentos</span>
