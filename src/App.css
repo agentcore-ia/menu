@@ -9503,6 +9503,7 @@ button:focus-visible {
 }
 
 .hero-content-kika {
+  position: relative;
   min-height: 0;
   padding: 0;
 }
@@ -9512,6 +9513,60 @@ button:focus-visible {
   width: 100%;
   height: auto;
   object-fit: contain;
+}
+
+.template-kika .hero-video-shell {
+  background: #f7f1e9;
+}
+
+.template-kika .hero-slider-video {
+  object-fit: contain;
+}
+
+.kika-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.kika-hero-copy {
+  position: absolute;
+  top: clamp(2.3rem, 9vw, 6.8rem);
+  left: clamp(1.55rem, 7vw, 7.8rem);
+  width: min(63%, 35rem);
+  color: #344b31;
+  text-shadow: 0 0.08rem 0.18rem rgba(255, 250, 243, 0.42);
+}
+
+.kika-hero-copy h1 {
+  display: grid;
+  gap: 0.06em;
+  margin: 0 0 clamp(0.32rem, 1.2vw, 1.15rem);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2rem, 9vw, 5.65rem);
+  font-weight: 700;
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+}
+
+.kika-hero-address {
+  margin: 0 0 clamp(0.28rem, 1vw, 0.9rem);
+  font-family: var(--font-body, 'Manrope', sans-serif);
+  font-size: clamp(0.68rem, 2.15vw, 1.35rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.kika-hero-script {
+  display: grid;
+  gap: 0.02em;
+  margin: 0;
+  font-family: var(--kika-category-font);
+  font-size: clamp(1.18rem, 4.75vw, 3.2rem);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: 0.005em;
 }
 
 .template-kika .content-panel {

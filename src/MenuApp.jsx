@@ -106,6 +106,24 @@ function IconWhatsapp() {
   )
 }
 
+function KikaHeroOverlay() {
+  return (
+    <div className="kika-hero-overlay" aria-label="Kika Cafe. Tu nuevo lugar favorito.">
+      <div className="kika-hero-copy">
+        <h1>
+          <span>Tu nuevo</span>
+          <span>lugar favorito</span>
+        </h1>
+        <p className="kika-hero-address">Pellegrini 67, Chivilcoy</p>
+        <p className="kika-hero-script">
+          Café, pastelería
+          <span>y buenos momentos</span>
+        </p>
+      </div>
+    </div>
+  )
+}
+
 function IconWebsite() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2578,6 +2596,7 @@ function TemplateHero({ templateId, presentation, heroDish }) {
           imageClassName="kika-header-image"
           alt="Kika Cafe. Tu nuevo lugar favorito."
         />
+        <KikaHeroOverlay />
       </section>
     )
   }
