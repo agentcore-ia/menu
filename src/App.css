@@ -9443,6 +9443,14 @@ button:focus-visible {
 }
 
 @font-face {
+  font-family: 'BuongiornoRastellinoKika';
+  src: url('/kika/Buongiorno-Rastellino.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'HeatwoodKika';
   src: url('/kika/Heatwood.ttf') format('truetype');
   font-weight: 400;
@@ -9463,7 +9471,7 @@ button:focus-visible {
   --kika-card: #fffdf8;
   --kika-line: rgba(85, 115, 72, 0.32);
   --kika-ink-soft: rgba(38, 52, 32, 0.68);
-  --kika-script-font: 'HeatwoodKika', 'Heatwood', 'Great Vibes', 'Cormorant Garamond', cursive;
+  --kika-script-font: 'BuongiornoRastellinoKika', 'HeatwoodKika', 'Heatwood', 'Great Vibes', 'Cormorant Garamond', cursive;
   --kika-category-font: var(--font-body, 'Manrope', sans-serif);
 }
 
@@ -9564,11 +9572,12 @@ button:focus-visible {
   gap: 0.04em;
   margin: 0;
   font-family: var(--kika-script-font);
-  font-size: clamp(0.68rem, 2.45vw, 2.15rem);
+  font-size: clamp(2.45rem, 10.6vw, 6.25rem);
   font-weight: 400;
-  line-height: 0.9;
+  line-height: 0.74;
   letter-spacing: 0.012em;
   color: #2f432b;
+  text-shadow: 0.024em 0 0 currentColor;
 }
 
 .template-kika .content-panel {
@@ -9672,10 +9681,11 @@ button:focus-visible {
   gap: 0.6rem;
   margin: 0;
   font-family: var(--kika-script-font);
-  font-size: clamp(1.42rem, 5.65vw, 3rem);
+  font-size: clamp(4.25rem, 17.2vw, 7.65rem);
   font-weight: 400;
-  line-height: 0.86;
-  color: #557348;
+  line-height: 0.72;
+  color: #2f432b;
+  text-shadow: 0.018em 0 0 currentColor;
 }
 
 .kika-section-head h2 span {
