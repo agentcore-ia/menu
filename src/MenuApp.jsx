@@ -2595,6 +2595,7 @@ function TemplateHero({ templateId, presentation, heroDish }) {
           imageClassName="kika-header-image"
           alt="Kika Cafe. Tu nuevo lugar favorito."
         />
+        <img className="kika-hero-bottom-asset" src="/kika/asset.png" alt="" aria-hidden="true" />
         <KikaHeroOverlay />
       </section>
     )

@@ -9532,6 +9532,17 @@ button:focus-visible {
   object-fit: contain;
 }
 
+.kika-hero-bottom-asset {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
 .kika-hero-overlay {
   position: absolute;
   inset: 0;
