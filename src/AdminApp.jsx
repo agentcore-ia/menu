@@ -494,26 +494,28 @@ export default function AdminApp() {
     [accounts, selectedAccount],
   )
 
+  function getPresentationUpdate(current, path, value) {
+    if (path === 'layout') {
+      return applyLayoutSelection(current, value)
+    }
+
+    const next = structuredClone(current)
+    const parts = path.split('.')
+    let target = next
+
+    for (let index = 0; index < parts.length - 1; index += 1) {
+      if (!target[parts[index]] || typeof target[parts[index]] !== 'object') {
+        target[parts[index]] = {}
+      }
+      target = target[parts[index]]
+    }
+
+    target[parts.at(-1)] = value
+    return next
+  }
+
   function updatePresentation(path, value) {
-    setPresentation((current) => {
-      if (path === 'layout') {
-        return applyLayoutSelection(current, value)
-      }
-
-      const next = structuredClone(current)
-      const parts = path.split('.')
-      let target = next
-
-      for (let index = 0; index < parts.length - 1; index += 1) {
-        if (!target[parts[index]] || typeof target[parts[index]] !== 'object') {
-          target[parts[index]] = {}
-        }
-        target = target[parts[index]]
-      }
-
-      target[parts.at(-1)] = value
-      return next
-    })
+    setPresentation((current) => getPresentationUpdate(current, path, value))
   }
 
   async function handleCreateAccount(event) {
@@ -635,26 +637,30 @@ export default function AdminApp() {
     }
   }
 
-  async function handleSavePresentation() {
-    setMessage('')
-
+  async function savePresentationPayload(nextPresentation, successMessage = 'Presentacion guardada.') {
     const response = await fetch(`/api/admin/accounts/${selectedAccount}/presentation`, {
       method: 'PATCH',
       headers: authHeaders(token),
-      body: JSON.stringify(presentation),
+      body: JSON.stringify(nextPresentation),
     })
     const payload = await readApiPayload(response)
 
     if (!response.ok) {
       setMessage(payload.message ?? 'No se pudo guardar la presentacion.')
-      return
+      return null
     }
 
-    setMessage('Presentacion guardada.')
     setPresentation((current) => ({
       ...current,
       ...payload,
     }))
+    setMessage(successMessage)
+    return payload
+  }
+
+  async function handleSavePresentation() {
+    setMessage('')
+    await savePresentationPayload(presentation)
   }
 
   async function handleUploadPresentationAsset(fieldPath, file, kind) {
@@ -696,8 +702,10 @@ export default function AdminApp() {
       return
     }
 
-    updatePresentation(fieldPath, signedPayload.publicUrl)
-    setMessage('Asset subido. Guarda la presentacion para aplicar el cambio.')
+    const nextPresentation = getPresentationUpdate(presentation, fieldPath, signedPayload.publicUrl)
+    setPresentation(nextPresentation)
+    setMessage(`Asset subido. Guardando presentacion...`)
+    await savePresentationPayload(nextPresentation, 'Asset subido y presentacion guardada.')
   }
 
   async function handleSaveProductVideo(productId, videoUrl) {
