@@ -3341,12 +3341,15 @@ function TemplateMenuCollection({
 
         {sections.map((section, sectionIndex) => {
           const meta = getKikaCategoryMeta(section.label)
+          const isSelectedSection = currentCategory?.id === section.id
           const visibleItems = isSearchActive
             ? section.items
-            : section.items.slice(
-                0,
-                sectionIndex === 0 ? 3 : meta.art === 'cake' ? 4 : meta.art === 'bread' ? 5 : 4,
-              )
+            : isSelectedSection
+              ? section.items
+              : section.items.slice(
+                  0,
+                  sectionIndex === 0 ? 3 : meta.art === 'cake' ? 4 : meta.art === 'bread' ? 5 : 4,
+                )
           const isCompact = sectionIndex > 0
 
           if (!visibleItems.length) {
@@ -3357,6 +3360,7 @@ function TemplateMenuCollection({
             <article
               key={section.id}
               className={`kika-menu-section ${isCompact ? 'is-compact' : 'is-featured'}`}
+              data-kika-section={section.id}
             >
               <div className="kika-section-head">
                 <div>
@@ -3368,7 +3372,7 @@ function TemplateMenuCollection({
                   </h2>
                   <p>{meta.subtitle}</p>
                 </div>
-                {!isSearchActive ? (
+                {!isSearchActive && !isSelectedSection ? (
                   <button type="button" onClick={() => onSelectCategory?.(section.id)}>
                     Ver todo
                     <span>{'>'}</span>
@@ -4756,12 +4760,29 @@ export default function MenuApp() {
     const promosCategory = findPromosCategory(categories)
 
     if (promosCategory?.id) {
-      setSelectedCategory(promosCategory.id)
+      handleSelectCategory(promosCategory.id)
       scrollToMenuTarget('[data-menu-categories]', 'start')
       return
     }
 
     scrollToMenuTarget('[data-burger-promos]', 'center')
+  }
+
+  function handleSelectCategory(categoryId) {
+    const safeCategoryId = String(categoryId ?? '')
+
+    if (!safeCategoryId) {
+      return
+    }
+
+    setSelectedCategory(safeCategoryId)
+
+    if (templateId === 'kika') {
+      setSearchQuery('')
+      setIsSearchOpen(false)
+      const safeSelectorValue = safeCategoryId.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+      scrollToMenuTarget(`[data-kika-section="${safeSelectorValue}"]`)
+    }
   }
 
   function handleOpenLoyalty() {
@@ -5069,7 +5090,7 @@ export default function MenuApp() {
                       templateId={templateId}
                       categories={categories}
                       currentCategory={currentCategory}
-                      onSelectCategory={setSelectedCategory}
+                      onSelectCategory={handleSelectCategory}
                       searchQuery={searchQuery}
                       onSearchQueryChange={setSearchQuery}
                       isSearchOpen={isSearchOpen}
@@ -5095,7 +5116,7 @@ export default function MenuApp() {
                       templateId={templateId}
                       categories={categories}
                       currentCategory={currentCategory}
-                      onSelectCategory={setSelectedCategory}
+                      onSelectCategory={handleSelectCategory}
                     />
                   </section>
                 ) : null}
@@ -5110,7 +5131,7 @@ export default function MenuApp() {
                   renderProductMedia={renderProductMedia}
                   onOpenDish={handleOpenDish}
                   onAddItem={handleAddItem}
-                  onSelectCategory={setSelectedCategory}
+                  onSelectCategory={handleSelectCategory}
                   onOpenCart={() => setIsCartOpen(true)}
                   onOpenLoyalty={handleOpenLoyalty}
                   onOpenSocialMenu={() => setIsSocialMenuOpen(true)}

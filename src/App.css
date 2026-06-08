@@ -9664,6 +9664,7 @@ button:focus-visible {
 
 .kika-menu-section {
   margin: 0 0 2.25rem;
+  scroll-margin-top: 1rem;
 }
 
 .kika-section-head {
