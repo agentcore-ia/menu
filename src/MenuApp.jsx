@@ -3139,6 +3139,34 @@ function MenuLoadingScreen({ accountId }) {
     )
   }
 
+  if (loadingTemplate === 'kika') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-kika-simple">
+          <div className="kika-loading-simple" role="status" aria-live="polite" aria-label="Cargando menu de Kika">
+            <div className="kika-loading-brand">
+              <strong>KIKA</strong>
+              <span>cafe</span>
+            </div>
+
+            <div className="kika-loading-cup" aria-hidden="true">
+              <span className="kika-loading-steam steam-one" />
+              <span className="kika-loading-steam steam-two" />
+              <span className="kika-loading-steam steam-three" />
+              <IconKikaCup />
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="kika-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="app-shell">
       <div className={`phone-surface menu-loading-screen loading-${loadingTemplate}`}>
