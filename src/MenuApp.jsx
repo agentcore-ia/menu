@@ -106,6 +106,23 @@ function IconWhatsapp() {
   )
 }
 
+function KikaHeroOverlay() {
+  return (
+    <div className="kika-hero-overlay" aria-label="Kika Cafe. Tu nuevo lugar favorito.">
+      <div className="kika-hero-copy">
+        <h1>
+          <span>Tu nuevo</span>
+          <span>lugar favorito</span>
+        </h1>
+        <p className="kika-hero-script">
+          Café, pastelería
+          <span>y buenos momentos</span>
+        </p>
+      </div>
+    </div>
+  )
+}
+
 function IconWebsite() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2644,6 +2661,12 @@ function TemplateHero({ templateId, presentation, heroDish }) {
           alt="Kika Cafe. Tu nuevo lugar favorito."
           usePoster={!hasKikaHeroVideo}
         />
+        {hasKikaHeroVideo ? (
+          <>
+            <img className="kika-hero-bottom-asset" src="/kika/asset.png" alt="" aria-hidden="true" />
+            <KikaHeroOverlay />
+          </>
+        ) : null}
       </section>
     )
   }
