@@ -106,23 +106,6 @@ function IconWhatsapp() {
   )
 }
 
-function KikaHeroOverlay() {
-  return (
-    <div className="kika-hero-overlay" aria-label="Kika Cafe. Tu nuevo lugar favorito.">
-      <div className="kika-hero-copy">
-        <h1>
-          <span>Tu nuevo</span>
-          <span>lugar favorito</span>
-        </h1>
-        <p className="kika-hero-script">
-          Café, pastelería
-          <span>y buenos momentos</span>
-        </p>
-      </div>
-    </div>
-  )
-}
-
 function IconWebsite() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2457,7 +2440,7 @@ function shouldForceVideoPreviewForBurgerHost(accountId, templateId, categories 
   return shouldUseHostCategorySet(accountId, templateId, categories)
 }
 
-function HeroImageSlider({ images, video, imageClassName, alt, placeholderClassName }) {
+function HeroImageSlider({ images, video, imageClassName, alt, placeholderClassName, usePoster = true }) {
   const safeImages = normalizeImageList(images)
   const safeVideo = String(video ?? '').trim()
   const [activeIndex, setActiveIndex] = useState(0)
@@ -2479,7 +2462,7 @@ function HeroImageSlider({ images, video, imageClassName, alt, placeholderClassN
         <video
           className={`${imageClassName} hero-slider-video is-active`}
           src={getVideoFrameSrc(safeVideo)}
-          poster={safeImages[0]}
+          poster={usePoster ? safeImages[0] : undefined}
           autoPlay
           muted
           loop
@@ -2650,16 +2633,17 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   }
 
   if (templateId === 'kika') {
+    const hasKikaHeroVideo = Boolean(heroVideo)
+
     return (
-      <section className="hero-content hero-content-kika">
+      <section className={`hero-content hero-content-kika ${hasKikaHeroVideo ? 'has-video' : ''}`}>
         <HeroImageSlider
           images={getHeroImages(presentation, '/kika/header.png')}
           video={heroVideo}
           imageClassName="kika-header-image"
           alt="Kika Cafe. Tu nuevo lugar favorito."
+          usePoster={!hasKikaHeroVideo}
         />
-        <img className="kika-hero-bottom-asset" src="/kika/asset.png" alt="" aria-hidden="true" />
-        <KikaHeroOverlay />
       </section>
     )
   }
