@@ -10386,6 +10386,104 @@ button:focus-visible {
   color: #2f432b;
 }
 
+.kika-handwrite-line {
+  position: relative;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  opacity: 0;
+  overflow: hidden;
+  clip-path: inset(0 100% 0 0);
+  transform: translateY(0.16em);
+  animation:
+    kika-handwrite-reveal 1.45s cubic-bezier(0.22, 0.78, 0.26, 1) forwards,
+    kika-handwrite-settle 1.45s ease-out forwards;
+}
+
+.kika-handwrite-line::after {
+  content: '';
+  position: absolute;
+  inset: auto -0.18em -0.03em 0;
+  height: 0.08em;
+  border-radius: 999rem;
+  background: linear-gradient(90deg, transparent, rgba(47, 67, 43, 0.42), transparent);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: kika-handwrite-trail 1.2s ease-out forwards;
+}
+
+.kika-handwrite-line-one {
+  animation-delay: 0.35s;
+}
+
+.kika-handwrite-line-one::after {
+  animation-delay: 0.35s;
+}
+
+.kika-handwrite-line-two {
+  animation-delay: 1.22s;
+}
+
+.kika-handwrite-line-two::after {
+  animation-delay: 1.22s;
+}
+
+@keyframes kika-handwrite-reveal {
+  0% {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+
+  14% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes kika-handwrite-settle {
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes kika-handwrite-trail {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  28% {
+    opacity: 0.55;
+  }
+
+  82% {
+    opacity: 0.2;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kika-handwrite-line,
+  .kika-handwrite-line::after {
+    animation: none;
+  }
+
+  .kika-handwrite-line {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+}
+
 .template-kika .content-panel {
   margin-top: 0;
   padding: 1.05rem 1.7rem 7.8rem;
