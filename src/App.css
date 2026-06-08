@@ -11278,7 +11278,14 @@ button:focus-visible {
 .loading-kika-simple {
   display: grid;
   place-items: center;
-  min-height: 100%;
+  width: 100%;
+  max-width: none;
+  min-height: 100svh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: clamp(2rem, 7svh, 4rem) clamp(1.25rem, 6vw, 2.5rem);
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
   background:
     radial-gradient(circle at 50% 20%, rgba(255, 253, 248, 0.96) 0 22%, transparent 48%),
@@ -11298,13 +11305,19 @@ button:focus-visible {
   pointer-events: none;
 }
 
+.loading-kika-simple::after {
+  display: none;
+}
+
 .kika-loading-simple {
   position: relative;
   z-index: 1;
   display: grid;
   justify-items: center;
-  gap: 1.25rem;
-  width: min(78%, 18rem);
+  align-content: center;
+  gap: clamp(1rem, 3svh, 1.85rem);
+  width: min(72vw, 18rem);
+  min-height: min(58svh, 28rem);
   text-align: center;
 }
 
@@ -11317,7 +11330,7 @@ button:focus-visible {
 .kika-loading-brand strong {
   color: #2f432b;
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(1.95rem, 3.2vw, 3rem);
+  font-size: clamp(2.4rem, 14vw, 4.8rem);
   font-weight: 700;
   letter-spacing: -0.045em;
   line-height: 0.82;
@@ -11335,11 +11348,11 @@ button:focus-visible {
   position: relative;
   display: grid;
   place-items: center;
-  width: 5.4rem;
-  height: 5.4rem;
+  width: clamp(4.6rem, 22vw, 6.4rem);
+  aspect-ratio: 1;
   margin-top: 0.2rem;
-  border: 1px solid rgba(85, 115, 72, 0.18);
-  border-radius: 999px;
+  border: 0.0625rem solid rgba(85, 115, 72, 0.18);
+  border-radius: 999rem;
   background:
     radial-gradient(circle at 42% 28%, rgba(255, 255, 255, 0.96), rgba(255, 253, 248, 0.76)),
     #fffdf8;
@@ -11348,8 +11361,8 @@ button:focus-visible {
 }
 
 .kika-loading-cup svg {
-  width: 2rem;
-  height: 2rem;
+  width: 38%;
+  height: 38%;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.65;
@@ -11359,41 +11372,41 @@ button:focus-visible {
 
 .kika-loading-steam {
   position: absolute;
-  top: 0.95rem;
-  width: 0.16rem;
-  height: 1rem;
-  border-radius: 999px;
+  top: 18%;
+  width: 3%;
+  height: 18%;
+  border-radius: 999rem;
   background: rgba(85, 115, 72, 0.26);
   animation: kika-loading-steam 1.8s ease-in-out infinite;
 }
 
 .kika-loading-steam.steam-one {
-  left: 2.1rem;
+  left: 39%;
 }
 
 .kika-loading-steam.steam-two {
-  left: 2.62rem;
+  left: 49%;
   animation-delay: 0.22s;
 }
 
 .kika-loading-steam.steam-three {
-  left: 3.14rem;
+  left: 59%;
   animation-delay: 0.44s;
 }
 
 .kika-loading-simple p {
   margin: 0;
   color: rgba(47, 67, 43, 0.74);
-  font-size: 0.86rem;
+  font-size: clamp(0.86rem, 3.7vw, 1rem);
   font-weight: 800;
   letter-spacing: 0.04em;
 }
 
 .kika-loading-progress {
-  width: min(9.5rem, 64%);
-  height: 0.28rem;
+  width: min(56%, 9.5rem);
+  height: 0.28em;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: 999rem;
   background: rgba(85, 115, 72, 0.12);
 }
 
