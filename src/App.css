@@ -10277,7 +10277,7 @@ button:focus-visible {
 .template-kika .hero {
   min-height: 0;
   overflow: hidden;
-  border-radius: 1.65rem 1.65rem 0 0;
+  border-radius: 0;
   background: var(--kika-page-bg, #F4F2EF);
 }
 
