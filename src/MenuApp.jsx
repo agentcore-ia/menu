@@ -3316,6 +3316,7 @@ function TemplateMenuCollection({
   isSearchActive = false,
 }) {
   if (templateId === 'kika') {
+    const selectedKikaCategory = currentCategory ?? categories[0] ?? null
     const sections = isSearchActive
       ? [
           {
@@ -3324,7 +3325,14 @@ function TemplateMenuCollection({
             items: categoryItems,
           },
         ]
-      : getKikaSections(categories)
+      : selectedKikaCategory
+        ? [
+            {
+              ...selectedKikaCategory,
+              items: categoryItems,
+            },
+          ]
+        : []
     const glutenTarget =
       categories.find((category) => slugify(category.label).includes('sin-gluten')) ??
       currentCategory
@@ -3339,18 +3347,10 @@ function TemplateMenuCollection({
           </p>
         ) : null}
 
-        {sections.map((section, sectionIndex) => {
+        {sections.map((section) => {
           const meta = getKikaCategoryMeta(section.label)
-          const isSelectedSection = currentCategory?.id === section.id
-          const visibleItems = isSearchActive
-            ? section.items
-            : isSelectedSection
-              ? section.items
-              : section.items.slice(
-                  0,
-                  sectionIndex === 0 ? 3 : meta.art === 'cake' ? 4 : meta.art === 'bread' ? 5 : 4,
-                )
-          const isCompact = sectionIndex > 0
+          const visibleItems = section.items
+          const isCompact = false
 
           if (!visibleItems.length) {
             return null
@@ -3372,12 +3372,6 @@ function TemplateMenuCollection({
                   </h2>
                   <p>{meta.subtitle}</p>
                 </div>
-                {!isSearchActive && !isSelectedSection ? (
-                  <button type="button" onClick={() => onSelectCategory?.(section.id)}>
-                    Ver todo
-                    <span>{'>'}</span>
-                  </button>
-                ) : null}
               </div>
 
               <div className={`kika-card-row ${isCompact ? 'compact' : 'featured'}`}>
@@ -4780,8 +4774,6 @@ export default function MenuApp() {
     if (templateId === 'kika') {
       setSearchQuery('')
       setIsSearchOpen(false)
-      const safeSelectorValue = safeCategoryId.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-      scrollToMenuTarget(`[data-kika-section="${safeSelectorValue}"]`)
     }
   }
 
