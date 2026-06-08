@@ -10316,7 +10316,6 @@ button:focus-visible {
 
 .hero-content-kika {
   position: relative;
-  container-type: inline-size;
   min-height: 0;
   padding: 0;
 }
@@ -10356,8 +10355,8 @@ button:focus-visible {
 
 .kika-hero-copy {
   position: absolute;
-  top: clamp(3rem, 10.8cqw, 8.8rem);
-  left: clamp(1.55rem, 6.8cqw, 6rem);
+  top: clamp(4rem, 15.4vw, 12.8rem);
+  left: clamp(1.55rem, 6.8vw, 6rem);
   width: min(58%, 36rem);
   color: #2f432b;
   text-shadow: 0 0.05rem 0.16rem rgba(255, 250, 243, 0.52);
@@ -10366,12 +10365,13 @@ button:focus-visible {
 .kika-hero-copy h1 {
   display: grid;
   gap: 0.02em;
-  margin: 0 0 clamp(1.15rem, 4.1cqw, 3.15rem);
+  margin: 0 0 clamp(1.15rem, 4.1vw, 3.15rem);
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(2.16rem, 9.7cqw, 6.55rem);
+  font-size: clamp(2.16rem, 9.7vw, 6.55rem);
   font-weight: 700;
   line-height: 0.9;
   letter-spacing: -0.045em;
+  transform: translateY(clamp(-2.4rem, -5vw, -1.2rem));
 }
 
 .kika-hero-script {
@@ -10379,51 +10379,11 @@ button:focus-visible {
   gap: 0.04em;
   margin: 0;
   font-family: var(--kika-script-font);
-  font-size: clamp(0.86rem, 3.35cqw, 2.5rem);
+  font-size: clamp(0.86rem, 3.35vw, 2.5rem);
   font-weight: 400;
   line-height: 0.84;
   letter-spacing: 0.012em;
   color: #2f432b;
-}
-
-.kika-type-line {
-  display: block;
-  width: max-content;
-  max-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  border-right: 0.06em solid currentColor;
-}
-
-.kika-type-line-one {
-  animation:
-    kika-type-line 1.35s steps(16, end) 0.25s forwards,
-    kika-type-caret 0.72s step-end 0.25s 3,
-    kika-type-caret-hide 0.01s linear 1.95s forwards;
-}
-
-.kika-type-line-two {
-  animation:
-    kika-type-line 1.5s steps(17, end) 2.05s forwards,
-    kika-type-caret 0.72s step-end 2.05s infinite;
-}
-
-@keyframes kika-type-line {
-  to {
-    max-width: 100%;
-  }
-}
-
-@keyframes kika-type-caret {
-  50% {
-    border-right-color: transparent;
-  }
-}
-
-@keyframes kika-type-caret-hide {
-  to {
-    border-right-color: transparent;
-  }
 }
 
 .template-kika .content-panel {
