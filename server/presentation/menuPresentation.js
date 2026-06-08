@@ -351,6 +351,54 @@ const presentationPresets = {
       mutedVideos: true,
     },
   },
+  florian: {
+    template: 'florian',
+    layout: 'florian',
+    branding: {
+      wordmark: 'FLORIAN',
+      subtitle: 'CAFE DE ESPECIALIDAD',
+    },
+    theme: {
+      id: 'florian-cafe',
+      background: '#f5eee5',
+      pageBackground: '#f5eee5',
+      contentBackground: '#f7efe7',
+      surface: '#fff8f1',
+      surfaceAlt: '#efe2d5',
+      text: '#172a34',
+      muted: 'rgba(23, 42, 52, 0.72)',
+      primary: '#c64b32',
+      primaryText: '#fff8f1',
+      accent: '#d36345',
+      border: 'rgba(198, 75, 50, 0.2)',
+      shadow: 'rgba(57, 43, 30, 0.13)',
+      displayFont: 'Bebas Neue',
+      bodyFont: 'Montserrat',
+      categoryActiveBackground: '#fff8f1',
+      categoryActiveText: '#c64b32',
+      categoryText: '#172a34',
+      cardBackground: 'transparent',
+      cardText: '#172a34',
+      cardMuted: 'rgba(23, 42, 52, 0.68)',
+      cardPrice: '#c64b32',
+      addButtonBackground: '#c64b32',
+      addButtonText: '#fff8f1',
+    },
+    hero: {
+      video: '',
+      title: 'BUEN CAFE,',
+      accent: 'BUENOS MOMENTOS.',
+      description: 'Cafe de especialidad y cocina simple, hecha con pasion en Chivilcoy.',
+    },
+    cards: {
+      style: 'florian-list',
+    },
+    preview: {
+      productMedia: 'video-first',
+      autoplayVideos: true,
+      mutedVideos: true,
+    },
+  },
 }
 
 const accountPresentations = {
@@ -375,6 +423,7 @@ const accountPresentations = {
   jburger: presentationPresets.blueBurger,
   host: presentationPresets.host,
   kika: presentationPresets.kika,
+  florian: presentationPresets.florian,
   'neurorest-demo': presentationPresets.default,
 }
 

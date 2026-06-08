@@ -2030,6 +2030,810 @@
   display: block;
 }
 
+/* Florian Cafe: specialty coffee layout with video-ready hero. */
+.phone-surface.template-florian,
+.detail-phone.template-florian {
+  --florian-cream: #f5eee5;
+  --florian-panel: #fff8f1;
+  --florian-ink: #172a34;
+  --florian-muted: rgba(23, 42, 52, 0.72);
+  --florian-red: #c64b32;
+  --florian-line: rgba(198, 75, 50, 0.24);
+  --florian-shadow: rgba(57, 43, 30, 0.13);
+  background: var(--florian-cream);
+  color: var(--florian-ink);
+  font-family: var(--font-body);
+}
+
+.app-shell:has(.template-florian) {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(198, 75, 50, 0.08), transparent 32rem),
+    var(--florian-cream);
+}
+
+.template-florian .hero {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 0;
+  background: var(--florian-cream);
+}
+
+.template-florian .hero::before,
+.template-florian .hero::after {
+  display: none;
+}
+
+.template-florian .hero-topbar {
+  position: absolute;
+  inset: clamp(1rem, 3vw, 2rem) clamp(1.1rem, 3vw, 2rem) auto auto;
+  z-index: 8;
+  width: auto;
+  padding: 0;
+  justify-content: flex-end;
+}
+
+.template-florian .hero-topbar .icon-button {
+  width: clamp(2.65rem, 7.5vw, 3.8rem);
+  height: clamp(2.65rem, 7.5vw, 3.8rem);
+  border: 0;
+  background: transparent;
+  color: var(--florian-ink);
+  box-shadow: none;
+}
+
+.template-florian .hero-topbar .icon-button svg {
+  width: clamp(1.9rem, 5.2vw, 2.65rem);
+  height: clamp(1.9rem, 5.2vw, 2.65rem);
+  stroke-width: 2.4;
+}
+
+.template-florian .hero-topbar-spacer {
+  display: none;
+}
+
+.hero-content-florian {
+  position: relative;
+  min-height: clamp(35rem, 100vw, 50rem);
+  overflow: hidden;
+  padding: clamp(2.3rem, 6vw, 4.2rem) clamp(1.55rem, 5vw, 3.1rem) clamp(3.4rem, 10vw, 5.4rem);
+  isolation: isolate;
+}
+
+.florian-hero-media,
+.florian-hero-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 80% 58%, rgba(255, 255, 255, 0.76), transparent 24rem),
+    linear-gradient(135deg, #fff9f3 0%, var(--florian-cream) 58%, #ead8c8 100%);
+}
+
+.florian-hero-media::after,
+.florian-hero-fallback::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(245, 238, 229, 0.96) 0%, rgba(245, 238, 229, 0.72) 36%, rgba(245, 238, 229, 0.18) 70%),
+    linear-gradient(180deg, rgba(245, 238, 229, 0.08), rgba(245, 238, 229, 0.9) 100%);
+  pointer-events: none;
+}
+
+.florian-header-image,
+.template-florian .hero-slider-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center right;
+}
+
+.florian-storefront {
+  position: absolute;
+  right: clamp(1.2rem, 6vw, 5rem);
+  top: clamp(8.8rem, 24vw, 14rem);
+  width: clamp(14rem, 45vw, 27rem);
+  height: clamp(11rem, 34vw, 20rem);
+  color: var(--florian-ink);
+  opacity: 0.92;
+}
+
+.florian-storefront-body {
+  position: absolute;
+  inset: 22% 4% 14% 0;
+  border: 0.16rem solid currentColor;
+  border-radius: 0.1rem;
+  transform: skewY(-8deg);
+}
+
+.florian-storefront-roof {
+  position: absolute;
+  inset: 5% 0 auto 7%;
+  height: 30%;
+  border: 0.16rem solid currentColor;
+  border-bottom: 0;
+  transform: skewY(-8deg);
+}
+
+.florian-storefront-awning {
+  position: absolute;
+  bottom: 37%;
+  width: 19%;
+  height: 10%;
+  border: 0.12rem solid currentColor;
+  background: var(--florian-red);
+  transform: skewY(-8deg);
+}
+
+.awning-one {
+  left: 18%;
+}
+
+.awning-two {
+  right: 24%;
+}
+
+.florian-storefront-tree {
+  position: absolute;
+  right: -6%;
+  top: 3%;
+  width: 24%;
+  height: 52%;
+  border-radius: 48% 52% 46% 54%;
+  background: var(--florian-ink);
+  box-shadow:
+    -1.4rem 0.5rem 0 -0.15rem var(--florian-ink),
+    0.5rem 1rem 0 -0.1rem var(--florian-ink);
+}
+
+.florian-cup-art {
+  position: absolute;
+  right: clamp(4.8rem, 17vw, 12rem);
+  bottom: clamp(1.6rem, 5vw, 4rem);
+  width: clamp(9rem, 29vw, 16rem);
+  height: clamp(8rem, 25vw, 14rem);
+  border-radius: 0 0 45% 45%;
+  background: linear-gradient(180deg, #d8c2aa 0%, #bfa188 100%);
+  box-shadow: 0 1.5rem 2.2rem rgba(70, 45, 25, 0.18);
+}
+
+.florian-cup-art::before {
+  content: 'FLORIAN';
+  position: absolute;
+  inset: 43% auto auto 50%;
+  transform: translate(-50%, -50%);
+  color: var(--florian-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 4vw, 2.5rem);
+  letter-spacing: 0.08em;
+}
+
+.florian-cup-coffee {
+  position: absolute;
+  inset: -13% 7% auto;
+  height: 28%;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 48% 50%, transparent 0 19%, #fff6e8 20% 24%, transparent 25%),
+    radial-gradient(ellipse at 50% 50%, #d69a59 0%, #9d5b2a 70%);
+  border: 0.45rem solid #eee2d1;
+}
+
+.florian-cup-handle {
+  position: absolute;
+  right: -20%;
+  top: 24%;
+  width: 34%;
+  height: 38%;
+  border: 0.9rem solid #bfa188;
+  border-left: 0;
+  border-radius: 0 999px 999px 0;
+}
+
+.florian-cup-saucer {
+  position: absolute;
+  right: -12%;
+  bottom: -13%;
+  left: -12%;
+  height: 18%;
+  border-radius: 50%;
+  background: rgba(176, 147, 122, 0.46);
+}
+
+.florian-hero-brand {
+  display: grid;
+  gap: 0.1rem;
+  width: fit-content;
+  color: var(--florian-ink);
+}
+
+.florian-hero-brand strong {
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 12vw, 7.4rem);
+  line-height: 0.82;
+  letter-spacing: 0.07em;
+  text-shadow: 0.06em 0.06em 0 #f3d0c5, 0.1em 0.1em 0 var(--florian-red);
+}
+
+.florian-hero-brand span {
+  font-family: var(--font-display);
+  font-size: clamp(0.8rem, 2.6vw, 1.3rem);
+  letter-spacing: 0.22em;
+}
+
+.florian-location-pill {
+  position: absolute;
+  top: clamp(2.1rem, 5vw, 3.6rem);
+  right: clamp(4.8rem, 13vw, 7.2rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: clamp(0.54rem, 1.5vw, 0.8rem) clamp(0.8rem, 2.2vw, 1.25rem);
+  border: 1px solid var(--florian-red);
+  border-radius: 999px;
+  background: rgba(255, 248, 241, 0.68);
+  color: var(--florian-red);
+  font-size: clamp(0.74rem, 2.1vw, 1rem);
+  font-weight: 800;
+}
+
+.florian-location-pill svg,
+.florian-location-button svg {
+  width: 1.05em;
+  height: 1.05em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.florian-hero-copy {
+  width: min(55%, 27rem);
+  margin-top: clamp(3.4rem, 12vw, 7.2rem);
+  color: var(--florian-ink);
+}
+
+.florian-hero-copy h1 {
+  display: grid;
+  gap: 0.16em;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.35rem, 8.6vw, 5.6rem);
+  line-height: 0.92;
+  letter-spacing: 0.015em;
+}
+
+.florian-hero-copy h1 strong {
+  color: var(--florian-red);
+  font-weight: inherit;
+}
+
+.florian-bean-divider {
+  position: relative;
+  display: block;
+  width: clamp(7rem, 25vw, 15rem);
+  height: 1.6rem;
+  margin: clamp(0.85rem, 2.6vw, 1.4rem) 0;
+  background: radial-gradient(ellipse at 50% 50%, var(--florian-red) 0 33%, transparent 34%);
+}
+
+.florian-bean-divider::before,
+.florian-bean-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 42%;
+  height: 0.1rem;
+  background: var(--florian-red);
+}
+
+.florian-bean-divider::before {
+  left: 0;
+}
+
+.florian-bean-divider::after {
+  right: 0;
+}
+
+.florian-hero-copy p {
+  margin: 0 0 clamp(1.4rem, 4vw, 2.3rem);
+  max-width: 18rem;
+  color: var(--florian-ink);
+  font-size: clamp(0.98rem, 2.7vw, 1.28rem);
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.florian-location-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: clamp(0.72rem, 2.2vw, 1rem) clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid var(--florian-red);
+  border-radius: 999px;
+  background: rgba(255, 248, 241, 0.72);
+  color: var(--florian-red);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.template-florian .content-panel {
+  margin: 0;
+  padding: 0 0 7rem;
+  border-radius: 0;
+  background: var(--florian-cream);
+}
+
+.template-florian .closed-order-banner {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  border-width: 1px 0;
+  border-color: rgba(198, 75, 50, 0.2);
+  border-radius: 0;
+  background: rgba(255, 248, 241, 0.56);
+  box-shadow: none;
+}
+
+.template-florian .closed-order-banner strong {
+  color: var(--florian-ink);
+}
+
+.template-florian .closed-order-banner span {
+  background: var(--florian-red);
+  color: #fff8f1;
+}
+
+.florian-category-shell {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: stretch;
+  border-top: 1px solid rgba(198, 75, 50, 0.16);
+  border-bottom: 1px solid rgba(198, 75, 50, 0.16);
+  background: rgba(255, 248, 241, 0.58);
+}
+
+.florian-category-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 0.55rem;
+  min-height: clamp(5.4rem, 15vw, 7.2rem);
+  border: 0;
+  border-right: 1px solid rgba(198, 75, 50, 0.18);
+  background: transparent;
+  color: var(--florian-ink);
+  font-family: var(--font-display);
+  font-size: clamp(0.78rem, 2.25vw, 1.1rem);
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.florian-category-button:last-child {
+  border-right: 0;
+}
+
+.florian-category-button.active {
+  color: var(--florian-red);
+}
+
+.florian-category-button.active::after {
+  content: '';
+  position: absolute;
+  right: 18%;
+  bottom: 0.45rem;
+  left: 18%;
+  height: 0.12rem;
+  background: var(--florian-red);
+}
+
+.florian-category-icon {
+  display: grid;
+  place-items: center;
+  width: clamp(2rem, 6vw, 3rem);
+  height: clamp(2rem, 6vw, 3rem);
+}
+
+.florian-category-icon svg,
+.florian-benefits svg,
+.florian-bottom-nav svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.section-block-florian {
+  margin: 0;
+  padding: clamp(1.6rem, 5vw, 3.1rem) clamp(1.55rem, 5vw, 3rem) 0;
+}
+
+.florian-search-results,
+.florian-empty-category {
+  margin: 0 0 1rem;
+  color: var(--florian-muted);
+  font-weight: 800;
+}
+
+.florian-section-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1rem;
+  margin-bottom: clamp(1.2rem, 4vw, 2rem);
+}
+
+.florian-section-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 7vw, 4.2rem);
+  line-height: 0.9;
+  letter-spacing: 0.03em;
+}
+
+.florian-section-head span {
+  display: block;
+  width: clamp(3.2rem, 13vw, 5.4rem);
+  height: 0.16rem;
+  margin-top: 0.55rem;
+  background: var(--florian-red);
+}
+
+.florian-section-head p {
+  margin: 0 0 0.4rem;
+  color: var(--florian-ink);
+  font-size: clamp(0.76rem, 2.2vw, 1rem);
+  font-weight: 650;
+}
+
+.florian-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(1rem, 5vw, 3.5rem);
+  row-gap: clamp(1.35rem, 4.8vw, 2.6rem);
+}
+
+.florian-product-card {
+  display: grid;
+  grid-template-columns: clamp(5.6rem, 18vw, 8.6rem) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(0.8rem, 2.6vw, 1.35rem);
+  min-width: 0;
+}
+
+.florian-product-media {
+  display: grid;
+  place-items: center;
+  width: clamp(5.6rem, 18vw, 8.6rem);
+  height: clamp(5.6rem, 18vw, 8.6rem);
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: #e9d9c9;
+  padding: 0;
+  box-shadow: 0 0.8rem 1.6rem rgba(57, 43, 30, 0.13);
+}
+
+.florian-product-media img,
+.florian-product-media video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.florian-product-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--florian-red);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.78), transparent 35%),
+    linear-gradient(135deg, #ead8c8 0%, #fff8f1 100%);
+}
+
+.florian-product-placeholder svg {
+  width: 48%;
+  height: 48%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.florian-product-copy {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--florian-ink);
+  padding: 0;
+  text-align: left;
+}
+
+.florian-product-copy h3 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 4.2vw, 2.25rem);
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.florian-product-copy p {
+  margin: 0;
+  color: var(--florian-muted);
+  font-size: clamp(0.76rem, 2.2vw, 0.95rem);
+  font-weight: 650;
+  line-height: 1.28;
+}
+
+.florian-product-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: 0.65rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed rgba(198, 75, 50, 0.28);
+}
+
+.florian-product-footer strong {
+  color: var(--florian-red);
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 3.4vw, 1.65rem);
+  letter-spacing: 0.03em;
+}
+
+.florian-add-button {
+  display: grid;
+  place-items: center;
+  width: clamp(2.15rem, 6vw, 2.75rem);
+  height: clamp(2.15rem, 6vw, 2.75rem);
+  border: 0;
+  border-radius: 999px;
+  background: var(--florian-red);
+  color: #fff8f1;
+  box-shadow: 0 0.8rem 1.4rem rgba(198, 75, 50, 0.22);
+}
+
+.florian-add-button svg {
+  width: 58%;
+  height: 58%;
+  stroke-width: 2;
+}
+
+.florian-takeaway-banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(1rem, 4vw, 2rem);
+  margin: clamp(2.1rem, 7vw, 4.2rem) 0 clamp(1.5rem, 5vw, 2.4rem);
+  padding: clamp(1.05rem, 4vw, 1.8rem) clamp(1.15rem, 4vw, 2rem);
+  border: 1px solid rgba(198, 75, 50, 0.28);
+  border-radius: clamp(1rem, 3.4vw, 1.6rem);
+  background: rgba(255, 248, 241, 0.72);
+  box-shadow: 0 1rem 2rem rgba(57, 43, 30, 0.08);
+}
+
+.florian-takeaway-cup {
+  display: grid;
+  place-items: center;
+  width: clamp(3.5rem, 10vw, 5rem);
+  height: clamp(3.5rem, 10vw, 5rem);
+  color: var(--florian-ink);
+}
+
+.florian-takeaway-cup svg {
+  width: 80%;
+  height: 80%;
+  fill: none;
+  stroke: currentColor;
+}
+
+.florian-takeaway-banner h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2.6rem);
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.florian-takeaway-banner p {
+  margin: 0.3rem 0 0;
+  color: var(--florian-ink);
+  font-weight: 650;
+}
+
+.florian-takeaway-banner button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: clamp(0.75rem, 2.4vw, 1rem) clamp(1.2rem, 4vw, 2rem);
+  border: 0;
+  border-radius: 999px;
+  background: var(--florian-red);
+  color: #fff8f1;
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 3vw, 1.5rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.florian-benefits {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border-top: 1px solid rgba(198, 75, 50, 0.14);
+  border-bottom: 1px solid rgba(198, 75, 50, 0.14);
+}
+
+.florian-benefits span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.9rem 0.7rem;
+  border-right: 1px solid rgba(198, 75, 50, 0.16);
+  color: var(--florian-ink);
+  font-family: var(--font-display);
+  font-size: clamp(0.72rem, 2.1vw, 1rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.florian-benefits span:last-child {
+  border-right: 0;
+}
+
+.florian-benefits svg {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+
+.florian-bottom-nav {
+  position: sticky;
+  bottom: 0.7rem;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.25rem;
+  margin: 1rem clamp(0.6rem, 2vw, 1rem) 0;
+  padding: 0.6rem 0.55rem;
+  border: 1px solid rgba(65, 53, 37, 0.12);
+  border-radius: 1.25rem;
+  background: rgba(255, 250, 246, 0.94);
+  box-shadow: 0 0.8rem 2rem rgba(57, 43, 30, 0.14);
+  backdrop-filter: blur(14px);
+}
+
+.florian-bottom-nav button {
+  display: grid;
+  place-items: center;
+  gap: 0.24rem;
+  min-height: 3rem;
+  border: 0;
+  background: transparent;
+  color: rgba(23, 42, 52, 0.52);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.florian-bottom-nav button.active {
+  color: var(--florian-red);
+}
+
+.florian-bottom-nav svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.loading-florian {
+  background:
+    radial-gradient(circle at 70% 12%, rgba(198, 75, 50, 0.08), transparent 18rem),
+    #f5eee5;
+  color: #172a34;
+}
+
+.loading-florian .menu-loading-brand,
+.loading-florian .menu-loading-panel {
+  border-color: rgba(198, 75, 50, 0.18);
+  background: rgba(255, 248, 241, 0.8);
+}
+
+.loading-florian .menu-loader-orbit span,
+.loading-florian .menu-loading-icon {
+  color: #c64b32;
+}
+
+@media (max-width: 430px) {
+  .hero-content-florian {
+    min-height: clamp(31rem, 112vw, 43rem);
+    padding-inline: 1.3rem;
+  }
+
+  .florian-hero-brand strong {
+    font-size: clamp(2.8rem, 14vw, 4.7rem);
+  }
+
+  .florian-location-pill {
+    display: none;
+  }
+
+  .florian-hero-copy {
+    width: min(68%, 18rem);
+    margin-top: clamp(3.2rem, 15vw, 5.2rem);
+  }
+
+  .florian-hero-copy h1 {
+    font-size: clamp(2.25rem, 10.5vw, 3.8rem);
+  }
+
+  .florian-category-shell {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(5.9rem, 1fr);
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+  }
+
+  .florian-category-shell::-webkit-scrollbar {
+    display: none;
+  }
+
+  .florian-category-button {
+    scroll-snap-align: start;
+  }
+
+  .florian-product-card {
+    grid-template-columns: clamp(4.2rem, 15vw, 5.4rem) minmax(0, 1fr);
+    gap: 0.58rem;
+  }
+
+  .florian-product-media {
+    width: clamp(4.2rem, 15vw, 5.4rem);
+    height: clamp(4.2rem, 15vw, 5.4rem);
+  }
+
+  .florian-product-copy h3 {
+    font-size: clamp(1.04rem, 4vw, 1.35rem);
+  }
+
+  .florian-product-copy p {
+    font-size: clamp(0.66rem, 2.3vw, 0.78rem);
+  }
+
+  .florian-takeaway-banner {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .florian-takeaway-banner button {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  .florian-benefits {
+    grid-template-columns: 1fr;
+  }
+
+  .florian-benefits span {
+    justify-content: flex-start;
+    border-right: 0;
+    border-bottom: 1px solid rgba(198, 75, 50, 0.14);
+  }
+
+  .florian-benefits span:last-child {
+    border-bottom: 0;
+  }
+}
+
 .content-panel {
   position: relative;
   margin-top: -0.15rem;

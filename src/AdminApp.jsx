@@ -110,9 +110,52 @@ const layoutConfigs = {
     description: 'Menu claro para cafeteria/pasteleria con portada fotografica, categorias circulares y secciones por rubro.',
     headerTextFields: null,
   },
+  florian: {
+    description: 'Menu editorial para cafe de especialidad con hero en video, categorias lineales y productos en columnas.',
+    headerTextFields: null,
+  },
 }
 
 const inheritedLayoutDefaults = {
+  florian: {
+    branding: { wordmark: 'FLORIAN', subtitle: 'CAFE DE ESPECIALIDAD' },
+    theme: {
+      id: 'inherits-florian',
+      inheritPreset: 'florian',
+      background: '#f5eee5',
+      pageBackground: '#f5eee5',
+      contentBackground: '#f7efe7',
+      surface: '#fff8f1',
+      surfaceAlt: '#efe2d5',
+      text: '#172a34',
+      muted: 'rgba(23, 42, 52, 0.72)',
+      primary: '#c64b32',
+      primaryText: '#fff8f1',
+      accent: '#d36345',
+      border: 'rgba(198, 75, 50, 0.2)',
+      shadow: 'rgba(57, 43, 30, 0.13)',
+      categoryActiveBackground: '#fff8f1',
+      categoryActiveText: '#c64b32',
+      categoryText: '#172a34',
+      cardBackground: 'transparent',
+      cardText: '#172a34',
+      cardMuted: 'rgba(23, 42, 52, 0.68)',
+      cardPrice: '#c64b32',
+      addButtonBackground: '#c64b32',
+      addButtonText: '#fff8f1',
+    },
+    hero: {
+      title: 'BUEN CAFE,',
+      accent: 'BUENOS MOMENTOS.',
+      description: 'Cafe de especialidad y cocina simple, hecha con pasion en Chivilcoy.',
+    },
+    cards: { style: 'florian-list' },
+    preview: {
+      productMedia: 'video-first',
+      autoplayVideos: true,
+      mutedVideos: true,
+    },
+  },
   kika: {
     branding: { wordmark: 'KIKA', subtitle: 'CAFE' },
     theme: {
@@ -163,6 +206,7 @@ const cardStyleDescriptions = {
   'blue-burger-list': 'Cards horizontales blancas con foto grande, precio azul y boton circular.',
   'host-grid': 'Cards oscuras con borde rojo, badge superior y boton rojo circular.',
   'kika-cards': 'Cards claras para cafeteria, con imagen suave, texto compacto y estilo Kika.',
+  'florian-list': 'Lista editorial para cafe: media circular, texto a la derecha y precio terracota.',
 }
 
 const previewDescriptions = {
@@ -1074,6 +1118,7 @@ export default function AdminApp() {
                     <option value="blue-burger">Burger azul</option>
                     <option value="host">Host crispy</option>
                     <option value="kika">Kika cafe</option>
+                    <option value="florian">Florian cafe</option>
                   </select>
                   <small className="admin-help">{layoutDescriptions[presentation.layout]}</small>
                 </label>
@@ -1093,6 +1138,7 @@ export default function AdminApp() {
                     <option value="blue-burger-list">Burger azul horizontal</option>
                     <option value="host-grid">Host crispy</option>
                     <option value="kika-cards">Kika cafe</option>
+                    <option value="florian-list">Florian cafe</option>
                   </select>
                   <small className="admin-help">
                     {cardStyleDescriptions[presentation.cards.style]}

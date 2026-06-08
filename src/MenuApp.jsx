@@ -686,6 +686,10 @@ function getLoadingTemplate(accountId) {
     return 'kika'
   }
 
+  if (key.includes('florian')) {
+    return 'florian'
+  }
+
   if (
     key.includes('burger') ||
     key.includes('burguer') ||
@@ -987,6 +991,10 @@ function getInitialCategoryId(payload) {
     return normalizeKikaCategories(payload?.categories ?? [])[0]?.id ?? payload?.categories?.[0]?.id ?? ''
   }
 
+  if (templateId === 'florian') {
+    return getFlorianOrderedCategories(payload?.categories ?? [])[0]?.id ?? payload?.categories?.[0]?.id ?? ''
+  }
+
   return payload?.categories?.[0]?.id ?? ''
 }
 
@@ -1246,6 +1254,185 @@ function KikaProductVisual({ item, category }) {
     <span className={`kika-product-placeholder kika-product-placeholder-${meta.art}`} aria-hidden="true">
       <Icon />
     </span>
+  )
+}
+
+const florianCategoryOrder = [
+  'cafes',
+  'filtrados',
+  'frios',
+  'bebidas',
+  'te-infusiones',
+  'desayunos',
+  'almuerzos',
+  'dulces',
+]
+
+function getFlorianCategoryKey(label) {
+  const key = slugify(label ?? '')
+
+  if (!key) return ''
+  if (key.includes('frio') || key.includes('cold') || key.includes('limonada') || key.includes('licuado')) return 'frios'
+  if (key.includes('bebida') || key.includes('agua') || key.includes('gaseosa')) return 'bebidas'
+  if (key.includes('pasteleria') || key.includes('panaderia') || key.includes('dulce') || key.includes('postre') || key.includes('torta')) return 'dulces'
+  if (key === 'te' || key.startsWith('te-') || key.endsWith('-te') || key.includes('infusion')) return 'te-infusiones'
+  if (key.includes('desayuno') || key.includes('tostada') || key.includes('croissant')) return 'desayunos'
+  if (key.includes('almuerzo') || key.includes('sandwich') || key.includes('ensalada')) return 'almuerzos'
+  if (key.includes('filtrado')) return 'filtrados'
+  if (key.includes('cafe') || key.includes('cafeteria') || key.includes('espresso') || key.includes('latte')) return 'cafes'
+
+  return key
+}
+
+function getFlorianCategoryRank(label) {
+  const key = getFlorianCategoryKey(label)
+  const index = florianCategoryOrder.findIndex((entry) => key.includes(entry))
+  return index === -1 ? florianCategoryOrder.length : index
+}
+
+function getFlorianOrderedCategories(categories = []) {
+  return [...categories].sort((a, b) => {
+    const rankDiff = getFlorianCategoryRank(a.label) - getFlorianCategoryRank(b.label)
+    return rankDiff || String(a.label).localeCompare(String(b.label), 'es')
+  })
+}
+
+function getFlorianCategoryMeta(label) {
+  const key = getFlorianCategoryKey(label)
+
+  if (key === 'cafes') {
+    return {
+      label: 'Cafes',
+      sectionTitle: 'CAFES CLASICOS',
+      subtitle: 'Hechos con granos seleccionados.',
+      icon: IconKikaCup,
+      art: 'coffee',
+    }
+  }
+
+  if (key === 'frios') {
+    return {
+      label: 'Frios',
+      sectionTitle: 'BEBIDAS FRIAS',
+      subtitle: 'Refrescantes, cremosas y listas para disfrutar.',
+      icon: IconDrink,
+      art: 'cold',
+    }
+  }
+
+  if (key === 'bebidas') {
+    return {
+      label: 'Bebidas',
+      sectionTitle: 'BEBIDAS',
+      subtitle: 'Opciones frescas para acompanar tu pedido.',
+      icon: IconDrink,
+      art: 'cold',
+    }
+  }
+
+  if (key === 'filtrados') {
+    return {
+      label: 'Filtrados',
+      sectionTitle: 'FILTRADOS',
+      subtitle: 'Metodos suaves, granos elegidos y tiempo justo.',
+      icon: IconKikaCup,
+      art: 'coffee',
+    }
+  }
+
+  if (key === 'te-infusiones') {
+    return {
+      label: 'Te & Infusiones',
+      sectionTitle: 'TE & INFUSIONES',
+      subtitle: 'Rituales simples para bajar un cambio.',
+      icon: IconServe,
+      art: 'tea',
+    }
+  }
+
+  if (key === 'desayunos') {
+    return {
+      label: 'Desayunos',
+      sectionTitle: 'DESAYUNOS',
+      subtitle: 'Para empezar el dia con algo rico.',
+      icon: IconKikaCroissant,
+      art: 'breakfast',
+    }
+  }
+
+  if (key === 'almuerzos') {
+    return {
+      label: 'Almuerzos',
+      sectionTitle: 'ALMUERZOS',
+      subtitle: 'Cocina simple, fresca y con buen cafe.',
+      icon: IconBurger,
+      art: 'lunch',
+    }
+  }
+
+  if (key === 'dulces') {
+    return {
+      label: 'Dulces',
+      sectionTitle: 'DULCES',
+      subtitle: 'Pasteleria para acompanar cualquier momento.',
+      icon: IconKikaCake,
+      art: 'sweet',
+    }
+  }
+
+  return {
+    label,
+    sectionTitle: String(label ?? 'MENU').toUpperCase(),
+    subtitle: 'Seleccion Florian para pedir ahora.',
+    icon: IconServe,
+    art: 'default',
+  }
+}
+
+function FlorianProductVisual({ item, category }) {
+  if (item?.video) {
+    return (
+      <video
+        src={getVideoFrameSrc(item.video)}
+        preload="auto"
+        autoPlay
+        muted
+        loop
+        playsInline
+      />
+    )
+  }
+
+  if (item?.hasCustomImage) {
+    return <img src={item.image} alt={item.name} />
+  }
+
+  const meta = getFlorianCategoryMeta(category?.label ?? item?.categoryLabel ?? item?.badge)
+  const Icon = meta.icon
+
+  return (
+    <span className={`florian-product-placeholder florian-product-placeholder-${meta.art}`} aria-hidden="true">
+      <Icon />
+    </span>
+  )
+}
+
+function FlorianHeroFallback() {
+  return (
+    <div className="florian-hero-fallback" aria-hidden="true">
+      <div className="florian-storefront">
+        <span className="florian-storefront-roof" />
+        <span className="florian-storefront-body" />
+        <span className="florian-storefront-awning awning-one" />
+        <span className="florian-storefront-awning awning-two" />
+        <span className="florian-storefront-tree" />
+      </div>
+      <div className="florian-cup-art">
+        <span className="florian-cup-coffee" />
+        <span className="florian-cup-handle" />
+        <span className="florian-cup-saucer" />
+      </div>
+    </div>
   )
 }
 
@@ -2570,7 +2757,7 @@ function TemplateHero({ templateId, presentation, heroDish }) {
   const heroVideo = getHeroVideo(presentation)
   const hasStandaloneHeroMedia = hasStandaloneHeroImage || Boolean(heroVideo)
 
-  if (!heroDish && !hasStandaloneHeroMedia) {
+  if (templateId !== 'florian' && !heroDish && !hasStandaloneHeroMedia) {
     return null
   }
 
@@ -2667,6 +2854,55 @@ function TemplateHero({ templateId, presentation, heroDish }) {
             <KikaHeroOverlay />
           </>
         ) : null}
+      </section>
+    )
+  }
+
+  if (templateId === 'florian') {
+    const florianHeroImages = getHeroImages(presentation)
+    const hasFlorianHeroMedia = heroVideo || florianHeroImages.length > 0
+
+    return (
+      <section className={`hero-content hero-content-florian ${hasFlorianHeroMedia ? 'has-media' : 'no-media'}`}>
+        {hasFlorianHeroMedia ? (
+          <div className="florian-hero-media" aria-hidden="true">
+            <HeroImageSlider
+              images={florianHeroImages}
+              video={heroVideo}
+              imageClassName="florian-header-image"
+              alt="Florian cafe de especialidad."
+              usePoster={false}
+            />
+          </div>
+        ) : (
+          <FlorianHeroFallback />
+        )}
+
+        <div className="florian-hero-brand">
+          <strong>FLORIAN</strong>
+          <span>CAFE DE ESPECIALIDAD</span>
+        </div>
+
+        <span className="florian-location-pill">
+          <IconKikaPin />
+          Gral. Frias 1
+        </span>
+
+        <div className="florian-hero-copy">
+          <h1>
+            <span>{presentation.hero?.title ?? 'BUEN CAFE,'}</span>
+            <strong>{presentation.hero?.accent ?? 'BUENOS MOMENTOS.'}</strong>
+          </h1>
+          <span className="florian-bean-divider" aria-hidden="true" />
+          <p>
+            {presentation.hero?.description ??
+              'Cafe de especialidad y cocina simple, hecha con pasion en Chivilcoy.'}
+          </p>
+          <button type="button" className="florian-location-button">
+            <IconKikaPin />
+            Ver ubicacion
+          </button>
+        </div>
       </section>
     )
   }
@@ -2810,6 +3046,16 @@ function MenuLoadingScreen({ accountId }) {
       message: 'Estamos sirviendo café, pastelería y panadería para que elijas tranquilo.',
       chips: ['Cafetería', 'Pastelería', 'Panadería'],
       section: 'KIKA CAFE',
+    },
+    florian: {
+      title: 'FLORIAN',
+      subtitle: 'cafe de especialidad',
+      icon: <IconKikaCup />,
+      kicker: 'Cafe de especialidad',
+      headline: 'Preparando buen cafe',
+      message: 'Estamos cargando cafes, frios, desayunos y dulces para pedir sin vueltas.',
+      chips: ['Cafes', 'Frios', 'Dulces'],
+      section: 'CAFES CLASICOS',
     },
     gelato: {
       title: 'Dolce',
@@ -3179,6 +3425,34 @@ function TemplateCategorySelector({
     )
   }
 
+  if (templateId === 'florian') {
+    const orderedCategories = getFlorianOrderedCategories(categories)
+
+    return (
+      <div className="florian-category-shell" aria-label="Categorias de Florian">
+        {orderedCategories.map((category) => {
+          const meta = getFlorianCategoryMeta(category.label)
+          const Icon = meta.icon
+          const isActive = category.id === currentCategory?.id
+
+          return (
+            <button
+              key={category.id}
+              type="button"
+              className={`florian-category-button ${isActive ? 'active' : ''}`}
+              onClick={() => onSelectCategory(category.id)}
+            >
+              <span className="florian-category-icon">
+                <Icon />
+              </span>
+              <span>{meta.label}</span>
+            </button>
+          )
+        })}
+      </div>
+    )
+  }
+
   if (templateId === 'pizzeria') {
     const orderedCategories = getPizzeriaOrderedCategories(categories)
     return (
@@ -3447,6 +3721,124 @@ function TemplateMenuCollection({
           <button type="button" onClick={onOpenSocialMenu}>
             <IconKikaUsers />
             <span>Nosotros</span>
+          </button>
+        </nav>
+      </section>
+    )
+  }
+
+  if (templateId === 'florian') {
+    const selectedCategory = currentCategory ?? categories[0] ?? null
+    const sectionMeta = getFlorianCategoryMeta(selectedCategory?.label)
+
+    return (
+      <section className="section-block section-block-florian" data-menu-categories>
+        {isSearchActive ? (
+          <p className="florian-search-results">
+            {categoryItems.length
+              ? `${categoryItems.length} resultado${categoryItems.length === 1 ? '' : 's'} para "${searchQuery}"`
+              : `No encontramos productos para "${searchQuery}"`}
+          </p>
+        ) : null}
+
+        <div className="florian-section-head">
+          <div>
+            <h2>{isSearchActive ? 'RESULTADOS' : sectionMeta.sectionTitle}</h2>
+            <span aria-hidden="true" />
+          </div>
+          <p>{isSearchActive ? 'Coincidencias del menu.' : sectionMeta.subtitle}</p>
+        </div>
+
+        {categoryItems.length ? (
+          <div className="florian-product-grid">
+            {categoryItems.map((item) => (
+              <article key={item.id} className="florian-product-card">
+                <button
+                  type="button"
+                  className="florian-product-media"
+                  onClick={() => onOpenDish(item)}
+                  aria-label={`Ver ${item.name}`}
+                >
+                  <FlorianProductVisual item={item} category={selectedCategory} />
+                </button>
+
+                <div className="florian-product-body">
+                  <button
+                    type="button"
+                    className="florian-product-copy"
+                    onClick={() => onOpenDish(item)}
+                  >
+                    <h3>{item.name}</h3>
+                    {item.description ? <p>{item.description}</p> : null}
+                  </button>
+                  <div className="florian-product-footer">
+                    <strong>{item.price}</strong>
+                    <button
+                      type="button"
+                      className="florian-add-button"
+                      onClick={() => onAddItem(item)}
+                      aria-label={`Agregar ${item.name}`}
+                    >
+                      <IconPlus />
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="florian-empty-category">Todavia no hay productos en esta categoria.</p>
+        )}
+
+        {!isSearchActive ? (
+          <>
+            <article className="florian-takeaway-banner">
+              <span className="florian-takeaway-cup" aria-hidden="true">
+                <IconKikaCup />
+              </span>
+              <div>
+                <h3>¿Vas con prisa?</h3>
+                <p>Pedi para llevar y disfruta donde quieras.</p>
+              </div>
+              <button type="button" onClick={onOpenCart}>
+                Pedir ahora
+                <span>{'>'}</span>
+              </button>
+            </article>
+
+            <div className="florian-benefits" aria-label="Beneficios Florian">
+              <span>
+                <IconLeafMark />
+                Granos seleccionados
+              </span>
+              <span>
+                <IconHeart />
+                Hecho con pasion
+              </span>
+              <span>
+                <IconKikaCup />
+                Experiencia Florian
+              </span>
+            </div>
+          </>
+        ) : null}
+
+        <nav className="florian-bottom-nav" aria-label="Navegacion del menu">
+          <button type="button" className="active" onClick={onNavigateHome}>
+            <IconHome />
+            <span>Inicio</span>
+          </button>
+          <button type="button" onClick={onNavigatePromos}>
+            <IconKikaBook />
+            <span>Menu</span>
+          </button>
+          <button type="button" onClick={onNavigatePromos}>
+            <IconTicket />
+            <span>Promos</span>
+          </button>
+          <button type="button" onClick={onNavigateHome}>
+            <IconKikaPin />
+            <span>Ubicacion</span>
           </button>
         </nav>
       </section>
@@ -4771,7 +5163,7 @@ export default function MenuApp() {
 
     setSelectedCategory(safeCategoryId)
 
-    if (templateId === 'kika') {
+    if (templateId === 'kika' || templateId === 'florian') {
       setSearchQuery('')
       setIsSearchOpen(false)
     }
@@ -5009,7 +5401,7 @@ export default function MenuApp() {
                 <IconMenu />
               </button>
 
-              {!isHostLikeAccount(accountId, templateId) && templateId !== 'kika' ? (
+              {!isHostLikeAccount(accountId, templateId) && templateId !== 'kika' && templateId !== 'florian' ? (
                 <button
                   type="button"
                   className="cart-button"
@@ -5029,7 +5421,8 @@ export default function MenuApp() {
             templateId !== 'burger' &&
             templateId !== 'blue-burger' &&
             templateId !== 'host' &&
-            templateId !== 'kika' ? (
+            templateId !== 'kika' &&
+            templateId !== 'florian' ? (
               <div className="brand hero-brand">
                 <span className="brand-mark">
                   <IconLeafMark />
@@ -5075,7 +5468,8 @@ export default function MenuApp() {
                 {templateId === 'pizzeria' ||
                 templateId === 'burger' ||
                 templateId === 'host' ||
-                templateId === 'kika' ? (
+                templateId === 'kika' ||
+                templateId === 'florian' ? (
                   <div data-menu-categories>
                     <TemplateCategorySelector
                       accountId={accountId}
@@ -5097,7 +5491,8 @@ export default function MenuApp() {
                 templateId !== 'burger' &&
                 templateId !== 'blue-burger' &&
                 templateId !== 'host' &&
-                templateId !== 'kika' ? (
+                templateId !== 'kika' &&
+                templateId !== 'florian' ? (
                   <section className="section-block" data-section="categories">
                     <div className="section-heading">
                       <h2>Categorias</h2>
@@ -5143,6 +5538,7 @@ export default function MenuApp() {
           templateId !== 'blue-burger' &&
           templateId !== 'host' &&
           templateId !== 'kika' &&
+          templateId !== 'florian' &&
           (templateId !== 'pizzeria' || hasOrderItems) ? (
             <footer className="order-bar">
               <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
