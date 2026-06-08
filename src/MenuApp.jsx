@@ -114,9 +114,9 @@ function KikaHeroOverlay() {
           <span>Tu nuevo</span>
           <span>lugar favorito</span>
         </h1>
-        <p className="kika-hero-script">
-          Café, pastelería
-          <span>y buenos momentos</span>
+        <p className="kika-hero-script" aria-label="Café, pastelería y buenos momentos">
+          <span className="kika-type-line kika-type-line-one">Café, pastelería</span>
+          <span className="kika-type-line kika-type-line-two">y buenos momentos</span>
         </p>
       </div>
     </div>
