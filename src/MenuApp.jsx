@@ -988,7 +988,7 @@ function getInitialCategoryId(payload) {
   }
 
   if (templateId === 'kika') {
-    return normalizeKikaCategories(payload?.categories ?? [])[0]?.id ?? payload?.categories?.[0]?.id ?? ''
+    return ''
   }
 
   if (templateId === 'florian') {
@@ -3590,7 +3590,6 @@ function TemplateMenuCollection({
   isSearchActive = false,
 }) {
   if (templateId === 'kika') {
-    const selectedKikaCategory = currentCategory ?? categories[0] ?? null
     const sections = isSearchActive
       ? [
           {
@@ -3599,14 +3598,17 @@ function TemplateMenuCollection({
             items: categoryItems,
           },
         ]
-      : selectedKikaCategory
+      : currentCategory
         ? [
             {
-              ...selectedKikaCategory,
+              ...currentCategory,
               items: categoryItems,
             },
           ]
-        : []
+        : categories.map((category) => ({
+            ...category,
+            items: category.items ?? [],
+          }))
     const glutenTarget =
       categories.find((category) => slugify(category.label).includes('sin-gluten')) ??
       currentCategory
@@ -3624,7 +3626,7 @@ function TemplateMenuCollection({
         {sections.map((section) => {
           const meta = getKikaCategoryMeta(section.label)
           const visibleItems = section.items
-          const isCompact = false
+          const isCompact = !isSearchActive && !currentCategory
 
           if (!visibleItems.length) {
             return null
@@ -4649,16 +4651,17 @@ export default function MenuApp() {
     setDocumentTitle(getAccountDocumentTitle(accountId, presentation))
   }, [accountId, presentation])
 
-  const currentCategory =
-    categories.find((category) => category.id === selectedCategory) ?? categories[0] ?? null
-  const categoryItems = currentCategory?.items ?? []
-  const heroDish = categoryItems[0] ?? categories.flatMap((category) => category.items)[0] ?? null
   const allItems = categories.flatMap((category) =>
     category.items.map((item) => ({
       ...item,
       categoryLabel: category.label,
     })),
   )
+  const currentCategory =
+    categories.find((category) => category.id === selectedCategory) ??
+    (templateId === 'kika' ? null : categories[0] ?? null)
+  const categoryItems = currentCategory?.items ?? (templateId === 'kika' ? allItems : [])
+  const heroDish = categoryItems[0] ?? allItems[0] ?? null
   const deferredSearchQuery = useDeferredValue(searchQuery)
   const normalizedSearchQuery = normalizeSearchText(deferredSearchQuery)
   const isSearchActive = normalizedSearchQuery.length > 0
