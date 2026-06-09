@@ -5030,7 +5030,7 @@ export default function MenuApp() {
 
   const presentation = menu?.presentation ?? defaultPresentation
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
-  const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled !== false
+  const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled === true
   const rawCategories = menu?.categories ?? emptyCategories
   const categories = useMemo(
     () => {
