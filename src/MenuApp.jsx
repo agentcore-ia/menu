@@ -3036,9 +3036,7 @@ function TemplateHero({ templateId, presentation, heroDish }) {
         </div>
 
         <div className="pampa-brand-lockup">
-          <span>Cocina</span>
-          <strong>{presentation.branding?.wordmark ?? 'sabor a pampa'}</strong>
-          <small>{presentation.branding?.subtitle ?? 'casera'}</small>
+          <img src="/sabor-a-pampa/logo.png" alt={presentation.branding?.wordmark ?? 'Sabor a Pampa'} />
         </div>
 
         <div className="pampa-hero-copy">
