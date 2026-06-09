@@ -3206,7 +3206,6 @@ function MenuLoadingScreen({ accountId }) {
         <div className="phone-surface menu-loading-screen loading-sabor-pampa-simple">
           <div className="pampa-loading-simple" role="status" aria-live="polite" aria-label="Cargando menu de Sabor a Pampa">
             <div className="pampa-loading-brand">
-              <span>Cocina casera</span>
               <strong>sabor a pampa</strong>
             </div>
 
@@ -3217,19 +3216,8 @@ function MenuLoadingScreen({ accountId }) {
               </span>
             </div>
 
-            <div className="pampa-loading-copy">
-              <p>Cargando menú</p>
-              <small>Preparando sabores de casa</small>
-            </div>
-
             <div className="pampa-loading-progress" aria-hidden="true">
               <span />
-            </div>
-
-            <div className="pampa-loading-tags" aria-hidden="true">
-              <span>Casero</span>
-              <span>Gourmet</span>
-              <span>Con amor</span>
             </div>
           </div>
         </div>
