@@ -2858,7 +2858,7 @@ function getImageAnimationClass(item) {
   return `product-image-animation product-image-animation-${animation}`
 }
 
-function TemplateHero({ templateId, presentation, heroDish, onPrimaryAction }) {
+function TemplateHero({ templateId, presentation, heroDish }) {
   const standaloneHeroImages = getHeroImages(presentation)
   const hasStandaloneHeroImage = standaloneHeroImages.length > 0
   const heroVideo = getHeroVideo(presentation)
@@ -3045,9 +3045,6 @@ function TemplateHero({ templateId, presentation, heroDish, onPrimaryAction }) {
           <h1>{presentation.hero?.title ?? 'CASERO, GOURMET'}</h1>
           <p className="pampa-hero-script">{presentation.hero?.accent ?? 'y hecho con amor'}</p>
           <p>{presentation.hero?.description ?? 'Platos que reconfortan, sabores que te hacen volver.'}</p>
-          <button type="button" onClick={onPrimaryAction}>
-            Ver menu
-          </button>
         </div>
 
         <div className="pampa-feature-strip" aria-label="Beneficios Sabor a Pampa">

@@ -10437,7 +10437,7 @@ button:focus-visible {
 
 .template-sabor-pampa .hero-sabor-pampa {
   position: relative;
-  min-height: clamp(33rem, 88svh, 50rem);
+  min-height: clamp(29rem, 74svh, 38rem);
   padding: clamp(1.15rem, 4vw, 2.2rem) clamp(1rem, 5vw, 2.6rem) 0;
   overflow: hidden;
   background: #030505;
@@ -10470,7 +10470,7 @@ button:focus-visible {
   position: absolute;
   inset: 0;
   min-height: inherit;
-  padding: clamp(1.15rem, 4vw, 2.2rem) clamp(1rem, 5vw, 2.6rem) clamp(1.2rem, 4vw, 2rem);
+  padding: clamp(1.15rem, 4vw, 2.2rem) clamp(1rem, 5vw, 2.6rem) clamp(0.8rem, 2.8vw, 1.25rem);
   display: grid;
   grid-template-rows: auto 1fr auto;
   align-items: center;
@@ -10487,8 +10487,8 @@ button:focus-visible {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(3, 5, 5, 0.95) 0%, rgba(3, 5, 5, 0.74) 42%, rgba(3, 5, 5, 0.2) 100%),
-    linear-gradient(180deg, rgba(3, 5, 5, 0.28) 0%, rgba(3, 5, 5, 0.1) 48%, #030505 100%);
+    linear-gradient(90deg, rgba(3, 5, 5, 0.88) 0%, rgba(3, 5, 5, 0.58) 45%, rgba(3, 5, 5, 0.14) 100%),
+    linear-gradient(180deg, rgba(3, 5, 5, 0.2) 0%, rgba(3, 5, 5, 0.08) 52%, rgba(3, 5, 5, 0.52) 100%);
 }
 
 .pampa-header-media,
@@ -10525,7 +10525,7 @@ button:focus-visible {
   position: relative;
   z-index: 2;
   justify-self: center;
-  margin-top: clamp(3rem, 10vw, 5.5rem);
+  margin-top: clamp(2.35rem, 8vw, 4rem);
   display: grid;
   justify-items: center;
   color: #f7efe2;
@@ -10550,9 +10550,10 @@ button:focus-visible {
 .pampa-hero-copy {
   position: relative;
   z-index: 2;
-  width: min(72%, 25rem);
-  align-self: end;
-  margin-bottom: clamp(7.5rem, 23vw, 11.5rem);
+  width: min(78%, 25rem);
+  align-self: center;
+  margin-top: clamp(1.2rem, 5svh, 3.2rem);
+  margin-bottom: clamp(1rem, 3vw, 1.8rem);
 }
 
 .pampa-hero-copy h1 {
@@ -10573,23 +10574,10 @@ button:focus-visible {
 
 .pampa-hero-copy p:not(.pampa-hero-script) {
   max-width: 18rem;
-  margin: 0 0 1.45rem;
+  margin: 0;
   color: rgba(247, 239, 226, 0.86);
   font-size: clamp(0.95rem, 3.8vw, 1.22rem);
   line-height: 1.38;
-}
-
-.pampa-hero-copy button {
-  min-width: min(52vw, 12rem);
-  min-height: 3.15rem;
-  border: 0;
-  border-radius: 0.9rem;
-  color: #090806;
-  background: linear-gradient(135deg, #f7c656 0%, #e6a522 100%);
-  font: 900 clamp(0.92rem, 3.4vw, 1.2rem) / 1 var(--font-body);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.32);
 }
 
 .pampa-feature-strip {
@@ -10599,7 +10587,7 @@ button:focus-visible {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-self: end;
   gap: 0;
-  padding: clamp(1rem, 3vw, 1.45rem);
+  padding: clamp(0.8rem, 2.6vw, 1.15rem);
   border: 0.08rem solid rgba(247, 239, 226, 0.22);
   border-radius: 1.45rem;
   background: linear-gradient(135deg, rgba(24, 22, 18, 0.86), rgba(10, 11, 9, 0.82));
@@ -11158,12 +11146,13 @@ button:focus-visible {
 
 @media (max-width: 26.25rem) {
   .template-sabor-pampa .hero-sabor-pampa {
-    min-height: 36rem;
+    min-height: 31rem;
   }
 
   .pampa-hero-copy {
-    width: 86%;
-    margin-bottom: 8rem;
+    width: 88%;
+    margin-top: 1.8rem;
+    margin-bottom: 1rem;
   }
 
   .pampa-feature-strip {
