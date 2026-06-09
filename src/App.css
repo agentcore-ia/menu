@@ -10805,16 +10805,10 @@ button:focus-visible {
   background: linear-gradient(90deg, rgba(3, 5, 5, 0.78) 0%, rgba(3, 5, 5, 0.34) 58%, transparent 100%);
 }
 
-.pampa-featured-media .dish-thumb,
-.pampa-featured-media .pampa-media-placeholder {
+.pampa-featured-media .dish-thumb {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.pampa-featured-media .pampa-media-placeholder strong,
-.pampa-product-media .pampa-media-placeholder strong {
-  display: none;
 }
 
 .pampa-card-badge,
@@ -10925,8 +10919,7 @@ button:focus-visible {
   padding: 0;
 }
 
-.pampa-product-media .dish-thumb,
-.pampa-product-media .pampa-media-placeholder {
+.pampa-product-media .dish-thumb {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -11016,41 +11009,6 @@ button:focus-visible {
   border-radius: 0 0 0.6rem 0.6rem;
   font-size: 0.56rem;
   text-align: center;
-}
-
-.pampa-media-placeholder {
-  display: grid;
-  place-items: center;
-  gap: 0.6rem;
-  padding: 1rem;
-  color: rgba(247, 239, 226, 0.68);
-  background:
-    radial-gradient(circle at 50% 38%, rgba(244, 183, 57, 0.14), transparent 24%),
-    linear-gradient(135deg, #15120d, #050706);
-  text-align: center;
-}
-
-.pampa-media-placeholder span {
-  width: 3.8rem;
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border: 0.08rem dashed rgba(244, 183, 57, 0.38);
-  border-radius: 50%;
-  color: #f4b739;
-}
-
-.pampa-media-placeholder svg {
-  width: 48%;
-  height: 48%;
-}
-
-.pampa-media-placeholder strong {
-  max-width: 9rem;
-  color: inherit;
-  font-size: clamp(0.7rem, 2.8vw, 0.9rem);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
 }
 
 .pampa-empty-category,
