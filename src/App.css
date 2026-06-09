@@ -10531,7 +10531,7 @@ button:focus-visible {
   margin-top: clamp(1.55rem, 5.4vw, 2.6rem);
   display: grid;
   justify-items: center;
-  width: clamp(7.25rem, 29vw, 10.5rem);
+  width: clamp(3.65rem, 14.5vw, 5.25rem);
   aspect-ratio: 1;
   pointer-events: none;
 }
