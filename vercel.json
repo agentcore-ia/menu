@@ -2,7 +2,7 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/:account((?!api|assets|dishes|favicon\\.svg|icons\\.svg).*)",
+      "source": "/:account((?!api|assets|dishes|favicon\\.svg|icons\\.svg|service-worker\\.js).*)",
       "destination": "/index.html"
     }
   ]

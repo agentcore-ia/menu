@@ -6,6 +6,7 @@ import { createOrderRepository } from './repositories/orderRepository.js'
 import { createLoyaltyRepository } from './repositories/loyaltyRepository.js'
 import { createAdminRepository } from './admin/createAdminRepository.js'
 import { assertAdminToken } from './admin/requireAdminToken.js'
+import { createMenuManifest } from './pwaManifest.js'
 
 const config = getServerConfig()
 const repository = createMenuRepository(config)
@@ -115,6 +116,31 @@ app.get('/api/accounts/:accountId/menu', async (req, res) => {
       error: 'MENU_LOAD_FAILED',
       message:
         'No se pudo cargar el menu. Revisa la configuracion de la base de datos de NeuroRest.',
+      detail: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
+app.get('/api/accounts/:accountId/manifest.webmanifest', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, max-age=0')
+  res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8')
+
+  try {
+    const menu = await repository.getMenuByAccountId(req.params.accountId)
+
+    if (!menu) {
+      res.status(404).json({
+        error: 'MENU_NOT_FOUND',
+        message: 'No se encontro un menu para esa cuenta.',
+      })
+      return
+    }
+
+    res.json(createMenuManifest(menu, req))
+  } catch (error) {
+    res.status(500).json({
+      error: 'MANIFEST_LOAD_FAILED',
+      message: 'No se pudo cargar la app instalable.',
       detail: error instanceof Error ? error.message : 'Unknown error',
     })
   }

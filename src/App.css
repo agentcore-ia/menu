@@ -12700,3 +12700,179 @@ button:focus-visible {
     padding-left: 1rem;
   }
 }
+
+.install-app-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: end center;
+  padding: 1rem;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.32) 100%);
+}
+
+.install-app-card {
+  position: relative;
+  width: min(100%, 25.6rem);
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--theme-border, rgba(255, 255, 255, 0.18)) 88%, transparent);
+  border-radius: 1.45rem;
+  background:
+    radial-gradient(circle at 88% 5%, color-mix(in srgb, var(--theme-primary, #ff6a00) 18%, transparent), transparent 9rem),
+    color-mix(in srgb, var(--theme-surface, #ffffff) 94%, white);
+  color: var(--theme-text, #171717);
+  box-shadow: 0 1.4rem 4rem rgba(0, 0, 0, 0.28);
+  animation: install-app-enter 220ms ease-out both;
+}
+
+.install-app-close {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--theme-border, rgba(0, 0, 0, 0.12)) 86%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-surface-alt, #f6f3ee) 88%, transparent);
+  color: var(--theme-muted, #666);
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.install-app-hero {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.9rem;
+  padding-right: 2rem;
+}
+
+.install-app-icon {
+  width: 3.3rem;
+  height: 3.3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1.05rem;
+  background: var(--theme-primary, #ff6a00);
+  color: var(--theme-primary-text, #ffffff);
+  box-shadow: 0 0.8rem 1.8rem color-mix(in srgb, var(--theme-primary, #ff6a00) 24%, transparent);
+}
+
+.install-app-icon svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  stroke-width: 2.2;
+}
+
+.install-app-hero span {
+  display: inline-block;
+  margin-bottom: 0.24rem;
+  color: var(--theme-primary, #ff6a00);
+  font-size: 0.68rem;
+  font-weight: 1000;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.install-app-hero h2 {
+  margin: 0;
+  max-width: 18rem;
+  font-family: var(--font-display, inherit);
+  font-size: 1.35rem;
+  line-height: 1.02;
+}
+
+.install-app-hero p {
+  margin: 0.45rem 0 0;
+  color: var(--theme-muted, #666);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.install-app-benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.95rem;
+}
+
+.install-app-benefits span {
+  padding: 0.42rem 0.62rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-primary, #ff6a00) 10%, var(--theme-surface-alt, #f4f4f4));
+  color: color-mix(in srgb, var(--theme-text, #111111) 86%, var(--theme-primary, #ff6a00));
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.install-app-steps {
+  margin-top: 0.95rem;
+  padding: 0.85rem;
+  border: 1px dashed color-mix(in srgb, var(--theme-primary, #ff6a00) 38%, var(--theme-border, rgba(0, 0, 0, 0.12)));
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--theme-primary, #ff6a00) 7%, transparent);
+}
+
+.install-app-steps p {
+  margin: 0 0 0.45rem;
+  color: var(--theme-text, #111111);
+  font-weight: 900;
+}
+
+.install-app-steps ol {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--theme-muted, #666);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.install-app-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.install-app-primary,
+.install-app-secondary {
+  min-height: 3rem;
+  border-radius: 999px;
+  font-weight: 1000;
+}
+
+.install-app-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 0;
+  background: var(--theme-primary, #ff6a00);
+  color: var(--theme-primary-text, #ffffff);
+  box-shadow: 0 0.85rem 1.6rem color-mix(in srgb, var(--theme-primary, #ff6a00) 22%, transparent);
+}
+
+.install-app-primary svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.install-app-secondary {
+  padding-inline: 1rem;
+  border: 1px solid color-mix(in srgb, var(--theme-border, rgba(0, 0, 0, 0.12)) 88%, transparent);
+  background: color-mix(in srgb, var(--theme-surface-alt, #f6f3ee) 82%, transparent);
+  color: var(--theme-muted, #666);
+}
+
+@keyframes install-app-enter {
+  from {
+    transform: translateY(1.2rem) scale(0.98);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}

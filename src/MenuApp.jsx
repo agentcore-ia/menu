@@ -755,6 +755,75 @@ function setDocumentTitle(title) {
   document.title = title
 }
 
+function setDocumentManifest(href) {
+  let link = document.querySelector('link[rel="manifest"]')
+
+  if (!link) {
+    link = document.createElement('link')
+    link.rel = 'manifest'
+    document.head.appendChild(link)
+  }
+
+  link.href = href
+}
+
+function setDocumentThemeColor(color) {
+  const normalizedColor = typeof color === 'string' && color.trim() ? color.trim() : '#ff6a00'
+  let meta = document.querySelector('meta[name="theme-color"]')
+
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.name = 'theme-color'
+    document.head.appendChild(meta)
+  }
+
+  meta.content = normalizedColor
+}
+
+function registerMenuServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
+    return
+  }
+
+  navigator.serviceWorker.register('/service-worker.js').catch(() => undefined)
+}
+
+function isStandalonePwa() {
+  return Boolean(
+    window.matchMedia?.('(display-mode: standalone)').matches ||
+      window.matchMedia?.('(display-mode: fullscreen)').matches ||
+      window.navigator?.standalone,
+  )
+}
+
+function getPwaInstallPlatform() {
+  const userAgent = window.navigator.userAgent || ''
+  const isIos =
+    /iphone|ipad|ipod/i.test(userAgent) ||
+    (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1)
+  const isAndroid = /android/i.test(userAgent)
+
+  if (isIos) return 'ios'
+  if (isAndroid) return 'android'
+  return 'desktop'
+}
+
+function getSessionFlag(key) {
+  try {
+    return window.sessionStorage.getItem(key) === '1'
+  } catch {
+    return false
+  }
+}
+
+function setSessionFlag(key) {
+  try {
+    window.sessionStorage.setItem(key, '1')
+  } catch {
+    // Storage can be disabled in private browsing.
+  }
+}
+
 function getLoadingTemplate(accountId) {
   const key = slugify(accountId)
 
@@ -3272,6 +3341,101 @@ function SocialMenuDrawer({ open, links, accountName, onClose }) {
   )
 }
 
+function InstallAppPrompt({
+  open,
+  accountName,
+  loyaltyEnabled,
+  platform,
+  canInstall,
+  showSteps,
+  style,
+  onInstall,
+  onClose,
+}) {
+  if (!open) return null
+
+  const isIos = platform === 'ios'
+  const benefits = loyaltyEnabled
+    ? ['Menu siempre a mano', 'Pedidos mas rapidos', 'Tus puntos y canjes en un toque']
+    : ['Menu siempre a mano', 'Pedidos mas rapidos', 'Acceso directo desde el celular']
+  const buttonLabel = canInstall ? 'Instalar app' : isIos ? 'Ver como instalar' : 'Como instalar'
+
+  return (
+    <div className="install-app-overlay" role="presentation" style={style} onClick={onClose}>
+      <section
+        className="install-app-card"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Instalar app de ${accountName || 'este negocio'}`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          className="install-app-close"
+          aria-label="Cerrar aviso de instalacion"
+          onClick={onClose}
+        >
+          x
+        </button>
+
+        <div className="install-app-hero">
+          <span className="install-app-icon" aria-hidden="true">
+            <IconCart />
+          </span>
+          <div>
+            <span>App del local</span>
+            <h2>Instala {accountName || 'este menu'} en tu celular</h2>
+            <p>
+              Entra directo al menu, arma pedidos mas rapido
+              {loyaltyEnabled ? ' y consulta tus puntos sin buscar el link.' : ' sin buscar el link.'}
+            </p>
+          </div>
+        </div>
+
+        <div className="install-app-benefits">
+          {benefits.map((benefit) => (
+            <span key={benefit}>{benefit}</span>
+          ))}
+        </div>
+
+        {showSteps ? (
+          <div className="install-app-steps">
+            {isIos ? (
+              <>
+                <p>En iPhone se instala desde Safari:</p>
+                <ol>
+                  <li>Toca el boton compartir.</li>
+                  <li>Elegí "Agregar a pantalla de inicio".</li>
+                  <li>Confirmá con "Agregar".</li>
+                </ol>
+              </>
+            ) : (
+              <>
+                <p>Si no aparece el instalador automatico:</p>
+                <ol>
+                  <li>Abrí el menu del navegador.</li>
+                  <li>Elegí "Instalar app" o "Agregar a pantalla principal".</li>
+                  <li>Confirmá la instalación.</li>
+                </ol>
+              </>
+            )}
+          </div>
+        ) : null}
+
+        <div className="install-app-actions">
+          <button type="button" className="install-app-primary" onClick={onInstall}>
+            <IconPlus />
+            <span>{buttonLabel}</span>
+          </button>
+          <button type="button" className="install-app-secondary" onClick={onClose}>
+            Ahora no
+          </button>
+        </div>
+      </section>
+    </div>
+  )
+}
+
 function TemplateCategorySelector({
   accountId,
   templateId,
@@ -4731,6 +4895,11 @@ export default function MenuApp() {
   const [cartFeedback, setCartFeedback] = useState(null)
   const [orderingNotice, setOrderingNotice] = useState('')
   const [currentTime, setCurrentTime] = useState(() => Date.now())
+  const [installPromptEvent, setInstallPromptEvent] = useState(null)
+  const [installPromptOpen, setInstallPromptOpen] = useState(false)
+  const [installStepsOpen, setInstallStepsOpen] = useState(false)
+  const [installPlatform, setInstallPlatform] = useState(() => getPwaInstallPlatform())
+  const [isPwaInstalled, setIsPwaInstalled] = useState(() => isStandalonePwa())
   const cartFeedbackIdRef = useRef(0)
   const [gelatoBuilderOpen, setGelatoBuilderOpen] = useState(false)
   const [gelatoStep, setGelatoStep] = useState(1)
@@ -4752,6 +4921,38 @@ export default function MenuApp() {
   useEffect(() => {
     setDocumentFavicon(getAccountFaviconHref(accountId))
     setDocumentTitle(getAccountDocumentTitle(accountId))
+    setDocumentManifest(`/api/accounts/${encodeURIComponent(accountId)}/manifest.webmanifest`)
+    registerMenuServiceWorker()
+  }, [accountId])
+
+  useEffect(() => {
+    const dismissKey = `install-app-dismissed-${slugify(accountId)}`
+
+    function handleBeforeInstallPrompt(event) {
+      event.preventDefault()
+      setInstallPromptEvent(event)
+      setInstallPlatform(getPwaInstallPlatform())
+
+      if (!isStandalonePwa() && !getSessionFlag(dismissKey)) {
+        window.setTimeout(() => setInstallPromptOpen(true), 700)
+      }
+    }
+
+    function handleAppInstalled() {
+      setIsPwaInstalled(true)
+      setInstallPromptOpen(false)
+      setInstallStepsOpen(false)
+      setInstallPromptEvent(null)
+      setSessionFlag(dismissKey)
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('appinstalled', handleAppInstalled)
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener('appinstalled', handleAppInstalled)
+    }
   }, [accountId])
 
   useEffect(() => {
@@ -4841,7 +5042,29 @@ export default function MenuApp() {
 
   useEffect(() => {
     setDocumentTitle(getAccountDocumentTitle(accountId, presentation))
+    setDocumentThemeColor(presentation.theme?.primary)
   }, [accountId, presentation])
+
+  useEffect(() => {
+    if (status !== 'ready' || isPwaInstalled || isStandalonePwa()) {
+      return undefined
+    }
+
+    const dismissKey = `install-app-dismissed-${slugify(accountId)}`
+
+    if (getSessionFlag(dismissKey)) {
+      return undefined
+    }
+
+    const platform = getPwaInstallPlatform()
+
+    const timeout = window.setTimeout(() => {
+      setInstallPlatform(platform)
+      setInstallPromptOpen(true)
+    }, installPromptEvent ? 700 : 1300)
+
+    return () => window.clearTimeout(timeout)
+  }, [accountId, installPromptEvent, isPwaInstalled, status])
 
   const allItems = categories.flatMap((category) =>
     category.items.map((item) => ({
@@ -4945,6 +5168,37 @@ export default function MenuApp() {
 
   function showOrderingClosedNotice() {
     setOrderingNotice(orderingClosedMessage)
+  }
+
+  function handleCloseInstallPrompt() {
+    setInstallPromptOpen(false)
+    setInstallStepsOpen(false)
+    setSessionFlag(`install-app-dismissed-${slugify(accountId)}`)
+  }
+
+  async function handleInstallApp() {
+    if (!installPromptEvent) {
+      setInstallStepsOpen(true)
+      return
+    }
+
+    const promptEvent = installPromptEvent
+    setInstallPromptEvent(null)
+
+    try {
+      await promptEvent.prompt()
+      const choice = await promptEvent.userChoice
+
+      if (choice?.outcome === 'accepted') {
+        setIsPwaInstalled(true)
+        handleCloseInstallPrompt()
+        return
+      }
+    } catch {
+      // Keep the fallback visible if the native prompt is not available anymore.
+    }
+
+    setInstallStepsOpen(true)
   }
 
   function handleAddItem(item, quantity = 1, configuration = null) {
@@ -5794,6 +6048,18 @@ export default function MenuApp() {
           <p>{orderingNotice}</p>
         </div>
       ) : null}
+
+      <InstallAppPrompt
+        open={installPromptOpen}
+        accountName={menu?.accountName ?? presentation.branding?.wordmark ?? accountId}
+        loyaltyEnabled={Boolean(loyaltySettings?.enabled)}
+        platform={installPlatform}
+        canInstall={Boolean(installPromptEvent)}
+        showSteps={installStepsOpen}
+        style={getPresentationStyles(presentation, accountId)}
+        onInstall={handleInstallApp}
+        onClose={handleCloseInstallPrompt}
+      />
 
       {templateId === 'gelato' && gelatoBuilderOpen ? (
         <div className="detail-screen" role="presentation" onClick={() => setGelatoBuilderOpen(false)}>
