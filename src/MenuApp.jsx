@@ -2499,6 +2499,12 @@ function getSaborPampaSectionSubtitle(label) {
   return 'Platos caseros preparados para volver.'
 }
 
+function shouldShowSaborPampaBulkActions(item) {
+  const key = slugify(`${item?.categoryLabel ?? ''} ${item?.name ?? ''}`)
+
+  return key.includes('empanada') || (key.includes('sandwich') && key.includes('miga'))
+}
+
 function getSaborPampaBadgeText(item, index, categoryLabel) {
   const itemKey = slugify(item?.name ?? '')
   const categoryKey = slugify(categoryLabel ?? '')
@@ -4141,6 +4147,7 @@ function TemplateMenuCollection({
           const productMedia = renderProductMedia(item)
           const hasMedia = Boolean(productMedia)
           const shouldShowRibbon = showRibbon && index === 0
+          const showBulkActions = shouldShowSaborPampaBulkActions(item)
 
           return (
             <article
@@ -4175,16 +4182,38 @@ function TemplateMenuCollection({
                   ) : null}
                   {item.description ? <p>{item.description}</p> : null}
                 </button>
-                <div className="pampa-product-footer">
+                <div className={`pampa-product-footer${showBulkActions ? ' has-bulk-actions' : ''}`}>
                   <strong>{item.price}</strong>
-                  <button
-                    type="button"
-                    className="pampa-add-button"
-                    onClick={() => onAddItem(item)}
-                    aria-label={`Agregar ${item.name}`}
-                  >
-                    <IconPlus />
-                  </button>
+                  <div className="pampa-add-actions">
+                    {showBulkActions ? (
+                      <>
+                        <button
+                          type="button"
+                          className="pampa-bulk-add-button"
+                          onClick={() => onAddItem(item, 6)}
+                          aria-label={`Agregar media docena de ${item.name}`}
+                        >
+                          +6
+                        </button>
+                        <button
+                          type="button"
+                          className="pampa-bulk-add-button"
+                          onClick={() => onAddItem(item, 12)}
+                          aria-label={`Agregar una docena de ${item.name}`}
+                        >
+                          +12
+                        </button>
+                      </>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="pampa-add-button"
+                      onClick={() => onAddItem(item)}
+                      aria-label={`Agregar ${item.name}`}
+                    >
+                      <IconPlus />
+                    </button>
+                  </div>
                 </div>
               </div>
             </article>
