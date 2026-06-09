@@ -4148,38 +4148,6 @@ function TemplateMenuCollection({
           </article>
         ) : null}
 
-        {!isSearchActive ? (
-          <>
-            <button type="button" className="pampa-whatsapp-banner" onClick={onOpenCart}>
-              <span>
-                <IconWhatsapp />
-              </span>
-              <strong>
-                Hace tu pedido
-                <small>por WhatsApp</small>
-              </strong>
-              <em>{'>'}</em>
-            </button>
-
-            <div className="pampa-info-grid">
-              <article>
-                <strong>Menu semanal</strong>
-                <p>Card preparada para cargar imagen y detalle de la semana.</p>
-                <span aria-hidden="true">
-                  <IconKikaBook />
-                </span>
-              </article>
-              <article>
-                <strong>Buscamos preparadores</strong>
-                <p>Espacio listo para imagen, busqueda o comunicacion institucional.</p>
-                <span aria-hidden="true">
-                  <IconServe />
-                </span>
-              </article>
-            </div>
-          </>
-        ) : null}
-
         <article className="pampa-product-section">
           <div className="pampa-section-heading">
             <h2>{isSearchActive ? 'Resultados' : selectedCategory?.label ?? 'Elegi tu favorita'}</h2>

@@ -10832,8 +10832,7 @@ button:focus-visible {
 
 .pampa-featured-copy p,
 .pampa-product-copy p,
-.pampa-product-section > p,
-.pampa-info-grid p {
+.pampa-product-section > p {
   color: rgba(247, 239, 226, 0.78);
   font-size: clamp(0.82rem, 3vw, 1rem);
   line-height: 1.4;
@@ -10862,93 +10861,6 @@ button:focus-visible {
 
 .pampa-slider-dots .active {
   background: #f4b739;
-}
-
-.pampa-whatsapp-banner {
-  width: 100%;
-  min-height: clamp(4.8rem, 17vw, 6rem);
-  margin-bottom: 1.2rem;
-  padding: 0.8rem 1rem;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 1rem;
-  border: 0.08rem solid rgba(247, 239, 226, 0.18);
-  border-radius: 1rem;
-  color: #f7efe2;
-  background:
-    radial-gradient(circle at 85% 50%, rgba(244, 183, 57, 0.22), transparent 18%),
-    linear-gradient(135deg, rgba(55, 48, 37, 0.92), rgba(11, 12, 10, 0.94));
-  text-align: left;
-}
-
-.pampa-whatsapp-banner > span {
-  width: 3.2rem;
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border: 0.08rem solid rgba(247, 239, 226, 0.24);
-  border-radius: 1rem;
-  color: #f7efe2;
-  background: #050706;
-}
-
-.pampa-whatsapp-banner strong {
-  display: grid;
-  gap: 0.15rem;
-  font-size: clamp(0.95rem, 3.8vw, 1.25rem);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.pampa-whatsapp-banner small {
-  color: #f4b739;
-  font-family: var(--font-display);
-  font-size: 1.15em;
-  font-weight: 800;
-  text-transform: none;
-}
-
-.pampa-info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  margin-bottom: clamp(1.8rem, 6vw, 2.75rem);
-}
-
-.pampa-info-grid article {
-  position: relative;
-  min-height: clamp(8.5rem, 32vw, 12rem);
-  overflow: hidden;
-  padding: 1.2rem;
-  border: 0.08rem solid rgba(244, 183, 57, 0.28);
-  border-radius: 1rem;
-  background:
-    radial-gradient(circle at 80% 35%, rgba(244, 183, 57, 0.16), transparent 24%),
-    linear-gradient(135deg, rgba(247, 239, 226, 0.92), rgba(245, 236, 218, 0.72) 48%, rgba(16, 13, 9, 0.85) 49%, rgba(7, 8, 7, 0.94) 100%);
-  color: #090806;
-}
-
-.pampa-info-grid article:nth-child(2) {
-  color: #f7efe2;
-  background:
-    radial-gradient(circle at 85% 25%, rgba(244, 183, 57, 0.18), transparent 28%),
-    linear-gradient(135deg, rgba(45, 34, 18, 0.98), rgba(5, 7, 6, 0.98));
-}
-
-.pampa-info-grid strong {
-  display: block;
-  max-width: 8ch;
-  color: inherit;
-  font: 900 clamp(1.1rem, 4.4vw, 1.65rem) / 0.95 var(--font-display);
-  text-transform: uppercase;
-}
-
-.pampa-info-grid span {
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
-  color: #f4b739;
 }
 
 .pampa-product-section > p {
@@ -11173,9 +11085,6 @@ button:focus-visible {
     line-height: 1.2;
   }
 
-  .pampa-info-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .template-kika .hero::before,
