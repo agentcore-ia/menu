@@ -10432,7 +10432,7 @@ button:focus-visible {
 .template-sabor-pampa.phone-surface {
   overflow: hidden;
   border-color: rgba(244, 183, 57, 0.24);
-  background: #030505;
+  background: #050706;
 }
 
 .template-sabor-pampa .hero-sabor-pampa {
@@ -10630,9 +10630,7 @@ button:focus-visible {
   z-index: 2;
   padding: clamp(1.15rem, 4vw, 1.8rem) clamp(1rem, 4.5vw, 2rem) clamp(7rem, 20vw, 9rem);
   border-radius: 0;
-  background:
-    radial-gradient(circle at 85% 0%, rgba(244, 183, 57, 0.08), transparent 22%),
-    #050706;
+  background: #050706;
 }
 
 .pampa-menu-head {
