@@ -74,7 +74,7 @@ export function formatScheduleRange(schedule) {
     return 'cerrado'
   }
 
-  return `${normalized.desde} a ${normalized.hasta}`
+  return normalized.tramos.map((range) => `${range.desde} a ${range.hasta}`).join(' / ')
 }
 
 function hasConfiguredBusinessHours(value) {
@@ -93,17 +93,39 @@ function normalizeDaySchedule(schedule) {
     return null
   }
 
-  const desde = normalizeTime(schedule.desde)
-  const hasta = normalizeTime(schedule.hasta)
+  const rawRanges = Array.isArray(schedule.tramos)
+    ? schedule.tramos
+    : Array.isArray(schedule.ranges)
+      ? schedule.ranges
+      : Array.isArray(schedule.slots)
+        ? schedule.slots
+        : []
 
-  if (!desde || !hasta) {
+  const ranges = (rawRanges.length > 0 ? rawRanges : [{ desde: schedule.desde, hasta: schedule.hasta }])
+    .map((range) => {
+      const desde = normalizeTime(range?.desde ?? range?.from ?? range?.start)
+      const hasta = normalizeTime(range?.hasta ?? range?.to ?? range?.end)
+
+      if (!desde || !hasta) {
+        return null
+      }
+
+      return {
+        desde,
+        hasta,
+      }
+    })
+    .filter(Boolean)
+
+  if (ranges.length === 0) {
     return null
   }
 
   return {
     abierto: Boolean(schedule.abierto),
-    desde,
-    hasta,
+    desde: ranges[0].desde,
+    hasta: ranges[0].hasta,
+    tramos: ranges,
   }
 }
 
@@ -112,8 +134,20 @@ function isCurrentDayScheduleOpen(schedule, currentMinutes) {
     return false
   }
 
-  const start = parseTimeToMinutes(schedule.desde)
-  const end = parseTimeToMinutes(schedule.hasta)
+  return schedule.tramos.some((range) => isCurrentDayRangeOpen(range, currentMinutes))
+}
+
+function isPreviousOvernightScheduleOpen(schedule, currentMinutes) {
+  if (!schedule?.abierto) {
+    return false
+  }
+
+  return schedule.tramos.some((range) => isPreviousOvernightRangeOpen(range, currentMinutes))
+}
+
+function isCurrentDayRangeOpen(range, currentMinutes) {
+  const start = parseTimeToMinutes(range.desde)
+  const end = parseTimeToMinutes(range.hasta)
 
   if (start === null || end === null) {
     return false
@@ -130,13 +164,9 @@ function isCurrentDayScheduleOpen(schedule, currentMinutes) {
   return currentMinutes >= start
 }
 
-function isPreviousOvernightScheduleOpen(schedule, currentMinutes) {
-  if (!schedule?.abierto) {
-    return false
-  }
-
-  const start = parseTimeToMinutes(schedule.desde)
-  const end = parseTimeToMinutes(schedule.hasta)
+function isPreviousOvernightRangeOpen(range, currentMinutes) {
+  const start = parseTimeToMinutes(range.desde)
+  const end = parseTimeToMinutes(range.hasta)
 
   if (start === null || end === null || start <= end) {
     return false
@@ -155,21 +185,33 @@ function getNextOpenText(businessHours, currentDayIndex, currentMinutes) {
       continue
     }
 
-    const start = parseTimeToMinutes(schedule.desde)
+    const nextRange = getNextRangeForDay(schedule, offset === 0 ? currentMinutes : null)
 
-    if (start === null) {
-      continue
-    }
-
-    if (offset === 0 && start <= currentMinutes) {
+    if (!nextRange) {
       continue
     }
 
     const label = offset === 0 ? 'Hoy' : capitalize(DAY_LABELS[key])
-    return `${label} abre a las ${schedule.desde}`
+    return `${label} abre a las ${nextRange.desde}`
   }
 
   return ''
+}
+
+function getNextRangeForDay(schedule, currentMinutes) {
+  const ranges = schedule.tramos
+    .map((range) => ({
+      ...range,
+      start: parseTimeToMinutes(range.desde),
+    }))
+    .filter((range) => range.start !== null)
+    .sort((a, b) => a.start - b.start)
+
+  if (currentMinutes === null) {
+    return ranges[0] ?? null
+  }
+
+  return ranges.find((range) => range.start > currentMinutes) ?? null
 }
 
 function getLocalTimeParts(now, timeZone) {
