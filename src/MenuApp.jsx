@@ -4282,18 +4282,6 @@ function TemplateMenuCollection({
                 items: [],
               })}
 
-        <nav className="pampa-order-dock" aria-label="Resumen del pedido">
-          <button type="button" onClick={onOpenCart}>
-            <span>
-              <IconCart />
-            </span>
-            <strong>Mi pedido</strong>
-          </button>
-          <button type="button" onClick={onOpenCart}>
-            Continuar
-            <span>{'>'}</span>
-          </button>
-        </nav>
       </section>
     )
   }
