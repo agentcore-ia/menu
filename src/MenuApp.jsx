@@ -1149,7 +1149,7 @@ function getInitialCategoryId(payload) {
   }
 
   if (templateId === 'sabor-pampa') {
-    return getSaborPampaOrderedCategories(payload?.categories ?? [])[0]?.id ?? payload?.categories?.[0]?.id ?? ''
+    return ''
   }
 
   return payload?.categories?.[0]?.id ?? ''
@@ -3543,7 +3543,7 @@ function TemplateCategorySelector({
                 key={category.id}
                 type="button"
                 className={`host-category-pill ${isActive ? 'active' : ''}`}
-                onClick={() => onSelectCategory(category.id)}
+                onClick={() => onSelectCategory(isActive ? '' : category.id)}
               >
                 <Icon />
                 <span>{getHostCategoryLabel(category.label)}</span>
@@ -4042,18 +4042,110 @@ function TemplateMenuCollection({
 
 
   if (templateId === 'sabor-pampa') {
-    const selectedCategory = currentCategory ?? getSaborPampaOrderedCategories(categories)[0] ?? null
+    const orderedCategories = getSaborPampaOrderedCategories(categories)
+    const selectedCategory = currentCategory
+    const getItemsWithCategoryLabel = (category) =>
+      (category?.items ?? []).map((item) => ({
+        ...item,
+        categoryLabel: item.categoryLabel ?? category.label,
+      }))
+    const selectedCategoryItems = selectedCategory ? getItemsWithCategoryLabel(selectedCategory) : []
+    const homeCategorySections = orderedCategories
+      .map((category) => ({
+        ...category,
+        items: getItemsWithCategoryLabel(category),
+      }))
+      .filter((category) => category.items.length)
+    const homeItems = homeCategorySections.flatMap((category) => category.items)
     const highlightedItems = isSearchActive
       ? categoryItems
       : [
           ...(categories.find((category) => isPromoCategoryLabel(category.label))?.items ?? []),
-          ...(selectedCategory?.items ?? []),
+          ...(selectedCategory ? selectedCategoryItems : homeItems),
         ].filter(Boolean)
     const uniqueHighlightedItems = highlightedItems.filter(
       (item, index, list) => list.findIndex((entry) => entry.id === item.id) === index,
     )
     const featuredItems = uniqueHighlightedItems.slice(0, 4)
-    const listItems = isSearchActive ? categoryItems : selectedCategory?.items ?? []
+    const listItems = isSearchActive ? categoryItems : selectedCategoryItems
+
+    const renderPampaProductCards = (items, { showRibbon = true } = {}) => (
+      <div className="pampa-product-list">
+        {items.map((item, index) => {
+          const productMedia = renderProductMedia(item)
+          const hasMedia = Boolean(productMedia)
+          const shouldShowRibbon = showRibbon && index === 0
+
+          return (
+            <article
+              key={item.id}
+              className={`pampa-product-card${hasMedia ? '' : ' no-media'}${
+                !hasMedia && shouldShowRibbon ? ' has-ribbon' : ''
+              }`}
+            >
+              {hasMedia ? (
+                <button
+                  type="button"
+                  className="pampa-product-media"
+                  onClick={() => onOpenDish(item)}
+                  aria-label={`Ver ${item.name}`}
+                >
+                  {shouldShowRibbon ? <span className="pampa-favorite-ribbon">Mas pedida</span> : null}
+                  {productMedia}
+                </button>
+              ) : shouldShowRibbon ? (
+                <span className="pampa-favorite-ribbon">Mas pedida</span>
+              ) : null}
+
+              <div className="pampa-product-body">
+                <button
+                  type="button"
+                  className="pampa-product-copy"
+                  onClick={() => onOpenDish(item)}
+                >
+                  <h3>{item.name}</h3>
+                  {item.description ? <p>{item.description}</p> : null}
+                </button>
+                <div className="pampa-product-footer">
+                  <strong>{item.price}</strong>
+                  <button
+                    type="button"
+                    className="pampa-add-button"
+                    onClick={() => onAddItem(item)}
+                    aria-label={`Agregar ${item.name}`}
+                  >
+                    <IconPlus />
+                  </button>
+                </div>
+              </div>
+            </article>
+          )
+        })}
+      </div>
+    )
+
+    const renderPampaProductSection = ({
+      id,
+      title,
+      subtitle,
+      items,
+      showRibbon = true,
+      isHomeSection = false,
+    }) => (
+      <article key={id} className={`pampa-product-section${isHomeSection ? ' is-home-section' : ''}`}>
+        <div className="pampa-section-heading">
+          <h2>{title}</h2>
+          <span aria-hidden="true" />
+        </div>
+        {subtitle ? <p>{subtitle}</p> : null}
+
+        {items.length ? (
+          renderPampaProductCards(items, { showRibbon })
+        ) : (
+          <p className="pampa-empty-category">Todavia no hay productos en esta categoria.</p>
+        )}
+      </article>
+    )
 
     return (
       <section className="section-block section-block-sabor-pampa" data-menu-categories>
@@ -4118,70 +4210,30 @@ function TemplateMenuCollection({
           </article>
         ) : null}
 
-        <article className="pampa-product-section">
-          <div className="pampa-section-heading">
-            <h2>{isSearchActive ? 'Resultados' : selectedCategory?.label ?? 'Elegi tu favorita'}</h2>
-            <span aria-hidden="true" />
-          </div>
-          {!isSearchActive ? <p>{getSaborPampaSectionSubtitle(selectedCategory?.label)}</p> : null}
-
-          {listItems.length ? (
-            <div className="pampa-product-list">
-              {listItems.map((item, index) => {
-                const productMedia = renderProductMedia(item)
-                const hasMedia = Boolean(productMedia)
-
-                return (
-                  <article
-                    key={item.id}
-                    className={`pampa-product-card${hasMedia ? '' : ' no-media'}${
-                      !hasMedia && index === 0 ? ' has-ribbon' : ''
-                    }`}
-                  >
-                    {hasMedia ? (
-                      <button
-                        type="button"
-                        className="pampa-product-media"
-                        onClick={() => onOpenDish(item)}
-                        aria-label={`Ver ${item.name}`}
-                      >
-                        {index === 0 ? <span className="pampa-favorite-ribbon">Mas pedida</span> : null}
-                        {productMedia}
-                      </button>
-                    ) : index === 0 ? (
-                      <span className="pampa-favorite-ribbon">Mas pedida</span>
-                    ) : null}
-
-                    <div className="pampa-product-body">
-                      <button
-                        type="button"
-                        className="pampa-product-copy"
-                        onClick={() => onOpenDish(item)}
-                      >
-                        <h3>{item.name}</h3>
-                        {item.description ? <p>{item.description}</p> : null}
-                      </button>
-                      <div className="pampa-product-footer">
-                        <strong>{item.price}</strong>
-                        <button
-                          type="button"
-                          className="pampa-add-button"
-                          onClick={() => onAddItem(item)}
-                          aria-label={`Agregar ${item.name}`}
-                        >
-                          <IconPlus />
-                        </button>
-                      </div>
-                    </div>
-
-                  </article>
-                )
+        {isSearchActive || selectedCategory
+          ? renderPampaProductSection({
+              id: 'selected-products',
+              title: isSearchActive ? 'Resultados' : selectedCategory?.label ?? 'Elegi tu favorita',
+              subtitle: !isSearchActive ? getSaborPampaSectionSubtitle(selectedCategory?.label) : '',
+              items: listItems,
+            })
+          : homeCategorySections.length
+            ? homeCategorySections.map((category) =>
+                renderPampaProductSection({
+                  id: category.id,
+                  title: category.label,
+                  subtitle: getSaborPampaSectionSubtitle(category.label),
+                  items: category.items,
+                  showRibbon: false,
+                  isHomeSection: true,
+                }),
+              )
+            : renderPampaProductSection({
+                id: 'empty-products',
+                title: 'Nuestro menu',
+                subtitle: '',
+                items: [],
               })}
-            </div>
-          ) : (
-            <p className="pampa-empty-category">Todavia no hay productos en esta categoria.</p>
-          )}
-        </article>
 
         <nav className="pampa-order-dock" aria-label="Resumen del pedido">
           <button type="button" onClick={onOpenCart}>
@@ -5075,8 +5127,9 @@ export default function MenuApp() {
   )
   const currentCategory =
     categories.find((category) => category.id === selectedCategory) ??
-    (templateId === 'kika' ? null : categories[0] ?? null)
-  const categoryItems = currentCategory?.items ?? (templateId === 'kika' ? allItems : [])
+    (templateId === 'kika' || templateId === 'sabor-pampa' ? null : categories[0] ?? null)
+  const categoryItems =
+    currentCategory?.items ?? (templateId === 'kika' || templateId === 'sabor-pampa' ? allItems : [])
   const heroDish = categoryItems[0] ?? allItems[0] ?? null
   const deferredSearchQuery = useDeferredValue(searchQuery)
   const normalizedSearchQuery = normalizeSearchText(deferredSearchQuery)

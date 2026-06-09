@@ -10670,6 +10670,8 @@ button:focus-visible {
 
 .pampa-category-row {
   display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
   gap: clamp(0.72rem, 2.8vw, 1rem);
   overflow-x: auto;
   padding-bottom: 0.25rem;
@@ -10738,6 +10740,10 @@ button:focus-visible {
 .pampa-featured-section,
 .pampa-product-section {
   margin-bottom: clamp(1.8rem, 6vw, 2.75rem);
+}
+
+.pampa-product-section.is-home-section {
+  margin-bottom: clamp(2rem, 6.4vw, 3rem);
 }
 
 .pampa-section-heading {
