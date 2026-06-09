@@ -10759,6 +10759,13 @@ button:focus-visible {
   scroll-snap-align: start;
 }
 
+.pampa-featured-card.no-media {
+  min-height: clamp(9.4rem, 34vw, 12rem);
+  background:
+    radial-gradient(circle at 86% 18%, rgba(244, 183, 57, 0.12), transparent 30%),
+    linear-gradient(145deg, rgba(21, 19, 15, 0.98), rgba(5, 7, 6, 0.98));
+}
+
 .pampa-featured-media,
 .pampa-featured-copy,
 .pampa-product-media,
@@ -10819,6 +10826,11 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+}
+
+.pampa-featured-card.no-media .pampa-featured-copy {
+  width: 100%;
+  padding: 3.2rem 1rem 1.05rem;
 }
 
 .pampa-featured-copy h3,
@@ -10884,6 +10896,14 @@ button:focus-visible {
   background: linear-gradient(135deg, rgba(18, 17, 14, 0.96), rgba(6, 8, 7, 0.98));
 }
 
+.pampa-product-card.no-media {
+  min-height: clamp(8.6rem, 34vw, 10.6rem);
+  grid-template-rows: 1fr;
+  background:
+    radial-gradient(circle at 86% 18%, rgba(244, 183, 57, 0.11), transparent 30%),
+    linear-gradient(145deg, rgba(21, 19, 15, 0.98), rgba(5, 7, 6, 0.98));
+}
+
 .pampa-product-media {
   position: relative;
   min-width: 0;
@@ -10906,6 +10926,14 @@ button:focus-visible {
   gap: 0.75rem;
 }
 
+.pampa-product-card.no-media .pampa-product-body {
+  padding: clamp(1.75rem, 6.4vw, 2.25rem) clamp(0.78rem, 3.2vw, 1.05rem) clamp(0.78rem, 3.2vw, 1.05rem);
+}
+
+.pampa-product-card.no-media.has-ribbon .pampa-product-body {
+  padding-top: clamp(2.55rem, 9vw, 3rem);
+}
+
 .pampa-product-copy h3 {
   display: -webkit-box;
   overflow: hidden;
@@ -10913,6 +10941,11 @@ button:focus-visible {
   line-height: 1;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+.pampa-product-card.no-media .pampa-product-copy h3 {
+  font-size: clamp(1.14rem, 5vw, 1.58rem);
+  -webkit-line-clamp: 3;
 }
 
 .pampa-product-copy p {
@@ -10923,6 +10956,10 @@ button:focus-visible {
   line-height: 1.32;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+.pampa-product-card.no-media .pampa-product-copy p {
+  -webkit-line-clamp: 3;
 }
 
 .pampa-product-footer {

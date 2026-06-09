@@ -4112,20 +4112,27 @@ function TemplateMenuCollection({
             <div className="pampa-featured-row">
               {featuredItems.map((item, index) => {
                 const productMedia = renderProductMedia(item)
+                const hasMedia = Boolean(productMedia)
 
                 return (
-                  <article key={item.id} className="pampa-featured-card">
-                    <button
-                      type="button"
-                      className="pampa-featured-media"
-                      onClick={() => onOpenDish(item)}
-                      aria-label={`Ver ${item.name}`}
-                    >
+                  <article key={item.id} className={`pampa-featured-card${hasMedia ? '' : ' no-media'}`}>
+                    {hasMedia ? (
+                      <button
+                        type="button"
+                        className="pampa-featured-media"
+                        onClick={() => onOpenDish(item)}
+                        aria-label={`Ver ${item.name}`}
+                      >
+                        <span className="pampa-card-badge">
+                          {getSaborPampaBadgeText(item, index, item.categoryLabel)}
+                        </span>
+                        {productMedia}
+                      </button>
+                    ) : (
                       <span className="pampa-card-badge">
                         {getSaborPampaBadgeText(item, index, item.categoryLabel)}
                       </span>
-                      {productMedia ?? <SaborPampaMediaPlaceholder />}
-                    </button>
+                    )}
                     <button
                       type="button"
                       className="pampa-featured-copy"
@@ -4159,18 +4166,28 @@ function TemplateMenuCollection({
             <div className="pampa-product-list">
               {listItems.map((item, index) => {
                 const productMedia = renderProductMedia(item)
+                const hasMedia = Boolean(productMedia)
 
                 return (
-                  <article key={item.id} className="pampa-product-card">
-                    <button
-                      type="button"
-                      className="pampa-product-media"
-                      onClick={() => onOpenDish(item)}
-                      aria-label={`Ver ${item.name}`}
-                    >
-                      {index === 0 ? <span className="pampa-favorite-ribbon">Mas pedida</span> : null}
-                      {productMedia ?? <SaborPampaMediaPlaceholder />}
-                    </button>
+                  <article
+                    key={item.id}
+                    className={`pampa-product-card${hasMedia ? '' : ' no-media'}${
+                      !hasMedia && index === 0 ? ' has-ribbon' : ''
+                    }`}
+                  >
+                    {hasMedia ? (
+                      <button
+                        type="button"
+                        className="pampa-product-media"
+                        onClick={() => onOpenDish(item)}
+                        aria-label={`Ver ${item.name}`}
+                      >
+                        {index === 0 ? <span className="pampa-favorite-ribbon">Mas pedida</span> : null}
+                        {productMedia}
+                      </button>
+                    ) : index === 0 ? (
+                      <span className="pampa-favorite-ribbon">Mas pedida</span>
+                    ) : null}
 
                     <div className="pampa-product-body">
                       <button
