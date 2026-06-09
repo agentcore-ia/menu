@@ -10391,11 +10391,8 @@ button:focus-visible {
   display: block;
   width: max-content;
   max-width: 100%;
-  opacity: 0;
-  transform: translateY(0.18em) rotate(-0.35deg);
-  animation:
-    kika-handwrite-appear 1.1s cubic-bezier(0.22, 0.78, 0.26, 1) forwards,
-    kika-handwrite-settle 1.1s ease-out forwards;
+  opacity: 1;
+  transform: none;
 }
 
 .kika-handwrite-line::after {
@@ -10407,80 +10404,47 @@ button:focus-visible {
   background:
     radial-gradient(ellipse at 50% 50%, rgba(47, 67, 43, 0.34), transparent 68%);
   opacity: 0;
-  transform: translateX(-12%) scaleX(0.08);
+  transform: translateX(-18%) scaleX(0.12);
   transform-origin: left;
-  animation: kika-handwrite-trail 1.25s ease-out forwards;
+  animation: kika-handwrite-trail 1.35s ease-out forwards;
   pointer-events: none;
-}
-
-.kika-handwrite-line-one {
-  animation-delay: 0.35s;
 }
 
 .kika-handwrite-line-one::after {
   animation-delay: 0.35s;
 }
 
-.kika-handwrite-line-two {
-  animation-delay: 1.22s;
-}
-
 .kika-handwrite-line-two::after {
   animation-delay: 1.22s;
-}
-
-@keyframes kika-handwrite-appear {
-  0% {
-    opacity: 0;
-    filter: blur(0.08em);
-  }
-
-  45% {
-    opacity: 0.72;
-  }
-
-  100% {
-    opacity: 1;
-    filter: blur(0);
-  }
-}
-
-@keyframes kika-handwrite-settle {
-  100% {
-    transform: translateY(0) rotate(0);
-  }
 }
 
 @keyframes kika-handwrite-trail {
   0% {
     opacity: 0;
-    transform: translateX(-12%) scaleX(0.08);
+    transform: translateX(-18%) scaleX(0.12);
   }
 
-  28% {
-    opacity: 0.52;
+  34% {
+    opacity: 0.45;
   }
 
-  82% {
-    opacity: 0.2;
+  76% {
+    opacity: 0.18;
   }
 
   100% {
     opacity: 0;
-    transform: translateX(12%) scaleX(1);
+    transform: translateX(18%) scaleX(1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .kika-handwrite-line,
   .kika-handwrite-line::after {
     animation: none;
   }
 
-  .kika-handwrite-line {
-    opacity: 1;
-    filter: none;
-    transform: none;
+  .kika-handwrite-line::after {
+    opacity: 0;
   }
 }
 
