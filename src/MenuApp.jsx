@@ -7556,6 +7556,16 @@ export default function MenuApp() {
                   <strong>LA BUONA</strong>
                   <small>Pedido al horno</small>
                 </div>
+              ) : templateId === 'sabor-pampa' ? (
+                <div className="confirmation-pampa-top">
+                  <span className="confirmation-pampa-seal">
+                    <IconEmpanada />
+                  </span>
+                  <div>
+                    <strong>sabor a pampa</strong>
+                    <small>Pedido casero confirmado</small>
+                  </div>
+                </div>
               ) : (
                 <div className="confirmation-ticket">
                   <span className="confirmation-ticket-dot confirmation-ticket-dot-left" />
@@ -7575,10 +7585,16 @@ export default function MenuApp() {
                   ? 'Hecho a la parrilla'
                   : templateId === 'pizzeria'
                     ? 'Directo al horno'
-                    : 'Pedido enviado'}
+                    : templateId === 'sabor-pampa'
+                      ? 'Listo para preparar'
+                      : 'Pedido enviado'}
             </span>
             <h3>Pedido #{lastOrder.orderNumber} confirmado</h3>
-            <p>Ya recibimos tu pedido y vamos a seguir informandote por WhatsApp.</p>
+            <p>
+              {templateId === 'sabor-pampa'
+                ? 'Ya recibimos tu pedido. Lo preparamos con el sabor de casa y te contactamos para coordinarlo.'
+                : 'Ya recibimos tu pedido y vamos a seguir informandote por WhatsApp.'}
+            </p>
             <div className="confirmation-meta">
               <div>
                 <span>Total</span>
@@ -7620,7 +7636,7 @@ export default function MenuApp() {
                   <small>
                     {lastOrder.customerWhatsapp?.url
                       ? 'Se abrio el chat con el pedido listo para enviar.'
-                      : 'El negocio todavia no tiene WhatsApp configurado.'}
+                      : 'Te vamos a contactar para coordinar el pedido.'}
                   </small>
                 </div>
               </div>

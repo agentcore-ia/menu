@@ -6214,6 +6214,15 @@
   box-shadow: 0 26px 46px rgba(42, 47, 28, 0.22);
 }
 
+.confirmation-card-sabor-pampa {
+  background:
+    radial-gradient(circle at 86% 6%, rgba(244, 183, 57, 0.12), transparent 28%),
+    linear-gradient(180deg, #11100d 0%, #050706 100%);
+  color: #f7efe2;
+  border: 0.08rem solid rgba(244, 183, 57, 0.28);
+  box-shadow: 0 1.6rem 3.2rem rgba(0, 0, 0, 0.48);
+}
+
 .confirmation-hero {
   padding: 0.2rem 0 0.6rem;
 }
@@ -6290,6 +6299,33 @@
   border: 1px solid rgba(20, 64, 36, 0.16);
 }
 
+.confirmation-pampa-top {
+  position: relative;
+  overflow: hidden;
+  min-height: 7.5rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: end;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 0.08rem solid rgba(244, 183, 57, 0.28);
+  border-radius: 1.45rem;
+  background:
+    radial-gradient(circle at 88% 10%, rgba(244, 183, 57, 0.18), transparent 4.8rem),
+    linear-gradient(135deg, rgba(18, 17, 14, 0.98), rgba(5, 7, 6, 0.98));
+}
+
+.confirmation-pampa-top::after {
+  content: '';
+  position: absolute;
+  right: -1.5rem;
+  bottom: -2.4rem;
+  width: 7.2rem;
+  aspect-ratio: 1;
+  border: 0.08rem solid rgba(244, 183, 57, 0.22);
+  border-radius: 50%;
+}
+
 .confirmation-burger-flame,
 .confirmation-pizzeria-oven {
   width: 3.35rem;
@@ -6311,10 +6347,31 @@
   box-shadow: 0 14px 24px rgba(18, 63, 37, 0.16);
 }
 
+.confirmation-pampa-seal {
+  width: 3.35rem;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #090806;
+  background: #f4b739;
+  box-shadow: 0 0.85rem 1.45rem rgba(244, 183, 57, 0.18);
+}
+
 .confirmation-burger-flame svg,
 .confirmation-pizzeria-oven svg {
   width: 1.65rem;
   height: 1.65rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.confirmation-pampa-seal svg {
+  width: 1.75rem;
+  height: 1.75rem;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
@@ -6344,6 +6401,30 @@
 .confirmation-pizzeria-top strong,
 .confirmation-pizzeria-top small {
   color: #123f25;
+}
+
+.confirmation-pampa-top strong,
+.confirmation-pampa-top small {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
+.confirmation-pampa-top strong {
+  color: #f7efe2;
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+}
+
+.confirmation-pampa-top small {
+  margin-top: 0.45rem;
+  color: #f4b739;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 .confirmation-ticket {
@@ -6448,6 +6529,11 @@
   color: #913122;
 }
 
+.confirmation-card-sabor-pampa .confirmation-kicker {
+  background: rgba(244, 183, 57, 0.13);
+  color: #f4b739;
+}
+
 .confirmation-card h3 {
   margin: 0.95rem 0 0;
   font-size: 1.85rem;
@@ -6471,6 +6557,12 @@
   font-family: var(--font-display, serif);
 }
 
+.confirmation-card-sabor-pampa h3 {
+  color: #f7efe2;
+  font-family: var(--font-display);
+  font-size: 2rem;
+}
+
 .confirmation-card p {
   margin: 0.8rem 0 0;
   line-height: 1.6;
@@ -6485,6 +6577,10 @@
   color: rgba(23, 61, 37, 0.78);
 }
 
+.confirmation-card-sabor-pampa p {
+  color: rgba(247, 239, 226, 0.78);
+}
+
 .confirmation-card strong {
   color: var(--theme-text);
 }
@@ -6495,6 +6591,10 @@
 
 .confirmation-card-pizzeria strong {
   color: #173d25;
+}
+
+.confirmation-card-sabor-pampa strong {
+  color: #f7efe2;
 }
 
 .confirmation-meta {
@@ -6524,6 +6624,16 @@
 .confirmation-card-pizzeria .confirmation-meta div {
   background: rgba(255, 250, 239, 0.84);
   border-color: rgba(20, 64, 36, 0.12);
+}
+
+.confirmation-card-sabor-pampa .confirmation-meta div {
+  background: rgba(247, 239, 226, 0.06);
+  border-color: rgba(244, 183, 57, 0.2);
+}
+
+.confirmation-card-sabor-pampa .confirmation-meta span,
+.confirmation-card-sabor-pampa .confirmation-step small {
+  color: rgba(247, 239, 226, 0.68);
 }
 
 .confirmation-meta span {
@@ -6605,6 +6715,11 @@
   box-shadow: 0 10px 18px rgba(145, 49, 34, 0.18);
 }
 
+.confirmation-card-sabor-pampa .confirmation-step.active > span {
+  background: #f4b739;
+  box-shadow: 0 10px 18px rgba(244, 183, 57, 0.18);
+}
+
 .confirmation-step.active > span::after {
   content: '';
   position: absolute;
@@ -6660,7 +6775,8 @@
 
 .confirmation-card-gelato .confirmation-button-secondary,
 .confirmation-card-burger .confirmation-button-secondary,
-.confirmation-card-pizzeria .confirmation-button-secondary {
+.confirmation-card-pizzeria .confirmation-button-secondary,
+.confirmation-card-sabor-pampa .confirmation-button-secondary {
   background: rgba(255, 255, 255, 0.06);
   color: inherit;
   box-shadow: none;
@@ -6676,6 +6792,12 @@
   background: #123f25;
   color: #fff7e7;
   box-shadow: 0 16px 28px rgba(18, 63, 37, 0.16);
+}
+
+.confirmation-card-sabor-pampa .confirmation-button {
+  background: #f4b739;
+  color: #090806;
+  box-shadow: 0 16px 28px rgba(244, 183, 57, 0.18);
 }
 
 .recommendation-group {
