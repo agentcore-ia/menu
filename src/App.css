@@ -10986,17 +10986,14 @@ button:focus-visible {
   background: #f4b739;
 }
 
-.pampa-favorite-button {
-  position: absolute;
-  right: 0.55rem;
-  top: 0.55rem;
-  width: clamp(2rem, 8vw, 2.35rem);
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border: 0;
-  color: #f4b739;
-  background: transparent;
+.pampa-add-button svg {
+  width: 54%;
+  height: 54%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .pampa-favorite-ribbon {

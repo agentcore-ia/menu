@@ -4211,9 +4211,6 @@ function TemplateMenuCollection({
                       </div>
                     </div>
 
-                    <button type="button" className="pampa-favorite-button" aria-label="Guardar favorito">
-                      <IconHeart />
-                    </button>
                   </article>
                 )
               })}
