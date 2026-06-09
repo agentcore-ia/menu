@@ -4145,6 +4145,9 @@ function TemplateMenuCollection({
                   onClick={() => onOpenDish(item)}
                 >
                   <h3>{item.name}</h3>
+                  {item.categoryLabel ? (
+                    <span className="pampa-product-category">{item.categoryLabel}</span>
+                  ) : null}
                   {item.description ? <p>{item.description}</p> : null}
                 </button>
                 <div className="pampa-product-footer">
@@ -4235,6 +4238,9 @@ function TemplateMenuCollection({
                       onClick={() => onOpenDish(item)}
                     >
                       <h3>{item.name}</h3>
+                      {item.categoryLabel ? (
+                        <span className="pampa-product-category">{item.categoryLabel}</span>
+                      ) : null}
                       {item.description ? <p>{item.description}</p> : null}
                       <strong>{item.price}</strong>
                     </button>
@@ -6915,6 +6921,7 @@ export default function MenuApp() {
 
                           <div className="mini-card-body">
                             <h4>{item.name}</h4>
+                            {item.categoryLabel ? <p className="mini-card-category">{item.categoryLabel}</p> : null}
                             <div className="mini-card-footer">
                               <strong>{item.price}</strong>
                               <button
@@ -7091,6 +7098,7 @@ export default function MenuApp() {
                             {renderMiniCardMedia(item)}
                             <div className="mini-card-body">
                               <h4>{item.name}</h4>
+                              {item.categoryLabel ? <p className="mini-card-category">{item.categoryLabel}</p> : null}
                               <div className="mini-card-footer">
                                 <strong>{item.price}</strong>
                                 <button
