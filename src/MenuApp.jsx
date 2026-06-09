@@ -5249,11 +5249,24 @@ export default function MenuApp() {
     [rewardRedemptions, cartSubtotal],
   )
   const cartTotal = Math.max(0, cartSubtotal - redemptionDiscountTotal)
+  const configuredDeliveryFee = Math.max(
+    0,
+    Number(
+      menu?.deliveryFee ??
+        menu?.delivery_fee ??
+        menu?.restaurant?.deliveryFee ??
+        menu?.restaurant?.delivery_fee ??
+        0,
+    ) || 0,
+  )
   const hasDiscountRedemptions = rewardRedemptions.some((line) => line.rewardType === 'discount')
   const orderCount = cartCount + redemptionCount
   const hasOrderItems = orderCount > 0
-  const orderTotalLabel = cartTotal > 0
-    ? formatPrice(cartTotal, currencySymbol)
+  const selectedDeliveryFee =
+    hasOrderItems && orderForm.deliveryType === 'delivery' ? configuredDeliveryFee : 0
+  const orderTotal = cartTotal + selectedDeliveryFee
+  const orderTotalLabel = orderTotal > 0
+    ? formatPrice(orderTotal, currencySymbol)
     : redemptionCount > 0
       ? 'Canje'
       : 'Sin productos'
@@ -7232,9 +7245,12 @@ export default function MenuApp() {
                       {redemptionDiscountTotal > 0 ? (
                         <small>Descuento: -{formatPrice(redemptionDiscountTotal, currencySymbol)}</small>
                       ) : null}
+                      {selectedDeliveryFee > 0 ? (
+                        <small>Envio: +{formatPrice(selectedDeliveryFee, currencySymbol)}</small>
+                      ) : null}
                       {loyaltyEarnPreviewText ? <small>{loyaltyEarnPreviewText}</small> : null}
                     </div>
-                    <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
+                    <strong>{formatPrice(orderTotal, currencySymbol)}</strong>
                   </div>
 
                   {orderingBlocked ? (
@@ -7359,9 +7375,12 @@ export default function MenuApp() {
                     {redemptionDiscountTotal > 0 ? (
                       <small>Descuento: -{formatPrice(redemptionDiscountTotal, currencySymbol)}</small>
                     ) : null}
+                    {selectedDeliveryFee > 0 ? (
+                      <small>Envio: +{formatPrice(selectedDeliveryFee, currencySymbol)}</small>
+                    ) : null}
                     {loyaltyEarnPreviewText ? <small>{loyaltyEarnPreviewText}</small> : null}
                   </div>
-                  <strong>{formatPrice(cartTotal, currencySymbol)}</strong>
+                  <strong>{formatPrice(orderTotal, currencySymbol)}</strong>
                 </div>
               ) : null}
 

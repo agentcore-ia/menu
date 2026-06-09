@@ -157,6 +157,7 @@ export class SupabaseMenuRepository {
     return {
       accountId: restaurant.slug,
       accountName: restaurant.name,
+      deliveryFee: Number(restaurant.delivery_fee ?? 0),
       currency: 'USD',
       locale: 'es',
       presentationConfig,
