@@ -3614,11 +3614,52 @@ function TemplateCategorySelector({
 
     return (
       <div className="pampa-menu-head" aria-label="Categorias de Sabor a Pampa">
-        <div className="pampa-menu-title">
-          <span aria-hidden="true" />
-          <h2>Nuestro menu</h2>
-          <span aria-hidden="true" />
+        <div className="pampa-menu-title-row">
+          <div className="pampa-menu-title">
+            <span aria-hidden="true" />
+            <h2>Nuestro menu</h2>
+            <span aria-hidden="true" />
+          </div>
+
+          {isSearchOpen || searchQuery ? null : (
+            <button
+              type="button"
+              className="pampa-search-button"
+              aria-label="Buscar productos"
+              onClick={onOpenSearch}
+            >
+              <IconSearch />
+            </button>
+          )}
         </div>
+
+        {isSearchOpen || searchQuery ? (
+          <form
+            className="pampa-search-form"
+            role="search"
+            onSubmit={(event) => event.preventDefault()}
+          >
+            <IconSearch />
+            <input
+              value={searchQuery}
+              onChange={(event) => onSearchQueryChange?.(event.target.value)}
+              placeholder="Buscar productos..."
+              aria-label="Buscar productos"
+              autoFocus
+            />
+            <button
+              type="button"
+              className="pampa-search-clear"
+              aria-label="Cerrar busqueda"
+              onClick={() => {
+                onSearchQueryChange?.('')
+                onCloseSearch?.()
+              }}
+            >
+              x
+            </button>
+          </form>
+        ) : null}
 
         <div className="pampa-category-row">
           {orderedCategories.map((category) => {

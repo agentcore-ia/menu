@@ -10638,6 +10638,14 @@ button:focus-visible {
   margin-bottom: clamp(2rem, 7vw, 3rem);
 }
 
+.pampa-menu-title-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.75rem, 3vw, 1rem);
+  margin-bottom: 1.6rem;
+}
+
 .pampa-menu-title,
 .pampa-section-heading {
   display: flex;
@@ -10648,7 +10656,7 @@ button:focus-visible {
 
 .pampa-menu-title {
   justify-content: center;
-  margin-bottom: 1.6rem;
+  min-width: 0;
 }
 
 .pampa-menu-title h2,
@@ -10666,6 +10674,70 @@ button:focus-visible {
   width: 1.6rem;
   height: 0.08rem;
   background: #f4b739;
+}
+
+.pampa-search-button {
+  width: clamp(2.9rem, 11vw, 3.6rem);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 0.08rem solid rgba(247, 239, 226, 0.22);
+  border-radius: 50%;
+  color: #f4b739;
+  background: rgba(16, 16, 13, 0.76);
+  box-shadow: inset 0 0.08rem 0 rgba(247, 239, 226, 0.08);
+}
+
+.pampa-search-button svg {
+  width: 42%;
+  height: 42%;
+}
+
+.pampa-search-form {
+  min-height: clamp(3.1rem, 12vw, 3.8rem);
+  display: flex;
+  align-items: center;
+  gap: clamp(0.65rem, 2.8vw, 0.9rem);
+  margin: 0 0 clamp(1.15rem, 4vw, 1.6rem);
+  padding: 0 clamp(0.82rem, 3vw, 1rem);
+  border: 0.08rem solid rgba(244, 183, 57, 0.34);
+  border-radius: 999rem;
+  color: #f7efe2;
+  background: rgba(16, 16, 13, 0.88);
+  box-shadow: inset 0 0.08rem 0 rgba(247, 239, 226, 0.08);
+}
+
+.pampa-search-form svg {
+  width: clamp(1.05rem, 4vw, 1.3rem);
+  height: clamp(1.05rem, 4vw, 1.3rem);
+  flex: 0 0 auto;
+  color: #f4b739;
+}
+
+.pampa-search-form input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  color: inherit;
+  background: transparent;
+  font: 700 clamp(0.88rem, 3.3vw, 1rem) / 1 var(--font-body);
+}
+
+.pampa-search-form input::placeholder {
+  color: rgba(247, 239, 226, 0.52);
+}
+
+.pampa-search-clear {
+  width: clamp(2rem, 7.8vw, 2.4rem);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #090806;
+  background: #f4b739;
+  font: 900 clamp(0.86rem, 3.2vw, 1rem) / 1 var(--font-body);
 }
 
 .pampa-category-row {
