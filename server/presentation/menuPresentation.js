@@ -399,6 +399,55 @@ const presentationPresets = {
       mutedVideos: true,
     },
   },
+  saborPampa: {
+    template: 'sabor-pampa',
+    layout: 'sabor-pampa',
+    branding: {
+      wordmark: 'sabor a pampa',
+      subtitle: 'cocina casera',
+    },
+    theme: {
+      id: 'sabor-pampa',
+      background: '#030505',
+      pageBackground: '#030505',
+      contentBackground: '#050706',
+      surface: '#11100d',
+      surfaceAlt: '#0a0b09',
+      text: '#f7efe2',
+      muted: 'rgba(247, 239, 226, 0.74)',
+      primary: '#f4b739',
+      primaryText: '#090806',
+      accent: '#e0a329',
+      border: 'rgba(244, 183, 57, 0.22)',
+      shadow: 'rgba(0, 0, 0, 0.42)',
+      displayFont: 'Fraunces',
+      bodyFont: 'Montserrat',
+      categoryActiveBackground: '#f4b739',
+      categoryActiveText: '#090806',
+      categoryText: '#f7efe2',
+      cardBackground: '#10100d',
+      cardText: '#f7efe2',
+      cardMuted: 'rgba(247, 239, 226, 0.72)',
+      cardPrice: '#f4b739',
+      addButtonBackground: '#f4b739',
+      addButtonText: '#090806',
+    },
+    hero: {
+      image: '',
+      video: '',
+      title: 'CASERO, GOURMET',
+      accent: 'y hecho con amor',
+      description: 'Platos que reconfortan, sabores que te hacen volver.',
+    },
+    cards: {
+      style: 'sabor-pampa-cards',
+    },
+    preview: {
+      productMedia: 'video-first',
+      autoplayVideos: true,
+      mutedVideos: true,
+    },
+  },
 }
 
 const accountPresentations = {
@@ -424,6 +473,10 @@ const accountPresentations = {
   host: presentationPresets.host,
   kika: presentationPresets.kika,
   florian: presentationPresets.florian,
+  'sabor-a-pampa': presentationPresets.saborPampa,
+  saborapampa: presentationPresets.saborPampa,
+  'sabor-pampa': presentationPresets.saborPampa,
+  'sabor-a-pampa-cocina': presentationPresets.saborPampa,
   'neurorest-demo': presentationPresets.default,
 }
 

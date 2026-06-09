@@ -114,6 +114,10 @@ const layoutConfigs = {
     description: 'Menu editorial para cafe de especialidad con hero en video, categorias lineales y productos en columnas.',
     headerTextFields: null,
   },
+  'sabor-pampa': {
+    description: 'Menu oscuro y dorado para cocina casera, con hero preparado para imagen/video y cards con media cargable.',
+    headerTextFields: null,
+  },
 }
 
 const inheritedLayoutDefaults = {
@@ -190,6 +194,49 @@ const inheritedLayoutDefaults = {
       mutedVideos: true,
     },
   },
+  'sabor-pampa': {
+    branding: { wordmark: 'sabor a pampa', subtitle: 'cocina casera' },
+    theme: {
+      id: 'inherits-sabor-pampa',
+      inheritPreset: 'sabor-a-pampa',
+      background: '#030505',
+      pageBackground: '#030505',
+      contentBackground: '#050706',
+      surface: '#11100d',
+      surfaceAlt: '#0a0b09',
+      text: '#f7efe2',
+      muted: 'rgba(247, 239, 226, 0.74)',
+      primary: '#f4b739',
+      primaryText: '#090806',
+      accent: '#e0a329',
+      border: 'rgba(244, 183, 57, 0.22)',
+      shadow: 'rgba(0, 0, 0, 0.42)',
+      displayFont: 'Fraunces',
+      bodyFont: 'Montserrat',
+      categoryActiveBackground: '#f4b739',
+      categoryActiveText: '#090806',
+      categoryText: '#f7efe2',
+      cardBackground: '#10100d',
+      cardText: '#f7efe2',
+      cardMuted: 'rgba(247, 239, 226, 0.72)',
+      cardPrice: '#f4b739',
+      addButtonBackground: '#f4b739',
+      addButtonText: '#090806',
+    },
+    hero: {
+      image: '',
+      video: '',
+      title: 'CASERO, GOURMET',
+      accent: 'y hecho con amor',
+      description: 'Platos que reconfortan, sabores que te hacen volver.',
+    },
+    cards: { style: 'sabor-pampa-cards' },
+    preview: {
+      productMedia: 'video-first',
+      autoplayVideos: true,
+      mutedVideos: true,
+    },
+  },
 }
 
 const layoutDescriptions = Object.fromEntries(
@@ -207,6 +254,7 @@ const cardStyleDescriptions = {
   'host-grid': 'Cards oscuras con borde rojo, badge superior y boton rojo circular.',
   'kika-cards': 'Cards claras para cafeteria, con imagen suave, texto compacto y estilo Kika.',
   'florian-list': 'Lista editorial para cafe: media circular, texto a la derecha y precio terracota.',
+  'sabor-pampa-cards': 'Cards oscuras y doradas para cocina casera, preparadas para imagen o video.',
 }
 
 const previewDescriptions = {
@@ -1127,6 +1175,7 @@ export default function AdminApp() {
                     <option value="host">Host crispy</option>
                     <option value="kika">Kika cafe</option>
                     <option value="florian">Florian cafe</option>
+                    <option value="sabor-pampa">Sabor a Pampa</option>
                   </select>
                   <small className="admin-help">{layoutDescriptions[presentation.layout]}</small>
                 </label>
@@ -1147,6 +1196,7 @@ export default function AdminApp() {
                     <option value="host-grid">Host crispy</option>
                     <option value="kika-cards">Kika cafe</option>
                     <option value="florian-list">Florian cafe</option>
+                    <option value="sabor-pampa-cards">Sabor a Pampa</option>
                   </select>
                   <small className="admin-help">
                     {cardStyleDescriptions[presentation.cards.style]}
