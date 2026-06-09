@@ -5005,6 +5005,7 @@ export default function MenuApp() {
   const [loyaltyMessage, setLoyaltyMessage] = useState('')
   const [loyaltyData, setLoyaltyData] = useState(null)
   const [cartFeedback, setCartFeedback] = useState(null)
+  const [pairingFeedbackId, setPairingFeedbackId] = useState('')
   const [orderingNotice, setOrderingNotice] = useState('')
   const [currentTime, setCurrentTime] = useState(() => Date.now())
   const [installPromptEvent, setInstallPromptEvent] = useState(null)
@@ -5318,7 +5319,7 @@ export default function MenuApp() {
   function handleAddItem(item, quantity = 1, configuration = null) {
     if (orderingBlocked) {
       showOrderingClosedNotice()
-      return
+      return false
     }
 
     const maxQuantity = typeof item.maxQuantity === 'number' ? item.maxQuantity : null
@@ -5333,7 +5334,7 @@ export default function MenuApp() {
           ? `${item.name} esta sin stock.`
           : `Solo quedan ${maxQuantity} unidades disponibles de ${item.name}.`,
       )
-      return
+      return false
     }
 
     const unitPrice = configuration?.unitPrice ?? item.unitPrice ?? toNumericPrice(item.price)
@@ -5379,6 +5380,21 @@ export default function MenuApp() {
         },
       ]
     })
+
+    return true
+  }
+
+  function handleAddPairing(product) {
+    const wasAdded = handleAddItem(product)
+
+    if (!wasAdded) {
+      return
+    }
+
+    setPairingFeedbackId(product.id)
+    window.setTimeout(() => {
+      setPairingFeedbackId((current) => (current === product.id ? '' : current))
+    }, 900)
   }
 
   function handleSetItemQuantity(lineId, quantity) {
@@ -7136,18 +7152,28 @@ export default function MenuApp() {
                         <h2>Acompanamientos sugeridos</h2>
                       </div>
                       <div className="pairing-grid">
-                        {cartPairings.map(({ label, product }) => (
-                          <button
-                            key={product.id}
-                            type="button"
-                            className="pairing-chip pairing-chip-action"
-                            onClick={() => handleAddItem(product)}
-                            aria-label={`Agregar ${product.name}`}
-                          >
-                            <span>{product.name || label}</span>
-                            <IconPlus />
-                          </button>
-                        ))}
+                        {cartPairings.map(({ label, product }) => {
+                          const isAdded = pairingFeedbackId === product.id
+
+                          return (
+                            <button
+                              key={product.id}
+                              type="button"
+                              className={`pairing-card pairing-chip-action ${isAdded ? 'is-added' : ''}`}
+                              onClick={() => handleAddPairing(product)}
+                              aria-label={`Agregar ${product.name}`}
+                            >
+                              <span className="pairing-card-copy">
+                                {product.categoryLabel ? <small>{product.categoryLabel}</small> : null}
+                                <strong>{product.name || label}</strong>
+                                <em>{product.price}</em>
+                              </span>
+                              <span className="pairing-card-plus" aria-hidden="true">
+                                {isAdded ? '✓' : <IconPlus />}
+                              </span>
+                            </button>
+                          )
+                        })}
                       </div>
                     </section>
                   ) : null}

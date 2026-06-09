@@ -5928,52 +5928,137 @@
 }
 
 .pairing-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem;
+  display: grid;
+  gap: 0.72rem;
 }
 
-.pairing-chip {
-  display: inline-flex;
+.pairing-card {
+  width: 100%;
+  min-height: 4.6rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.45rem;
-  min-height: 2.4rem;
-  padding: 0.45rem 0.85rem;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--theme-primary) 10%, white);
-  border: 1px solid color-mix(in srgb, var(--theme-primary) 18%, white);
-  color: var(--theme-accent);
+  gap: 0.82rem;
+  padding: 0.78rem 0.82rem 0.78rem 1rem;
+  border: 0.08rem solid color-mix(in srgb, var(--theme-primary) 24%, var(--theme-border));
+  border-radius: 1.15rem;
+  color: var(--theme-text);
+  background:
+    radial-gradient(circle at 94% 16%, color-mix(in srgb, var(--theme-primary) 13%, transparent), transparent 36%),
+    color-mix(in srgb, var(--theme-surface) 86%, transparent);
   font: inherit;
-  font-size: 0.92rem;
-  font-weight: 800;
+  text-align: left;
   cursor: pointer;
   transition:
     transform 160ms ease,
     background 160ms ease,
-    border-color 160ms ease;
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
-.pairing-chip-action:hover {
-  transform: translateY(-1px);
-  background: color-mix(in srgb, var(--theme-primary) 16%, white);
-  border-color: color-mix(in srgb, var(--theme-primary) 28%, white);
+.pairing-chip-action:hover,
+.pairing-card.is-added {
+  transform: translateY(-0.08rem);
+  border-color: color-mix(in srgb, var(--theme-primary) 52%, var(--theme-border));
+  box-shadow: 0 0.8rem 1.45rem color-mix(in srgb, var(--theme-primary) 12%, transparent);
 }
 
-.pairing-chip small {
-  max-width: 8.5rem;
+.pairing-card.is-added {
+  animation: pairing-added-pop 520ms ease both;
+}
+
+.pairing-card-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.pairing-card-copy small {
+  display: block;
   overflow: hidden;
-  color: color-mix(in srgb, var(--theme-text) 72%, var(--theme-muted));
-  font-size: 0.75rem;
-  font-weight: 700;
+  color: var(--theme-muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.pairing-chip svg {
-  width: 0.9rem;
-  height: 0.9rem;
+.pairing-card-copy strong {
+  overflow: hidden;
+  color: inherit;
+  font-size: 0.98rem;
+  font-weight: 900;
+  line-height: 1.12;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pairing-card-copy em {
+  color: var(--theme-primary);
+  font-size: 0.92rem;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.pairing-card-plus {
+  width: 2.65rem;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--theme-primary-text);
+  background: var(--theme-primary);
+  font-size: 1.08rem;
+  font-weight: 950;
   flex: 0 0 auto;
+  box-shadow: 0 0.7rem 1.2rem color-mix(in srgb, var(--theme-primary) 18%, transparent);
+}
+
+.pairing-card-plus svg {
+  width: 1.05rem;
+  height: 1.05rem;
   stroke-width: 2.4;
+}
+
+.detail-phone.template-sabor-pampa .pairing-grid {
+  gap: 0.82rem;
+}
+
+.detail-phone.template-sabor-pampa .pairing-card {
+  border-color: rgba(244, 183, 57, 0.24);
+  color: #f7efe2;
+  background:
+    radial-gradient(circle at 94% 16%, rgba(244, 183, 57, 0.14), transparent 38%),
+    linear-gradient(135deg, rgba(18, 17, 14, 0.96), rgba(5, 7, 6, 0.98));
+}
+
+.detail-phone.template-sabor-pampa .pairing-card-copy small {
+  color: rgba(244, 183, 57, 0.82);
+}
+
+.detail-phone.template-sabor-pampa .pairing-card-copy em {
+  color: #f4b739;
+}
+
+.detail-phone.template-sabor-pampa .pairing-card-plus {
+  color: #090806;
+  background: #f4b739;
+}
+
+@keyframes pairing-added-pop {
+  0% {
+    transform: scale(1);
+  }
+
+  42% {
+    transform: scale(1.035);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .cart-summary-card {
