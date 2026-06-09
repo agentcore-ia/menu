@@ -4147,7 +4147,6 @@ function TemplateMenuCollection({
           const productMedia = renderProductMedia(item)
           const hasMedia = Boolean(productMedia)
           const shouldShowRibbon = showRibbon && index === 0
-          const showBulkActions = shouldShowSaborPampaBulkActions(item)
 
           return (
             <article
@@ -4182,38 +4181,16 @@ function TemplateMenuCollection({
                   ) : null}
                   {item.description ? <p>{item.description}</p> : null}
                 </button>
-                <div className={`pampa-product-footer${showBulkActions ? ' has-bulk-actions' : ''}`}>
+                <div className="pampa-product-footer">
                   <strong>{item.price}</strong>
-                  <div className="pampa-add-actions">
-                    {showBulkActions ? (
-                      <>
-                        <button
-                          type="button"
-                          className="pampa-bulk-add-button"
-                          onClick={() => onAddItem(item, 6)}
-                          aria-label={`Agregar media docena de ${item.name}`}
-                        >
-                          +6
-                        </button>
-                        <button
-                          type="button"
-                          className="pampa-bulk-add-button"
-                          onClick={() => onAddItem(item, 12)}
-                          aria-label={`Agregar una docena de ${item.name}`}
-                        >
-                          +12
-                        </button>
-                      </>
-                    ) : null}
-                    <button
-                      type="button"
-                      className="pampa-add-button"
-                      onClick={() => onAddItem(item)}
-                      aria-label={`Agregar ${item.name}`}
-                    >
-                      <IconPlus />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    className="pampa-add-button"
+                    onClick={() => onAddItem(item)}
+                    aria-label={`Agregar ${item.name}`}
+                  >
+                    <IconPlus />
+                  </button>
                 </div>
               </div>
             </article>
@@ -5947,6 +5924,8 @@ export default function MenuApp() {
   )
   const isHostDetail = templateId === 'host' && Boolean(selectedDish)
   const isKikaDetail = templateId === 'kika' && Boolean(selectedDish)
+  const showSaborPampaDetailBulkActions =
+    templateId === 'sabor-pampa' && shouldShowSaborPampaBulkActions(selectedDish)
   const detailHasHeroMedia = hasProductMedia(selectedDish)
   const socialLinks = getMenuSocialLinks(presentation)
   const appClassName = [
@@ -6937,6 +6916,41 @@ export default function MenuApp() {
                       <IconPlus />
                     </button>
                   </div>
+
+                  {showSaborPampaDetailBulkActions ? (
+                    <div className="pampa-detail-bulk-actions" aria-label="Agregar por docena">
+                      <button
+                        type="button"
+                        disabled={!detailSelectionsValid || orderingBlocked || detailStockBlocked}
+                        onClick={() => {
+                          handleAddItem(selectedDish, 6, {
+                            summary: buildSelectionSummary(detailSelectableGroups, selectedOptions),
+                            unitPrice:
+                              (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal,
+                          })
+                          setSelectedDish(null)
+                        }}
+                      >
+                        <span>Media docena</span>
+                        <strong>+6</strong>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={!detailSelectionsValid || orderingBlocked || detailStockBlocked}
+                        onClick={() => {
+                          handleAddItem(selectedDish, 12, {
+                            summary: buildSelectionSummary(detailSelectableGroups, selectedOptions),
+                            unitPrice:
+                              (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal,
+                          })
+                          setSelectedDish(null)
+                        }}
+                      >
+                        <span>Docena</span>
+                        <strong>+12</strong>
+                      </button>
+                    </div>
+                  ) : null}
 
                   <button
                     type="button"
