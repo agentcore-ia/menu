@@ -10424,9 +10424,7 @@ button:focus-visible {
 /* Sabor a Pampa layout */
 .template-sabor-pampa {
   color: #f7efe2;
-  background:
-    radial-gradient(circle at 70% 8%, rgba(244, 183, 57, 0.16), transparent 28%),
-    linear-gradient(180deg, #020303 0%, #050706 100%);
+  background: #050706;
 }
 
 .template-sabor-pampa.phone-surface {
@@ -10437,7 +10435,8 @@ button:focus-visible {
 
 .template-sabor-pampa .hero-sabor-pampa {
   position: relative;
-  min-height: clamp(27.5rem, 58svh, 32.5rem);
+  height: clamp(29.5rem, 112vw, 30.75rem);
+  min-height: 0;
   padding: clamp(1.15rem, 4vw, 2.2rem) clamp(1rem, 5vw, 2.6rem) 0;
   overflow: hidden;
   background: #030505;
@@ -10469,7 +10468,8 @@ button:focus-visible {
 .hero-content-sabor-pampa {
   position: absolute;
   inset: 0;
-  min-height: inherit;
+  height: 100%;
+  min-height: 0;
   padding: clamp(1.15rem, 4vw, 2.2rem) clamp(1rem, 5vw, 2.6rem) clamp(1.2rem, 3.6vw, 1.75rem);
   display: flex;
   flex-direction: column;
@@ -10548,8 +10548,8 @@ button:focus-visible {
   z-index: 2;
   width: min(78%, 25rem);
   align-self: flex-start;
-  margin-top: clamp(0.25rem, 1.6vw, 0.8rem);
-  margin-bottom: 0;
+  margin-top: clamp(1.15rem, 4.8vw, 1.8rem);
+  margin-bottom: clamp(0.75rem, 3vw, 1rem);
 }
 
 .pampa-hero-copy h1 {
@@ -11144,14 +11144,8 @@ button:focus-visible {
 }
 
 @media (max-width: 26.25rem) {
-  .template-sabor-pampa .hero-sabor-pampa {
-    min-height: 32.25rem;
-  }
-
   .pampa-hero-copy {
     width: 88%;
-    margin-top: 1.8rem;
-    margin-bottom: 1rem;
   }
 
   .pampa-feature-strip {
