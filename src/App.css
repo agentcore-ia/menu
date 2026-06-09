@@ -10446,6 +10446,7 @@ button:focus-visible {
 .template-sabor-pampa .hero-topbar {
   position: relative;
   z-index: 4;
+  padding: clamp(0.8rem, 3vw, 1.15rem) clamp(0.45rem, 2vw, 0.75rem) 0;
 }
 
 .template-sabor-pampa .icon-button,
