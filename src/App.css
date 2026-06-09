@@ -10957,14 +10957,15 @@ button:focus-visible {
 
 .pampa-product-list {
   display: grid;
-  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.72rem, 2.8vw, 1rem);
 }
 
 .pampa-product-card {
   position: relative;
-  min-height: clamp(11rem, 42vw, 15rem);
+  min-height: 0;
   display: grid;
-  grid-template-columns: 43% 1fr;
+  grid-template-rows: auto 1fr;
   overflow: hidden;
   border: 0.08rem solid rgba(247, 239, 226, 0.2);
   border-radius: 1rem;
@@ -10974,6 +10975,7 @@ button:focus-visible {
 .pampa-product-media {
   position: relative;
   min-width: 0;
+  height: clamp(7.1rem, 31vw, 9.35rem);
   padding: 0;
 }
 
@@ -10986,26 +10988,37 @@ button:focus-visible {
 
 .pampa-product-body {
   min-width: 0;
-  padding: clamp(1rem, 4vw, 1.45rem);
+  padding: clamp(0.72rem, 3vw, 1rem);
   display: grid;
-  align-content: center;
-  gap: 0.9rem;
+  align-content: space-between;
+  gap: 0.75rem;
 }
 
 .pampa-product-copy h3 {
-  font-size: clamp(1.35rem, 5.5vw, 2rem);
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: clamp(1.05rem, 4.6vw, 1.45rem);
+  line-height: 1;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .pampa-product-copy p {
+  display: -webkit-box;
+  overflow: hidden;
   margin-block: 0.55rem 0;
+  font-size: clamp(0.72rem, 2.8vw, 0.88rem);
+  line-height: 1.32;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .pampa-product-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.8rem;
-  padding-top: 0.8rem;
+  gap: 0.55rem;
+  padding-top: 0.62rem;
   border-top: 0.08rem dashed rgba(244, 183, 57, 0.62);
 }
 
@@ -11014,7 +11027,7 @@ button:focus-visible {
 }
 
 .pampa-add-button {
-  width: 3rem;
+  width: clamp(2.35rem, 9vw, 2.75rem);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -11026,9 +11039,9 @@ button:focus-visible {
 
 .pampa-favorite-button {
   position: absolute;
-  right: 0.9rem;
-  top: 0.9rem;
-  width: 2.6rem;
+  right: 0.55rem;
+  top: 0.55rem;
+  width: clamp(2rem, 8vw, 2.35rem);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -11039,9 +11052,9 @@ button:focus-visible {
 
 .pampa-favorite-ribbon {
   right: auto;
-  width: 4.2rem;
+  width: 3.65rem;
   border-radius: 0 0 0.6rem 0.6rem;
-  font-size: 0.62rem;
+  font-size: 0.56rem;
   text-align: center;
 }
 
@@ -11158,10 +11171,6 @@ button:focus-visible {
   .pampa-feature-strip small {
     font-size: 0.66rem;
     line-height: 1.2;
-  }
-
-  .pampa-product-card {
-    grid-template-columns: 42% 1fr;
   }
 
   .pampa-info-grid {
