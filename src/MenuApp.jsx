@@ -579,6 +579,86 @@ function IconEmpanada() {
   )
 }
 
+function IconSteak() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M7.1 17.5c.4-5.5 5.4-9.6 11.2-9.1 4.7.4 7.3 3.4 6.7 7.4-.7 4.7-5.6 8.2-11.2 7.6-4.2-.4-7-2.7-6.7-5.9z" />
+      <path d="M14.4 14.9c.3-1.7 2-2.8 3.7-2.5 1.6.3 2.5 1.5 2.2 2.9-.3 1.5-1.9 2.5-3.6 2.2-1.6-.2-2.6-1.3-2.3-2.6z" />
+      <path d="M8.4 19.8c3.8.3 7.4-.4 10.9-2.1" />
+    </svg>
+  )
+}
+
+function IconMilanesa() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M6.1 16.8c.7-4.1 5.1-7 10.8-7 5.4 0 9.1 2.6 9 6.4-.1 4.1-4.3 6.7-10.2 6.7-6.1 0-10.3-2.3-9.6-6.1z" />
+      <path d="M9.8 15.3c2.1-.9 4.4-1.2 6.9-.9M11.1 19.2c2.8.6 5.8.5 9-.2M20.2 13.1c1.2.5 2.1 1.2 2.8 2.1" />
+    </svg>
+  )
+}
+
+function IconOmelette() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M6.8 17.2c1.5-4.8 5.4-7.5 10.2-7 4.6.5 7.9 3.8 8.2 8.6-4.4 2.8-11.1 3.5-16.2 1.3-1.5-.6-2.2-1.6-2.2-2.9z" />
+      <path d="M12.5 16.2c1.1-1.9 3.5-2.4 5.1-1.1 1.4 1.1 1.1 3.1-.6 3.9-1.9.9-4.2-.3-4.5-2.8z" />
+    </svg>
+  )
+}
+
+function IconPasta() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M7.7 15.5h16.6l-1.7 8.1H9.4l-1.7-8.1z" />
+      <path d="M9.8 15.1c1.3-2.7 3.4-4.1 6.2-4.1s4.9 1.4 6.2 4.1" />
+      <path d="M11.4 12.5c.9.9 1.9.9 2.8 0 .9.9 1.9.9 2.8 0 .9.9 1.9.9 2.8 0" />
+      <path d="M12.5 18.2h7M11.6 21h8.8" />
+    </svg>
+  )
+}
+
+function IconSauce() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M12.4 9.2h7.2l1.4 14.3H11L12.4 9.2z" />
+      <path d="M13.4 6.6h5.2v2.6h-5.2z" />
+      <path d="M12.3 14.2h7.4" />
+      <path d="M14.1 18.3c1.1-.9 2.7-.9 3.8 0" />
+    </svg>
+  )
+}
+
+function IconTart() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M6.5 14.8h19l-2.1 8.4H8.6l-2.1-8.4z" />
+      <path d="M8.8 14.5c1-3.6 3.4-5.5 7.2-5.5s6.2 1.9 7.2 5.5" />
+      <path d="M10.2 18.1c1.1.8 2.2.8 3.3 0 1.1.8 2.2.8 3.3 0 1.1.8 2.2.8 3.3 0" />
+    </svg>
+  )
+}
+
+function IconChefHat() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M9.2 14.5c-1.8-.3-3.1-1.8-3.1-3.6 0-2.1 1.7-3.7 3.8-3.7.8 0 1.5.2 2.1.6 1-1.7 2.5-2.6 4.4-2.6 2.4 0 4.2 1.4 5 3.5.5-.2 1.1-.4 1.7-.4 2.1 0 3.8 1.7 3.8 3.8 0 1.8-1.3 3.3-3.1 3.6" />
+      <path d="M9.2 14.3h14.6l-1 10.1H10.2L9.2 14.3z" />
+      <path d="M12.2 18.1h7.6M12.6 21h6.8" />
+    </svg>
+  )
+}
+
+function IconSideDish() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M7.6 16.3h16.8l-1.8 7H9.4l-1.8-7z" />
+      <path d="M10.1 15.9c.3-2.8 2.6-4.7 5.2-4 .8-1.8 3.7-2.2 4.9.1 2.2.2 3.5 1.6 3.3 3.9" />
+      <path d="M11.8 19h8.5" />
+    </svg>
+  )
+}
+
 function PizzeriaLogo() {
   return (
     <div className="pizzeria-logo" aria-label="La Buona Pizzeria">
@@ -2545,15 +2625,27 @@ const saborPampaCategoryOrder = [
   'sandwich',
   'para-pedir',
   'pedido',
-  'ensalada',
   'hamburgues',
   'burger',
   'empanada',
   'carne',
+  'milanesa',
+  'suprema',
   'pollo',
+  'pasta',
+  'pizza',
+  'tarta',
+  'tortilla',
+  'omelette',
+  'ensalada',
+  'guarnicion',
+  'papa',
+  'salsa',
   'verdura',
   'bebida',
   'postre',
+  'sugerencia',
+  'chef',
 ]
 
 function getSaborPampaOrderedCategories(categories = []) {
@@ -2574,36 +2666,84 @@ function getSaborPampaCategoryMeta(label) {
     return { label: 'Promos', icon: IconSpark, tone: 'promo' }
   }
 
+  if (key.includes('sugerencia') || key.includes('chef')) {
+    return { label, icon: IconChefHat, tone: 'chef' }
+  }
+
   if (key.includes('sandwich')) {
-    return { label: 'Sandwiches', icon: IconBurger, tone: 'sandwich' }
+    return { label, icon: IconKikaSandwich, tone: 'sandwich' }
   }
 
   if (key.includes('para-pedir') || key.includes('pedido') || key.includes('combo')) {
     return { label: 'Para pedir', icon: IconCart, tone: 'pedido' }
   }
 
-  if (key.includes('ensalada')) {
-    return { label: 'Ensaladas', icon: IconLeafMark, tone: 'ensalada' }
-  }
-
   if (key.includes('hamburgues') || key.includes('burger')) {
-    return { label: 'Burgers', icon: IconBurger, tone: 'burger' }
+    return { label, icon: IconBurger, tone: 'burger' }
   }
 
   if (key.includes('empanada')) {
-    return { label: 'Empanadas', icon: IconEmpanada, tone: 'empanada' }
+    return { label, icon: IconEmpanada, tone: 'empanada' }
+  }
+
+  if (key.includes('milanesa')) {
+    return { label, icon: IconMilanesa, tone: 'milanesa' }
+  }
+
+  if (key.includes('suprema')) {
+    return { label, icon: IconDrumstick, tone: 'pollo' }
   }
 
   if (key.includes('carne')) {
-    return { label: 'Carne', icon: IconServe, tone: 'carne' }
+    return { label, icon: IconSteak, tone: 'carne' }
   }
 
   if (key.includes('pollo')) {
-    return { label: 'Pollo', icon: IconDrumstick, tone: 'pollo' }
+    return { label, icon: IconDrumstick, tone: 'pollo' }
+  }
+
+  if (key.includes('pasta')) {
+    return { label, icon: IconPasta, tone: 'pasta' }
+  }
+
+  if (key.includes('pizza')) {
+    return { label, icon: IconPizzaOutline, tone: 'pizza' }
+  }
+
+  if (key.includes('tarta')) {
+    return { label, icon: IconTart, tone: 'tarta' }
+  }
+
+  if (key.includes('tortilla') || key.includes('omelette')) {
+    return { label, icon: IconOmelette, tone: 'omelette' }
+  }
+
+  if (key.includes('ensalada')) {
+    return { label, icon: IconKikaSalad, tone: 'ensalada' }
+  }
+
+  if (key.includes('guarnicion') || key.includes('acompan')) {
+    return { label, icon: IconSideDish, tone: 'guarnicion' }
+  }
+
+  if (key.includes('papa')) {
+    return { label, icon: IconFries, tone: 'papa' }
+  }
+
+  if (key.includes('salsa')) {
+    return { label, icon: IconSauce, tone: 'salsa' }
+  }
+
+  if (key.includes('postre') || key.includes('dulce')) {
+    return { label, icon: IconKikaCake, tone: 'postre' }
+  }
+
+  if (key.includes('bebida')) {
+    return { label, icon: HostIconDrink, tone: 'bebida' }
   }
 
   if (key.includes('verdura') || key.includes('vegetal')) {
-    return { label: 'Verdura', icon: IconLeafMark, tone: 'verdura' }
+    return { label, icon: IconKikaLeaf, tone: 'verdura' }
   }
 
   return { label, icon: IconServe, tone: 'default' }

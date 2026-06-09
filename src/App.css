@@ -10692,6 +10692,15 @@ button:focus-visible {
   font: 700 clamp(0.72rem, 2.8vw, 0.95rem) / 1.1 var(--font-body);
 }
 
+.pampa-category-pill > span:last-child {
+  display: -webkit-box;
+  overflow: hidden;
+  max-width: clamp(5.2rem, 22vw, 7.5rem);
+  min-height: 2.2em;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .pampa-category-icon {
   width: clamp(4.1rem, 17vw, 5.85rem);
   aspect-ratio: 1;
@@ -10706,6 +10715,11 @@ button:focus-visible {
 .pampa-category-icon svg {
   width: 42%;
   height: 42%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .pampa-category-pill.active .pampa-category-icon {
