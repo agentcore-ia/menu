@@ -5030,6 +5030,7 @@ export default function MenuApp() {
 
   const presentation = menu?.presentation ?? defaultPresentation
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
+  const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled !== false
   const rawCategories = menu?.categories ?? emptyCategories
   const categories = useMemo(
     () => {
@@ -5046,7 +5047,7 @@ export default function MenuApp() {
   }, [accountId, presentation])
 
   useEffect(() => {
-    if (status !== 'ready' || isPwaInstalled || isStandalonePwa()) {
+    if (!pwaPromptEnabled || status !== 'ready' || isPwaInstalled || isStandalonePwa()) {
       return undefined
     }
 
@@ -5064,7 +5065,7 @@ export default function MenuApp() {
     }, installPromptEvent ? 700 : 1300)
 
     return () => window.clearTimeout(timeout)
-  }, [accountId, installPromptEvent, isPwaInstalled, status])
+  }, [accountId, installPromptEvent, isPwaInstalled, pwaPromptEnabled, status])
 
   const allItems = categories.flatMap((category) =>
     category.items.map((item) => ({
@@ -6050,7 +6051,7 @@ export default function MenuApp() {
       ) : null}
 
       <InstallAppPrompt
-        open={installPromptOpen}
+        open={pwaPromptEnabled && installPromptOpen}
         accountName={menu?.accountName ?? presentation.branding?.wordmark ?? accountId}
         loyaltyEnabled={Boolean(loyaltySettings?.enabled)}
         platform={installPlatform}
