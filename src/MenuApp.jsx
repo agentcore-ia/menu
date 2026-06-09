@@ -5914,8 +5914,8 @@ export default function MenuApp() {
                 className={`option-card selected ${optionMedia ? 'has-media' : ''}`}
               >
                 {optionMedia ? optionMedia : null}
-                <span>{option.label}</span>
-                <small>
+                <span className="option-label">{option.label}</span>
+                <small className="option-price">
                   {option.quantity > 1 ? `${option.quantity} unidades` : 'Incluido'}
                 </small>
               </div>
@@ -6843,9 +6843,11 @@ export default function MenuApp() {
                               onClick={() => handleSelectDetailOption(group, option.value)}
                             >
                               {optionMedia ? optionMedia : null}
-                              <span>{option.label}</span>
+                              <span className="option-label">{option.label}</span>
                               {Number(option.price || 0) > 0 ? (
-                                <small>{formatPrice(Number(option.price || 0), currencySymbol)}</small>
+                                <small className="option-price">
+                                  {formatPrice(Number(option.price || 0), currencySymbol)}
+                                </small>
                               ) : null}
                             </button>
                           )
