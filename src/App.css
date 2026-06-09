@@ -6924,7 +6924,7 @@ button:focus-visible {
 }
 
 .admin-container {
-  max-width: 76rem;
+  max-width: 86rem;
   margin: 0 auto;
   display: grid;
   gap: 1rem;
@@ -7033,6 +7033,79 @@ button:focus-visible {
   gap: 1rem;
 }
 
+.admin-command-center {
+  position: sticky;
+  top: 0.85rem;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0.55rem;
+  border: 1px solid rgba(84, 73, 45, 0.12);
+  border-radius: 1.35rem;
+  background: rgba(255, 251, 245, 0.82);
+  box-shadow: 0 1rem 2.4rem rgba(64, 51, 30, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.admin-nav-card {
+  display: grid;
+  gap: 0.16rem;
+  min-height: 5.7rem;
+  padding: 0.9rem;
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  color: rgba(31, 36, 27, 0.76);
+  background: rgba(255, 255, 255, 0.46);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-nav-card:hover:not(:disabled) {
+  transform: translateY(-0.08rem);
+  border-color: rgba(68, 93, 57, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.admin-nav-card.is-active {
+  color: #fffdf8;
+  border-color: rgba(68, 93, 57, 0.18);
+  background:
+    linear-gradient(135deg, rgba(68, 93, 57, 0.98), rgba(47, 66, 37, 0.94)),
+    #445d39;
+  box-shadow: 0 1rem 2rem rgba(68, 93, 57, 0.18);
+}
+
+.admin-nav-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.admin-nav-card span {
+  color: currentColor;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.admin-nav-card strong {
+  font-size: 1.02rem;
+}
+
+.admin-nav-card small {
+  color: currentColor;
+  font-size: 0.76rem;
+  line-height: 1.25;
+  opacity: 0.78;
+}
+
 .admin-card {
   padding: 1.2rem;
   border-radius: 1.5rem;
@@ -7075,6 +7148,48 @@ button:focus-visible {
 
 .admin-form-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-presentation-grid {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.admin-control-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.95rem;
+  padding: 1rem;
+  border: 1px solid rgba(84, 73, 45, 0.12);
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.28)),
+    rgba(68, 93, 57, 0.035);
+}
+
+.admin-control-group-head {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.2rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(84, 73, 45, 0.1);
+}
+
+.admin-control-group-head h3 {
+  margin: 0;
+  font-size: clamp(1.08rem, 2vw, 1.35rem);
+}
+
+.admin-control-group-head p {
+  margin: 0;
+  max-width: 44rem;
+  color: rgba(31, 36, 27, 0.62);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.admin-control-group-compact {
+  align-items: center;
 }
 
 .admin-field,
@@ -8463,8 +8578,15 @@ button:focus-visible {
 
   .admin-grid,
   .admin-form-grid,
-  .admin-copy-form {
+  .admin-copy-form,
+  .admin-command-center,
+  .admin-control-group,
+  .admin-media-toolbar {
     grid-template-columns: 1fr;
+  }
+
+  .admin-command-center {
+    position: static;
   }
 
   .admin-section-head,
@@ -10279,6 +10401,24 @@ button:focus-visible {
   overflow: hidden;
   border-radius: 0;
   background: var(--kika-page-bg, #F4F2EF);
+}
+
+.admin-media-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 24rem) auto;
+  align-items: end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(84, 73, 45, 0.1);
+  border-radius: 1.15rem;
+  background: rgba(68, 93, 57, 0.05);
+}
+
+.admin-media-toolbar p {
+  margin: 0 0 0.85rem;
+  color: rgba(31, 36, 27, 0.62);
+  font-weight: 800;
 }
 
 /* Sabor a Pampa layout */

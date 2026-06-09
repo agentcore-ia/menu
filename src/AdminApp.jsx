@@ -358,6 +358,8 @@ export default function AdminApp() {
   const [presentation, setPresentation] = useState(defaultPresentation)
   const [status, setStatus] = useState('idle')
   const [message, setMessage] = useState('')
+  const [activeAdminSection, setActiveAdminSection] = useState('setup')
+  const [productMediaFilter, setProductMediaFilter] = useState('')
   const [createForm, setCreateForm] = useState({
     name: "Sandra's Rose",
     slug: 'sandras-rose',
@@ -384,6 +386,47 @@ export default function AdminApp() {
     }),
     [products],
   )
+  const filteredProducts = useMemo(() => {
+    const normalizedFilter = productMediaFilter.trim().toLowerCase()
+
+    if (!normalizedFilter) {
+      return products
+    }
+
+    return products.filter((product) =>
+      `${product.name ?? ''} ${product.category ?? ''}`.toLowerCase().includes(normalizedFilter),
+    )
+  }, [productMediaFilter, products])
+  const adminSections = [
+    {
+      id: 'setup',
+      label: 'Cuentas',
+      eyebrow: 'Base',
+      description: 'Crear, elegir o abrir el menu activo.',
+    },
+    {
+      id: 'design',
+      label: 'Diseño',
+      eyebrow: 'Look',
+      description: 'Cambios visuales separados por bloque.',
+      disabled: !selectedAccount,
+    },
+    {
+      id: 'media',
+      label: 'Media',
+      eyebrow: 'Productos',
+      description: 'Fotos y videos por producto.',
+      disabled: !selectedAccount,
+    },
+    {
+      id: 'import',
+      label: 'Importar',
+      eyebrow: 'Catalogo',
+      description: 'Copiar productos desde otro menu.',
+      disabled: !selectedAccount || !restaurant,
+    },
+  ]
+  const visibleAdminSection = selectedAccount ? activeAdminSection : 'setup'
 
   function applyEditorPayload(payload) {
     setEditor(payload)
@@ -947,7 +990,24 @@ export default function AdminApp() {
           {message ? <p className="admin-message">{message}</p> : null}
         </section>
 
-        <section className="admin-grid">
+        <section className="admin-command-center" aria-label="Secciones del panel admin">
+          {adminSections.map((section) => (
+            <button
+              key={section.id}
+              type="button"
+              className={`admin-nav-card ${visibleAdminSection === section.id ? 'is-active' : ''}`}
+              disabled={section.disabled}
+              onClick={() => setActiveAdminSection(section.id)}
+            >
+              <span>{section.eyebrow}</span>
+              <strong>{section.label}</strong>
+              <small>{section.description}</small>
+            </button>
+          ))}
+        </section>
+
+        {visibleAdminSection === 'setup' ? (
+          <section className="admin-grid">
           <article className="admin-card admin-create-card">
             <div className="admin-card-heading">
               <div>
@@ -1089,9 +1149,10 @@ export default function AdminApp() {
               </div>
             ) : null}
           </article>
-        </section>
+          </section>
+        ) : null}
 
-        {selectedAccount && restaurant ? (
+        {visibleAdminSection === 'import' && selectedAccount && restaurant ? (
           <section className="admin-card admin-copy-card">
             <div className="admin-section-head">
               <div>
@@ -1144,8 +1205,7 @@ export default function AdminApp() {
           </section>
         ) : null}
 
-        {selectedAccount ? (
-          <>
+        {visibleAdminSection === 'design' && selectedAccount ? (
             <section className="admin-card">
               <div className="admin-section-head">
                 <div>
@@ -1158,8 +1218,14 @@ export default function AdminApp() {
                 </button>
               </div>
 
-              <div className="admin-form admin-form-grid">
-                <label className="admin-field">
+              <div className="admin-form admin-form-grid admin-presentation-grid">
+                <div className="admin-control-group">
+                  <div className="admin-control-group-head">
+                    <span className="admin-kicker">Base visual</span>
+                    <h3>Layout y comportamiento</h3>
+                    <p>Elegis el template y como se comporta la media sin tocar colores ni textos.</p>
+                  </div>
+                  <label className="admin-field">
                   <span>Diseno del menu</span>
                   <select
                     value={presentation.layout}
@@ -1220,7 +1286,15 @@ export default function AdminApp() {
                   </small>
                 </label>
 
-                <label className="admin-field">
+                </div>
+
+                <div className="admin-control-group">
+                  <div className="admin-control-group-head">
+                    <span className="admin-kicker">Marca y header</span>
+                    <h3>Identidad superior</h3>
+                    <p>Logo, imagen/video principal y textos del hero viven juntos.</p>
+                  </div>
+                  <label className="admin-field">
                   <span>Nombre visible / logo textual</span>
                   <input
                     value={presentation.branding.wordmark}
@@ -1388,7 +1462,15 @@ export default function AdminApp() {
                   </div>
                 )}
 
-                <label className="admin-field">
+                </div>
+
+                <div className="admin-control-group">
+                  <div className="admin-control-group-head">
+                    <span className="admin-kicker">Paleta</span>
+                    <h3>Fondos, colores y fuentes</h3>
+                    <p>Zona segura para ajustar identidad sin mezclarlo con categorias o cards.</p>
+                  </div>
+                  <label className="admin-field">
                   <span>Fondo general</span>
                   <input
                     value={presentation.theme.background}
@@ -1568,7 +1650,15 @@ export default function AdminApp() {
                   <small className="admin-help">Tipografia usada en descripciones, precios y formularios.</small>
                 </label>
 
-                <label className="admin-field">
+                </div>
+
+                <div className="admin-control-group">
+                  <div className="admin-control-group-head">
+                    <span className="admin-kicker">Navegacion</span>
+                    <h3>Categorias</h3>
+                    <p>Controles especificos para chips, tabs y estados activos.</p>
+                  </div>
+                  <label className="admin-field">
                   <span>Fondo barra categorias</span>
                   <input
                     value={presentation.theme.categoryBackground}
@@ -1640,7 +1730,15 @@ export default function AdminApp() {
                   <small className="admin-help">Redondeado de la barra: 1rem, 999px, etc.</small>
                 </label>
 
-                <label className="admin-field">
+                </div>
+
+                <div className="admin-control-group">
+                  <div className="admin-control-group-head">
+                    <span className="admin-kicker">Productos</span>
+                    <h3>Cards y botones</h3>
+                    <p>Cambios de cards aislados para que no rompan header ni categorias.</p>
+                  </div>
+                  <label className="admin-field">
                   <span>Fondo cards productos</span>
                   <input
                     value={presentation.theme.cardBackground}
@@ -1748,7 +1846,15 @@ export default function AdminApp() {
                   <small className="admin-help">Color del icono +.</small>
                 </label>
 
-                <label className="admin-checkbox">
+                </div>
+
+                <div className="admin-control-group admin-control-group-compact">
+                  <div className="admin-control-group-head">
+                    <span className="admin-kicker">Video</span>
+                    <h3>Reproduccion</h3>
+                    <p>Preferencias globales para previews y videos cargados.</p>
+                  </div>
+                  <label className="admin-checkbox">
                   <input
                     type="checkbox"
                     checked={presentation.preview.autoplayVideos}
@@ -1769,9 +1875,12 @@ export default function AdminApp() {
                   />
                   <span>Videos en mute</span>
                 </label>
+                </div>
               </div>
             </section>
+        ) : null}
 
+        {visibleAdminSection === 'media' && selectedAccount ? (
             <section className="admin-card">
               <div className="admin-section-head">
                 <div>
@@ -1785,8 +1894,21 @@ export default function AdminApp() {
                   <span>{productStats.withVideo} videos</span>
                 </div>
               </div>
+              <div className="admin-media-toolbar">
+                <label className="admin-field">
+                  <span>Buscar producto</span>
+                  <input
+                    value={productMediaFilter}
+                    onChange={(event) => setProductMediaFilter(event.target.value)}
+                    placeholder="Nombre o categoria"
+                  />
+                </label>
+                <p>
+                  Mostrando {filteredProducts.length} de {products.length} productos.
+                </p>
+              </div>
               <div className="admin-products">
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <ProductMediaRow
                     key={`${product.id}:${product.image_url ?? ''}:${product.video_url ?? ''}`}
                     product={product}
@@ -1800,7 +1922,6 @@ export default function AdminApp() {
                 ))}
               </div>
             </section>
-          </>
         ) : null}
       </div>
     </div>

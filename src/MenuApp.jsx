@@ -1233,10 +1233,6 @@ function getKikaPrimaryCategories(categories = []) {
   return primaryCategories.length ? primaryCategories : orderedCategories.slice(0, 4)
 }
 
-function getKikaSections(categories = []) {
-  return normalizeKikaCategories(categories)
-}
-
 function KikaProductVisual({ item, category }) {
   if (item.video) {
     return (
