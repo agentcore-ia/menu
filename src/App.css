@@ -6120,7 +6120,7 @@
 
 .detail-phone.template-kika .kika-community-sheet {
   min-height: 100%;
-  padding: calc(1rem + env(safe-area-inset-top)) clamp(1rem, 5vw, 1.45rem) 2.4rem;
+  padding: calc(1rem + env(safe-area-inset-top)) clamp(0.95rem, 4.6vw, 1.35rem) 6rem;
   background:
     radial-gradient(circle at 88% 2%, rgba(85, 115, 72, 0.12), transparent 30%),
     linear-gradient(180deg, rgba(255, 253, 248, 0.9), rgba(244, 242, 239, 0.96)),
@@ -6145,7 +6145,8 @@
 .kika-community-hero {
   min-width: 0;
   flex: 1;
-  padding: clamp(1rem, 5vw, 1.35rem);
+  overflow: hidden;
+  padding: clamp(1rem, 4.8vw, 1.28rem);
   border: 0.08rem solid rgba(85, 115, 72, 0.14);
   border-radius: clamp(1.4rem, 7vw, 2rem);
   background:
@@ -6166,13 +6167,13 @@
 }
 
 .detail-phone.template-kika .kika-community-sheet .checkout-head h2 {
-  max-width: 9ch;
+  max-width: 100%;
   color: var(--kika-green, #557348);
-  font-family: var(--kika-script-font);
-  font-size: clamp(3.5rem, 18vw, 5.4rem);
-  font-weight: 400;
-  line-height: 0.68;
-  letter-spacing: -0.05em;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2.25rem, 10.5vw, 3.25rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.035em;
 }
 
 .detail-phone.template-kika .kika-community-sheet .checkout-head p {
