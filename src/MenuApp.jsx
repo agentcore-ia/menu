@@ -1936,6 +1936,29 @@ function buildWhatsappNumberPreview(phone) {
   return digits ? `+${digits}` : ''
 }
 
+function getFavoriteProductFromOrders(orders) {
+  const productTotals = new Map()
+
+  orders.forEach((order) => {
+    const items = Array.isArray(order.items) ? order.items : []
+
+    items.forEach((item) => {
+      const name = String(item.name ?? '').trim()
+
+      if (!name) return
+
+      const key = name.toLowerCase()
+      const current = productTotals.get(key) ?? { name, quantity: 0 }
+      productTotals.set(key, {
+        name: current.name,
+        quantity: current.quantity + Math.max(1, Number(item.quantity ?? 1)),
+      })
+    })
+  })
+
+  return [...productTotals.values()].sort((first, second) => second.quantity - first.quantity)[0] ?? null
+}
+
 function openWhatsappOrderChat(url, targetWindow) {
   if (!url) {
     if (targetWindow && !targetWindow.closed) {
@@ -5706,6 +5729,7 @@ export default function MenuApp() {
     const orders = Array.isArray(profile.orders) ? profile.orders : []
     const transactions = Array.isArray(profile.transactions) ? profile.transactions : []
     const redemptions = Array.isArray(profile.redemptions) ? profile.redemptions : []
+    const favoriteProduct = getFavoriteProductFromOrders(orders)
 
     return (
       <section className="loyalty-profile-panel">
@@ -5723,8 +5747,11 @@ export default function MenuApp() {
             <strong>{summary.totalOrders ?? orders.length}</strong>
           </div>
           <div>
-            <span>Gastado</span>
-            <strong>{formatPrice(summary.totalSpent ?? 0, currencySymbol)}</strong>
+            <span>Favorito</span>
+            <strong className="loyalty-favorite-product">
+              {favoriteProduct?.name ?? 'Sin pedidos'}
+            </strong>
+            {favoriteProduct ? <small>{favoriteProduct.quantity} unidades</small> : null}
           </div>
           <div>
             <span>Ganados</span>

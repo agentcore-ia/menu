@@ -6529,6 +6529,24 @@
   line-height: 1.05;
 }
 
+.loyalty-profile-stats .loyalty-favorite-product {
+  display: -webkit-box;
+  overflow: hidden;
+  min-height: 2.1em;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 0.94rem;
+  line-height: 1.08;
+}
+
+.loyalty-profile-stats small {
+  display: block;
+  margin-top: 0.28rem;
+  color: var(--theme-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
 .loyalty-history-section {
   display: grid;
   gap: 0.65rem;
