@@ -12261,6 +12261,28 @@ button:focus-visible {
   text-align: center;
 }
 
+.kika-product-points {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  margin-top: 0.4rem;
+  padding: 0.24rem 0.5rem;
+  border-radius: 999rem;
+  background: rgba(85, 115, 72, 0.1);
+  color: #557348;
+  font-size: clamp(0.68rem, 1.85vw, 0.78rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.kika-card-row.compact .kika-product-points {
+  margin: 0.36rem auto 0;
+  padding: 0.22rem 0.42rem;
+  font-size: 0.66rem;
+}
+
 .kika-product-copy p {
   display: -webkit-box;
   margin: 0.34rem 0 0;
@@ -12587,6 +12609,19 @@ button:focus-visible {
   font-size: clamp(1.9rem, 5vw, 2.8rem);
   line-height: 1;
   font-weight: 900;
+}
+
+.kika-detail-points {
+  width: fit-content;
+  display: inline-flex;
+  margin-top: 0.72rem;
+  padding: 0.35rem 0.72rem;
+  border-radius: 999rem;
+  background: rgba(85, 115, 72, 0.12);
+  color: #557348;
+  font-size: clamp(0.88rem, 2.4vw, 1rem);
+  font-weight: 900;
+  line-height: 1;
 }
 
 .template-kika .kika-detail-stepper {

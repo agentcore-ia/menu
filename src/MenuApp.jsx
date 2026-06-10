@@ -1011,6 +1011,18 @@ function getLoyaltyEarnPreviewText(points, pointsName, subtotal, settings, curre
   return `Esta compra suma 0 ${pointsName}.`
 }
 
+function getProductLoyaltyPoints(product, settings) {
+  if (!settings?.enabled) {
+    return 0
+  }
+
+  const unitPrice = product?.unitPrice ?? toNumericPrice(product?.price)
+  return calculateLoyaltyEarnPreview(unitPrice, {
+    ...settings,
+    minimumOrderTotal: 0,
+  })
+}
+
 function calculateRedemptionDiscountTotal(redemptions, subtotal) {
   const base = Math.max(0, Number(subtotal || 0))
   const total = (redemptions || []).reduce((sum, reward) => {
@@ -3854,6 +3866,8 @@ function TemplateMenuCollection({
   onOpenGelatoBuilder,
   searchQuery = '',
   isSearchActive = false,
+  loyaltySettings = null,
+  pointsName = 'puntos',
 }) {
   if (templateId === 'kika') {
     const sections = isSearchActive
@@ -3928,36 +3942,46 @@ function TemplateMenuCollection({
               </div>
 
               <div className={`kika-card-row ${isCompact ? 'compact' : 'featured'}`}>
-                {visibleItems.map((item) => (
-                  <article key={item.id} className="kika-product-card">
-                    <button
-                      type="button"
-                      className="kika-product-media"
-                      onClick={() => onOpenDish(item)}
-                      aria-label={`Ver ${item.name}`}
-                    >
-                      <KikaProductVisual item={item} category={section} />
-                    </button>
-                    <div className="kika-product-body">
+                {visibleItems.map((item) => {
+                  const productPoints = getProductLoyaltyPoints(item, loyaltySettings)
+                  const hasProductPoints = Boolean(loyaltySettings?.enabled && productPoints > 0)
+
+                  return (
+                    <article key={item.id} className="kika-product-card">
                       <button
                         type="button"
-                        className="kika-product-copy"
+                        className="kika-product-media"
                         onClick={() => onOpenDish(item)}
+                        aria-label={`Ver ${item.name}`}
                       >
-                        <h3>{item.name}</h3>
-                        {item.description ? <p>{item.description}</p> : null}
+                        <KikaProductVisual item={item} category={section} />
                       </button>
-                      <button
-                        type="button"
-                        className="kika-favorite"
-                        onClick={() => onAddItem(item)}
-                        aria-label={`Agregar ${item.name}`}
-                      >
-                        <IconHeart />
-                      </button>
-                    </div>
-                  </article>
-                ))}
+                      <div className="kika-product-body">
+                        <button
+                          type="button"
+                          className="kika-product-copy"
+                          onClick={() => onOpenDish(item)}
+                        >
+                          <h3>{item.name}</h3>
+                          {hasProductPoints ? (
+                            <span className="kika-product-points">
+                              +{productPoints} {pointsName}
+                            </span>
+                          ) : null}
+                          {item.description ? <p>{item.description}</p> : null}
+                        </button>
+                        <button
+                          type="button"
+                          className="kika-favorite"
+                          onClick={() => onAddItem(item)}
+                          aria-label={`Agregar ${item.name}`}
+                        >
+                          <IconHeart />
+                        </button>
+                      </div>
+                    </article>
+                  )
+                })}
               </div>
             </article>
           )
@@ -6214,6 +6238,8 @@ export default function MenuApp() {
                   onOpenGelatoBuilder={handleOpenGelatoBuilder}
                   searchQuery={deferredSearchQuery}
                   isSearchActive={isSearchActive}
+                  loyaltySettings={loyaltySettings}
+                  pointsName={pointsName}
                 />
               </>
             ) : null}
@@ -6564,6 +6590,11 @@ export default function MenuApp() {
                         currencySymbol,
                       )}
                     </strong>
+                    {getProductLoyaltyPoints(selectedDish, loyaltySettings) > 0 ? (
+                      <span className="kika-detail-points">
+                        +{getProductLoyaltyPoints(selectedDish, loyaltySettings)} {pointsName}
+                      </span>
+                    ) : null}
                   </div>
 
                   <div className="quantity-stepper kika-detail-stepper">
