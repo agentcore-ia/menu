@@ -24,6 +24,7 @@ export class SupabaseLoyaltyRepository {
       this.fetchRewards(restaurant.id),
       normalizedPhone ? this.fetchAccountByPhone(restaurant.id, normalizedPhone) : null,
     ])
+    const profile = account ? await this.fetchCustomerProfile(restaurant.id, account) : this.getEmptyProfile()
 
     return {
       accountId: restaurant.slug,
@@ -36,6 +37,7 @@ export class SupabaseLoyaltyRepository {
           }
         : null,
       balance: account?.pointsBalance ?? 0,
+      profile,
       rewards: rewards.map((reward) => ({
         ...reward,
         redeemable: settings.allowRedemption && (account?.pointsBalance ?? 0) >= reward.pointsCost,
@@ -68,6 +70,7 @@ export class SupabaseLoyaltyRepository {
       birthDate,
     })
     const account = await this.upsertCommunityLoyaltyAccount(restaurant.id, customer, birthDate)
+    const profile = await this.fetchCustomerProfile(restaurant.id, account)
 
     return {
       accountId: restaurant.slug,
@@ -79,6 +82,7 @@ export class SupabaseLoyaltyRepository {
         birthDate: account.birthDate ?? birthDate,
       },
       balance: account.pointsBalance ?? 0,
+      profile,
       rewards: rewards.map((reward) => ({
         ...reward,
         redeemable: settings.allowRedemption && (account.pointsBalance ?? 0) >= reward.pointsCost,
@@ -164,12 +168,7 @@ export class SupabaseLoyaltyRepository {
         return null
       }
 
-      return {
-        phone: row.phone,
-        customerName: row.customer_name ?? null,
-        birthDate: row.birth_date ?? null,
-        pointsBalance: parseInteger(row.points_balance, 0),
-      }
+      return this.mapLoyaltyAccountRow(row)
     } catch (error) {
       if (isMissingSupabaseRelationError(error, 'customer_loyalty_accounts')) {
         return null
@@ -299,6 +298,175 @@ export class SupabaseLoyaltyRepository {
     )
 
     return new Map(rows.map((row) => [row.id, row]))
+  }
+
+  async fetchCustomerProfile(restaurantId, account) {
+    const [orders, transactions] = await Promise.all([
+      this.fetchCustomerOrders(restaurantId, account),
+      this.fetchLoyaltyTransactions(account),
+    ])
+    const redemptions = transactions.filter((transaction) => transaction.kind === 'redeem')
+
+    return {
+      summary: {
+        totalOrders: orders.length,
+        totalSpent: orders.reduce((total, order) => total + Number(order.total || 0), 0),
+        totalPointsEarned: account.totalPointsEarned ?? 0,
+        totalPointsRedeemed: account.totalPointsRedeemed ?? 0,
+      },
+      orders,
+      transactions,
+      redemptions,
+    }
+  }
+
+  getEmptyProfile() {
+    return {
+      summary: {
+        totalOrders: 0,
+        totalSpent: 0,
+        totalPointsEarned: 0,
+        totalPointsRedeemed: 0,
+      },
+      orders: [],
+      transactions: [],
+      redemptions: [],
+    }
+  }
+
+  async fetchCustomerOrders(restaurantId, account) {
+    if (!account?.customerId && !account?.phone) {
+      return []
+    }
+
+    const filters = []
+
+    if (account.customerId) {
+      filters.push(`cliente_id.eq.${account.customerId}`)
+    }
+
+    if (account.phone) {
+      filters.push(`customer_phone.eq.${encodeURIComponent(account.phone)}`)
+    }
+
+    try {
+      const rows = await this.request(
+        `/pedidos?restaurant_id=eq.${restaurantId}&or=(${filters.join(',')})&select=id,order_number,status,total,subtotal,discount_amount,delivery_type,created_at&order=created_at.desc&limit=8`,
+      )
+      const orderIds = rows.map((row) => row.id).filter(Boolean)
+      const itemsByOrderId = orderIds.length
+        ? await this.fetchOrderItemsMap(orderIds)
+        : new Map()
+
+      return rows.map((row) => ({
+        id: row.id,
+        orderNumber: row.order_number ?? null,
+        status: row.status ?? '',
+        total: Number(row.total ?? 0),
+        subtotal: Number(row.subtotal ?? 0),
+        discountAmount: Number(row.discount_amount ?? 0),
+        deliveryType: row.delivery_type ?? '',
+        createdAt: row.created_at ?? null,
+        items: itemsByOrderId.get(row.id) ?? [],
+      }))
+    } catch (error) {
+      if (String(error?.message ?? '').includes('customer_phone') && account.customerId) {
+        return this.fetchCustomerOrdersByCustomerId(restaurantId, account.customerId)
+      }
+
+      if (isMissingSupabaseRelationError(error, 'pedidos')) {
+        return []
+      }
+
+      throw error
+    }
+  }
+
+  async fetchCustomerOrdersByCustomerId(restaurantId, customerId) {
+    try {
+      const rows = await this.request(
+        `/pedidos?restaurant_id=eq.${restaurantId}&cliente_id=eq.${customerId}&select=id,order_number,status,total,subtotal,discount_amount,delivery_type,created_at&order=created_at.desc&limit=8`,
+      )
+      const orderIds = rows.map((row) => row.id).filter(Boolean)
+      const itemsByOrderId = orderIds.length
+        ? await this.fetchOrderItemsMap(orderIds)
+        : new Map()
+
+      return rows.map((row) => ({
+        id: row.id,
+        orderNumber: row.order_number ?? null,
+        status: row.status ?? '',
+        total: Number(row.total ?? 0),
+        subtotal: Number(row.subtotal ?? 0),
+        discountAmount: Number(row.discount_amount ?? 0),
+        deliveryType: row.delivery_type ?? '',
+        createdAt: row.created_at ?? null,
+        items: itemsByOrderId.get(row.id) ?? [],
+      }))
+    } catch (error) {
+      if (isMissingSupabaseRelationError(error, 'pedidos')) {
+        return []
+      }
+
+      throw error
+    }
+  }
+
+  async fetchOrderItemsMap(orderIds) {
+    try {
+      const rows = await this.request(
+        `/items_pedido?pedido_id=in.(${orderIds.join(',')})&select=pedido_id,name,quantity,price,notes`,
+      )
+      const map = new Map()
+
+      rows.forEach((row) => {
+        const items = map.get(row.pedido_id) ?? []
+        items.push({
+          name: row.name ?? 'Producto',
+          quantity: parseInteger(row.quantity, 1),
+          price: Number(row.price ?? 0),
+          notes: row.notes ?? '',
+        })
+        map.set(row.pedido_id, items)
+      })
+
+      return map
+    } catch (error) {
+      if (isMissingSupabaseRelationError(error, 'items_pedido')) {
+        return new Map()
+      }
+
+      throw error
+    }
+  }
+
+  async fetchLoyaltyTransactions(account) {
+    if (!account?.id) {
+      return []
+    }
+
+    try {
+      const rows = await this.request(
+        `/customer_loyalty_transactions?account_id=eq.${account.id}&select=id,kind,points_delta,balance_after,description,metadata,created_at,reward_id&order=created_at.desc&limit=12`,
+      )
+
+      return rows.map((row) => ({
+        id: row.id,
+        kind: row.kind ?? '',
+        pointsDelta: parseInteger(row.points_delta, 0),
+        balanceAfter: parseInteger(row.balance_after, 0),
+        description: row.description ?? '',
+        metadata: row.metadata ?? null,
+        rewardId: row.reward_id ?? null,
+        createdAt: row.created_at ?? null,
+      }))
+    } catch (error) {
+      if (isMissingSupabaseRelationError(error, 'customer_loyalty_transactions')) {
+        return []
+      }
+
+      throw error
+    }
   }
 
   mapLoyaltyAccountRow(row) {

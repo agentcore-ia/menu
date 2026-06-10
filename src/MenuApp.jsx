@@ -966,6 +966,35 @@ function formatPrice(value, currencySymbol = '$') {
   })}`
 }
 
+function formatShortDate(value) {
+  if (!value) {
+    return ''
+  }
+
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return ''
+  }
+
+  return date.toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: 'short',
+  })
+}
+
+function getLoyaltyTransactionLabel(transaction) {
+  if (transaction.kind === 'earn') {
+    return 'Puntos ganados'
+  }
+
+  if (transaction.kind === 'redeem') {
+    return 'Canje realizado'
+  }
+
+  return 'Movimiento de puntos'
+}
+
 function parsePositiveNumber(value, fallback = 0) {
   const parsed = Number(value ?? fallback)
   return Number.isFinite(parsed) ? parsed : fallback
@@ -5660,6 +5689,129 @@ export default function MenuApp() {
     )
   }
 
+  function renderLoyaltyCustomerProfile() {
+    const profile = loyaltyData?.profile
+
+    if (!profile) {
+      return null
+    }
+
+    const summary = profile.summary ?? {}
+    const orders = Array.isArray(profile.orders) ? profile.orders : []
+    const transactions = Array.isArray(profile.transactions) ? profile.transactions : []
+    const redemptions = Array.isArray(profile.redemptions) ? profile.redemptions : []
+
+    return (
+      <section className="loyalty-profile-panel">
+        <div className="loyalty-profile-head">
+          <div>
+            <span>Perfil del cliente</span>
+            <h3>{loyaltyData.customer?.name || 'Cliente Kika'}</h3>
+          </div>
+          <small>{loyaltyData.customer?.phone ? `+${loyaltyData.customer.phone}` : 'Sin celular asociado'}</small>
+        </div>
+
+        <div className="loyalty-profile-stats">
+          <div>
+            <span>Pedidos</span>
+            <strong>{summary.totalOrders ?? orders.length}</strong>
+          </div>
+          <div>
+            <span>Gastado</span>
+            <strong>{formatPrice(summary.totalSpent ?? 0, currencySymbol)}</strong>
+          </div>
+          <div>
+            <span>Ganados</span>
+            <strong>{summary.totalPointsEarned ?? 0}</strong>
+          </div>
+          <div>
+            <span>Canjeados</span>
+            <strong>{summary.totalPointsRedeemed ?? 0}</strong>
+          </div>
+        </div>
+
+        <div className="loyalty-history-section">
+          <div className="section-heading compact">
+            <h2>Pedidos recientes</h2>
+          </div>
+          {orders.length ? (
+            <div className="loyalty-history-list">
+              {orders.map((order) => {
+                const itemPreview = (order.items ?? [])
+                  .slice(0, 2)
+                  .map((item) => `${item.quantity}x ${item.name}`)
+                  .join(' · ')
+
+                return (
+                  <article key={order.id} className="loyalty-history-card">
+                    <div>
+                      <strong>Pedido #{order.orderNumber ?? '-'}</strong>
+                      <span>{itemPreview || 'Pedido cargado'}</span>
+                    </div>
+                    <div>
+                      <em>{formatShortDate(order.createdAt)}</em>
+                      <strong>{formatPrice(order.total ?? 0, currencySymbol)}</strong>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          ) : (
+            <p className="loyalty-empty">Todavía no hay pedidos asociados a este perfil.</p>
+          )}
+        </div>
+
+        {redemptions.length ? (
+          <div className="loyalty-history-section">
+            <div className="section-heading compact">
+              <h2>Historial de canjes</h2>
+            </div>
+            <div className="loyalty-history-list">
+              {redemptions.map((transaction) => (
+                <article key={transaction.id} className="loyalty-history-card redemption">
+                  <div>
+                    <strong>{transaction.description || 'Canje realizado'}</strong>
+                    <span>Saldo luego del canje: {transaction.balanceAfter} {pointsName}</span>
+                  </div>
+                  <div>
+                    <em>{formatShortDate(transaction.createdAt)}</em>
+                    <strong>{transaction.pointsDelta} {pointsName}</strong>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <div className="loyalty-history-section">
+          <div className="section-heading compact">
+            <h2>Movimientos de puntos</h2>
+          </div>
+          {transactions.length ? (
+            <div className="loyalty-history-list">
+              {transactions.map((transaction) => (
+                <article key={transaction.id} className={`loyalty-history-card ${transaction.kind}`}>
+                  <div>
+                    <strong>{getLoyaltyTransactionLabel(transaction)}</strong>
+                    <span>{transaction.description || `Saldo: ${transaction.balanceAfter} ${pointsName}`}</span>
+                  </div>
+                  <div>
+                    <em>{formatShortDate(transaction.createdAt)}</em>
+                    <strong>
+                      {transaction.pointsDelta > 0 ? '+' : ''}{transaction.pointsDelta} {pointsName}
+                    </strong>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="loyalty-empty">Todavía no hay movimientos de puntos.</p>
+          )}
+        </div>
+      </section>
+    )
+  }
+
   function updateOrderForm(field, value) {
     setOrderForm((current) => ({
       ...current,
@@ -7824,6 +7976,8 @@ export default function MenuApp() {
                             : 'Todavia no habia puntos asociados a este numero.'}
                         </small>
                       </div>
+
+                      {renderLoyaltyCustomerProfile()}
 
                       {loyaltyData.rewards?.length ? (
                         <section className="cart-panel">
