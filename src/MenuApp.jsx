@@ -3896,7 +3896,7 @@ function TemplateMenuCollection({
             onClick={onOpenCommunity}
             aria-label="Sumarte a la comunidad Kika"
           >
-            <img src="/kika/banner.png" alt="Sumate a la comunidad Kika" />
+            <img src="/kika/banner2.png" alt="Sumate a la comunidad Kika" />
           </button>
         ) : null}
 
