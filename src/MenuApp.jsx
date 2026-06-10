@@ -6111,7 +6111,7 @@ export default function MenuApp() {
 
     setCheckoutStatus('submitting')
     setCheckoutMessage('')
-    const whatsappWindow = window.open('', '_blank')
+    const whatsappWindow = isKikaTableOrder ? null : window.open('', '_blank')
 
     const effectiveDeliveryType = isKikaTableOrder ? 'mesa' : orderForm.deliveryType
     const effectivePaymentMethod = isKikaTableOrder ? 'mesa' : orderForm.paymentMethod
@@ -6159,7 +6159,9 @@ export default function MenuApp() {
       setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
       setCart([])
       setRewardRedemptions([])
-      openWhatsappOrderChat(result.customerWhatsapp?.url, whatsappWindow)
+      if (!isKikaTableOrder) {
+        openWhatsappOrderChat(result.customerWhatsapp?.url, whatsappWindow)
+      }
       setLoyaltyData((current) =>
         current
           ? {
