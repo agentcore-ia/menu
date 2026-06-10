@@ -237,6 +237,27 @@ app.get('/api/accounts/:accountId/loyalty', async (req, res) => {
   }
 })
 
+app.post('/api/accounts/:accountId/loyalty', async (req, res) => {
+  try {
+    const member = await loyaltyRepository.joinCommunityByAccountId(req.params.accountId, req.body ?? {})
+
+    if (!member) {
+      res.status(404).json({
+        error: 'ACCOUNT_NOT_FOUND',
+        message: 'No se encontro la cuenta para sumarte a la comunidad.',
+      })
+      return
+    }
+
+    res.json(member)
+  } catch (error) {
+    res.status(500).json({
+      error: 'LOYALTY_JOIN_FAILED',
+      message: error instanceof Error ? error.message : 'No se pudo sumarte a la comunidad.',
+    })
+  }
+})
+
 app.get('/api/admin/accounts', async (req, res) => {
   try {
     assertAdminToken(config, req)

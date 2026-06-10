@@ -3846,6 +3846,7 @@ function TemplateMenuCollection({
   onSelectCategory,
   onOpenCart,
   onOpenLoyalty,
+  onOpenCommunity,
   onOpenSocialMenu,
   onNavigateHome,
   onNavigatePromos,
@@ -3886,6 +3887,17 @@ function TemplateMenuCollection({
               ? `${categoryItems.length} resultado${categoryItems.length === 1 ? '' : 's'} para "${searchQuery}"`
               : `No encontramos productos para "${searchQuery}"`}
           </p>
+        ) : null}
+
+        {!isSearchActive ? (
+          <button
+            type="button"
+            className="kika-community-banner"
+            onClick={onOpenCommunity}
+            aria-label="Sumarte a la comunidad Kika"
+          >
+            <img src="/kika/banner.png" alt="Sumate a la comunidad Kika" />
+          </button>
         ) : null}
 
         {sections.map((section) => {
@@ -5005,11 +5017,19 @@ export default function MenuApp() {
   const [lastOrder, setLastOrder] = useState(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [isLoyaltyOpen, setIsLoyaltyOpen] = useState(false)
+  const [isCommunityOpen, setIsCommunityOpen] = useState(false)
   const [isSocialMenuOpen, setIsSocialMenuOpen] = useState(false)
   const [loyaltyPhone, setLoyaltyPhone] = useState('')
   const [loyaltyStatus, setLoyaltyStatus] = useState('idle')
   const [loyaltyMessage, setLoyaltyMessage] = useState('')
   const [loyaltyData, setLoyaltyData] = useState(null)
+  const [communityForm, setCommunityForm] = useState({
+    name: '',
+    birthDate: '',
+    phone: '',
+  })
+  const [communityStatus, setCommunityStatus] = useState('idle')
+  const [communityMessage, setCommunityMessage] = useState('')
   const [cartFeedback, setCartFeedback] = useState(null)
   const [pairingFeedbackId, setPairingFeedbackId] = useState('')
   const [orderingNotice, setOrderingNotice] = useState('')
@@ -5773,6 +5793,68 @@ export default function MenuApp() {
     setIsLoyaltyOpen(true)
   }
 
+  function handleOpenCommunity() {
+    setIsCommunityOpen(true)
+    setCommunityMessage('')
+    setCommunityStatus('idle')
+    setCommunityForm((current) => ({
+      ...current,
+      phone: current.phone || orderForm.phone || loyaltyPhone,
+    }))
+  }
+
+  function updateCommunityForm(field, value) {
+    setCommunityForm((current) => ({
+      ...current,
+      [field]: field === 'phone' ? value.replace(/[^\d+\s()-]/g, '') : value,
+    }))
+  }
+
+  async function handleJoinCommunity(event) {
+    event.preventDefault()
+
+    const name = communityForm.name.trim()
+    const phone = communityForm.phone.trim()
+    const birthDate = communityForm.birthDate.trim()
+    const phoneDigits = phone.replace(/\D/g, '')
+
+    if (!name || !birthDate || phoneDigits.length < 8) {
+      setCommunityStatus('error')
+      setCommunityMessage('Completa nombre, fecha de nacimiento y celular valido.')
+      return
+    }
+
+    setCommunityStatus('loading')
+    setCommunityMessage('')
+
+    try {
+      const response = await fetch(`/api/accounts/${accountId}/loyalty`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          birthDate,
+          phone,
+        }),
+      })
+      const payload = await response.json().catch(() => null)
+
+      if (!response.ok) {
+        throw new Error(payload?.message ?? 'No pudimos sumarte a la comunidad.')
+      }
+
+      setLoyaltyData(payload)
+      setLoyaltyPhone(phone)
+      setCommunityStatus('success')
+      setCommunityMessage(`Listo ${name}, ya sos parte de la comunidad Kika.`)
+    } catch (error) {
+      setCommunityStatus('error')
+      setCommunityMessage(error instanceof Error ? error.message : 'No pudimos sumarte a la comunidad.')
+    }
+  }
+
   async function handleCheckLoyalty(event) {
     event.preventDefault()
 
@@ -6124,6 +6206,7 @@ export default function MenuApp() {
                   onSelectCategory={handleSelectCategory}
                   onOpenCart={() => setIsCartOpen(true)}
                   onOpenLoyalty={handleOpenLoyalty}
+                  onOpenCommunity={handleOpenCommunity}
                   onOpenSocialMenu={() => setIsSocialMenuOpen(true)}
                   onNavigateHome={handleNavigateHome}
                   onNavigatePromos={handleNavigatePromos}
@@ -7492,6 +7575,83 @@ export default function MenuApp() {
                         : 'Enviar pedido'}
                   </span>
                   <strong>{orderTotalLabel}</strong>
+                </button>
+              </form>
+            </section>
+          </div>
+        </div>
+      ) : null}
+
+      {isCommunityOpen ? (
+        <div className="detail-screen" role="presentation" onClick={() => setIsCommunityOpen(false)}>
+          <div
+            className={`detail-phone ${appClassName}`}
+            style={getPresentationStyles(presentation, accountId)}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <section className="checkout-sheet loyalty-sheet kika-community-sheet">
+              <div className="checkout-head">
+                <button
+                  type="button"
+                  className="floating-button light"
+                  onClick={() => setIsCommunityOpen(false)}
+                  aria-label="Cerrar comunidad"
+                >
+                  <IconBack />
+                </button>
+                <div>
+                  <h2>Comunidad Kika</h2>
+                  <p>Sumate para empezar a acumular puntos con tus compras.</p>
+                </div>
+              </div>
+
+              <form className="checkout-form loyalty-form kika-community-form" onSubmit={handleJoinCommunity}>
+                <label className="checkout-field">
+                  <span>Nombre</span>
+                  <input
+                    value={communityForm.name}
+                    onChange={(event) => updateCommunityForm('name', event.target.value)}
+                    placeholder="Tu nombre"
+                    autoComplete="given-name"
+                    required
+                  />
+                </label>
+
+                <label className="checkout-field">
+                  <span>Fecha de nacimiento</span>
+                  <input
+                    type="date"
+                    value={communityForm.birthDate}
+                    onChange={(event) => updateCommunityForm('birthDate', event.target.value)}
+                    required
+                  />
+                </label>
+
+                <label className="checkout-field">
+                  <span>Celular</span>
+                  <input
+                    value={communityForm.phone}
+                    onChange={(event) => updateCommunityForm('phone', event.target.value)}
+                    placeholder="549..."
+                    inputMode="tel"
+                    autoComplete="tel"
+                    required
+                  />
+                </label>
+
+                {communityMessage ? (
+                  <p className={`checkout-message ${communityStatus}`}>{communityMessage}</p>
+                ) : null}
+
+                <button
+                  type="submit"
+                  className="primary-action"
+                  disabled={communityStatus === 'loading'}
+                >
+                  <span>{communityStatus === 'loading' ? 'Sumando...' : 'Sumarme'}</span>
+                  <strong>
+                    <IconAward />
+                  </strong>
                 </button>
               </form>
             </section>

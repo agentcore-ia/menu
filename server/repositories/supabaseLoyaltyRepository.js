@@ -43,6 +43,49 @@ export class SupabaseLoyaltyRepository {
     }
   }
 
+  async joinCommunityByAccountId(accountId, member) {
+    const restaurant = await this.fetchRestaurant(accountId)
+
+    if (!restaurant) {
+      return null
+    }
+
+    const normalizedPhone = normalizePhone(member.phone)
+
+    if (!normalizedPhone) {
+      throw new Error('Ingresa un celular valido.')
+    }
+
+    const customerName = String(member.name ?? '').trim()
+    const birthDate = String(member.birthDate ?? '').trim()
+    const [settings, rewards] = await Promise.all([
+      this.fetchLoyaltySettings(restaurant.id),
+      this.fetchRewards(restaurant.id),
+    ])
+    const customer = await this.upsertCommunityCustomer(restaurant.id, {
+      name: customerName,
+      phone: normalizedPhone,
+      birthDate,
+    })
+    const account = await this.upsertCommunityLoyaltyAccount(restaurant.id, customer, birthDate)
+
+    return {
+      accountId: restaurant.slug,
+      accountName: restaurant.name,
+      settings,
+      customer: {
+        phone: account.phone,
+        name: account.customerName,
+        birthDate: account.birthDate ?? birthDate,
+      },
+      balance: account.pointsBalance ?? 0,
+      rewards: rewards.map((reward) => ({
+        ...reward,
+        redeemable: settings.allowRedemption && (account.pointsBalance ?? 0) >= reward.pointsCost,
+      })),
+    }
+  }
+
   async fetchRestaurant(accountId) {
     const slug = slugify(accountId)
     const select = 'id,slug,name'
@@ -124,6 +167,7 @@ export class SupabaseLoyaltyRepository {
       return {
         phone: row.phone,
         customerName: row.customer_name ?? null,
+        birthDate: row.birth_date ?? null,
         pointsBalance: parseInteger(row.points_balance, 0),
       }
     } catch (error) {
@@ -135,6 +179,120 @@ export class SupabaseLoyaltyRepository {
     }
   }
 
+  async upsertCommunityCustomer(restaurantId, member) {
+    const rows = await this.request(
+      `/clientes?restaurant_id=eq.${restaurantId}&phone=eq.${encodeURIComponent(member.phone)}&select=*&limit=1`,
+    )
+    const existing = rows[0] ?? null
+    const payload = {
+      restaurant_id: restaurantId,
+      name: member.name || existing?.name || null,
+      phone: member.phone,
+    }
+    const payloadWithBirthDate = member.birthDate
+      ? {
+          ...payload,
+          birth_date: member.birthDate,
+        }
+      : payload
+
+    if (existing) {
+      const [updated] = await this.writeWithOptionalBirthDate(
+        `/clientes?id=eq.${existing.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            Prefer: 'return=representation',
+          },
+          body: JSON.stringify(payloadWithBirthDate),
+        },
+        payload,
+      )
+
+      return updated
+    }
+
+    const [created] = await this.writeWithOptionalBirthDate(
+      '/clientes',
+      {
+        method: 'POST',
+        headers: {
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify([payloadWithBirthDate]),
+      },
+      [payload],
+    )
+
+    return created
+  }
+
+  async upsertCommunityLoyaltyAccount(restaurantId, customer, birthDate) {
+    const rows = await this.request(
+      `/customer_loyalty_accounts?restaurant_id=eq.${restaurantId}&phone=eq.${encodeURIComponent(customer.phone)}&select=*&limit=1`,
+    )
+    const existing = rows[0] ?? null
+    const payload = {
+      restaurant_id: restaurantId,
+      cliente_id: customer.id,
+      phone: customer.phone,
+      customer_name: customer.name || null,
+      last_activity_at: new Date().toISOString(),
+    }
+    const payloadWithBirthDate = birthDate
+      ? {
+          ...payload,
+          birth_date: birthDate,
+        }
+      : payload
+
+    if (existing) {
+      const [updated] = await this.writeWithOptionalBirthDate(
+        `/customer_loyalty_accounts?id=eq.${existing.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            Prefer: 'return=representation',
+          },
+          body: JSON.stringify(payloadWithBirthDate),
+        },
+        payload,
+      )
+
+      return this.mapLoyaltyAccountRow(updated)
+    }
+
+    const [created] = await this.writeWithOptionalBirthDate(
+      '/customer_loyalty_accounts',
+      {
+        method: 'POST',
+        headers: {
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify([payloadWithBirthDate]),
+      },
+      [payload],
+    )
+
+    return this.mapLoyaltyAccountRow(created)
+  }
+
+  async writeWithOptionalBirthDate(path, options, fallbackBody) {
+    try {
+      return await this.request(path, { ...options, write: true })
+    } catch (error) {
+      if (!String(error?.message ?? '').includes('birth_date')) {
+        throw error
+      }
+
+      return this.request(path, {
+        ...options,
+        body: JSON.stringify(fallbackBody),
+        write: true,
+      })
+    }
+  }
+
   async fetchProductsMapByIds(productIds) {
     const rows = await this.request(
       `/products?id=in.(${productIds.join(',')})&select=id,name,image_url,video_url`,
@@ -143,12 +301,38 @@ export class SupabaseLoyaltyRepository {
     return new Map(rows.map((row) => [row.id, row]))
   }
 
-  async request(path) {
+  mapLoyaltyAccountRow(row) {
+    if (!row) {
+      return null
+    }
+
+    return {
+      id: row.id,
+      customerId: row.cliente_id ?? null,
+      phone: row.phone,
+      customerName: row.customer_name ?? null,
+      birthDate: row.birth_date ?? null,
+      pointsBalance: parseInteger(row.points_balance, 0),
+      totalPointsEarned: parseInteger(row.total_points_earned, 0),
+      totalPointsRedeemed: parseInteger(row.total_points_redeemed, 0),
+    }
+  }
+
+  async request(path, options = {}) {
+    const apiKey = options.write
+      ? this.config.supabaseWriteApiKey || this.config.supabaseApiKey
+      : this.config.supabaseApiKey
+    const fetchOptions = { ...options }
+    delete fetchOptions.write
+    const headers = {
+      apikey: apiKey,
+      Authorization: `Bearer ${apiKey}`,
+      ...(options.body ? { 'Content-Type': 'application/json' } : null),
+      ...(options.headers ?? {}),
+    }
     const response = await fetch(`${this.config.supabaseUrl}/rest/v1${path}`, {
-      headers: {
-        apikey: this.config.supabaseApiKey,
-        Authorization: `Bearer ${this.config.supabaseApiKey}`,
-      },
+      ...fetchOptions,
+      headers,
     })
 
     if (!response.ok) {

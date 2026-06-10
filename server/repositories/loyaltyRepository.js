@@ -9,5 +9,8 @@ export function createLoyaltyRepository(config) {
     async getLoyaltyByAccountId() {
       throw new Error('El programa de puntos solo esta habilitado con NEUROREST_DATA_PROVIDER=supabase.')
     },
+    async joinCommunityByAccountId() {
+      throw new Error('El programa de puntos solo esta habilitado con NEUROREST_DATA_PROVIDER=supabase.')
+    },
   }
 }

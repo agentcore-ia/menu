@@ -6,8 +6,23 @@ export default async function handler(req, res) {
   const repository = createLoyaltyRepository(config)
 
   try {
+    if (req.method === 'POST') {
+      const member = await repository.joinCommunityByAccountId(req.query.accountId, req.body ?? {})
+
+      if (!member) {
+        res.status(404).json({
+          error: 'ACCOUNT_NOT_FOUND',
+          message: 'No se encontro la cuenta para sumarte a la comunidad.',
+        })
+        return
+      }
+
+      res.status(200).json(member)
+      return
+    }
+
     if (req.method !== 'GET') {
-      res.setHeader('Allow', 'GET')
+      res.setHeader('Allow', 'GET, POST')
       res.status(405).json({ error: 'METHOD_NOT_ALLOWED', message: 'Metodo no permitido.' })
       return
     }
