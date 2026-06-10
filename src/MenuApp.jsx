@@ -7938,6 +7938,16 @@ export default function MenuApp() {
                     <small>Pedido casero confirmado</small>
                   </div>
                 </div>
+              ) : templateId === 'kika' ? (
+                <div className="confirmation-kika-top">
+                  <span className="confirmation-kika-seal">
+                    <IconKikaCup />
+                  </span>
+                  <div>
+                    <strong>KIKA</strong>
+                    <small>Pedido recibido en mesa</small>
+                  </div>
+                </div>
               ) : (
                 <div className="confirmation-ticket">
                   <span className="confirmation-ticket-dot confirmation-ticket-dot-left" />
@@ -7959,12 +7969,20 @@ export default function MenuApp() {
                     ? 'Directo al horno'
                     : templateId === 'sabor-pampa'
                       ? 'Listo para preparar'
+                      : templateId === 'kika'
+                        ? 'Pedido en cafetería'
                       : 'Pedido enviado'}
             </span>
-            <h3>Pedido #{lastOrder.orderNumber} confirmado</h3>
+            <h3>
+              {templateId === 'kika'
+                ? `Pedido #${lastOrder.orderNumber} recibido`
+                : `Pedido #${lastOrder.orderNumber} confirmado`}
+            </h3>
             <p>
               {templateId === 'sabor-pampa'
                 ? 'Ya recibimos tu pedido. Lo preparamos con el sabor de casa y te contactamos para coordinarlo.'
+                : templateId === 'kika'
+                  ? 'Gracias. Tu pedido ya quedó registrado para prepararlo en la cafetería.'
                 : 'Ya recibimos tu pedido y vamos a seguir informandote por WhatsApp.'}
             </p>
             <div className="confirmation-meta">
@@ -7972,10 +7990,17 @@ export default function MenuApp() {
                 <span>Total</span>
                 <strong>{formatPrice(lastOrder.total ?? 0, currencySymbol)}</strong>
               </div>
-              <div>
-                <span>WhatsApp</span>
-                <strong>{buildWhatsappNumberPreview(lastOrder.customer?.phone)}</strong>
-              </div>
+              {templateId === 'kika' ? (
+                <div>
+                  <span>Modalidad</span>
+                  <strong>Mesa</strong>
+                </div>
+              ) : (
+                <div>
+                  <span>WhatsApp</span>
+                  <strong>{buildWhatsappNumberPreview(lastOrder.customer?.phone)}</strong>
+                </div>
+              )}
             </div>
             {lastOrder.loyalty?.enabled ? (
               <div className="confirmation-meta confirmation-meta-loyalty">
@@ -8004,16 +8029,18 @@ export default function MenuApp() {
               <div className="confirmation-step">
                 <span />
                 <div>
-                  <strong>Envio por WhatsApp</strong>
+                  <strong>{templateId === 'kika' ? 'En preparación' : 'Envio por WhatsApp'}</strong>
                   <small>
-                    {lastOrder.customerWhatsapp?.url
-                      ? 'Se abrio el chat con el pedido listo para enviar.'
-                      : 'Te vamos a contactar para coordinar el pedido.'}
+                    {templateId === 'kika'
+                      ? 'El equipo de Kika lo verá desde la cafetería para prepararlo.'
+                      : lastOrder.customerWhatsapp?.url
+                        ? 'Se abrio el chat con el pedido listo para enviar.'
+                        : 'Te vamos a contactar para coordinar el pedido.'}
                   </small>
                 </div>
               </div>
             </div>
-            {lastOrder.customerWhatsapp?.url ? (
+            {templateId !== 'kika' && lastOrder.customerWhatsapp?.url ? (
               <button
                 type="button"
                 className="confirmation-button confirmation-button-secondary"

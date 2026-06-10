@@ -6541,6 +6541,15 @@
   box-shadow: 0 1.6rem 3.2rem rgba(0, 0, 0, 0.48);
 }
 
+.confirmation-card-kika {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(85, 115, 72, 0.12), transparent 32%),
+    linear-gradient(180deg, #fffdf8 0%, #f4f2ef 100%);
+  color: #2f3d35;
+  border-color: rgba(85, 115, 72, 0.14);
+  box-shadow: 0 1.5rem 3rem rgba(52, 62, 49, 0.18);
+}
+
 .confirmation-hero {
   padding: 0.2rem 0 0.6rem;
 }
@@ -6633,6 +6642,33 @@
     linear-gradient(135deg, rgba(18, 17, 14, 0.98), rgba(5, 7, 6, 0.98));
 }
 
+.confirmation-kika-top {
+  position: relative;
+  overflow: hidden;
+  min-height: 7.5rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 0.08rem solid rgba(85, 115, 72, 0.16);
+  border-radius: 1.45rem;
+  background:
+    radial-gradient(circle at 88% 10%, rgba(85, 115, 72, 0.15), transparent 4.8rem),
+    linear-gradient(135deg, rgba(255, 253, 248, 0.96), rgba(238, 234, 226, 0.96));
+}
+
+.confirmation-kika-top::after {
+  content: '';
+  position: absolute;
+  right: -1.8rem;
+  bottom: -2.5rem;
+  width: 7.4rem;
+  aspect-ratio: 1;
+  border: 0.08rem solid rgba(85, 115, 72, 0.14);
+  border-radius: 50%;
+}
+
 .confirmation-pampa-top::after {
   content: '';
   position: absolute;
@@ -6676,6 +6712,17 @@
   box-shadow: 0 0.85rem 1.45rem rgba(244, 183, 57, 0.18);
 }
 
+.confirmation-kika-seal {
+  width: 3.35rem;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fffdf8;
+  background: #557348;
+  box-shadow: 0 0.85rem 1.45rem rgba(85, 115, 72, 0.18);
+}
+
 .confirmation-burger-flame svg,
 .confirmation-pizzeria-oven svg {
   width: 1.65rem;
@@ -6688,6 +6735,16 @@
 }
 
 .confirmation-pampa-seal svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.confirmation-kika-seal svg {
   width: 1.75rem;
   height: 1.75rem;
   fill: none;
@@ -6728,6 +6785,13 @@
   display: block;
 }
 
+.confirmation-kika-top strong,
+.confirmation-kika-top small {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
 .confirmation-pampa-top strong {
   color: #f7efe2;
   font-family: var(--font-display);
@@ -6739,6 +6803,24 @@
 .confirmation-pampa-top small {
   margin-top: 0.45rem;
   color: #f4b739;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.confirmation-kika-top strong {
+  color: #2f432b;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2.15rem;
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: 0.08em;
+}
+
+.confirmation-kika-top small {
+  margin-top: 0.45rem;
+  color: #557348;
   font-size: 0.74rem;
   font-weight: 900;
   letter-spacing: 0.09em;
@@ -6852,6 +6934,11 @@
   color: #f4b739;
 }
 
+.confirmation-card-kika .confirmation-kicker {
+  background: rgba(85, 115, 72, 0.1);
+  color: #557348;
+}
+
 .confirmation-card h3 {
   margin: 0.95rem 0 0;
   font-size: 1.85rem;
@@ -6881,6 +6968,13 @@
   font-size: 2rem;
 }
 
+.confirmation-card-kika h3 {
+  color: #2f432b;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2.05rem;
+  font-weight: 900;
+}
+
 .confirmation-card p {
   margin: 0.8rem 0 0;
   line-height: 1.6;
@@ -6899,6 +6993,10 @@
   color: rgba(247, 239, 226, 0.78);
 }
 
+.confirmation-card-kika p {
+  color: rgba(47, 61, 53, 0.76);
+}
+
 .confirmation-card strong {
   color: var(--theme-text);
 }
@@ -6913,6 +7011,10 @@
 
 .confirmation-card-sabor-pampa strong {
   color: #f7efe2;
+}
+
+.confirmation-card-kika strong {
+  color: #2f432b;
 }
 
 .confirmation-meta {
@@ -6949,9 +7051,19 @@
   border-color: rgba(244, 183, 57, 0.2);
 }
 
+.confirmation-card-kika .confirmation-meta div {
+  background: rgba(255, 253, 248, 0.76);
+  border-color: rgba(85, 115, 72, 0.12);
+}
+
 .confirmation-card-sabor-pampa .confirmation-meta span,
 .confirmation-card-sabor-pampa .confirmation-step small {
   color: rgba(247, 239, 226, 0.68);
+}
+
+.confirmation-card-kika .confirmation-meta span,
+.confirmation-card-kika .confirmation-step small {
+  color: rgba(47, 61, 53, 0.62);
 }
 
 .confirmation-meta span {
@@ -7038,6 +7150,11 @@
   box-shadow: 0 10px 18px rgba(244, 183, 57, 0.18);
 }
 
+.confirmation-card-kika .confirmation-step.active > span {
+  background: #557348;
+  box-shadow: 0 10px 18px rgba(85, 115, 72, 0.18);
+}
+
 .confirmation-step.active > span::after {
   content: '';
   position: absolute;
@@ -7116,6 +7233,12 @@
   background: #f4b739;
   color: #090806;
   box-shadow: 0 16px 28px rgba(244, 183, 57, 0.18);
+}
+
+.confirmation-card-kika .confirmation-button {
+  background: #557348;
+  color: #fffdf8;
+  box-shadow: 0 16px 28px rgba(85, 115, 72, 0.18);
 }
 
 .recommendation-group {
