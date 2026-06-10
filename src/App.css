@@ -6129,12 +6129,16 @@
 }
 
 .detail-phone.template-kika .kika-community-head {
-  gap: clamp(0.8rem, 3vw, 1.1rem);
-  align-items: stretch;
+  display: block;
+  position: relative;
+  padding-top: clamp(0.35rem, 2vw, 0.7rem);
 }
 
 .detail-phone.template-kika .kika-community-head .floating-button {
-  flex: 0 0 auto;
+  position: absolute;
+  z-index: 2;
+  top: clamp(0.75rem, 3vw, 1rem);
+  left: clamp(0.75rem, 3vw, 1rem);
   width: clamp(2.7rem, 12vw, 3.2rem);
   height: clamp(2.7rem, 12vw, 3.2rem);
   border: 0;
@@ -6144,9 +6148,10 @@
 
 .kika-community-hero {
   min-width: 0;
-  flex: 1;
+  width: 100%;
   overflow: hidden;
   padding: clamp(1rem, 4.8vw, 1.28rem);
+  padding-top: clamp(4.2rem, 15vw, 5rem);
   border: 0.08rem solid rgba(85, 115, 72, 0.14);
   border-radius: clamp(1.4rem, 7vw, 2rem);
   background:
@@ -6166,14 +6171,16 @@
   text-transform: uppercase;
 }
 
-.detail-phone.template-kika .kika-community-sheet .checkout-head h2 {
+.detail-phone.template-kika .kika-community-sheet .kika-community-hero h2 {
   max-width: 100%;
   color: var(--kika-green, #557348);
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(2.25rem, 10.5vw, 3.25rem);
-  font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: -0.035em;
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-size: clamp(2rem, 9.2vw, 2.95rem);
+  font-weight: 800 !important;
+  line-height: 0.94;
+  letter-spacing: -0.025em;
+  text-transform: none;
+  overflow-wrap: anywhere;
 }
 
 .detail-phone.template-kika .kika-community-sheet .checkout-head p {
