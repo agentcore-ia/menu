@@ -5193,6 +5193,7 @@ export default function MenuApp() {
 
   const presentation = menu?.presentation ?? defaultPresentation
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
+  const isKikaTableOrder = templateId === 'kika'
   const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled === true
   const rawCategories = menu?.categories ?? emptyCategories
   const categories = useMemo(
@@ -5307,7 +5308,7 @@ export default function MenuApp() {
   const orderCount = cartCount + redemptionCount
   const hasOrderItems = orderCount > 0
   const selectedDeliveryFee =
-    hasOrderItems && orderForm.deliveryType === 'delivery' ? configuredDeliveryFee : 0
+    hasOrderItems && !isKikaTableOrder && orderForm.deliveryType === 'delivery' ? configuredDeliveryFee : 0
   const orderTotal = cartTotal + selectedDeliveryFee
   const orderTotalLabel = orderTotal > 0
     ? formatPrice(orderTotal, currencySymbol)
@@ -5935,7 +5936,7 @@ export default function MenuApp() {
       return
     }
 
-    if (orderForm.deliveryType === 'delivery' && !orderForm.address.trim()) {
+    if (!isKikaTableOrder && orderForm.deliveryType === 'delivery' && !orderForm.address.trim()) {
       setCheckoutStatus('error')
       setCheckoutMessage('Si eliges delivery, debes ingresar la direccion.')
       return
@@ -5954,17 +5955,20 @@ export default function MenuApp() {
     setCheckoutMessage('')
     const whatsappWindow = window.open('', '_blank')
 
+    const effectiveDeliveryType = isKikaTableOrder ? 'mesa' : orderForm.deliveryType
+    const effectivePaymentMethod = isKikaTableOrder ? 'mesa' : orderForm.paymentMethod
+
     const payload = {
       customer: {
         name: orderForm.name.trim(),
         phone: rawPhone,
-        address: orderForm.address.trim(),
-        neighborhood: orderForm.neighborhood.trim(),
-        city: orderForm.city.trim(),
+        address: isKikaTableOrder ? '' : orderForm.address.trim(),
+        neighborhood: isKikaTableOrder ? '' : orderForm.neighborhood.trim(),
+        city: isKikaTableOrder ? '' : orderForm.city.trim(),
       },
-      deliveryType: orderForm.deliveryType,
-      paymentMethod: orderForm.paymentMethod,
-      notes: orderForm.notes.trim(),
+      deliveryType: effectiveDeliveryType,
+      paymentMethod: effectivePaymentMethod,
+      notes: isKikaTableOrder ? '' : orderForm.notes.trim(),
       items: cartItems.map((item) => ({
         productId: item.id,
         name: item.name,
@@ -7416,8 +7420,12 @@ export default function MenuApp() {
                   <IconBack />
                 </button>
                 <div>
-                  <h2>Confirmar pedido</h2>
-                  <p>Completa tus datos para terminar el pedido.</p>
+                  <h2>{isKikaTableOrder ? 'Confirmar en mesa' : 'Confirmar pedido'}</h2>
+                  <p>
+                    {isKikaTableOrder
+                      ? 'Solo necesitamos tus datos para identificar el pedido en la cafetería.'
+                      : 'Completa tus datos para terminar el pedido.'}
+                  </p>
                 </div>
               </div>
 
@@ -7499,6 +7507,16 @@ export default function MenuApp() {
               ) : null}
 
               <form className="checkout-form" onSubmit={handleSubmitOrder}>
+                {isKikaTableOrder ? (
+                  <div className="checkout-table-notice">
+                    <IconKikaCup />
+                    <div>
+                      <strong>Pedido desde la mesa</strong>
+                      <span>No hace falta elegir entrega, pago ni agregar notas.</span>
+                    </div>
+                  </div>
+                ) : null}
+
                 <label className="checkout-field">
                   <span>Nombre</span>
                   <input
@@ -7520,74 +7538,78 @@ export default function MenuApp() {
                   />
                 </label>
 
-                <div className="checkout-grid">
-                  <label className="checkout-field">
-                    <span>Entrega</span>
-                    <select
-                      value={orderForm.deliveryType}
-                      onChange={(event) => updateOrderForm('deliveryType', event.target.value)}
-                    >
-                      <option value="delivery">Delivery</option>
-                      <option value="retiro">Retiro</option>
-                    </select>
-                  </label>
-
-                  <label className="checkout-field">
-                    <span>Pago</span>
-                    <select
-                      value={orderForm.paymentMethod}
-                      onChange={(event) => updateOrderForm('paymentMethod', event.target.value)}
-                    >
-                      <option value="cash">Efectivo</option>
-                      <option value="transferencia">Transferencia</option>
-                      <option value="mercado_pago">Mercado Pago</option>
-                    </select>
-                  </label>
-                </div>
-
-                {orderForm.deliveryType === 'delivery' ? (
+                {!isKikaTableOrder ? (
                   <>
-                    <label className="checkout-field">
-                      <span>Direccion</span>
-                      <input
-                        value={orderForm.address}
-                        onChange={(event) => updateOrderForm('address', event.target.value)}
-                        placeholder="Calle 123"
-                        required={orderForm.deliveryType === 'delivery'}
-                      />
-                    </label>
-
                     <div className="checkout-grid">
                       <label className="checkout-field">
-                        <span>Barrio</span>
-                        <input
-                          value={orderForm.neighborhood}
-                          onChange={(event) => updateOrderForm('neighborhood', event.target.value)}
-                          placeholder="Barrio"
-                        />
+                        <span>Entrega</span>
+                        <select
+                          value={orderForm.deliveryType}
+                          onChange={(event) => updateOrderForm('deliveryType', event.target.value)}
+                        >
+                          <option value="delivery">Delivery</option>
+                          <option value="retiro">Retiro</option>
+                        </select>
                       </label>
 
                       <label className="checkout-field">
-                        <span>Ciudad</span>
-                        <input
-                          value={orderForm.city}
-                          onChange={(event) => updateOrderForm('city', event.target.value)}
-                          placeholder="Ciudad"
-                        />
+                        <span>Pago</span>
+                        <select
+                          value={orderForm.paymentMethod}
+                          onChange={(event) => updateOrderForm('paymentMethod', event.target.value)}
+                        >
+                          <option value="cash">Efectivo</option>
+                          <option value="transferencia">Transferencia</option>
+                          <option value="mercado_pago">Mercado Pago</option>
+                        </select>
                       </label>
                     </div>
+
+                    {orderForm.deliveryType === 'delivery' ? (
+                      <>
+                        <label className="checkout-field">
+                          <span>Direccion</span>
+                          <input
+                            value={orderForm.address}
+                            onChange={(event) => updateOrderForm('address', event.target.value)}
+                            placeholder="Calle 123"
+                            required={orderForm.deliveryType === 'delivery'}
+                          />
+                        </label>
+
+                        <div className="checkout-grid">
+                          <label className="checkout-field">
+                            <span>Barrio</span>
+                            <input
+                              value={orderForm.neighborhood}
+                              onChange={(event) => updateOrderForm('neighborhood', event.target.value)}
+                              placeholder="Barrio"
+                            />
+                          </label>
+
+                          <label className="checkout-field">
+                            <span>Ciudad</span>
+                            <input
+                              value={orderForm.city}
+                              onChange={(event) => updateOrderForm('city', event.target.value)}
+                              placeholder="Ciudad"
+                            />
+                          </label>
+                        </div>
+                      </>
+                    ) : null}
+
+                    <label className="checkout-field">
+                      <span>Notas</span>
+                      <textarea
+                        rows="3"
+                        value={orderForm.notes}
+                        onChange={(event) => updateOrderForm('notes', event.target.value)}
+                        placeholder="Aclaraciones del pedido"
+                      />
+                    </label>
                   </>
                 ) : null}
-
-                <label className="checkout-field">
-                  <span>Notas</span>
-                  <textarea
-                    rows="3"
-                    value={orderForm.notes}
-                    onChange={(event) => updateOrderForm('notes', event.target.value)}
-                    placeholder="Aclaraciones del pedido"
-                  />
-                </label>
 
                 {checkoutMessage ? <p className={`checkout-message ${checkoutStatus}`}>{checkoutMessage}</p> : null}
                 {orderingBlocked ? <p className="checkout-message error">{orderingClosedMessage}</p> : null}

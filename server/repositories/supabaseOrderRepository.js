@@ -721,9 +721,11 @@ export class SupabaseOrderRepository {
     )
 
     const deliveryLine =
-      deliveryType === 'delivery'
-        ? `Entrega: Delivery${address ? ` a ${address}` : ''}`
-        : 'Entrega: Retiro en local'
+      deliveryType === 'mesa'
+        ? 'Pedido desde la mesa'
+        : deliveryType === 'delivery'
+          ? `Entrega: Delivery${address ? ` a ${address}` : ''}`
+          : 'Entrega: Retiro en local'
 
     const paymentLabel = this.getPaymentLabel(paymentMethod)
 
@@ -740,7 +742,7 @@ export class SupabaseOrderRepository {
       ...discountLines,
       '',
       deliveryLine,
-      `Pago: ${paymentLabel}`,
+      paymentLabel ? `Pago: ${paymentLabel}` : null,
       notes ? `Notas: ${notes}` : null,
       `Total: $${this.formatMoney(total)}`,
       loyalty?.pointsEarned
@@ -805,6 +807,7 @@ export class SupabaseOrderRepository {
   }
 
   getPaymentLabel(value) {
+    if (value === 'mesa') return ''
     if (value === 'mercado_pago') return 'Mercado Pago'
     if (value === 'transferencia') return 'Transferencia'
     if (value === 'cash') return 'Efectivo'
