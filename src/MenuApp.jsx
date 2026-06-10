@@ -4005,7 +4005,7 @@ function TemplateMenuCollection({
                           onClick={() => onAddItem(item)}
                           aria-label={`Agregar ${item.name}`}
                         >
-                          <IconHeart />
+                          <IconPlus />
                         </button>
                       </div>
                     </article>

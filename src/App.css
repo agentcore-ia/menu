@@ -12521,17 +12521,25 @@ button:focus-visible {
 }
 
 .kika-card-row.compact .kika-product-body {
-  min-height: 4.6rem;
+  min-height: 5.75rem;
   padding: 0.62rem 0.7rem 0.7rem;
 }
 
 .kika-product-copy {
   min-width: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(2.5rem, auto) auto 1fr;
+  align-content: start;
   border: 0;
   padding: 0;
   background: transparent;
   color: #253320;
   text-align: left;
+}
+
+.kika-card-row.featured .kika-product-copy {
+  grid-template-rows: auto auto 1fr;
 }
 
 .kika-product-copy h3 {
@@ -12544,6 +12552,9 @@ button:focus-visible {
 
 .kika-card-row.compact .kika-product-copy h3 {
   font-size: 0.82rem;
+  min-height: 2.55rem;
+  display: grid;
+  place-items: center;
   text-align: center;
 }
 
@@ -12564,7 +12575,8 @@ button:focus-visible {
 }
 
 .kika-card-row.compact .kika-product-points {
-  margin: 0.36rem auto 0;
+  align-self: start;
+  margin: 0.42rem auto 0;
   padding: 0.22rem 0.42rem;
   font-size: 0.66rem;
 }
@@ -12589,19 +12601,19 @@ button:focus-visible {
   height: 1.9rem;
   display: grid;
   place-items: center;
-  border: 0;
+  border: 0.08rem solid rgba(85, 115, 72, 0.18);
   border-radius: 999px;
-  background: transparent;
-  color: #557348;
+  background: #557348;
+  color: #fffdf8;
   padding: 0;
 }
 
 .kika-favorite svg {
-  width: 1.48rem;
-  height: 1.48rem;
+  width: 1rem;
+  height: 1rem;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.65;
+  stroke-width: 2.4;
 }
 
 .kika-gluten-banner {
