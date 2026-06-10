@@ -1907,62 +1907,6 @@ function buildWhatsappNumberPreview(phone) {
   return digits ? `+${digits}` : ''
 }
 
-function formatCompactNumber(value) {
-  const amount = Number(value ?? 0)
-  return Number.isFinite(amount) ? amount.toLocaleString('es-AR') : '0'
-}
-
-function formatCommunityDate(value) {
-  if (!value) {
-    return 'Sin actividad'
-  }
-
-  const date = new Date(value)
-
-  if (Number.isNaN(date.getTime())) {
-    return 'Sin actividad'
-  }
-
-  return date.toLocaleDateString('es-AR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-function getCommunityInitials(name) {
-  const parts = String(name ?? '')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-
-  if (!parts.length) {
-    return 'CL'
-  }
-
-  return parts
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join('')
-}
-
-function getCommunityMovementLabel(movement, pointsName) {
-  if (!movement) {
-    return 'Todavia sin movimientos'
-  }
-
-  const pointsDelta = Number(movement.pointsDelta ?? 0)
-  const sign = pointsDelta > 0 ? '+' : ''
-  const kindLabel =
-    movement.kind === 'redeem'
-      ? 'Canje'
-      : movement.kind === 'manual_adjustment'
-        ? 'Ajuste'
-        : 'Compra'
-
-  return `${kindLabel}: ${sign}${formatCompactNumber(pointsDelta)} ${pointsName}`
-}
-
 function openWhatsappOrderChat(url, targetWindow) {
   if (!url) {
     if (targetWindow && !targetWindow.closed) {
@@ -3535,123 +3479,6 @@ function InstallAppPrompt({
   )
 }
 
-function LoyaltyCommunitySection({
-  status,
-  data,
-  pointsName = 'puntos',
-  accountName = 'este local',
-  templateId,
-  onOpenLoyalty,
-}) {
-  const members = data?.members ?? []
-  const summary = data?.summary ?? {}
-  const topMembers = members.slice(0, 12)
-  const isLoading = status === 'loading'
-  const hasError = status === 'error'
-
-  if (status === 'idle') {
-    return null
-  }
-
-  return (
-    <section className={`loyalty-community loyalty-community-${templateId}`} data-loyalty-community>
-      <div className="loyalty-community-hero">
-        <div>
-          <span className="loyalty-community-kicker">
-            <IconKikaUsers />
-            Comunidad
-          </span>
-          <h2>Clientes que ya suman en {accountName}</h2>
-          <p>
-            Un espacio para ver quienes forman parte del programa, sus puntos disponibles y
-            la actividad de la comunidad.
-          </p>
-        </div>
-        <button type="button" className="loyalty-community-cta" onClick={onOpenLoyalty}>
-          <IconAward />
-          Consultar mis puntos
-        </button>
-      </div>
-
-      <div className="loyalty-community-stats">
-        <article>
-          <span>Miembros</span>
-          <strong>{formatCompactNumber(summary.totalMembers)}</strong>
-        </article>
-        <article>
-          <span>Puntos activos</span>
-          <strong>{formatCompactNumber(summary.totalActivePoints)}</strong>
-        </article>
-        <article>
-          <span>Ganados</span>
-          <strong>{formatCompactNumber(summary.totalPointsEarned)}</strong>
-        </article>
-        <article>
-          <span>Activos este mes</span>
-          <strong>{formatCompactNumber(summary.activeThisMonth)}</strong>
-        </article>
-      </div>
-
-      {isLoading ? (
-        <div className="loyalty-community-list" aria-label="Cargando comunidad">
-          {[0, 1, 2].map((item) => (
-            <article key={item} className="loyalty-community-member is-loading">
-              <span />
-              <div />
-              <em />
-            </article>
-          ))}
-        </div>
-      ) : null}
-
-      {hasError ? (
-        <div className="loyalty-community-empty">
-          <strong>No pudimos cargar la comunidad</strong>
-          <p>El programa esta activo, pero la lista no respondio. Intenta nuevamente en unos minutos.</p>
-        </div>
-      ) : null}
-
-      {!isLoading && !hasError && topMembers.length ? (
-        <div className="loyalty-community-list">
-          {topMembers.map((member) => (
-            <article key={member.id} className="loyalty-community-member">
-              <div className="loyalty-community-rank">#{member.rank}</div>
-              <div className="loyalty-community-avatar" aria-hidden="true">
-                {getCommunityInitials(member.name)}
-              </div>
-              <div className="loyalty-community-member-main">
-                <strong>{member.name}</strong>
-                <span>{member.phone}</span>
-                <small>
-                  Miembro desde {formatCommunityDate(member.memberSince)} · Ultima actividad{' '}
-                  {formatCommunityDate(member.lastActivityAt)}
-                </small>
-              </div>
-              <div className="loyalty-community-member-points">
-                <strong>
-                  {formatCompactNumber(member.pointsBalance)} {pointsName}
-                </strong>
-                <span>
-                  Ganados {formatCompactNumber(member.totalPointsEarned)} · Canjeados{' '}
-                  {formatCompactNumber(member.totalPointsRedeemed)}
-                </span>
-                <small>{getCommunityMovementLabel(member.lastMovement, pointsName)}</small>
-              </div>
-            </article>
-          ))}
-        </div>
-      ) : null}
-
-      {!isLoading && !hasError && !topMembers.length ? (
-        <div className="loyalty-community-empty">
-          <strong>Todavia no hay miembros</strong>
-          <p>Cuando los clientes empiecen a sumar puntos, van a aparecer aca.</p>
-        </div>
-      ) : null}
-    </section>
-  )
-}
-
 function TemplateCategorySelector({
   accountId,
   templateId,
@@ -4035,8 +3862,6 @@ function TemplateMenuCollection({
   onOpenSocialMenu,
   onNavigateHome,
   onNavigatePromos,
-  onNavigateCommunity,
-  loyaltyEnabled = false,
   gelatoFormats,
   onOpenGelatoBuilder,
   searchQuery = '',
@@ -4196,9 +4021,9 @@ function TemplateMenuCollection({
             <IconAward />
             <span>Premios</span>
           </button>
-          <button type="button" onClick={loyaltyEnabled ? onNavigateCommunity : onOpenSocialMenu}>
+          <button type="button" onClick={onOpenSocialMenu}>
             <IconKikaUsers />
-            <span>{loyaltyEnabled ? 'Comunidad' : 'Nosotros'}</span>
+            <span>Nosotros</span>
           </button>
         </nav>
       </section>
@@ -4314,17 +4139,10 @@ function TemplateMenuCollection({
             <IconTicket />
             <span>Promos</span>
           </button>
-          {loyaltyEnabled ? (
-            <button type="button" onClick={onNavigateCommunity}>
-              <IconKikaUsers />
-              <span>Comunidad</span>
-            </button>
-          ) : (
-            <button type="button" onClick={onNavigateHome}>
-              <IconKikaPin />
-              <span>Ubicacion</span>
-            </button>
-          )}
+          <button type="button" onClick={onNavigateHome}>
+            <IconKikaPin />
+            <span>Ubicacion</span>
+          </button>
         </nav>
       </section>
     )
@@ -5236,8 +5054,6 @@ export default function MenuApp() {
   })
   const [communityStatus, setCommunityStatus] = useState('idle')
   const [communityMessage, setCommunityMessage] = useState('')
-  const [communityListStatus, setCommunityListStatus] = useState('idle')
-  const [communityListData, setCommunityListData] = useState(null)
   const [cartFeedback, setCartFeedback] = useState(null)
   const [pairingFeedbackId, setPairingFeedbackId] = useState('')
   const [orderingNotice, setOrderingNotice] = useState('')
@@ -5528,47 +5344,6 @@ export default function MenuApp() {
       }
   const orderingBlocked = Boolean(orderingStatus.configured && !orderingStatus.isOpen)
   const orderingClosedMessage = getOrderingClosedMessage(orderingStatus)
-
-  useEffect(() => {
-    if (status !== 'ready' || !loyaltySettings?.enabled) {
-      return undefined
-    }
-
-    let cancelled = false
-
-    async function loadCommunity() {
-      setCommunityListStatus('loading')
-
-      try {
-        const response = await fetch(`/api/accounts/${accountId}/community`, { cache: 'no-store' })
-        const payload = await response.json()
-
-        if (!response.ok) {
-          throw new Error(payload.message ?? 'No se pudo cargar la comunidad.')
-        }
-
-        if (cancelled) {
-          return
-        }
-
-        setCommunityListData(payload)
-        setCommunityListStatus(payload.enabled ? 'ready' : 'idle')
-      } catch {
-        if (cancelled) {
-          return
-        }
-
-        setCommunityListData(null)
-        setCommunityListStatus('error')
-      }
-    }
-
-    loadCommunity()
-
-    return () => {
-      cancelled = true
-    }
-  }, [accountId, loyaltySettings?.enabled, status])
 
   function showOrderingClosedNotice() {
     setOrderingNotice(orderingClosedMessage)
@@ -6022,10 +5797,6 @@ export default function MenuApp() {
     scrollToMenuTarget('[data-burger-promos]', 'center')
   }
 
-  function handleNavigateCommunity() {
-    scrollToMenuTarget('[data-loyalty-community]', 'start')
-  }
-
   function handleSelectCategory(categoryId) {
     const safeCategoryId = String(categoryId ?? '')
 
@@ -6467,8 +6238,6 @@ export default function MenuApp() {
                   onOpenSocialMenu={() => setIsSocialMenuOpen(true)}
                   onNavigateHome={handleNavigateHome}
                   onNavigatePromos={handleNavigatePromos}
-                  onNavigateCommunity={handleNavigateCommunity}
-                  loyaltyEnabled={Boolean(loyaltySettings?.enabled)}
                   gelatoFormats={gelatoFormats}
                   onOpenGelatoBuilder={handleOpenGelatoBuilder}
                   searchQuery={deferredSearchQuery}
@@ -6476,17 +6245,6 @@ export default function MenuApp() {
                   loyaltySettings={loyaltySettings}
                   pointsName={pointsName}
                 />
-
-                {loyaltySettings?.enabled ? (
-                  <LoyaltyCommunitySection
-                    status={communityListStatus}
-                    data={communityListData}
-                    pointsName={loyaltySettings.pointsName ?? 'puntos'}
-                    accountName={menu?.accountName ?? presentation.branding?.wordmark ?? 'este local'}
-                    templateId={templateId}
-                    onOpenLoyalty={handleOpenLoyalty}
-                  />
-                ) : null}
               </>
             ) : null}
           </main>

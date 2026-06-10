@@ -258,29 +258,6 @@ app.post('/api/accounts/:accountId/loyalty', async (req, res) => {
   }
 })
 
-app.get('/api/accounts/:accountId/community', async (req, res) => {
-  res.setHeader('Cache-Control', 'no-store, max-age=0')
-
-  try {
-    const community = await loyaltyRepository.getLoyaltyCommunityByAccountId(req.params.accountId)
-
-    if (!community) {
-      res.status(404).json({
-        error: 'ACCOUNT_NOT_FOUND',
-        message: 'No se encontro la cuenta para consultar la comunidad.',
-      })
-      return
-    }
-
-    res.json(community)
-  } catch (error) {
-    res.status(500).json({
-      error: 'COMMUNITY_LOAD_FAILED',
-      message: error instanceof Error ? error.message : 'No se pudo consultar la comunidad.',
-    })
-  }
-})
-
 app.get('/api/admin/accounts', async (req, res) => {
   try {
     assertAdminToken(config, req)
