@@ -4017,9 +4017,9 @@ function TemplateMenuCollection({
             <IconKikaBag />
             <span>Pedidos</span>
           </button>
-          <button type="button" onClick={onNavigateHome}>
-            <IconKikaPin />
-            <span>Ubicación</span>
+          <button type="button" onClick={onOpenLoyalty}>
+            <IconAward />
+            <span>Premios</span>
           </button>
           <button type="button" onClick={onOpenSocialMenu}>
             <IconKikaUsers />
@@ -6734,9 +6734,9 @@ export default function MenuApp() {
                     <IconKikaBag />
                     <span>Pedidos</span>
                   </button>
-                  <button type="button">
-                    <IconKikaPin />
-                    <span>Ubicación</span>
+                  <button type="button" onClick={handleOpenLoyalty}>
+                    <IconAward />
+                    <span>Premios</span>
                   </button>
                   <button type="button" onClick={() => setIsSocialMenuOpen(true)}>
                     <IconKikaUsers />
@@ -7744,8 +7744,12 @@ export default function MenuApp() {
                   <IconBack />
                 </button>
                 <div>
-                  <h2>Mis puntos</h2>
-                  <p>Ingresa tu celular y consulta el saldo acumulado en este menu.</p>
+                  <h2>{templateId === 'kika' ? 'Premios Kika' : 'Mis puntos'}</h2>
+                  <p>
+                    {templateId === 'kika'
+                      ? 'Ingresá tu celular, consultá tus puntos y canjeá premios disponibles.'
+                      : 'Ingresa tu celular y consulta el saldo acumulado en este menu.'}
+                  </p>
                 </div>
               </div>
 
@@ -7770,7 +7774,13 @@ export default function MenuApp() {
                   className="primary-action"
                   disabled={loyaltyStatus === 'loading'}
                 >
-                  <span>{loyaltyStatus === 'loading' ? 'Consultando...' : 'Consultar puntos'}</span>
+                  <span>
+                    {loyaltyStatus === 'loading'
+                      ? 'Consultando...'
+                      : templateId === 'kika'
+                        ? 'Ver premios'
+                        : 'Consultar puntos'}
+                  </span>
                   <strong>
                     <IconAward />
                   </strong>
@@ -7796,7 +7806,7 @@ export default function MenuApp() {
                       {loyaltyData.rewards?.length ? (
                         <section className="cart-panel">
                           <div className="section-heading compact">
-                            <h2>Canjes disponibles</h2>
+                            <h2>{templateId === 'kika' ? 'Premios para canjear' : 'Canjes disponibles'}</h2>
                           </div>
                           <div className="loyalty-reward-list">
                             {loyaltyData.rewards.map((reward) => {
