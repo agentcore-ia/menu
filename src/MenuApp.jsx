@@ -3897,6 +3897,7 @@ function TemplateMenuCollection({
   isSearchActive = false,
   loyaltySettings = null,
   pointsName = 'puntos',
+  orderCount = 0,
 }) {
   if (templateId === 'kika') {
     const sections = isSearchActive
@@ -4042,8 +4043,13 @@ function TemplateMenuCollection({
             <IconKikaBook />
             <span>Menu</span>
           </button>
-          <button type="button" onClick={onOpenCart}>
+          <button
+            type="button"
+            className={orderCount > 0 ? 'has-order' : ''}
+            onClick={onOpenCart}
+          >
             <IconKikaBag />
+            {orderCount > 0 ? <strong className="kika-nav-badge">{orderCount}</strong> : null}
             <span>Pedidos</span>
           </button>
           <button type="button" onClick={onOpenLoyalty}>
@@ -6396,6 +6402,7 @@ export default function MenuApp() {
                   isSearchActive={isSearchActive}
                   loyaltySettings={loyaltySettings}
                   pointsName={pointsName}
+                  orderCount={orderCount}
                 />
               </>
             ) : null}
@@ -6437,7 +6444,13 @@ export default function MenuApp() {
       {cartFeedback ? (
         <div
           key={cartFeedback.id}
-          className={`cart-added-toast ${templateId === 'burger' || templateId === 'host' ? 'cart-added-toast-burger' : ''}`}
+          className={`cart-added-toast ${
+            templateId === 'burger' || templateId === 'host'
+              ? 'cart-added-toast-burger'
+              : templateId === 'kika'
+                ? 'cart-added-toast-kika'
+                : ''
+          }`}
           role="status"
           aria-live="polite"
         >
@@ -6886,8 +6899,13 @@ export default function MenuApp() {
                     <IconKikaBook />
                     <span>Menu</span>
                   </button>
-                  <button type="button" onClick={() => setIsCartOpen(true)}>
+                  <button
+                    type="button"
+                    className={orderCount > 0 ? 'has-order' : ''}
+                    onClick={() => setIsCartOpen(true)}
+                  >
                     <IconKikaBag />
+                    {orderCount > 0 ? <strong className="kika-nav-badge">{orderCount}</strong> : null}
                     <span>Pedidos</span>
                   </button>
                   <button type="button" onClick={handleOpenLoyalty}>
@@ -7659,16 +7677,6 @@ export default function MenuApp() {
               ) : null}
 
               <form className="checkout-form" onSubmit={handleSubmitOrder}>
-                {isKikaTableOrder ? (
-                  <div className="checkout-table-notice">
-                    <IconKikaCup />
-                    <div>
-                      <strong>Pedido desde la mesa</strong>
-                      <span>No hace falta elegir entrega, pago ni agregar notas.</span>
-                    </div>
-                  </div>
-                ) : null}
-
                 <label className="checkout-field">
                   <span>Nombre</span>
                   <input
