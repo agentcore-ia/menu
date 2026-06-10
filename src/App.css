@@ -5956,6 +5956,21 @@
   place-items: center;
 }
 
+.checkout-item-controls button span {
+  min-width: 0;
+  margin: 0;
+  color: currentColor;
+  font-size: 1.28rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.detail-phone.template-kika .checkout-item-controls button {
+  border-color: rgba(85, 115, 72, 0.18);
+  background: #557348;
+  color: #fffdf8;
+}
+
 .checkout-item-controls span {
   margin: 0;
   min-width: 1.5rem;

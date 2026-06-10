@@ -4006,7 +4006,7 @@ function TemplateMenuCollection({
                           onClick={() => onAddItem(item)}
                           aria-label={`Agregar ${item.name}`}
                         >
-                          <IconPlus />
+                          <span aria-hidden="true">+</span>
                         </button>
                       </div>
                     </article>
@@ -7013,7 +7013,7 @@ export default function MenuApp() {
                           onClick={() => setDetailQuantity((current) => current + 1)}
                           aria-label="Aumentar cantidad"
                         >
-                          <IconPlus />
+                          <span aria-hidden="true">+</span>
                         </button>
                       </div>
                     </div>
@@ -7405,14 +7405,14 @@ export default function MenuApp() {
                             type="button"
                             onClick={() => handleSetItemQuantity(item.lineId, item.quantity - 1)}
                           >
-                            <IconMinus />
+                            <span aria-hidden="true">-</span>
                           </button>
                           <span>{item.quantity}</span>
                           <button
                             type="button"
                             onClick={() => handleSetItemQuantity(item.lineId, item.quantity + 1)}
                           >
-                            <IconPlus />
+                            <span aria-hidden="true">+</span>
                           </button>
                         </div>
                       </div>
@@ -7432,7 +7432,7 @@ export default function MenuApp() {
                             type="button"
                             onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity - 1)}
                           >
-                            <IconMinus />
+                            <span aria-hidden="true">-</span>
                           </button>
                           <span>{item.quantity}</span>
                           {item.rewardType === 'discount' ? null : (
@@ -7440,7 +7440,7 @@ export default function MenuApp() {
                               type="button"
                               onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity + 1)}
                             >
-                              <IconPlus />
+                              <span aria-hidden="true">+</span>
                             </button>
                           )}
                         </div>
@@ -7513,7 +7513,7 @@ export default function MenuApp() {
                                 <em>{product.price}</em>
                               </span>
                               <span className="pairing-card-plus" aria-hidden="true">
-                                {isAdded ? '✓' : <IconPlus />}
+                                +
                               </span>
                             </button>
                           )
@@ -7612,14 +7612,14 @@ export default function MenuApp() {
                         type="button"
                         onClick={() => handleSetItemQuantity(item.lineId, item.quantity - 1)}
                       >
-                        <IconMinus />
+                        <span aria-hidden="true">-</span>
                       </button>
                       <span>{item.quantity}</span>
                       <button
                         type="button"
                         onClick={() => handleSetItemQuantity(item.lineId, item.quantity + 1)}
                       >
-                        <IconPlus />
+                        <span aria-hidden="true">+</span>
                       </button>
                     </div>
                   </div>
@@ -7639,7 +7639,7 @@ export default function MenuApp() {
                         type="button"
                         onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity - 1)}
                       >
-                        <IconMinus />
+                        <span aria-hidden="true">-</span>
                       </button>
                       <span>{item.quantity}</span>
                       {item.rewardType === 'discount' ? null : (
@@ -7647,7 +7647,7 @@ export default function MenuApp() {
                           type="button"
                           onClick={() => handleSetRewardQuantity(item.rewardId, item.quantity + 1)}
                         >
-                          <IconPlus />
+                          <span aria-hidden="true">+</span>
                         </button>
                       )}
                     </div>
