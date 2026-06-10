@@ -7590,7 +7590,7 @@ export default function MenuApp() {
             onClick={(event) => event.stopPropagation()}
           >
             <section className="checkout-sheet loyalty-sheet kika-community-sheet">
-              <div className="checkout-head">
+              <div className="checkout-head kika-community-head">
                 <button
                   type="button"
                   className="floating-button light"
@@ -7599,13 +7599,49 @@ export default function MenuApp() {
                 >
                   <IconBack />
                 </button>
-                <div>
+                <div className="kika-community-hero">
+                  <span className="kika-community-eyebrow">Programa de puntos</span>
                   <h2>Comunidad Kika</h2>
-                  <p>Sumate para empezar a acumular puntos con tus compras.</p>
+                  <p>
+                    Sumate gratis, acumulá puntos con cada compra y canjealos por beneficios pensados para vos.
+                  </p>
+                  <div className="kika-community-score">
+                    <strong>1 compra</strong>
+                    <span>= más puntos para tu próximo mimo</span>
+                  </div>
                 </div>
               </div>
 
+              <div className="kika-community-benefits" aria-label="Beneficios de Comunidad Kika">
+                <article>
+                  <IconAward />
+                  <div>
+                    <strong>Sumás puntos</strong>
+                    <span>Cada pedido te acerca a nuevas recompensas.</span>
+                  </div>
+                </article>
+                <article>
+                  <IconHeart />
+                  <div>
+                    <strong>Beneficios exclusivos</strong>
+                    <span>Promos, regalos y sorpresas para la comunidad.</span>
+                  </div>
+                </article>
+                <article>
+                  <IconSpark />
+                  <div>
+                    <strong>Cumple especial</strong>
+                    <span>Tu fecha nos ayuda a prepararte algo lindo.</span>
+                  </div>
+                </article>
+              </div>
+
               <form className="checkout-form loyalty-form kika-community-form" onSubmit={handleJoinCommunity}>
+                <div className="kika-community-form-title">
+                  <strong>Dejanos tus datos</strong>
+                  <span>Solo necesitamos esto para activar tu cuenta.</span>
+                </div>
+
                 <label className="checkout-field">
                   <span>Nombre</span>
                   <input
