@@ -11288,7 +11288,7 @@ button:focus-visible {
 /* Almendra: duplicated Kika base, tuned to the provided specialty cafe reference. */
 .phone-surface.template-almendra,
 .detail-phone.template-almendra {
-  --almendra-bg: #f5ede4;
+  --almendra-bg: #fbf4ed;
   --almendra-panel: #fbf4ed;
   --almendra-card: #fff9f3;
   --almendra-line: rgba(91, 50, 25, 0.17);
