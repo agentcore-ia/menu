@@ -11418,6 +11418,19 @@ button:focus-visible {
   box-shadow: 0 0.95rem 1.7rem rgba(74, 43, 23, 0.08);
 }
 
+.hero-content-almendra::after {
+  content: '';
+  position: absolute;
+  top: calc(100% - clamp(5.7rem, 21vw, 7.4rem));
+  right: 0;
+  left: 0;
+  z-index: 3;
+  height: clamp(7.9rem, 24vw, 10rem);
+  border-radius: clamp(1.45rem, 5.8vw, 2.2rem) clamp(1.45rem, 5.8vw, 2.2rem) 0 0;
+  background: var(--almendra-panel);
+  pointer-events: none;
+}
+
 .almendra-brand-lockup {
   position: absolute;
   top: clamp(0.4rem, 1.85vw, 0.62rem);
