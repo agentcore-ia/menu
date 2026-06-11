@@ -14156,6 +14156,110 @@ button:focus-visible {
   }
 }
 
+/* Almendra simple loading screen */
+.loading-almendra-simple {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.4rem, 6vw, 2.25rem);
+  background:
+    radial-gradient(circle at 50% 16%, rgba(91, 50, 25, 0.08), transparent 28%),
+    linear-gradient(180deg, #fff9f3 0%, #fbf4ed 100%);
+}
+
+.loading-almendra-simple::before,
+.loading-almendra-simple::after {
+  display: none;
+}
+
+.almendra-loading-simple {
+  width: min(72%, 15rem);
+  display: grid;
+  justify-items: center;
+  gap: clamp(0.85rem, 3.8vw, 1.2rem);
+  color: #4b2d1d;
+  text-align: center;
+}
+
+.almendra-loading-brand {
+  width: min(58%, 8.2rem);
+}
+
+.almendra-loading-brand img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.almendra-loading-mark {
+  width: clamp(3.4rem, 16vw, 4.7rem);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 0.08rem solid rgba(91, 50, 25, 0.16);
+  border-radius: 50%;
+  background: rgba(255, 249, 243, 0.68);
+  box-shadow: 0 1rem 2.4rem rgba(91, 50, 25, 0.1);
+  animation: almendra-loading-breathe 2.2s ease-in-out infinite;
+}
+
+.almendra-loading-mark svg {
+  width: 48%;
+  height: 48%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.45;
+}
+
+.almendra-loading-simple p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 4vw, 1.22rem);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.almendra-loading-progress {
+  width: min(64%, 7.6rem);
+  height: 0.18rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(91, 50, 25, 0.13);
+}
+
+.almendra-loading-progress span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: #5b3219;
+  animation: almendra-loading-progress 1.35s ease-in-out infinite;
+}
+
+@keyframes almendra-loading-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-0.16rem) scale(1.035);
+  }
+}
+
+@keyframes almendra-loading-progress {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  55%,
+  100% {
+    transform: translateX(240%);
+  }
+}
+
 .loading-kika {
   background: #F4F2EF;
   color: #263420;

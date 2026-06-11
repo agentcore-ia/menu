@@ -3635,6 +3635,30 @@ function MenuLoadingScreen({ accountId }) {
     )
   }
 
+  if (loadingTemplate === 'almendra') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-almendra-simple">
+          <div className="almendra-loading-simple" role="status" aria-live="polite" aria-label="Cargando menu de Almendra">
+            <div className="almendra-loading-brand">
+              <img src="/almendra/logo.png" alt="Almendra" />
+            </div>
+
+            <div className="almendra-loading-mark" aria-hidden="true">
+              <IconKikaLeaf />
+            </div>
+
+            <p>Cargando menu</p>
+
+            <div className="almendra-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (loadingTemplate === 'sabor-pampa') {
     return (
       <div className="app-shell">
