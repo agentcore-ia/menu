@@ -11420,13 +11420,13 @@ button:focus-visible {
 
 .almendra-brand-lockup {
   position: absolute;
-  top: clamp(0.78rem, 3.4vw, 1.08rem);
+  top: clamp(0.62rem, 2.8vw, 0.95rem);
   left: 50%;
   z-index: 6;
   display: grid;
   justify-items: center;
   gap: 0;
-  width: min(31%, 7.55rem);
+  width: min(34%, 8.25rem);
   color: var(--almendra-ink);
   text-align: center;
   transform: translateX(-50%);
@@ -11434,54 +11434,9 @@ button:focus-visible {
 }
 
 .almendra-brand-lockup img {
-  width: min(100%, 7.35rem);
+  width: 100%;
   height: auto;
   object-fit: contain;
-}
-
-.almendra-brand-lockup strong {
-  font-family: var(--font-display);
-  font-size: clamp(1rem, 4.5vw, 1.65rem);
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  line-height: 1;
-  transform: none;
-}
-
-.almendra-wordmark {
-  display: block;
-  width: min(100%, 6.4rem);
-  height: clamp(1.9rem, 6.9vw, 2.36rem);
-  margin-bottom: -0.72rem;
-  overflow: visible;
-}
-
-.almendra-wordmark text {
-  fill: currentColor;
-  font-family: var(--font-display);
-  font-size: 1.42rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.almendra-brand-lockup > svg:not(.almendra-wordmark) {
-  width: clamp(1.32rem, 5.2vw, 1.72rem);
-  height: clamp(1.62rem, 6.4vw, 2.12rem);
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.55;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.almendra-brand-lockup span {
-  margin-top: -0.08rem;
-  font-size: clamp(0.22rem, 0.9vw, 0.34rem);
-  font-weight: 800;
-  letter-spacing: 0.36em;
-  line-height: 1.1;
-  text-transform: uppercase;
 }
 
 .almendra-hero-media {
@@ -11578,98 +11533,19 @@ button:focus-visible {
   bottom: clamp(-4.6rem, -10vw, -3.15rem);
   left: clamp(1rem, 4vw, 1.8rem);
   z-index: 7;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1.1fr) minmax(0, 1.35fr) auto;
-  align-items: center;
-  gap: clamp(0.48rem, 1.8vw, 0.82rem);
-  min-height: clamp(5.55rem, 17vw, 7.2rem);
-  padding: clamp(0.78rem, 2.8vw, 1.1rem) clamp(0.85rem, 3vw, 1.25rem);
-  border: 0.08rem solid rgba(91, 50, 25, 0.16);
+  display: block;
+  padding: 0;
+  border: 0;
   border-radius: 1.25rem;
-  background:
-    linear-gradient(90deg, rgba(255, 249, 243, 0.98) 0%, rgba(255, 249, 243, 0.96) 78%, rgba(235, 222, 209, 0.94) 78%),
-    var(--almendra-card);
-  color: var(--almendra-ink);
-  text-align: left;
+  background: transparent;
+  overflow: hidden;
   box-shadow: 0 1.1rem 2rem rgba(87, 53, 29, 0.1);
 }
 
-.almendra-community-seal {
-  display: grid;
-  place-items: center;
-  width: clamp(3.1rem, 9.6vw, 4.15rem);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #eadbd0;
-  color: var(--almendra-primary);
-}
-
-.almendra-community-seal svg {
-  width: 52%;
-  height: 64%;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.35;
-}
-
-.almendra-community-title {
-  display: grid;
-  gap: 0.1rem;
-  padding-right: clamp(0.4rem, 1.4vw, 0.82rem);
-  border-right: 0.08rem solid rgba(91, 50, 25, 0.18);
-}
-
-.almendra-community-title small {
-  font-size: clamp(0.55rem, 1.65vw, 0.72rem);
-  font-weight: 900;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-}
-
-.almendra-community-title strong {
-  font-family: var(--font-display);
-  font-size: clamp(1.3rem, 5vw, 2.05rem);
-  font-weight: 600;
-  line-height: 0.9;
-}
-
-.almendra-community-benefits {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.32rem 0.48rem;
-  font-size: clamp(0.52rem, 1.55vw, 0.7rem);
-  font-weight: 850;
-  line-height: 1.18;
-}
-
-.almendra-community-benefits span {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.24rem;
-}
-
-.almendra-community-benefits svg {
-  width: 1rem;
-  height: 1rem;
-  fill: none;
-  stroke: var(--almendra-primary);
-  stroke-width: 1.55;
-}
-
-.almendra-community-action {
-  justify-self: end;
-  max-width: 5.15rem;
-  padding: 0.82rem 0.82rem;
-  border-radius: 999rem;
-  background: var(--almendra-primary);
-  color: #fff8f0;
-  font-size: clamp(0.52rem, 1.55vw, 0.68rem);
-  font-weight: 950;
-  letter-spacing: 0.12em;
-  line-height: 1.35;
-  text-align: center;
-  text-transform: uppercase;
+.almendra-community-card img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .template-almendra .content-panel {
@@ -12012,40 +11888,6 @@ button:focus-visible {
   font-family: var(--font-display);
   font-size: 0.98rem;
   text-align: center;
-}
-
-@media (max-width: 22.5rem) {
-  .almendra-community-card {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-  }
-
-  .almendra-community-benefits {
-    display: none;
-  }
-
-  .almendra-community-title {
-    border-right: 0;
-  }
-}
-
-@media (max-width: 32.5rem) {
-  .almendra-community-card {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    min-height: 5.25rem;
-    padding: 0.78rem 0.82rem;
-  }
-
-  .almendra-community-benefits {
-    display: none;
-  }
-
-  .almendra-community-title {
-    border-right: 0;
-  }
-
-  .almendra-community-action {
-    max-width: 5.55rem;
-  }
 }
 
 .admin-media-toolbar {

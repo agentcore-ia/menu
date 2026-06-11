@@ -3176,38 +3176,11 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
   if (templateId === 'almendra') {
     const almendraHeroTitle =
       presentation.hero?.title === 'DISFRUTA' ? 'DISFRUTÁ' : presentation.hero?.title ?? 'DISFRUTÁ'
-    const almendraBrandSubtitle =
-      presentation.branding?.subtitle === 'CAFE DE ESPECIALIDAD'
-        ? 'CAFÉ DE ESPECIALIDAD'
-        : presentation.branding?.subtitle ?? 'Café de especialidad'
 
     return (
       <section className="hero-content hero-content-almendra">
         <div className="almendra-brand-lockup">
-          {presentation.theme?.logoImage ? (
-            <img src={presentation.theme.logoImage} alt={presentation.branding?.wordmark ?? 'Almendra'} />
-          ) : (
-            <>
-              <svg className="almendra-wordmark" viewBox="0 0 180 60" aria-hidden="true">
-                <defs>
-                  <path id="almendraWordmarkArc" d="M18 45 Q90 -6 162 45" />
-                </defs>
-                <text>
-                  <textPath
-                    href="#almendraWordmarkArc"
-                    startOffset="50%"
-                    textAnchor="middle"
-                    textLength="152"
-                    lengthAdjust="spacing"
-                  >
-                    {presentation.branding?.wordmark ?? 'ALMENDRA'}
-                  </textPath>
-                </text>
-              </svg>
-              <IconAlmendraMark />
-              <span>{almendraBrandSubtitle}</span>
-            </>
-          )}
+          <img src={presentation.theme?.logoImage || '/almendra/logo.png'} alt={presentation.branding?.wordmark ?? 'Almendra'} />
         </div>
 
         <div className="almendra-hero-media" aria-hidden={!hasStandaloneHeroMedia}>
@@ -3237,31 +3210,7 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
           onClick={onCommunityAction}
           aria-label="Sumarte a la comunidad Almendra"
         >
-          <span className="almendra-community-seal">
-            <IconAlmendraMark />
-          </span>
-          <span className="almendra-community-title">
-            <small>Sumate a nuestra</small>
-            <strong>comunidad</strong>
-          </span>
-          <span className="almendra-community-benefits">
-            <span>
-              <IconKikaUsers />
-              Sumas puntos en cada compra
-            </span>
-            <span>
-              <IconAlmendraGift />
-              Canjealos por premios increibles
-            </span>
-            <span>
-              <IconAward />
-              Beneficios exclusivos
-            </span>
-          </span>
-          <strong className="almendra-community-action">
-            Quiero sumarme
-            <span aria-hidden="true">→</span>
-          </strong>
+          <img src="/almendra/puntos.png" alt="Sumate a nuestra comunidad Almendra y acumulá puntos." />
         </button>
       </section>
     )
