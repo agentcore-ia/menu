@@ -11551,8 +11551,8 @@ button:focus-visible {
 .template-almendra .content-panel {
   position: relative;
   z-index: 1;
-  margin-top: clamp(-2.4rem, -6.8vw, -1.45rem);
-  padding: clamp(4.45rem, 12.4vw, 5.9rem) clamp(1.05rem, 4.4vw, 1.95rem) 1.3rem;
+  margin-top: clamp(-4.9rem, -15.5vw, -3.4rem);
+  padding: clamp(6.7rem, 20vw, 8.35rem) clamp(1.05rem, 4.4vw, 1.95rem) 1.3rem;
   border-radius: 1.6rem 1.6rem 0 0;
   background: var(--almendra-panel);
 }
