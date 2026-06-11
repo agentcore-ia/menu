@@ -1567,6 +1567,14 @@ function getAlmendraCategoryKey(label) {
   return key
 }
 
+function getAlmendraReadableCategoryLabel(label) {
+  const text = String(label ?? '').trim()
+
+  if (!text) return 'Categoria'
+
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
 function getAlmendraOrderedCategories(categories = []) {
   return [...categories].sort((a, b) => {
     const firstRank = almendraCategoryOrder.indexOf(getAlmendraCategoryKey(a.label))
@@ -1589,10 +1597,11 @@ function normalizeAlmendraCategories(categories = []) {
   const seenItems = new Set()
 
   categories.forEach((category, categoryIndex) => {
+    const rawCategoryLabel = category.label ?? category.name ?? category.id ?? `categoria-${categoryIndex}`
     const canonicalKey =
-      getAlmendraCategoryKey(category.label) ||
-      slugify(category.label ?? category.id ?? `categoria-${categoryIndex}`)
-    const canonicalLabel = almendraCanonicalCategoryLabels[canonicalKey] ?? category.label
+      getAlmendraCategoryKey(rawCategoryLabel) ||
+      slugify(rawCategoryLabel)
+    const canonicalLabel = almendraCanonicalCategoryLabels[canonicalKey] ?? rawCategoryLabel
 
     if (!groupedCategories.has(canonicalKey)) {
       groupedCategories.set(canonicalKey, {
@@ -1627,6 +1636,7 @@ function normalizeAlmendraCategories(categories = []) {
 
 function getAlmendraCategoryMeta(label) {
   const key = getAlmendraCategoryKey(label)
+  const displayLabel = getAlmendraReadableCategoryLabel(label)
 
   if (key === 'pasteleria') {
     return {
@@ -1675,6 +1685,26 @@ function getAlmendraCategoryMeta(label) {
       subtitle: 'Productos seleccionados para regalar o disfrutar después.',
       icon: IconAlmendraGift,
       art: 'gift',
+    }
+  }
+
+  if (key.includes('cookie') || key.includes('galleta')) {
+    return {
+      label: displayLabel,
+      sectionTitle: displayLabel,
+      subtitle: 'Cookies y dulces para acompanar el cafe.',
+      icon: IconKikaCake,
+      art: 'pastry',
+    }
+  }
+
+  if (key && !almendraCategoryOrder.includes(key)) {
+    return {
+      label: displayLabel,
+      sectionTitle: displayLabel,
+      subtitle: 'Productos seleccionados de la carta.',
+      icon: IconKikaLeaf,
+      art: 'generic',
     }
   }
 
