@@ -360,6 +360,32 @@ function getInitialAdminAccount() {
   return params.get('account') ?? ''
 }
 
+function getPublicMenuUrl(accountSlug) {
+  const slug = String(accountSlug ?? '').trim()
+
+  if (!slug) return ''
+
+  const { protocol, hostname, port, origin } = window.location
+  const normalizedHost = hostname.toLowerCase()
+  const isLocalHost =
+    normalizedHost === 'localhost' ||
+    normalizedHost === '127.0.0.1' ||
+    normalizedHost === '::1'
+
+  if (isLocalHost) {
+    return `${origin}/${encodeURIComponent(slug)}`
+  }
+
+  const baseDomain = normalizedHost.endsWith('.menu.net.ar')
+    ? 'menu.net.ar'
+    : normalizedHost === 'menu.net.ar'
+      ? 'menu.net.ar'
+      : normalizedHost
+  const portSuffix = port ? `:${port}` : ''
+
+  return `${protocol}//${encodeURIComponent(slug)}.${baseDomain}${portSuffix}`
+}
+
 function readSavedToken() {
   return window.localStorage.getItem('neurorest-admin-token') ?? ''
 }
@@ -422,7 +448,7 @@ export default function AdminApp() {
 
   const products = useMemo(() => editor?.products ?? [], [editor])
   const restaurant = editor?.restaurant ?? null
-  const menuPublicUrl = selectedAccount ? `${window.location.origin}/${selectedAccount}` : ''
+  const menuPublicUrl = getPublicMenuUrl(selectedAccount)
   const headerTextFields = getHeaderTextFields(presentation.layout)
   const productStats = useMemo(
     () => ({
