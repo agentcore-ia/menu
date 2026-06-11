@@ -11606,13 +11606,14 @@ button:focus-visible {
 }
 
 .almendra-category-row {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(4.6rem, 1fr);
+  display: flex;
+  flex-wrap: nowrap;
   gap: clamp(0.72rem, 3vw, 1.5rem);
   overflow-x: auto;
+  overflow-y: hidden;
   padding: 0.2rem 0.15rem 0.85rem;
   scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
 }
 
 .almendra-category-row::-webkit-scrollbar {
@@ -11623,6 +11624,7 @@ button:focus-visible {
   display: grid;
   justify-items: center;
   gap: 0.62rem;
+  flex: 0 0 clamp(4.6rem, 17vw, 6rem);
   min-width: 0;
   border: 0;
   background: transparent;
@@ -11681,6 +11683,10 @@ button:focus-visible {
 .section-block-almendra {
   margin: 0;
   padding: 0;
+}
+
+.almendra-menu-section + .almendra-menu-section {
+  margin-top: clamp(1.25rem, 5vw, 2.2rem);
 }
 
 .almendra-search-results {

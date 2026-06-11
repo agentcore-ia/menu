@@ -1249,6 +1249,10 @@ function getInitialCategoryId(payload) {
     return ''
   }
 
+  if (templateId === 'almendra') {
+    return ''
+  }
+
   if (templateId === 'florian') {
     return getFlorianOrderedCategories(payload?.categories ?? [])[0]?.id ?? payload?.categories?.[0]?.id ?? ''
   }
@@ -4519,11 +4523,25 @@ function TemplateMenuCollection({
   }
 
   if (templateId === 'almendra') {
-    const selectedCategory = currentCategory ?? categories[0] ?? null
-    const sectionMeta = getAlmendraCategoryMeta(
-      isSearchActive ? 'Resultados' : selectedCategory?.label,
-    )
-    const visibleItems = isSearchActive ? categoryItems : selectedCategory?.items ?? categoryItems
+    const sections = isSearchActive
+      ? [
+          {
+            id: 'busqueda',
+            label: 'Resultados',
+            items: categoryItems,
+          },
+        ]
+      : currentCategory
+        ? [
+            {
+              ...currentCategory,
+              items: categoryItems,
+            },
+          ]
+        : categories.map((category) => ({
+            ...category,
+            items: category.items ?? [],
+          }))
 
     return (
       <section className="section-block section-block-almendra" data-menu-categories>
@@ -4535,52 +4553,65 @@ function TemplateMenuCollection({
           </p>
         ) : null}
 
-        <div className="almendra-section-head">
-          <h2>
-            {isSearchActive ? 'Resultados' : sectionMeta.sectionTitle}
-            <IconKikaLeaf />
-          </h2>
-          <p>{isSearchActive ? 'Coincidencias de nuestra carta.' : sectionMeta.subtitle}</p>
-        </div>
+        {sections.map((section) => {
+          const sectionMeta = getAlmendraCategoryMeta(section.label)
+          const visibleItems = section.items ?? []
 
-        {visibleItems.length ? (
-          <div className="almendra-product-list">
-            {visibleItems.map((item) => (
-              <article key={item.id} className="almendra-product-item">
-                <button
-                  type="button"
-                  className="almendra-product-media"
-                  onClick={() => onOpenDish(item)}
-                  aria-label={`Ver ${item.name}`}
-                >
-                  <AlmendraProductVisual item={item} category={selectedCategory} />
-                </button>
+          if (!visibleItems.length) {
+            return isSearchActive ? (
+              <p key={section.id} className="almendra-empty-category">
+                No hay productos para mostrar.
+              </p>
+            ) : null
+          }
 
-                <button
-                  type="button"
-                  className="almendra-product-copy"
-                  onClick={() => onOpenDish(item)}
-                >
-                  <h3>{item.name}</h3>
-                  {item.description ? <p>{item.description}</p> : <p>Preparado con dedicacion.</p>}
-                </button>
+          return (
+            <article key={section.id} className="almendra-menu-section">
+              <div className="almendra-section-head">
+                <h2>
+                  {isSearchActive ? 'Resultados' : sectionMeta.sectionTitle}
+                  <IconKikaLeaf />
+                </h2>
+                <p>{isSearchActive ? 'Coincidencias de nuestra carta.' : sectionMeta.subtitle}</p>
+              </div>
 
-                <strong className="almendra-product-price">{item.price}</strong>
+              <div className="almendra-product-list">
+                {visibleItems.map((item) => (
+                  <article key={item.id} className="almendra-product-item">
+                    <button
+                      type="button"
+                      className="almendra-product-media"
+                      onClick={() => onOpenDish(item)}
+                      aria-label={`Ver ${item.name}`}
+                    >
+                      <AlmendraProductVisual item={item} category={section} />
+                    </button>
 
-                <button
-                  type="button"
-                  className="almendra-add-button"
-                  onClick={() => onAddItem(item)}
-                  aria-label={`Agregar ${item.name}`}
-                >
-                  <IconPlus />
-                </button>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p className="almendra-empty-category">Todavia no hay productos en esta categoria.</p>
-        )}
+                    <button
+                      type="button"
+                      className="almendra-product-copy"
+                      onClick={() => onOpenDish(item)}
+                    >
+                      <h3>{item.name}</h3>
+                      {item.description ? <p>{item.description}</p> : <p>Preparado con dedicacion.</p>}
+                    </button>
+
+                    <strong className="almendra-product-price">{item.price}</strong>
+
+                    <button
+                      type="button"
+                      className="almendra-add-button"
+                      onClick={() => onAddItem(item)}
+                      aria-label={`Agregar ${item.name}`}
+                    >
+                      <IconPlus />
+                    </button>
+                  </article>
+                ))}
+              </div>
+            </article>
+          )
+        })}
 
         {!isSearchActive ? (
           <article className="almendra-store-banner">
