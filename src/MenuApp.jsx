@@ -1490,8 +1490,8 @@ const almendraCategoryOrder = [
 ]
 
 const almendraCanonicalCategoryLabels = {
-  cafe: 'Cafe',
-  pasteleria: 'Pasteleria',
+  cafe: 'Café',
+  pasteleria: 'Pastelería',
   cocina: 'Cocina',
   bebidas: 'Bebidas',
   granos: 'Granos',
@@ -1508,7 +1508,7 @@ function getAlmendraFallbackCategories() {
       unitPrice: 2600,
       availableForOrder: false,
       maxQuantity: 0,
-      categoryLabel: 'Cafe',
+      categoryLabel: 'Café',
     },
     {
       id: 'almendra-placeholder-cold-brew',
@@ -1518,7 +1518,7 @@ function getAlmendraFallbackCategories() {
       unitPrice: 2900,
       availableForOrder: false,
       maxQuantity: 0,
-      categoryLabel: 'Cafe',
+      categoryLabel: 'Café',
     },
     {
       id: 'almendra-placeholder-cappuccino',
@@ -1528,7 +1528,7 @@ function getAlmendraFallbackCategories() {
       unitPrice: 2500,
       availableForOrder: false,
       maxQuantity: 0,
-      categoryLabel: 'Cafe',
+      categoryLabel: 'Café',
     },
   ]
 
@@ -1630,9 +1630,9 @@ function getAlmendraCategoryMeta(label) {
 
   if (key === 'pasteleria') {
     return {
-      label: 'Pasteleria',
-      sectionTitle: 'Pasteleria de autor',
-      subtitle: 'Dulces simples, texturas delicadas y recetas para acompanar el cafe.',
+      label: 'Pastelería',
+      sectionTitle: 'Pastelería de autor',
+      subtitle: 'Dulces simples, texturas delicadas y recetas para acompañar el café.',
       icon: IconKikaCroissant,
       art: 'pastry',
     }
@@ -1652,7 +1652,7 @@ function getAlmendraCategoryMeta(label) {
     return {
       label: 'Bebidas',
       sectionTitle: 'Bebidas',
-      subtitle: 'Frias, naturales y elegidas para cada momento del dia.',
+      subtitle: 'Frías, naturales y elegidas para cada momento del día.',
       icon: IconDrink,
       art: 'drink',
     }
@@ -1662,7 +1662,7 @@ function getAlmendraCategoryMeta(label) {
     return {
       label: 'Granos',
       sectionTitle: 'Granos seleccionados',
-      subtitle: 'Cafe para llevar la experiencia Almendra a casa.',
+      subtitle: 'Café para llevar la experiencia Almendra a casa.',
       icon: IconKikaHazelnut,
       art: 'beans',
     }
@@ -1672,16 +1672,16 @@ function getAlmendraCategoryMeta(label) {
     return {
       label: 'Take Away',
       sectionTitle: 'Take away',
-      subtitle: 'Productos seleccionados para regalar o disfrutar despues.',
+      subtitle: 'Productos seleccionados para regalar o disfrutar después.',
       icon: IconAlmendraGift,
       art: 'gift',
     }
   }
 
   return {
-    label: 'Cafe',
-    sectionTitle: 'Cafe de especialidad',
-    subtitle: 'Granos seleccionados, preparados con dedicacion.',
+    label: 'Café',
+    sectionTitle: 'Café de especialidad',
+    subtitle: 'Granos seleccionados, preparados con dedicación.',
     icon: IconKikaCup,
     art: 'coffee',
   }
@@ -3174,6 +3174,13 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
   }
 
   if (templateId === 'almendra') {
+    const almendraHeroTitle =
+      presentation.hero?.title === 'DISFRUTA' ? 'DISFRUTÁ' : presentation.hero?.title ?? 'DISFRUTÁ'
+    const almendraBrandSubtitle =
+      presentation.branding?.subtitle === 'CAFE DE ESPECIALIDAD'
+        ? 'CAFÉ DE ESPECIALIDAD'
+        : presentation.branding?.subtitle ?? 'Café de especialidad'
+
     return (
       <section className="hero-content hero-content-almendra">
         <div className="almendra-brand-lockup">
@@ -3183,7 +3190,7 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
             <>
               <strong>{presentation.branding?.wordmark ?? 'ALMENDRA'}</strong>
               <IconAlmendraMark />
-              <span>{presentation.branding?.subtitle ?? 'Cafe de especialidad'}</span>
+              <span>{almendraBrandSubtitle}</span>
             </>
           )}
         </div>
@@ -3200,18 +3207,13 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
         </div>
 
         <div className="almendra-hero-copy">
-          <span className="almendra-tiny-leaves" aria-hidden="true">
-            <IconKikaLeaf />
-            <IconKikaLeaf />
-            <IconKikaLeaf />
-          </span>
           <h1>
-            <span>{presentation.hero?.title ?? 'DISFRUTA'}</span>
+            <span>{almendraHeroTitle}</span>
             <span>{presentation.hero?.accent ?? 'LO SIMPLE,'}</span>
             <span>{presentation.hero?.description ?? 'LO ESENCIAL.'}</span>
           </h1>
           <i aria-hidden="true" />
-          <p>Cafe de especialidad, hecho con dedicacion.</p>
+          <p>Café de especialidad, hecho con dedicación.</p>
         </div>
 
         <button
@@ -4028,7 +4030,7 @@ function TemplateCategorySelector({
       <div className="almendra-menu-head" aria-label="Categorias de Almendra">
         <div className="almendra-menu-title">
           <IconKikaLeaf />
-          <h2>Explora nuestro menu</h2>
+          <h2>Explorá nuestro menú</h2>
         </div>
         <div className="almendra-category-row">
           {getAlmendraOrderedCategories(categories).map((category) => {

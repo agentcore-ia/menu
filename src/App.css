@@ -11308,7 +11308,7 @@ button:focus-visible {
 .template-almendra .hero {
   position: relative;
   z-index: 2;
-  min-height: clamp(32.5rem, 115vw, 43.5rem);
+  min-height: clamp(25.5rem, 95vw, 35rem);
   overflow: visible;
   border-radius: 0;
   background: var(--almendra-bg);
@@ -11374,23 +11374,21 @@ button:focus-visible {
   position: absolute;
   inset: 0 0 auto;
   z-index: 3;
-  height: clamp(9rem, 32vw, 12.8rem);
+  height: clamp(5.35rem, 20vw, 8.4rem);
   border-radius: 0 0 50% 50% / 0 0 18% 18%;
-  background:
-    radial-gradient(circle at 50% 5%, rgba(255, 255, 255, 0.8), transparent 42%),
-    linear-gradient(180deg, #fff9f3 0%, #f5ede4 100%);
+  background: linear-gradient(180deg, #fff9f3 0%, #f5ede4 100%);
   box-shadow: 0 0.95rem 1.7rem rgba(74, 43, 23, 0.08);
 }
 
 .almendra-brand-lockup {
   position: absolute;
-  top: clamp(1.35rem, 4.2vw, 1.95rem);
+  top: clamp(0.82rem, 2.8vw, 1.5rem);
   left: 50%;
   z-index: 6;
   display: grid;
   justify-items: center;
   gap: 0.18rem;
-  width: min(34%, 10.25rem);
+  width: min(31%, 9.2rem);
   color: var(--almendra-ink);
   text-align: center;
   transform: translateX(-50%);
@@ -11398,14 +11396,14 @@ button:focus-visible {
 }
 
 .almendra-brand-lockup img {
-  width: min(100%, 8.25rem);
+  width: min(100%, 7.35rem);
   height: auto;
   object-fit: contain;
 }
 
 .almendra-brand-lockup strong {
   font-family: var(--font-display);
-  font-size: clamp(1.18rem, 5vw, 1.9rem);
+  font-size: clamp(1rem, 4.5vw, 1.65rem);
   font-weight: 600;
   letter-spacing: 0.16em;
   line-height: 1;
@@ -11413,8 +11411,8 @@ button:focus-visible {
 }
 
 .almendra-brand-lockup > svg {
-  width: clamp(1.62rem, 6vw, 2.45rem);
-  height: clamp(2rem, 7.5vw, 3.05rem);
+  width: clamp(1.28rem, 4.7vw, 2.05rem);
+  height: clamp(1.6rem, 6vw, 2.55rem);
   fill: none;
   stroke: currentColor;
   stroke-width: 1.55;
@@ -11423,7 +11421,7 @@ button:focus-visible {
 }
 
 .almendra-brand-lockup span {
-  font-size: clamp(0.42rem, 1.45vw, 0.58rem);
+  font-size: clamp(0.36rem, 1.25vw, 0.52rem);
   font-weight: 800;
   letter-spacing: 0.35em;
   line-height: 1.1;
@@ -11432,9 +11430,9 @@ button:focus-visible {
 
 .almendra-hero-media {
   position: absolute;
-  inset: clamp(8.4rem, 29vw, 11.6rem) 0 auto;
+  inset: clamp(5.35rem, 20vw, 8.4rem) 0 auto;
   z-index: 1;
-  height: clamp(19.6rem, 66vw, 28.6rem);
+  height: clamp(16.8rem, 63vw, 26rem);
   overflow: hidden;
   background: #e8dbcf;
 }
@@ -11444,9 +11442,7 @@ button:focus-visible {
   position: absolute;
   inset: 0;
   z-index: 2;
-  background:
-    linear-gradient(90deg, rgba(245, 237, 228, 0.88) 0%, rgba(245, 237, 228, 0.44) 38%, rgba(245, 237, 228, 0.04) 68%),
-    linear-gradient(180deg, rgba(38, 22, 13, 0.02) 0%, rgba(38, 22, 13, 0.08) 100%);
+  background: linear-gradient(90deg, rgba(22, 15, 10, 0.12) 0%, rgba(22, 15, 10, 0.04) 34%, transparent 68%);
   pointer-events: none;
 }
 
@@ -11456,13 +11452,14 @@ button:focus-visible {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: 54% 48%;
 }
 
 .almendra-hero-placeholder {
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at 72% 18%, rgba(190, 134, 86, 0.26), transparent 20%),
+    radial-gradient(circle at 72% 18%, rgba(190, 134, 86, 0.2), transparent 20%),
     radial-gradient(circle at 84% 70%, rgba(91, 50, 25, 0.14), transparent 26%),
     linear-gradient(135deg, #efe2d6, #d9c7b7);
 }
@@ -11474,43 +11471,28 @@ button:focus-visible {
   border: 0.08rem solid rgba(91, 50, 25, 0.16);
   border-radius: 50%;
   background:
-    radial-gradient(circle at 50% 42%, rgba(255, 249, 243, 0.94), transparent 31%),
-    radial-gradient(circle at 50% 50%, rgba(190, 126, 68, 0.62), transparent 32%),
+    radial-gradient(circle at 50% 42%, rgba(255, 249, 243, 0.44), transparent 30%),
+    radial-gradient(circle at 50% 50%, rgba(190, 126, 68, 0.5), transparent 34%),
     #efe2d6;
   box-shadow: 0 1.1rem 2.6rem rgba(67, 36, 18, 0.18);
 }
 
 .almendra-hero-copy {
   position: absolute;
-  top: clamp(14.2rem, 44vw, 19.6rem);
-  left: clamp(1.85rem, 7vw, 3.4rem);
+  top: clamp(10.45rem, 39vw, 17.5rem);
+  left: clamp(1.75rem, 6.6vw, 3.35rem);
   z-index: 4;
-  width: min(66%, 21.5rem);
-  color: #2f2118;
-}
-
-.almendra-tiny-leaves {
-  display: grid;
-  gap: 0.42rem;
-  width: fit-content;
-  margin: 0 0 0.55rem -0.22rem;
-  color: rgba(91, 50, 25, 0.5);
-}
-
-.almendra-tiny-leaves svg {
-  width: 0.75rem;
-  height: 0.75rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.55;
+  width: min(48%, 18.5rem);
+  color: #24180f;
+  text-shadow: 0 0.05rem 0.08rem rgba(245, 237, 228, 0.2);
 }
 
 .almendra-hero-copy h1 {
   display: grid;
-  gap: 0.03em;
+  gap: 0.01em;
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.92rem, 7.4vw, 3.42rem);
+  font-size: clamp(1.95rem, 7.35vw, 3.35rem);
   font-weight: 500;
   line-height: 0.96;
   letter-spacing: 0.035em;
@@ -11519,18 +11501,19 @@ button:focus-visible {
 
 .almendra-hero-copy i {
   display: block;
-  width: 2.75rem;
+  width: 3.05rem;
   height: 0.08rem;
-  margin: 0.78rem 0 0.8rem;
+  margin: clamp(0.62rem, 2vw, 0.95rem) 0 clamp(0.62rem, 2vw, 0.9rem);
   background: currentColor;
 }
 
 .almendra-hero-copy p {
   margin: 0;
-  color: rgba(47, 33, 24, 0.86);
-  font-size: clamp(0.86rem, 2.9vw, 1.08rem);
-  font-weight: 700;
-  line-height: 1.42;
+  max-width: 12.8rem;
+  color: rgba(36, 24, 15, 0.92);
+  font-size: clamp(0.78rem, 2.58vw, 1rem);
+  font-weight: 500;
+  line-height: 1.35;
 }
 
 .almendra-community-card {

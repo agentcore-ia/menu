@@ -385,9 +385,9 @@ const presentationPresets = {
       addButtonText: '#5b3219',
     },
     hero: {
-      image: '',
+      image: '/almendra/header.png',
       video: '',
-      title: 'DISFRUTA',
+      title: 'DISFRUTÁ',
       accent: 'LO SIMPLE,',
       description: 'LO ESENCIAL.',
     },
