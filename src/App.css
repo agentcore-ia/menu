@@ -11311,7 +11311,7 @@ button:focus-visible {
   min-height: clamp(25.5rem, 95vw, 35rem);
   overflow: visible;
   border-radius: 0;
-  background: var(--almendra-bg);
+  background: transparent;
 }
 
 .template-almendra .hero::before,
@@ -11553,7 +11553,7 @@ button:focus-visible {
   z-index: 1;
   margin-top: clamp(-4.9rem, -15.5vw, -3.4rem);
   padding: clamp(6.7rem, 20vw, 8.35rem) clamp(1.05rem, 4.4vw, 1.95rem) 1.3rem;
-  border-radius: 1.6rem 1.6rem 0 0;
+  border-radius: clamp(1.25rem, 5vw, 1.9rem) clamp(1.25rem, 5vw, 1.9rem) 0 0;
   background: var(--almendra-panel);
 }
 
