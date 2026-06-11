@@ -754,18 +754,31 @@ function getInitialAccountId() {
 
 function getAccountFaviconHref(accountId) {
   const key = slugify(accountId)
+
+  if (key === 'kika' || key.includes('kika')) {
+    return '/kika/favicon.svg'
+  }
+
+  if (key === 'almendra' || key.includes('almendra')) {
+    return '/almendra/logo.png'
+  }
+
   return key === 'host' || key.startsWith('host-') ? '/assets/host-favicon.png' : '/favicon.svg'
 }
 
 function getAccountDocumentTitle(accountId, presentation) {
   const key = slugify(accountId)
 
-  if (key === 'host' || key.startsWith('host-')) {
-    return 'HOST | Menu digital'
+  if (key === 'almendra' || key.includes('almendra')) {
+    return 'Almendra | Menu digital'
   }
 
-  if (key === 'kika') {
-    return 'Kika Cafe | Menu digital'
+  if (key === 'kika' || key.includes('kika')) {
+    return 'Kika | Menu digital'
+  }
+
+  if (key === 'host' || key.startsWith('host-')) {
+    return 'HOST | Menu digital'
   }
 
   const brand = String(presentation?.branding?.wordmark ?? '')
