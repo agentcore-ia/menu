@@ -11321,15 +11321,15 @@ button:focus-visible {
 
 .template-almendra .hero-topbar {
   position: absolute;
-  inset: clamp(1.7rem, 5vw, 2.7rem) clamp(1.45rem, 5vw, 2.4rem) auto;
+  inset: clamp(1.05rem, 4.1vw, 1.65rem) clamp(1.05rem, 4.2vw, 1.75rem) auto;
   z-index: 8;
   padding: 0;
 }
 
 .template-almendra .icon-button,
 .template-almendra .cart-button {
-  width: clamp(2.95rem, 11vw, 3.65rem);
-  height: clamp(2.95rem, 11vw, 3.65rem);
+  width: clamp(1.8rem, 6.8vw, 2.35rem);
+  height: clamp(1.8rem, 6.8vw, 2.35rem);
   border: 0;
   background: transparent;
   color: var(--almendra-primary);
@@ -11337,29 +11337,67 @@ button:focus-visible {
 }
 
 .template-almendra .icon-button svg {
-  width: clamp(1.95rem, 7vw, 2.35rem);
-  height: clamp(1.95rem, 7vw, 2.35rem);
-  stroke-width: 2.05;
+  display: none;
+}
+
+.template-almendra .icon-button::before,
+.template-almendra .icon-button::after {
+  content: '';
+  width: clamp(1rem, 3.8vw, 1.32rem);
+  height: 0.1rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.template-almendra .icon-button {
+  align-content: center;
+  justify-items: start;
+  gap: 0.42rem;
 }
 
 .template-almendra .cart-button {
   border-radius: 50%;
   background: radial-gradient(circle at 35% 26%, rgba(109, 67, 36, 0.94), var(--almendra-primary));
   color: #fff8f0;
-  box-shadow: 0 0.7rem 1.4rem rgba(91, 50, 25, 0.18);
+  position: relative;
+  box-shadow: 0 0.52rem 1rem rgba(91, 50, 25, 0.16);
 }
 
 .template-almendra .cart-button svg {
-  width: 1.42rem;
-  height: 1.42rem;
-  stroke-width: 1.85;
+  display: none;
+}
+
+.template-almendra .cart-button::before {
+  content: '';
+  width: clamp(0.58rem, 2.2vw, 0.78rem);
+  height: clamp(0.62rem, 2.3vw, 0.82rem);
+  border: 0.11rem solid currentColor;
+  border-radius: 0.12rem 0.12rem 0.18rem 0.18rem;
+}
+
+.template-almendra .cart-button::after {
+  content: '';
+  position: absolute;
+  top: 31%;
+  left: 50%;
+  width: clamp(0.32rem, 1.35vw, 0.44rem);
+  height: clamp(0.22rem, 0.95vw, 0.32rem);
+  border: 0.11rem solid currentColor;
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+  transform: translate(-50%, -50%);
 }
 
 .template-almendra .cart-badge {
-  top: -0.25rem;
-  right: -0.25rem;
+  top: -0.12rem;
+  right: -0.12rem;
+  min-width: 0.76rem;
+  height: 0.76rem;
+  padding: 0 0.18rem;
   background: #e6d5c7;
   color: var(--almendra-primary);
+  font-size: 0.5rem;
+  line-height: 0.76rem;
 }
 
 .hero-content-almendra {
@@ -11382,13 +11420,13 @@ button:focus-visible {
 
 .almendra-brand-lockup {
   position: absolute;
-  top: clamp(0.82rem, 2.8vw, 1.5rem);
+  top: clamp(0.48rem, 1.85vw, 0.86rem);
   left: 50%;
   z-index: 6;
   display: grid;
   justify-items: center;
-  gap: 0.18rem;
-  width: min(31%, 9.2rem);
+  gap: 0;
+  width: min(34%, 8.8rem);
   color: var(--almendra-ink);
   text-align: center;
   transform: translateX(-50%);
@@ -11410,9 +11448,26 @@ button:focus-visible {
   transform: none;
 }
 
-.almendra-brand-lockup > svg {
-  width: clamp(1.28rem, 4.7vw, 2.05rem);
-  height: clamp(1.6rem, 6vw, 2.55rem);
+.almendra-wordmark {
+  display: block;
+  width: min(100%, 6.95rem);
+  height: clamp(1.82rem, 6.15vw, 2.34rem);
+  margin-bottom: -0.64rem;
+  overflow: visible;
+}
+
+.almendra-wordmark text {
+  fill: currentColor;
+  font-family: var(--font-display);
+  font-size: 1.24rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.almendra-brand-lockup > svg:not(.almendra-wordmark) {
+  width: clamp(1.36rem, 4.8vw, 1.95rem);
+  height: clamp(1.66rem, 5.9vw, 2.42rem);
   fill: none;
   stroke: currentColor;
   stroke-width: 1.55;
@@ -11421,9 +11476,10 @@ button:focus-visible {
 }
 
 .almendra-brand-lockup span {
-  font-size: clamp(0.36rem, 1.25vw, 0.52rem);
+  margin-top: -0.1rem;
+  font-size: clamp(0.26rem, 1vw, 0.42rem);
   font-weight: 800;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.36em;
   line-height: 1.1;
   text-transform: uppercase;
 }

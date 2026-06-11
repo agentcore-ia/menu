@@ -3188,7 +3188,22 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
             <img src={presentation.theme.logoImage} alt={presentation.branding?.wordmark ?? 'Almendra'} />
           ) : (
             <>
-              <strong>{presentation.branding?.wordmark ?? 'ALMENDRA'}</strong>
+              <svg className="almendra-wordmark" viewBox="0 0 180 60" aria-hidden="true">
+                <defs>
+                  <path id="almendraWordmarkArc" d="M18 45 Q90 -6 162 45" />
+                </defs>
+                <text>
+                  <textPath
+                    href="#almendraWordmarkArc"
+                    startOffset="50%"
+                    textAnchor="middle"
+                    textLength="152"
+                    lengthAdjust="spacing"
+                  >
+                    {presentation.branding?.wordmark ?? 'ALMENDRA'}
+                  </textPath>
+                </text>
+              </svg>
               <IconAlmendraMark />
               <span>{almendraBrandSubtitle}</span>
             </>
@@ -6778,7 +6793,7 @@ export default function MenuApp() {
                   onClick={() => setIsCartOpen(true)}
                 >
                   <IconCart />
-                  {orderCount > 0 ? <span className="cart-badge">{orderCount}</span> : null}
+                  {orderCount > 0 || templateId === 'almendra' ? <span className="cart-badge">{orderCount}</span> : null}
                 </button>
               ) : (
                 <span className="hero-topbar-spacer" aria-hidden="true" />
