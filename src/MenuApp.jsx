@@ -411,6 +411,30 @@ function IconKikaCake() {
   )
 }
 
+function IconAlmendraCookie() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M24.6 15.8c.6 5.1-3.1 9.5-8.2 9.9-5.3.4-9.8-3.5-10.2-8.7-.4-5.1 3.3-9.6 8.3-10.1.4 2.5 2.5 4.3 5.1 4.2.6 2.4 2.5 4.1 5 4.7z" />
+      <path d="M13 13.2h.01M17.5 17.1h.01M12.2 20.2h.01M20.3 21.1h.01M9.8 16.6h.01" />
+      <path d="M18.8 6.8c.5 1.3 1.8 2.2 3.4 2.1M22.7 10.4c.3 1.2 1.3 2 2.6 2.1" />
+    </svg>
+  )
+}
+
+function IconAlmendraPastry() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M7.2 18.4c1-4.2 4-6.7 8.5-6.4 2.9.2 4.5 1.7 4.9 4.2-1.5-.4-3.5-.2-5.2 1.1-1.7 1.2-2.4 3-2.2 5.1-3.4-.2-5.7-1.6-6-4z" />
+      <path d="M7.2 18.4c-1.3.4-2.6.1-3-1-.4-1.2.6-2.5 2.2-2.3" />
+      <path d="M13.1 22.4c.1 1.2-.9 2.2-2.1 2-1-.2-1.5-1.1-1.3-2.1" />
+      <path d="M11.3 13.4c1.7.8 2.9 2.3 3.5 4.3" />
+      <path d="M20.6 14.7h5.2l-.8 7.8h-4.9l-.8-6.1" />
+      <path d="M20 14.8c.7-1.9 1.9-2.9 3.5-2.9s2.8 1 3.5 2.9" />
+      <path d="M21 18.5h4.2" />
+    </svg>
+  )
+}
+
 function IconKikaCroissant() {
   return (
     <svg viewBox="0 0 32 32" aria-hidden="true">
@@ -1643,7 +1667,7 @@ function getAlmendraCategoryMeta(label) {
       label: 'Pastelería',
       sectionTitle: 'Pastelería de autor',
       subtitle: 'Dulces simples, texturas delicadas y recetas para acompañar el café.',
-      icon: IconKikaCroissant,
+      icon: IconAlmendraPastry,
       art: 'pastry',
     }
   }
@@ -1693,7 +1717,7 @@ function getAlmendraCategoryMeta(label) {
       label: displayLabel,
       sectionTitle: displayLabel,
       subtitle: 'Cookies y dulces para acompanar el cafe.',
-      icon: IconKikaCake,
+      icon: IconAlmendraCookie,
       art: 'pastry',
     }
   }
