@@ -11543,7 +11543,7 @@ button:focus-visible {
 .almendra-community-card {
   position: absolute;
   right: clamp(1rem, 4vw, 1.8rem);
-  bottom: clamp(-3.5rem, -8vw, -2.35rem);
+  bottom: clamp(-1.65rem, -4vw, -1.05rem);
   left: clamp(1rem, 4vw, 1.8rem);
   z-index: 7;
   display: block;
@@ -11565,7 +11565,7 @@ button:focus-visible {
   position: relative;
   z-index: 1;
   margin-top: clamp(-4.9rem, -15.5vw, -3.4rem);
-  padding: clamp(6.7rem, 20vw, 8.35rem) clamp(1.05rem, 4.4vw, 1.95rem) 1.3rem;
+  padding: clamp(5.15rem, 15.5vw, 6.65rem) clamp(1.05rem, 4.4vw, 1.95rem) 1.3rem;
   border-radius: clamp(1.25rem, 5vw, 1.9rem) clamp(1.25rem, 5vw, 1.9rem) 0 0;
   background: var(--almendra-panel);
 }
