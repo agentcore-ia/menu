@@ -11321,7 +11321,7 @@ button:focus-visible {
 
 .template-almendra .hero-topbar {
   position: absolute;
-  inset: clamp(1.18rem, 5.2vw, 1.7rem) clamp(1rem, 4.4vw, 1.55rem) auto;
+  inset: clamp(0.78rem, 3.35vw, 1.08rem) clamp(1rem, 4.4vw, 1.55rem) auto;
   z-index: 8;
   padding: 0;
 }
@@ -11412,21 +11412,21 @@ button:focus-visible {
   position: absolute;
   inset: 0 -12% auto;
   z-index: 3;
-  height: clamp(6.1rem, 26.4vw, 8.9rem);
-  border-radius: 0 0 50% 50% / 0 0 76% 76%;
+  height: clamp(4rem, 17.2vw, 5.8rem);
+  border-radius: 0 0 50% 50% / 0 0 52% 52%;
   background: linear-gradient(180deg, #fff9f3 0%, #f5ede4 100%);
   box-shadow: 0 0.95rem 1.7rem rgba(74, 43, 23, 0.08);
 }
 
 .almendra-brand-lockup {
   position: absolute;
-  top: clamp(0.62rem, 2.8vw, 0.95rem);
+  top: clamp(0.4rem, 1.85vw, 0.62rem);
   left: 50%;
   z-index: 6;
   display: grid;
   justify-items: center;
   gap: 0;
-  width: min(34%, 8.25rem);
+  width: min(21%, 5.25rem);
   color: var(--almendra-ink);
   text-align: center;
   transform: translateX(-50%);
@@ -11441,7 +11441,7 @@ button:focus-visible {
 
 .almendra-hero-media {
   position: absolute;
-  inset: clamp(3.95rem, 17.4vw, 6.5rem) 0 auto;
+  inset: clamp(2.6rem, 11.3vw, 4.15rem) 0 auto;
   z-index: 1;
   height: clamp(16.8rem, 63vw, 26rem);
   overflow: hidden;
@@ -11490,7 +11490,7 @@ button:focus-visible {
 
 .almendra-hero-copy {
   position: absolute;
-  top: clamp(10.45rem, 39vw, 17.5rem);
+  top: clamp(9.1rem, 32.9vw, 15.15rem);
   left: clamp(1.75rem, 6.6vw, 3.35rem);
   z-index: 4;
   width: min(56%, 21rem);
