@@ -3644,10 +3644,6 @@ function MenuLoadingScreen({ accountId }) {
               <img src="/almendra/logo.png" alt="Almendra" />
             </div>
 
-            <div className="almendra-loading-mark" aria-hidden="true">
-              <IconKikaLeaf />
-            </div>
-
             <p>Cargando menu</p>
 
             <div className="almendra-loading-progress" aria-hidden="true">
