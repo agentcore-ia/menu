@@ -4523,6 +4523,12 @@ function TemplateMenuCollection({
   }
 
   if (templateId === 'almendra') {
+    const allItems = categories.flatMap((category) =>
+      (category.items ?? []).map((item) => ({
+        ...item,
+        categoryLabel: item.categoryLabel ?? category.label,
+      })),
+    )
     const sections = isSearchActive
       ? [
           {
@@ -4538,10 +4544,13 @@ function TemplateMenuCollection({
               items: categoryItems,
             },
           ]
-        : categories.map((category) => ({
-            ...category,
-            items: category.items ?? [],
-          }))
+        : [
+            {
+              id: 'almendra-all',
+              label: categories[0]?.label ?? 'Cafe',
+              items: allItems,
+            },
+          ]
 
     return (
       <section className="section-block section-block-almendra" data-menu-categories>
@@ -4584,7 +4593,7 @@ function TemplateMenuCollection({
                       onClick={() => onOpenDish(item)}
                       aria-label={`Ver ${item.name}`}
                     >
-                      <AlmendraProductVisual item={item} category={section} />
+                      <AlmendraProductVisual item={item} category={{ label: item.categoryLabel ?? section.label }} />
                     </button>
 
                     <button
