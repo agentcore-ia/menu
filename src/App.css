@@ -11372,10 +11372,10 @@ button:focus-visible {
 .hero-content-almendra::before {
   content: '';
   position: absolute;
-  inset: 0 -8% auto;
+  inset: 0 -16% auto;
   z-index: 3;
-  height: clamp(5.9rem, 21.5vw, 8.8rem);
-  border-radius: 0 0 50% 50% / 0 0 24% 24%;
+  height: clamp(7.1rem, 26vw, 10.4rem);
+  border-radius: 0 0 50% 50% / 0 0 42% 42%;
   background: linear-gradient(180deg, #fff9f3 0%, #f5ede4 100%);
   box-shadow: 0 0.95rem 1.7rem rgba(74, 43, 23, 0.08);
 }
@@ -11430,7 +11430,7 @@ button:focus-visible {
 
 .almendra-hero-media {
   position: absolute;
-  inset: clamp(4.25rem, 15.8vw, 6.65rem) 0 auto;
+  inset: clamp(4.6rem, 17.2vw, 7.2rem) 0 auto;
   z-index: 1;
   height: clamp(16.8rem, 63vw, 26rem);
   overflow: hidden;
