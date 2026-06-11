@@ -11482,7 +11482,7 @@ button:focus-visible {
   top: clamp(10.45rem, 39vw, 17.5rem);
   left: clamp(1.75rem, 6.6vw, 3.35rem);
   z-index: 4;
-  width: min(48%, 18.5rem);
+  width: min(56%, 21rem);
   color: #24180f;
   text-shadow: 0 0.05rem 0.08rem rgba(245, 237, 228, 0.2);
 }
