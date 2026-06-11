@@ -148,12 +148,13 @@ function sanitizePresentationConfig(preset, config, options = {}) {
 export function enrichMenu(menu) {
   const inheritedPreset = menu.presentationConfig?.theme?.inheritPreset
   const requestedLayout = menu.presentationConfig?.layout
+  const accountPreset = String(menu.accountId ?? '').toLowerCase() === 'almendra' ? 'almendra' : ''
   const usesExplicitLayoutPreset = Boolean(!inheritedPreset && requestedLayout && requestedLayout !== 'editorial')
   const preset = resolveMenuPresentation(
-    inheritedPreset || (usesExplicitLayoutPreset ? requestedLayout : menu.accountId),
+    inheritedPreset || accountPreset || (usesExplicitLayoutPreset ? requestedLayout : menu.accountId),
   )
   const presentationConfig = sanitizePresentationConfig(preset, menu.presentationConfig, {
-    protectPreset: Boolean(inheritedPreset || !usesExplicitLayoutPreset),
+    protectPreset: Boolean(inheritedPreset || accountPreset || !usesExplicitLayoutPreset),
   })
   const presentation = presentationConfig ? mergeDeep(preset, presentationConfig) : preset
 

@@ -6420,6 +6420,66 @@
   background: rgba(255, 250, 243, 0.14);
 }
 
+.detail-phone.template-almendra .kika-community-sheet {
+  background:
+    radial-gradient(circle at 80% 0%, rgba(91, 50, 25, 0.08), transparent 32%),
+    var(--almendra-panel, #fbf4ed);
+  color: var(--almendra-ink, #4b2d1d);
+}
+
+.detail-phone.template-almendra .kika-community-head .floating-button {
+  background: #fff9f3;
+  color: var(--almendra-primary, #5b3219);
+  box-shadow: 0 0.8rem 1.8rem rgba(91, 50, 25, 0.1);
+}
+
+.detail-phone.template-almendra .kika-community-eyebrow,
+.detail-phone.template-almendra .kika-community-score,
+.detail-phone.template-almendra .kika-community-form .checkout-field span {
+  color: var(--almendra-primary, #5b3219);
+}
+
+.detail-phone.template-almendra .kika-community-sheet .kika-community-hero h2,
+.detail-phone.template-almendra .kika-community-benefits strong,
+.detail-phone.template-almendra .kika-community-form-title strong {
+  color: var(--almendra-ink, #4b2d1d);
+}
+
+.detail-phone.template-almendra .kika-community-sheet .checkout-head p,
+.detail-phone.template-almendra .kika-community-benefits span,
+.detail-phone.template-almendra .kika-community-form-title span {
+  color: var(--almendra-soft, rgba(75, 45, 29, 0.68));
+}
+
+.detail-phone.template-almendra .kika-community-benefits article,
+.detail-phone.template-almendra .kika-community-form {
+  border-color: rgba(91, 50, 25, 0.14);
+  background: rgba(255, 249, 243, 0.72);
+}
+
+.detail-phone.template-almendra .kika-community-benefits svg {
+  background: #eadbd0;
+  color: var(--almendra-primary, #5b3219);
+}
+
+.detail-phone.template-almendra .kika-community-form .checkout-field {
+  border-color: rgba(91, 50, 25, 0.16);
+  background: rgba(255, 249, 243, 0.95);
+}
+
+.detail-phone.template-almendra .kika-community-form .checkout-field input {
+  color: var(--almendra-ink, #4b2d1d);
+}
+
+.detail-phone.template-almendra .kika-community-form .primary-action {
+  background: var(--almendra-primary, #5b3219);
+  color: #fff8f0;
+}
+
+.detail-phone.template-almendra .kika-community-form .primary-action strong {
+  background: rgba(255, 248, 240, 0.14);
+}
+
 @media (min-width: 520px) {
   .kika-community-benefits {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -11223,6 +11283,724 @@ button:focus-visible {
   overflow: hidden;
   border-radius: 0;
   background: var(--kika-page-bg, #F4F2EF);
+}
+
+/* Almendra: duplicated Kika base, tuned to the provided specialty cafe reference. */
+.phone-surface.template-almendra,
+.detail-phone.template-almendra {
+  --almendra-bg: #f5ede4;
+  --almendra-panel: #fbf4ed;
+  --almendra-card: #fff9f3;
+  --almendra-line: rgba(91, 50, 25, 0.17);
+  --almendra-ink: #4b2d1d;
+  --almendra-soft: rgba(75, 45, 29, 0.68);
+  --almendra-primary: #5b3219;
+  --almendra-primary-soft: rgba(91, 50, 25, 0.09);
+  overflow: hidden;
+  background: var(--almendra-bg);
+  color: var(--almendra-ink);
+}
+
+.app-shell:has(.template-almendra) {
+  background: var(--almendra-bg, #f5ede4);
+}
+
+.template-almendra .hero {
+  position: relative;
+  z-index: 2;
+  min-height: clamp(34rem, 123vw, 45.5rem);
+  overflow: visible;
+  border-radius: 0;
+  background: var(--almendra-bg);
+}
+
+.template-almendra .hero::before,
+.template-almendra .hero::after {
+  display: none;
+}
+
+.template-almendra .hero-topbar {
+  position: absolute;
+  inset: clamp(1.7rem, 5vw, 2.7rem) clamp(1.45rem, 5vw, 2.4rem) auto;
+  z-index: 8;
+  padding: 0;
+}
+
+.template-almendra .icon-button,
+.template-almendra .cart-button {
+  width: clamp(2.95rem, 11vw, 3.65rem);
+  height: clamp(2.95rem, 11vw, 3.65rem);
+  border: 0;
+  background: transparent;
+  color: var(--almendra-primary);
+  box-shadow: none;
+}
+
+.template-almendra .icon-button svg {
+  width: clamp(1.95rem, 7vw, 2.35rem);
+  height: clamp(1.95rem, 7vw, 2.35rem);
+  stroke-width: 2.05;
+}
+
+.template-almendra .cart-button {
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 26%, rgba(109, 67, 36, 0.94), var(--almendra-primary));
+  color: #fff8f0;
+  box-shadow: 0 0.7rem 1.4rem rgba(91, 50, 25, 0.18);
+}
+
+.template-almendra .cart-button svg {
+  width: 1.42rem;
+  height: 1.42rem;
+  stroke-width: 1.85;
+}
+
+.template-almendra .cart-badge {
+  top: -0.25rem;
+  right: -0.25rem;
+  background: #e6d5c7;
+  color: var(--almendra-primary);
+}
+
+.hero-content-almendra {
+  position: absolute;
+  inset: 0;
+  min-height: 100%;
+  overflow: visible;
+}
+
+.hero-content-almendra::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  height: clamp(9rem, 32vw, 12.8rem);
+  border-radius: 0 0 50% 50% / 0 0 18% 18%;
+  background:
+    radial-gradient(circle at 50% 5%, rgba(255, 255, 255, 0.8), transparent 42%),
+    linear-gradient(180deg, #fff9f3 0%, #f5ede4 100%);
+  box-shadow: 0 0.95rem 1.7rem rgba(74, 43, 23, 0.08);
+}
+
+.almendra-brand-lockup {
+  position: absolute;
+  top: clamp(1.45rem, 4.8vw, 2.2rem);
+  left: 50%;
+  z-index: 6;
+  display: grid;
+  justify-items: center;
+  gap: 0.28rem;
+  width: min(44%, 14rem);
+  color: var(--almendra-ink);
+  text-align: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.almendra-brand-lockup img {
+  width: min(100%, 10.5rem);
+  height: auto;
+  object-fit: contain;
+}
+
+.almendra-brand-lockup strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 7.2vw, 2.55rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 0.92;
+  transform: rotate(-8deg);
+}
+
+.almendra-brand-lockup > svg {
+  width: clamp(2.15rem, 9vw, 3.35rem);
+  height: clamp(2.65rem, 11vw, 4.2rem);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.almendra-brand-lockup span {
+  font-size: clamp(0.48rem, 1.8vw, 0.68rem);
+  font-weight: 800;
+  letter-spacing: 0.35em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.almendra-hero-media {
+  position: absolute;
+  inset: clamp(8.4rem, 29vw, 11.6rem) 0 auto;
+  z-index: 1;
+  height: clamp(19.6rem, 66vw, 28.6rem);
+  overflow: hidden;
+  background: #e8dbcf;
+}
+
+.almendra-hero-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(90deg, rgba(245, 237, 228, 0.88) 0%, rgba(245, 237, 228, 0.44) 38%, rgba(245, 237, 228, 0.04) 68%),
+    linear-gradient(180deg, rgba(38, 22, 13, 0.02) 0%, rgba(38, 22, 13, 0.08) 100%);
+  pointer-events: none;
+}
+
+.almendra-header-image,
+.almendra-hero-placeholder,
+.template-almendra .hero-slider-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.almendra-hero-placeholder {
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 72% 18%, rgba(190, 134, 86, 0.26), transparent 20%),
+    radial-gradient(circle at 84% 70%, rgba(91, 50, 25, 0.14), transparent 26%),
+    linear-gradient(135deg, #efe2d6, #d9c7b7);
+}
+
+.almendra-hero-placeholder::before {
+  content: '';
+  width: min(42vw, 13rem);
+  aspect-ratio: 1;
+  border: 0.08rem solid rgba(91, 50, 25, 0.16);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 249, 243, 0.94), transparent 31%),
+    radial-gradient(circle at 50% 50%, rgba(190, 126, 68, 0.62), transparent 32%),
+    #efe2d6;
+  box-shadow: 0 1.1rem 2.6rem rgba(67, 36, 18, 0.18);
+}
+
+.almendra-hero-copy {
+  position: absolute;
+  top: clamp(13.9rem, 46vw, 20.2rem);
+  left: clamp(1.85rem, 7vw, 3.4rem);
+  z-index: 4;
+  width: min(47%, 17.5rem);
+  color: #2f2118;
+}
+
+.almendra-tiny-leaves {
+  display: grid;
+  gap: 0.58rem;
+  width: fit-content;
+  margin: 0 0 0.55rem -0.22rem;
+  color: rgba(91, 50, 25, 0.5);
+}
+
+.almendra-tiny-leaves svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+}
+
+.almendra-hero-copy h1 {
+  display: grid;
+  gap: 0.08em;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.15rem, 8.8vw, 4.1rem);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.almendra-hero-copy i {
+  display: block;
+  width: 3.3rem;
+  height: 0.08rem;
+  margin: 1.05rem 0 1rem;
+  background: currentColor;
+}
+
+.almendra-hero-copy p {
+  margin: 0;
+  color: rgba(47, 33, 24, 0.86);
+  font-size: clamp(0.95rem, 3.4vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.42;
+}
+
+.almendra-community-card {
+  position: absolute;
+  right: clamp(1rem, 4vw, 1.8rem);
+  bottom: clamp(-5rem, -12vw, -3.4rem);
+  left: clamp(1rem, 4vw, 1.8rem);
+  z-index: 7;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1.1fr) minmax(0, 1.35fr) auto;
+  align-items: center;
+  gap: clamp(0.48rem, 1.8vw, 0.82rem);
+  min-height: clamp(5.55rem, 17vw, 7.2rem);
+  padding: clamp(0.78rem, 2.8vw, 1.1rem) clamp(0.85rem, 3vw, 1.25rem);
+  border: 0.08rem solid rgba(91, 50, 25, 0.16);
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(90deg, rgba(255, 249, 243, 0.98) 0%, rgba(255, 249, 243, 0.96) 78%, rgba(235, 222, 209, 0.94) 78%),
+    var(--almendra-card);
+  color: var(--almendra-ink);
+  text-align: left;
+  box-shadow: 0 1.1rem 2rem rgba(87, 53, 29, 0.1);
+}
+
+.almendra-community-seal {
+  display: grid;
+  place-items: center;
+  width: clamp(3.1rem, 9.6vw, 4.15rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #eadbd0;
+  color: var(--almendra-primary);
+}
+
+.almendra-community-seal svg {
+  width: 52%;
+  height: 64%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+}
+
+.almendra-community-title {
+  display: grid;
+  gap: 0.1rem;
+  padding-right: clamp(0.4rem, 1.4vw, 0.82rem);
+  border-right: 0.08rem solid rgba(91, 50, 25, 0.18);
+}
+
+.almendra-community-title small {
+  font-size: clamp(0.55rem, 1.65vw, 0.72rem);
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.almendra-community-title strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 5vw, 2.05rem);
+  font-weight: 600;
+  line-height: 0.9;
+}
+
+.almendra-community-benefits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.32rem 0.48rem;
+  font-size: clamp(0.52rem, 1.55vw, 0.7rem);
+  font-weight: 850;
+  line-height: 1.18;
+}
+
+.almendra-community-benefits span {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.24rem;
+}
+
+.almendra-community-benefits svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: var(--almendra-primary);
+  stroke-width: 1.55;
+}
+
+.almendra-community-action {
+  justify-self: end;
+  max-width: 5.15rem;
+  padding: 0.82rem 0.82rem;
+  border-radius: 999rem;
+  background: var(--almendra-primary);
+  color: #fff8f0;
+  font-size: clamp(0.52rem, 1.55vw, 0.68rem);
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  line-height: 1.35;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.template-almendra .content-panel {
+  position: relative;
+  z-index: 1;
+  margin-top: 0;
+  padding: clamp(5.25rem, 15vw, 7rem) clamp(1.05rem, 4.4vw, 1.95rem) 1.3rem;
+  border-radius: 1.6rem 1.6rem 0 0;
+  background: var(--almendra-panel);
+}
+
+.template-almendra .closed-order-banner {
+  display: none;
+}
+
+.almendra-menu-head {
+  margin: 0 0 1.9rem;
+}
+
+.almendra-menu-title {
+  display: grid;
+  justify-items: center;
+  gap: 0.18rem;
+  margin-bottom: 1.05rem;
+  color: var(--almendra-ink);
+  text-align: center;
+}
+
+.almendra-menu-title svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.45;
+}
+
+.almendra-menu-title h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.52rem, 6vw, 2.3rem);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.almendra-category-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(4.6rem, 1fr);
+  gap: clamp(0.72rem, 3vw, 1.5rem);
+  overflow-x: auto;
+  padding: 0.2rem 0.15rem 0.85rem;
+  scroll-snap-type: x proximity;
+}
+
+.almendra-category-row::-webkit-scrollbar {
+  display: none;
+}
+
+.almendra-category-button {
+  display: grid;
+  justify-items: center;
+  gap: 0.62rem;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--almendra-ink);
+  font-size: clamp(0.67rem, 2.15vw, 0.84rem);
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  scroll-snap-align: start;
+}
+
+.almendra-category-icon {
+  display: grid;
+  place-items: center;
+  width: clamp(4.3rem, 15vw, 5.65rem);
+  aspect-ratio: 1;
+  border: 0.08rem solid rgba(91, 50, 25, 0.18);
+  border-radius: 50%;
+  background: rgba(255, 249, 243, 0.58);
+  color: var(--almendra-primary);
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.almendra-category-button.active .almendra-category-icon {
+  background: radial-gradient(circle at 35% 25%, rgba(109, 67, 36, 0.94), var(--almendra-primary));
+  color: #fff8f0;
+  transform: translateY(-0.12rem);
+}
+
+.almendra-category-button.active::after {
+  content: '';
+  width: 2.05rem;
+  height: 0.08rem;
+  margin-top: -0.42rem;
+  background: currentColor;
+}
+
+.almendra-category-icon svg,
+.almendra-product-placeholder svg,
+.almendra-section-head svg,
+.almendra-add-button svg {
+  width: 1.9rem;
+  height: 1.9rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.section-block-almendra {
+  margin: 0;
+  padding: 0;
+}
+
+.almendra-search-results {
+  margin: 0 0 1rem;
+  color: var(--almendra-soft);
+  font-weight: 800;
+}
+
+.almendra-section-head {
+  margin: 0 0 0.95rem;
+  padding-top: 0.95rem;
+  border-top: 0.08rem solid rgba(91, 50, 25, 0.15);
+}
+
+.almendra-section-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--almendra-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 5.2vw, 2.05rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.almendra-section-head svg {
+  width: 1rem;
+  height: 1rem;
+  stroke-width: 1.35;
+}
+
+.almendra-section-head p {
+  margin: 0.4rem 0 0;
+  color: var(--almendra-soft);
+  font-size: clamp(0.82rem, 2.45vw, 0.98rem);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.almendra-product-list {
+  display: grid;
+}
+
+.almendra-product-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: clamp(0.82rem, 3vw, 1.35rem);
+  min-height: clamp(6.8rem, 22vw, 8.4rem);
+  padding: clamp(0.78rem, 3vw, 1.05rem) 0;
+  border-bottom: 0.08rem solid rgba(91, 50, 25, 0.13);
+}
+
+.almendra-product-media {
+  width: clamp(4.75rem, 17vw, 6.4rem);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  background: #eadbd0;
+  box-shadow: 0 0.6rem 1.2rem rgba(75, 45, 29, 0.08);
+}
+
+.almendra-product-media img,
+.almendra-product-media video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.almendra-product-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--almendra-primary);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255, 249, 243, 0.92), transparent 34%),
+    linear-gradient(145deg, #e8d8c9, #fff8f0);
+}
+
+.almendra-product-placeholder svg {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.almendra-product-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.36rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+}
+
+.almendra-product-copy h3 {
+  margin: 0;
+  color: var(--almendra-ink);
+  font-size: clamp(1rem, 3.6vw, 1.22rem);
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.almendra-product-copy p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--almendra-soft);
+  font-size: clamp(0.78rem, 2.35vw, 0.95rem);
+  font-weight: 700;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.almendra-product-price {
+  color: var(--almendra-ink);
+  font-size: clamp(1rem, 3.6vw, 1.25rem);
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.almendra-add-button {
+  width: clamp(2.55rem, 8.6vw, 3.05rem);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 0.08rem solid rgba(91, 50, 25, 0.32);
+  border-radius: 50%;
+  background: rgba(255, 249, 243, 0.62);
+  color: var(--almendra-primary);
+  padding: 0;
+}
+
+.almendra-add-button svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  stroke-width: 1.75;
+}
+
+.almendra-store-banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.9rem, 3vw, 1.4rem);
+  margin: 1.7rem 0 1.25rem;
+  padding: clamp(0.85rem, 3vw, 1.1rem);
+  border: 0.08rem solid rgba(91, 50, 25, 0.14);
+  border-radius: 1rem;
+  background: rgba(255, 249, 243, 0.54);
+}
+
+.almendra-store-media {
+  display: grid;
+  place-items: center;
+  width: clamp(4.2rem, 16vw, 6rem);
+  aspect-ratio: 1.18;
+  color: var(--almendra-primary);
+  background:
+    radial-gradient(circle at 25% 40%, rgba(91, 50, 25, 0.12), transparent 28%),
+    #f0e2d5;
+}
+
+.almendra-store-media svg {
+  width: 2.1rem;
+  height: 2.7rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+}
+
+.almendra-store-banner h3 {
+  margin: 0 0 0.3rem;
+  color: var(--almendra-ink);
+  font-size: clamp(0.85rem, 2.8vw, 1rem);
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.almendra-store-banner p {
+  margin: 0;
+  color: var(--almendra-soft);
+  font-size: clamp(0.72rem, 2.2vw, 0.86rem);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.almendra-store-banner button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: clamp(7.2rem, 23vw, 9.8rem);
+  justify-content: center;
+  border: 0;
+  border-radius: 999rem;
+  background: var(--almendra-primary);
+  color: #fff8f0;
+  padding: 0.85rem 1.2rem;
+  font-size: clamp(0.65rem, 2vw, 0.78rem);
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.almendra-footer-note {
+  margin: 1rem 0 0;
+  color: var(--almendra-soft);
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  text-align: center;
+}
+
+@media (max-width: 360px) {
+  .almendra-community-card {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .almendra-community-benefits {
+    display: none;
+  }
+
+  .almendra-community-title {
+    border-right: 0;
+  }
+
+  .almendra-product-item {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .almendra-product-price {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .almendra-add-button {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
 }
 
 .admin-media-toolbar {

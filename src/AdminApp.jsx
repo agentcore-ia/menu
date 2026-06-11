@@ -110,6 +110,10 @@ const layoutConfigs = {
     description: 'Menu claro para cafeteria/pasteleria con portada fotografica, categorias circulares y secciones por rubro.',
     headerTextFields: null,
   },
+  almendra: {
+    description: 'Menu editorial claro para cafe de especialidad, con hero amplio, comunidad, categorias circulares y lista refinada.',
+    headerTextFields: null,
+  },
   florian: {
     description: 'Menu editorial para cafe de especialidad con hero en video, categorias lineales y productos en columnas.',
     headerTextFields: null,
@@ -194,6 +198,47 @@ const inheritedLayoutDefaults = {
       mutedVideos: true,
     },
   },
+  almendra: {
+    branding: { wordmark: 'ALMENDRA', subtitle: 'CAFE DE ESPECIALIDAD' },
+    theme: {
+      id: 'inherits-almendra',
+      inheritPreset: 'almendra',
+      background: '#f5ede4',
+      pageBackground: '#f5ede4',
+      contentBackground: '#fbf4ed',
+      surface: '#fff9f3',
+      surfaceAlt: '#f0e2d5',
+      text: '#4b2d1d',
+      muted: 'rgba(75, 45, 29, 0.68)',
+      primary: '#5b3219',
+      primaryText: '#fff8f0',
+      accent: '#8a5a3c',
+      border: 'rgba(91, 50, 25, 0.18)',
+      shadow: 'rgba(80, 45, 22, 0.12)',
+      categoryActiveBackground: '#5b3219',
+      categoryActiveText: '#fff8f0',
+      categoryText: '#4b2d1d',
+      cardBackground: 'transparent',
+      cardText: '#4b2d1d',
+      cardMuted: 'rgba(75, 45, 29, 0.68)',
+      cardPrice: '#4b2d1d',
+      addButtonBackground: '#fff9f3',
+      addButtonText: '#5b3219',
+    },
+    hero: {
+      image: '',
+      video: '',
+      title: 'DISFRUTA',
+      accent: 'LO SIMPLE,',
+      description: 'LO ESENCIAL.',
+    },
+    cards: { style: 'almendra-list' },
+    preview: {
+      productMedia: 'video-first',
+      autoplayVideos: true,
+      mutedVideos: true,
+    },
+  },
   'sabor-pampa': {
     branding: { wordmark: 'sabor a pampa', subtitle: 'cocina casera' },
     theme: {
@@ -253,6 +298,7 @@ const cardStyleDescriptions = {
   'blue-burger-list': 'Cards horizontales blancas con foto grande, precio azul y boton circular.',
   'host-grid': 'Cards oscuras con borde rojo, badge superior y boton rojo circular.',
   'kika-cards': 'Cards claras para cafeteria, con imagen suave, texto compacto y estilo Kika.',
+  'almendra-list': 'Lista clara y editorial para cafe de especialidad, con imagen circular y precio lateral.',
   'florian-list': 'Lista editorial para cafe: media circular, texto a la derecha y precio terracota.',
   'sabor-pampa-cards': 'Cards oscuras y doradas para cocina casera, preparadas para imagen o video.',
 }
@@ -1240,6 +1286,7 @@ export default function AdminApp() {
                     <option value="blue-burger">Burger azul</option>
                     <option value="host">Host crispy</option>
                     <option value="kika">Kika cafe</option>
+                    <option value="almendra">Almendra cafe</option>
                     <option value="florian">Florian cafe</option>
                     <option value="sabor-pampa">Sabor a Pampa</option>
                   </select>
@@ -1261,6 +1308,7 @@ export default function AdminApp() {
                     <option value="blue-burger-list">Burger azul horizontal</option>
                     <option value="host-grid">Host crispy</option>
                     <option value="kika-cards">Kika cafe</option>
+                    <option value="almendra-list">Almendra cafe</option>
                     <option value="florian-list">Florian cafe</option>
                     <option value="sabor-pampa-cards">Sabor a Pampa</option>
                   </select>

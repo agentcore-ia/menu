@@ -491,6 +491,31 @@ function IconKikaUsers() {
   )
 }
 
+function IconAlmendraMark() {
+  return (
+    <svg viewBox="0 0 48 64" aria-hidden="true">
+      <path d="M24 4C11.8 15.8 5.7 27.1 5.7 38c0 12.5 8.2 20 18.3 22 10.1-2 18.3-9.5 18.3-22C42.3 27.1 36.2 15.8 24 4z" />
+      <path d="M24 8v49" />
+      <path d="M24 18L12.2 42.5" />
+      <path d="M24 18l11.8 24.5" />
+      <path d="M24 31L13.6 48.5" />
+      <path d="M24 31l10.4 17.5" />
+    </svg>
+  )
+}
+
+function IconAlmendraGift() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M7 13h18v12H7z" />
+      <path d="M5.5 9.5h21v5H5.5z" />
+      <path d="M16 9.5V25" />
+      <path d="M16 9.5c-3.8-.2-6.1-1.2-6.1-3 0-1.4 1.1-2.3 2.5-2.3 2 0 3.1 2.1 3.6 5.3z" />
+      <path d="M16 9.5c3.8-.2 6.1-1.2 6.1-3 0-1.4-1.1-2.3-2.5-2.3-2 0-3.1 2.1-3.6 5.3z" />
+    </svg>
+  )
+}
+
 function IconKikaHazelnut() {
   return (
     <svg viewBox="0 0 32 32" aria-hidden="true">
@@ -833,6 +858,10 @@ function getLoadingTemplate(accountId) {
 
   if (key.includes('kika')) {
     return 'kika'
+  }
+
+  if (key.includes('almendra')) {
+    return 'almendra'
   }
 
   if (key.includes('florian')) {
@@ -1446,6 +1475,241 @@ function KikaProductVisual({ item, category }) {
 
   return (
     <span className={`kika-product-placeholder kika-product-placeholder-${meta.art}`} aria-hidden="true">
+      <Icon />
+    </span>
+  )
+}
+
+const almendraCategoryOrder = [
+  'cafe',
+  'pasteleria',
+  'cocina',
+  'bebidas',
+  'granos',
+  'take-away',
+]
+
+const almendraCanonicalCategoryLabels = {
+  cafe: 'Cafe',
+  pasteleria: 'Pasteleria',
+  cocina: 'Cocina',
+  bebidas: 'Bebidas',
+  granos: 'Granos',
+  'take-away': 'Take Away',
+}
+
+function getAlmendraFallbackCategories() {
+  const fallbackItems = [
+    {
+      id: 'almendra-placeholder-flat-white',
+      name: 'Flat White',
+      description: 'Equilibrado y sedoso. Doble shot de espresso con leche texturizada.',
+      price: '$2.600',
+      unitPrice: 2600,
+      availableForOrder: false,
+      maxQuantity: 0,
+      categoryLabel: 'Cafe',
+    },
+    {
+      id: 'almendra-placeholder-cold-brew',
+      name: 'Cold Brew',
+      description: 'Suave, refrescante y naturalmente dulce. Extraccion en frio.',
+      price: '$2.900',
+      unitPrice: 2900,
+      availableForOrder: false,
+      maxQuantity: 0,
+      categoryLabel: 'Cafe',
+    },
+    {
+      id: 'almendra-placeholder-cappuccino',
+      name: 'Cappuccino',
+      description: 'Clasico italiano. Espresso, leche vaporizada y espuma ligera.',
+      price: '$2.500',
+      unitPrice: 2500,
+      availableForOrder: false,
+      maxQuantity: 0,
+      categoryLabel: 'Cafe',
+    },
+  ]
+
+  return almendraCategoryOrder.map((key) => ({
+    id: key,
+    label: almendraCanonicalCategoryLabels[key],
+    items:
+      key === 'cafe'
+        ? fallbackItems
+        : [
+            {
+              id: `almendra-placeholder-${key}`,
+              name: almendraCanonicalCategoryLabels[key],
+              description: 'Espacio preparado para cargar productos reales desde el admin.',
+              price: '$0',
+              unitPrice: 0,
+              availableForOrder: false,
+              maxQuantity: 0,
+              categoryLabel: almendraCanonicalCategoryLabels[key],
+            },
+          ],
+  }))
+}
+
+function getAlmendraCategoryKey(label) {
+  const key = slugify(label ?? '')
+
+  if (!key) return ''
+  if (key.includes('pasteleria') || key.includes('postre') || key.includes('torta') || key.includes('croissant') || key.includes('medialuna')) return 'pasteleria'
+  if (key.includes('cocina') || key.includes('sandwich') || key.includes('tostado') || key.includes('brunch') || key.includes('almuerzo')) return 'cocina'
+  if (key.includes('bebida') || key.includes('jugo') || key.includes('agua') || key.includes('limonada') || key.includes('licuado')) return 'bebidas'
+  if (key.includes('grano') || key.includes('blend') || key.includes('molido') || key.includes('espresso')) return 'granos'
+  if (key.includes('take') || key.includes('away') || key.includes('regalo') || key.includes('tienda')) return 'take-away'
+  if (key.includes('cafe') || key.includes('cafeteria') || key.includes('latte') || key.includes('flat') || key.includes('cold') || key.includes('cappuccino') || key.includes('capuccino')) return 'cafe'
+
+  return key
+}
+
+function getAlmendraOrderedCategories(categories = []) {
+  return [...categories].sort((a, b) => {
+    const firstRank = almendraCategoryOrder.indexOf(getAlmendraCategoryKey(a.label))
+    const secondRank = almendraCategoryOrder.indexOf(getAlmendraCategoryKey(b.label))
+    const normalizedFirstRank = firstRank === -1 ? almendraCategoryOrder.length : firstRank
+    const normalizedSecondRank = secondRank === -1 ? almendraCategoryOrder.length : secondRank
+
+    return normalizedFirstRank - normalizedSecondRank || String(a.label).localeCompare(String(b.label), 'es')
+  })
+}
+
+function normalizeAlmendraCategories(categories = []) {
+  const hasRealItems = categories.some((category) => category.items?.length)
+
+  if (!hasRealItems) {
+    return getAlmendraFallbackCategories()
+  }
+
+  const groupedCategories = new Map()
+  const seenItems = new Set()
+
+  categories.forEach((category, categoryIndex) => {
+    const canonicalKey =
+      getAlmendraCategoryKey(category.label) ||
+      slugify(category.label ?? category.id ?? `categoria-${categoryIndex}`)
+    const canonicalLabel = almendraCanonicalCategoryLabels[canonicalKey] ?? category.label
+
+    if (!groupedCategories.has(canonicalKey)) {
+      groupedCategories.set(canonicalKey, {
+        ...category,
+        id: canonicalKey,
+        label: canonicalLabel,
+        items: [],
+      })
+    }
+
+    const groupedCategory = groupedCategories.get(canonicalKey)
+
+    ;(category.items ?? []).forEach((item, itemIndex) => {
+      const itemKey = item.id ?? `${canonicalKey}-${item.name ?? itemIndex}`
+
+      if (seenItems.has(itemKey)) {
+        return
+      }
+
+      seenItems.add(itemKey)
+      groupedCategory.items.push({
+        ...item,
+        categoryLabel: canonicalLabel,
+      })
+    })
+  })
+
+  return getAlmendraOrderedCategories([...groupedCategories.values()]).filter(
+    (category) => category.items?.length,
+  )
+}
+
+function getAlmendraCategoryMeta(label) {
+  const key = getAlmendraCategoryKey(label)
+
+  if (key === 'pasteleria') {
+    return {
+      label: 'Pasteleria',
+      sectionTitle: 'Pasteleria de autor',
+      subtitle: 'Dulces simples, texturas delicadas y recetas para acompanar el cafe.',
+      icon: IconKikaCroissant,
+      art: 'pastry',
+    }
+  }
+
+  if (key === 'cocina') {
+    return {
+      label: 'Cocina',
+      sectionTitle: 'Cocina simple',
+      subtitle: 'Preparaciones honestas, frescas y listas para disfrutar.',
+      icon: IconKikaSandwich,
+      art: 'kitchen',
+    }
+  }
+
+  if (key === 'bebidas') {
+    return {
+      label: 'Bebidas',
+      sectionTitle: 'Bebidas',
+      subtitle: 'Frias, naturales y elegidas para cada momento del dia.',
+      icon: IconDrink,
+      art: 'drink',
+    }
+  }
+
+  if (key === 'granos') {
+    return {
+      label: 'Granos',
+      sectionTitle: 'Granos seleccionados',
+      subtitle: 'Cafe para llevar la experiencia Almendra a casa.',
+      icon: IconKikaHazelnut,
+      art: 'beans',
+    }
+  }
+
+  if (key === 'take-away') {
+    return {
+      label: 'Take Away',
+      sectionTitle: 'Take away',
+      subtitle: 'Productos seleccionados para regalar o disfrutar despues.',
+      icon: IconAlmendraGift,
+      art: 'gift',
+    }
+  }
+
+  return {
+    label: 'Cafe',
+    sectionTitle: 'Cafe de especialidad',
+    subtitle: 'Granos seleccionados, preparados con dedicacion.',
+    icon: IconKikaCup,
+    art: 'coffee',
+  }
+}
+
+function AlmendraProductVisual({ item, category }) {
+  if (item.video) {
+    return (
+      <video
+        src={getVideoFrameSrc(item.video)}
+        preload="auto"
+        autoPlay
+        muted
+        loop
+        playsInline
+      />
+    )
+  }
+
+  if (item.hasCustomImage) {
+    return <img src={item.image} alt={item.name} />
+  }
+
+  const meta = getAlmendraCategoryMeta(category?.label ?? item.badge)
+  const Icon = meta.icon
+
+  return (
+    <span className={`almendra-product-placeholder almendra-product-placeholder-${meta.art}`} aria-hidden="true">
       <Icon />
     </span>
   )
@@ -2796,13 +3060,19 @@ function getImageAnimationClass(item) {
   return `product-image-animation product-image-animation-${animation}`
 }
 
-function TemplateHero({ templateId, presentation, heroDish }) {
+function TemplateHero({ templateId, presentation, heroDish, onCommunityAction }) {
   const standaloneHeroImages = getHeroImages(presentation)
   const hasStandaloneHeroImage = standaloneHeroImages.length > 0
   const heroVideo = getHeroVideo(presentation)
   const hasStandaloneHeroMedia = hasStandaloneHeroImage || Boolean(heroVideo)
 
-  if (templateId !== 'florian' && templateId !== 'sabor-pampa' && !heroDish && !hasStandaloneHeroMedia) {
+  if (
+    templateId !== 'almendra' &&
+    templateId !== 'florian' &&
+    templateId !== 'sabor-pampa' &&
+    !heroDish &&
+    !hasStandaloneHeroMedia
+  ) {
     return null
   }
 
@@ -2899,6 +3169,83 @@ function TemplateHero({ templateId, presentation, heroDish }) {
             <KikaHeroOverlay />
           </>
         ) : null}
+      </section>
+    )
+  }
+
+  if (templateId === 'almendra') {
+    return (
+      <section className="hero-content hero-content-almendra">
+        <div className="almendra-brand-lockup">
+          {presentation.theme?.logoImage ? (
+            <img src={presentation.theme.logoImage} alt={presentation.branding?.wordmark ?? 'Almendra'} />
+          ) : (
+            <>
+              <strong>{presentation.branding?.wordmark ?? 'ALMENDRA'}</strong>
+              <IconAlmendraMark />
+              <span>{presentation.branding?.subtitle ?? 'Cafe de especialidad'}</span>
+            </>
+          )}
+        </div>
+
+        <div className="almendra-hero-media" aria-hidden={!hasStandaloneHeroMedia}>
+          <HeroImageSlider
+            images={standaloneHeroImages}
+            video={heroVideo}
+            imageClassName="almendra-header-image"
+            alt="Almendra cafe de especialidad. Header preparado para imagen o video."
+            placeholderClassName="almendra-hero-placeholder"
+            usePoster={false}
+          />
+        </div>
+
+        <div className="almendra-hero-copy">
+          <span className="almendra-tiny-leaves" aria-hidden="true">
+            <IconKikaLeaf />
+            <IconKikaLeaf />
+            <IconKikaLeaf />
+          </span>
+          <h1>
+            <span>{presentation.hero?.title ?? 'DISFRUTA'}</span>
+            <span>{presentation.hero?.accent ?? 'LO SIMPLE,'}</span>
+            <span>{presentation.hero?.description ?? 'LO ESENCIAL.'}</span>
+          </h1>
+          <i aria-hidden="true" />
+          <p>Cafe de especialidad, hecho con dedicacion.</p>
+        </div>
+
+        <button
+          type="button"
+          className="almendra-community-card"
+          onClick={onCommunityAction}
+          aria-label="Sumarte a la comunidad Almendra"
+        >
+          <span className="almendra-community-seal">
+            <IconAlmendraMark />
+          </span>
+          <span className="almendra-community-title">
+            <small>Sumate a nuestra</small>
+            <strong>comunidad</strong>
+          </span>
+          <span className="almendra-community-benefits">
+            <span>
+              <IconKikaUsers />
+              Sumas puntos en cada compra
+            </span>
+            <span>
+              <IconAlmendraGift />
+              Canjealos por premios increibles
+            </span>
+            <span>
+              <IconAward />
+              Beneficios exclusivos
+            </span>
+          </span>
+          <strong className="almendra-community-action">
+            Quiero sumarme
+            <span aria-hidden="true">→</span>
+          </strong>
+        </button>
       </section>
     )
   }
@@ -3676,6 +4023,38 @@ function TemplateCategorySelector({
     )
   }
 
+  if (templateId === 'almendra') {
+    return (
+      <div className="almendra-menu-head" aria-label="Categorias de Almendra">
+        <div className="almendra-menu-title">
+          <IconKikaLeaf />
+          <h2>Explora nuestro menu</h2>
+        </div>
+        <div className="almendra-category-row">
+          {getAlmendraOrderedCategories(categories).map((category) => {
+            const meta = getAlmendraCategoryMeta(category.label)
+            const Icon = meta.icon
+            const isActive = category.id === currentCategory?.id
+
+            return (
+              <button
+                key={category.id}
+                type="button"
+                className={`almendra-category-button ${isActive ? 'active' : ''}`}
+                onClick={() => onSelectCategory(category.id)}
+              >
+                <span className="almendra-category-icon">
+                  <Icon />
+                </span>
+                <span>{meta.label}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
   if (templateId === 'florian') {
     const orderedCategories = getFlorianOrderedCategories(categories)
 
@@ -4084,6 +4463,91 @@ function TemplateMenuCollection({
             <span>Nosotros</span>
           </button>
         </nav>
+      </section>
+    )
+  }
+
+  if (templateId === 'almendra') {
+    const selectedCategory = currentCategory ?? categories[0] ?? null
+    const sectionMeta = getAlmendraCategoryMeta(
+      isSearchActive ? 'Resultados' : selectedCategory?.label,
+    )
+    const visibleItems = isSearchActive ? categoryItems : selectedCategory?.items ?? categoryItems
+
+    return (
+      <section className="section-block section-block-almendra" data-menu-categories>
+        {isSearchActive ? (
+          <p className="almendra-search-results">
+            {categoryItems.length
+              ? `${categoryItems.length} resultado${categoryItems.length === 1 ? '' : 's'} para "${searchQuery}"`
+              : `No encontramos productos para "${searchQuery}"`}
+          </p>
+        ) : null}
+
+        <div className="almendra-section-head">
+          <h2>
+            {isSearchActive ? 'Resultados' : sectionMeta.sectionTitle}
+            <IconKikaLeaf />
+          </h2>
+          <p>{isSearchActive ? 'Coincidencias de nuestra carta.' : sectionMeta.subtitle}</p>
+        </div>
+
+        {visibleItems.length ? (
+          <div className="almendra-product-list">
+            {visibleItems.map((item) => (
+              <article key={item.id} className="almendra-product-item">
+                <button
+                  type="button"
+                  className="almendra-product-media"
+                  onClick={() => onOpenDish(item)}
+                  aria-label={`Ver ${item.name}`}
+                >
+                  <AlmendraProductVisual item={item} category={selectedCategory} />
+                </button>
+
+                <button
+                  type="button"
+                  className="almendra-product-copy"
+                  onClick={() => onOpenDish(item)}
+                >
+                  <h3>{item.name}</h3>
+                  {item.description ? <p>{item.description}</p> : <p>Preparado con dedicacion.</p>}
+                </button>
+
+                <strong className="almendra-product-price">{item.price}</strong>
+
+                <button
+                  type="button"
+                  className="almendra-add-button"
+                  onClick={() => onAddItem(item)}
+                  aria-label={`Agregar ${item.name}`}
+                >
+                  <IconPlus />
+                </button>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="almendra-empty-category">Todavia no hay productos en esta categoria.</p>
+        )}
+
+        {!isSearchActive ? (
+          <article className="almendra-store-banner">
+            <span className="almendra-store-media" aria-hidden="true">
+              <IconAlmendraMark />
+            </span>
+            <div>
+              <h3>Lleva la experiencia</h3>
+              <p>Productos seleccionados para disfrutar en casa o regalar.</p>
+            </div>
+            <button type="button" onClick={onOpenSocialMenu}>
+              Ver tienda
+              <span>{'->'}</span>
+            </button>
+          </article>
+        ) : null}
+
+        <p className="almendra-footer-note">Gracias por ser parte de esta historia.</p>
       </section>
     )
   }
@@ -5251,12 +5715,13 @@ export default function MenuApp() {
 
   const presentation = menu?.presentation ?? defaultPresentation
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
-  const isKikaTableOrder = templateId === 'kika'
+  const isKikaTableOrder = templateId === 'kika' || templateId === 'almendra'
   const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled === true
   const rawCategories = menu?.categories ?? emptyCategories
   const categories = useMemo(
     () => {
       if (templateId === 'kika') return normalizeKikaCategories(rawCategories)
+      if (templateId === 'almendra') return normalizeAlmendraCategories(rawCategories)
       if (templateId === 'sabor-pampa') return getSaborPampaOrderedCategories(rawCategories)
       return rawCategories
     },
@@ -5979,6 +6444,11 @@ export default function MenuApp() {
       return
     }
 
+    if (templateId === 'almendra') {
+      scrollToMenuTarget('[data-menu-categories]', 'start')
+      return
+    }
+
     scrollToMenuTarget('[data-burger-promos]', 'center')
   }
 
@@ -5991,7 +6461,7 @@ export default function MenuApp() {
 
     setSelectedCategory(safeCategoryId)
 
-    if (templateId === 'kika' || templateId === 'florian' || templateId === 'sabor-pampa') {
+    if (templateId === 'kika' || templateId === 'almendra' || templateId === 'florian' || templateId === 'sabor-pampa') {
       setSearchQuery('')
       setIsSearchOpen(false)
     }
@@ -6319,6 +6789,7 @@ export default function MenuApp() {
             templateId !== 'blue-burger' &&
             templateId !== 'host' &&
             templateId !== 'kika' &&
+            templateId !== 'almendra' &&
             templateId !== 'florian' &&
             templateId !== 'sabor-pampa' ? (
               <div className="brand hero-brand">
@@ -6337,6 +6808,7 @@ export default function MenuApp() {
               presentation={presentation}
               heroDish={heroDish}
               onPrimaryAction={handleNavigateMenu}
+              onCommunityAction={handleOpenCommunity}
             />
           </header>
 
@@ -6367,6 +6839,7 @@ export default function MenuApp() {
                 templateId === 'burger' ||
                 templateId === 'host' ||
                 templateId === 'kika' ||
+                templateId === 'almendra' ||
                 templateId === 'florian' ||
                 templateId === 'sabor-pampa' ? (
                   <div data-menu-categories>
@@ -6391,6 +6864,7 @@ export default function MenuApp() {
                 templateId !== 'blue-burger' &&
                 templateId !== 'host' &&
                 templateId !== 'kika' &&
+                templateId !== 'almendra' &&
                 templateId !== 'florian' &&
                 templateId !== 'sabor-pampa' ? (
                   <section className="section-block" data-section="categories">
@@ -6442,6 +6916,7 @@ export default function MenuApp() {
           templateId !== 'blue-burger' &&
           templateId !== 'host' &&
           templateId !== 'kika' &&
+          templateId !== 'almendra' &&
           templateId !== 'florian' &&
           (templateId !== 'pizzeria' || hasOrderItems) ? (
             <footer className="order-bar">
@@ -7843,9 +8318,11 @@ export default function MenuApp() {
                 </button>
                 <div className="kika-community-hero">
                   <span className="kika-community-eyebrow">Programa de puntos</span>
-                  <h2>Comunidad Kika</h2>
+                  <h2>{templateId === 'almendra' ? 'Comunidad Almendra' : 'Comunidad Kika'}</h2>
                   <p>
-                    Sumate gratis, acumulá puntos con cada compra y canjealos por beneficios pensados para vos.
+                    {templateId === 'almendra'
+                      ? 'Sumate gratis, acumulá puntos con cada compra y canjealos por premios y experiencias.'
+                      : 'Sumate gratis, acumulá puntos con cada compra y canjealos por beneficios pensados para vos.'}
                   </p>
                   <div className="kika-community-score">
                     <strong>1 compra</strong>
@@ -7854,7 +8331,10 @@ export default function MenuApp() {
                 </div>
               </div>
 
-              <div className="kika-community-benefits" aria-label="Beneficios de Comunidad Kika">
+              <div
+                className="kika-community-benefits"
+                aria-label={templateId === 'almendra' ? 'Beneficios de Comunidad Almendra' : 'Beneficios de Comunidad Kika'}
+              >
                 <article>
                   <IconAward />
                   <div>
@@ -7955,9 +8435,15 @@ export default function MenuApp() {
                   <IconBack />
                 </button>
                 <div>
-                  <h2>{templateId === 'kika' ? 'Premios Kika' : 'Mis puntos'}</h2>
-                  <p>
+                  <h2>
                     {templateId === 'kika'
+                      ? 'Premios Kika'
+                      : templateId === 'almendra'
+                        ? 'Premios Almendra'
+                        : 'Mis puntos'}
+                  </h2>
+                  <p>
+                    {templateId === 'kika' || templateId === 'almendra'
                       ? 'Ingresá tu celular, consultá tus puntos y canjeá premios disponibles.'
                       : 'Ingresa tu celular y consulta el saldo acumulado en este menu.'}
                   </p>
@@ -7988,7 +8474,7 @@ export default function MenuApp() {
                   <span>
                     {loyaltyStatus === 'loading'
                       ? 'Consultando...'
-                      : templateId === 'kika'
+                      : templateId === 'kika' || templateId === 'almendra'
                         ? 'Ver premios'
                         : 'Consultar puntos'}
                   </span>
@@ -8019,7 +8505,7 @@ export default function MenuApp() {
                       {loyaltyData.rewards?.length ? (
                         <section className="cart-panel">
                           <div className="section-heading compact">
-                            <h2>{templateId === 'kika' ? 'Premios para canjear' : 'Canjes disponibles'}</h2>
+                            <h2>{templateId === 'kika' || templateId === 'almendra' ? 'Premios para canjear' : 'Canjes disponibles'}</h2>
                           </div>
                           <div className="loyalty-reward-list">
                             {loyaltyData.rewards.map((reward) => {
@@ -8129,13 +8615,13 @@ export default function MenuApp() {
                     <small>Pedido casero confirmado</small>
                   </div>
                 </div>
-              ) : templateId === 'kika' ? (
+              ) : templateId === 'kika' || templateId === 'almendra' ? (
                 <div className="confirmation-kika-top">
                   <span className="confirmation-kika-seal">
-                    <IconKikaCup />
+                    {templateId === 'almendra' ? <IconAlmendraMark /> : <IconKikaCup />}
                   </span>
                   <div>
-                    <strong>KIKA</strong>
+                    <strong>{templateId === 'almendra' ? 'ALMENDRA' : 'KIKA'}</strong>
                     <small>Pedido recibido en mesa</small>
                   </div>
                 </div>
@@ -8160,19 +8646,19 @@ export default function MenuApp() {
                     ? 'Directo al horno'
                     : templateId === 'sabor-pampa'
                       ? 'Listo para preparar'
-                      : templateId === 'kika'
+                      : templateId === 'kika' || templateId === 'almendra'
                         ? 'Pedido en cafetería'
                       : 'Pedido enviado'}
             </span>
             <h3>
-              {templateId === 'kika'
+              {templateId === 'kika' || templateId === 'almendra'
                 ? `Pedido #${lastOrder.orderNumber} recibido`
                 : `Pedido #${lastOrder.orderNumber} confirmado`}
             </h3>
             <p>
               {templateId === 'sabor-pampa'
                 ? 'Ya recibimos tu pedido. Lo preparamos con el sabor de casa y te contactamos para coordinarlo.'
-                : templateId === 'kika'
+                : templateId === 'kika' || templateId === 'almendra'
                   ? 'Gracias. Tu pedido ya quedó registrado para prepararlo en la cafetería.'
                 : 'Ya recibimos tu pedido y vamos a seguir informandote por WhatsApp.'}
             </p>
@@ -8181,7 +8667,7 @@ export default function MenuApp() {
                 <span>Total</span>
                 <strong>{formatPrice(lastOrder.total ?? 0, currencySymbol)}</strong>
               </div>
-              {templateId === 'kika' ? (
+              {templateId === 'kika' || templateId === 'almendra' ? (
                 <div>
                   <span>Modalidad</span>
                   <strong>Mesa</strong>
@@ -8220,10 +8706,10 @@ export default function MenuApp() {
               <div className="confirmation-step">
                 <span />
                 <div>
-                  <strong>{templateId === 'kika' ? 'En preparación' : 'Envio por WhatsApp'}</strong>
+                  <strong>{templateId === 'kika' || templateId === 'almendra' ? 'En preparación' : 'Envio por WhatsApp'}</strong>
                   <small>
-                    {templateId === 'kika'
-                      ? 'El equipo de Kika lo verá desde la cafetería para prepararlo.'
+                    {templateId === 'kika' || templateId === 'almendra'
+                      ? `El equipo de ${templateId === 'almendra' ? 'Almendra' : 'Kika'} lo ver? desde la cafeter?a para prepararlo.`
                       : lastOrder.customerWhatsapp?.url
                         ? 'Se abrio el chat con el pedido listo para enviar.'
                         : 'Te vamos a contactar para coordinar el pedido.'}
@@ -8231,7 +8717,7 @@ export default function MenuApp() {
                 </div>
               </div>
             </div>
-            {templateId !== 'kika' && lastOrder.customerWhatsapp?.url ? (
+            {templateId !== 'kika' && templateId !== 'almendra' && lastOrder.customerWhatsapp?.url ? (
               <button
                 type="button"
                 className="confirmation-button confirmation-button-secondary"
