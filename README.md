@@ -1,4 +1,4 @@
-# Capta Menu
+# capta menu
 
 Menu digital responsive inspirado en BioMenus, preparado para trabajar por cuenta.
 
@@ -6,7 +6,7 @@ Menu digital responsive inspirado en BioMenus, preparado para trabajar por cuent
 
 - cada cuenta tiene su propio menu digital
 - el frontend carga categorias y productos desde `GET /api/accounts/:accountId/menu`
-- el frontend puede enviar pedidos reales a Capta desde `POST /api/accounts/:accountId/orders`
+- el frontend puede enviar pedidos reales a capta desde `POST /api/accounts/:accountId/orders`
 - el backend puede acreditar puntos automaticamente por compra usando el numero de telefono del cliente
 - puedes abrir cuentas distintas con `?account=totta`, `?account=bruder`, `?account=sandras-rose`
 - tambien soporta rutas limpias como `/totta` y `/bruder`
@@ -34,7 +34,7 @@ Esto levanta:
 - `http://127.0.0.1:5173/?account=totta`
 - `http://127.0.0.1:5173/?account=bruder`
 
-## Conectar la base real de Capta
+## Conectar la base real de capta
 
 Modo actual recomendado:
 
@@ -62,11 +62,11 @@ Para pedidos reales, el backend escribe en:
 - `customer_loyalty_accounts`
 - `customer_loyalty_transactions`
 
-Asi el pedido aparece en el dashboard de Capta y queda historial por cliente usando `phone`.
+Asi el pedido aparece en el dashboard de capta y queda historial por cliente usando `phone`.
 
 ## Programa de puntos
 
-El sistema de puntos queda preparado para que la configuracion y administracion se haga desde el dashboard principal de Capta, no desde `/admin` de esta app.
+El sistema de puntos queda preparado para que la configuracion y administracion se haga desde el dashboard principal de capta, no desde `/admin` de esta app.
 
 Tablas nuevas:
 
@@ -102,7 +102,7 @@ Nueva migracion:
 
 - [supabase/migrations/20260513_loyalty_program.sql](C:/Users/matii/Documents/menu/supabase/migrations/20260513_loyalty_program.sql)
 
-Esta app no administra puntos desde `/admin`; el dashboard de Capta debe crear y editar filas en esas tablas.
+Esta app no administra puntos desde `/admin`; el dashboard de capta debe crear y editar filas en esas tablas.
 
 ## Arquitectura de presentacion por cuenta
 
@@ -154,8 +154,8 @@ Endpoints disponibles:
 Con eso ya puedes:
 
 - crear una cuenta nueva en `restaurants`
-- enlazar por `slug` una cuenta ya existente de Capta sin duplicarla
-- eliminar/publicar como inactivo un menu digital sin borrar productos ni pedidos de Capta
+- enlazar por `slug` una cuenta ya existente de capta sin duplicarla
+- eliminar/publicar como inactivo un menu digital sin borrar productos ni pedidos de capta
 - editar `layout`, `theme`, `branding`, `hero` y `preview`
 - guardar `image_url` y `video_url` por producto
 - subir fotos o videos directo a Supabase Storage desde el panel
@@ -285,7 +285,7 @@ El adaptador SQL espera este modelo base:
 
 ## Importante
 
-La conexion real a la base de Capta queda preparada, pero para enchufarla de verdad todavia hace falta confirmar:
+La conexion real a la base de capta queda preparada, pero para enchufarla de verdad todavia hace falta confirmar:
 
 - motor real de base de datos
 - credenciales

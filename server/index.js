@@ -115,7 +115,7 @@ app.get('/api/accounts/:accountId/menu', async (req, res) => {
     res.status(500).json({
       error: 'MENU_LOAD_FAILED',
       message:
-        'No se pudo cargar el menu. Revisa la configuracion de la base de datos de Capta.',
+        'No se pudo cargar el menu. Revisa la configuracion de la base de datos de capta.',
       detail: error instanceof Error ? error.message : 'Unknown error',
     })
   }
@@ -476,7 +476,7 @@ app.patch('/api/admin/products/:productId/media', async (req, res) => {
 })
 
 app.listen(config.port, () => {
-  console.log(`Capta menu API listening on http://127.0.0.1:${config.port}`)
+  console.log(`capta menu API listening on http://127.0.0.1:${config.port}`)
 })
 
 function isValidCustomerPhone(value) {

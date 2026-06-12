@@ -764,7 +764,7 @@ export default function AdminApp() {
     }
 
     const confirmed = window.confirm(
-      `Vas a eliminar el menu digital "${restaurant.name}". No se borran productos, pedidos ni datos del restaurante en Capta. Continuar?`,
+      `Vas a eliminar el menu digital "${restaurant.name}". No se borran productos, pedidos ni datos del restaurante en capta. Continuar?`,
     )
 
     if (!confirmed) {
@@ -1021,7 +1021,7 @@ export default function AdminApp() {
         <header className="admin-header admin-hero-card">
           <div>
             <span className="admin-kicker">Panel interno</span>
-            <h1>Capta Menu Admin</h1>
+            <h1>capta menu admin</h1>
             <p>Gestiona menus digitales, identidad visual y media de producto desde un solo lugar.</p>
           </div>
           <div className="admin-header-actions">
@@ -1085,7 +1085,7 @@ export default function AdminApp() {
               <div>
                 <span className="admin-kicker">Nuevo menu</span>
                 <h2>Crear cuenta</h2>
-                <p>Crea un menu real por slug o una cuenta demo sin tener que abrirla antes en Capta.</p>
+                <p>Crea un menu real por slug o una cuenta demo sin tener que abrirla antes en capta.</p>
               </div>
             </div>
             <form className="admin-form" onSubmit={handleCreateAccount}>

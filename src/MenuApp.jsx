@@ -8,7 +8,7 @@ const defaultPresentation = {
   template: 'editorial',
   layout: 'editorial',
   branding: {
-    wordmark: 'CAPTA',
+    wordmark: 'capta',
     subtitle: 'DIGITAL MENU',
   },
   theme: {
@@ -795,7 +795,7 @@ function getAccountDocumentTitle(accountId, presentation) {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
 
-  return `${accountTitle || 'Capta'} | Menu digital`
+  return `${accountTitle || 'capta'} | Menu digital`
 }
 
 function setDocumentFavicon(href) {
@@ -3583,7 +3583,7 @@ function MenuLoadingScreen({ accountId }) {
       section: 'RECOMENDADOS',
     },
     default: {
-      title: 'Capta',
+      title: 'capta',
       subtitle: 'digital menu',
       icon: <IconLeafMark />,
       kicker: 'Menu digital',

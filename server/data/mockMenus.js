@@ -58,7 +58,7 @@ export const mockMenus = [
         items: [
           {
             id: 5,
-            name: 'Lomo glaseado Capta',
+            name: 'Lomo glaseado capta',
             description: 'Coccion lenta con guarnicion de estacion.',
             unitPrice: 26,
             price: '$26',
@@ -115,7 +115,7 @@ export const mockMenus = [
   },
   {
     accountId: 'capta-demo',
-    accountName: 'Capta Demo',
+    accountName: 'capta demo',
     currency: 'USD',
     locale: 'es',
     categories: [
@@ -151,7 +151,7 @@ export const mockMenus = [
         items: [
           {
             id: 103,
-            name: 'Bife Capta',
+            name: 'Bife capta',
             description: 'Corte premium con vegetales grillados.',
             unitPrice: 24,
             price: '$24',
