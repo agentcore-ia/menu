@@ -167,6 +167,8 @@ app.get('/api/accounts/:accountId/delivery-zone', async (req, res) => {
       address: req.query.address,
       neighborhood: req.query.neighborhood,
       city: req.query.city || menu.city,
+      province: req.query.province || menu.province,
+      originCoordinates: menu.localLocation,
       confirmed: req.query.confirmed === 'true',
       coordinates:
         req.query.lat && req.query.lng

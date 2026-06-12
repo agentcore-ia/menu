@@ -4,6 +4,7 @@ import {
   mapRewardRow,
 } from './loyaltyUtils.js'
 import { getBusinessOpenStatus } from '../../shared/businessHours.js'
+import { normalizeBusinessLocation } from '../deliveryZones.js'
 
 const fallbackImages = [
   '/dishes/hero-steak.jpg',
@@ -154,6 +155,8 @@ export class SupabaseMenuRepository {
       Boolean(restaurant.stock_strict_mode),
     )
 
+    const businessLocation = normalizeBusinessLocation(restaurant.horarios)
+
     return {
       accountId: restaurant.slug,
       accountName: restaurant.name,
@@ -164,6 +167,8 @@ export class SupabaseMenuRepository {
           : [],
       deliveryZonesEnabled: restaurant.horarios?._settings?.deliveryZonesEnabled === true,
       city: restaurant.city || '',
+      province: businessLocation.province,
+      localLocation: businessLocation.coordinates,
       currency: 'USD',
       locale: 'es',
       presentationConfig,

@@ -1,4 +1,5 @@
 const DEFAULT_COUNTRY = 'Argentina'
+const EARTH_RADIUS_KM = 6371
 
 export function normalizeDeliveryZones(value) {
   if (!Array.isArray(value)) return []
@@ -60,6 +61,33 @@ export function findDeliveryZone(point, zones) {
   return normalizeDeliveryZones(zones).find((zone) => zone.active && pointInPolygon(point, zone.polygon)) ?? null
 }
 
+export function normalizeBusinessLocation(horarios) {
+  const settings = horarios && typeof horarios === 'object' ? horarios._settings : null
+  const location = settings?.businessLocation || {}
+  const coordinates = normalizeCoordinates(location)
+
+  return {
+    province: String(location.province || '').trim(),
+    coordinates,
+  }
+}
+
+function getDistanceKm(a, b) {
+  const pointA = normalizeCoordinates(a)
+  const pointB = normalizeCoordinates(b)
+  if (!pointA || !pointB) return Number.POSITIVE_INFINITY
+
+  const toRadians = (value) => (Number(value) * Math.PI) / 180
+  const dLat = toRadians(pointB.lat - pointA.lat)
+  const dLng = toRadians(pointB.lng - pointA.lng)
+  const lat1 = toRadians(pointA.lat)
+  const lat2 = toRadians(pointB.lat)
+  const h =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) * Math.sin(dLng / 2)
+  return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h))
+}
+
 function normalizeCoordinates(value) {
   const lat = Number(value?.lat)
   const lng = Number(value?.lng ?? value?.lon)
@@ -92,8 +120,8 @@ function mapGeocodeCandidate(result, fallbackLabel) {
   }
 }
 
-export async function geocodeDeliveryCandidates({ address, neighborhood, city, limit = 5 }) {
-  const parts = [address, neighborhood, city, DEFAULT_COUNTRY]
+export async function geocodeDeliveryCandidates({ address, neighborhood, city, province, originCoordinates, limit = 5 }) {
+  const parts = [address, neighborhood, city, province, DEFAULT_COUNTRY]
     .map((part) => String(part || '').trim())
     .filter(Boolean)
 
@@ -107,6 +135,15 @@ export async function geocodeDeliveryCandidates({ address, neighborhood, city, l
   url.searchParams.set('addressdetails', '1')
   url.searchParams.set('countrycodes', 'ar')
   url.searchParams.set('q', parts.join(', '))
+  const origin = normalizeCoordinates(originCoordinates)
+
+  if (origin) {
+    const delta = 0.35
+    url.searchParams.set(
+      'viewbox',
+      `${origin.lng - delta},${origin.lat + delta},${origin.lng + delta},${origin.lat - delta}`,
+    )
+  }
 
   const response = await fetch(url, {
     headers: {
@@ -124,6 +161,11 @@ export async function geocodeDeliveryCandidates({ address, neighborhood, city, l
   return results
     .map((result) => mapGeocodeCandidate(result, parts.join(', ')))
     .filter(Boolean)
+    .map((candidate) => ({
+      ...candidate,
+      distanceKm: origin ? getDistanceKm(candidate, origin) : null,
+    }))
+    .sort((a, b) => (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY))
 }
 
 export async function geocodeDeliveryAddress(input) {
@@ -159,8 +201,21 @@ function buildQuoteForCoordinates({ coordinates, settings }) {
   }
 }
 
-export async function resolveDeliveryQuote({ horarios, fallbackFee, address, neighborhood, city, coordinates, confirmed = false }) {
+export async function resolveDeliveryQuote({
+  horarios,
+  fallbackFee,
+  address,
+  neighborhood,
+  city,
+  province,
+  originCoordinates,
+  coordinates,
+  confirmed = false,
+}) {
   const settings = getDeliveryZoneSettings(horarios)
+  const businessLocation = normalizeBusinessLocation(horarios)
+  const effectiveProvince = province || businessLocation.province
+  const effectiveOrigin = originCoordinates || businessLocation.coordinates
 
   if (!settings.enabled) {
     return {
@@ -179,7 +234,14 @@ export async function resolveDeliveryQuote({ horarios, fallbackFee, address, nei
     return buildQuoteForCoordinates({ coordinates: selectedCoordinates, settings })
   }
 
-  const candidates = await geocodeDeliveryCandidates({ address, neighborhood, city, limit: 5 })
+  const candidates = await geocodeDeliveryCandidates({
+    address,
+    neighborhood,
+    city,
+    province: effectiveProvince,
+    originCoordinates: effectiveOrigin,
+    limit: 5,
+  })
 
   if (!candidates.length) {
     return {
@@ -199,6 +261,7 @@ export async function resolveDeliveryQuote({ horarios, fallbackFee, address, nei
     return {
       id: candidate.id,
       label: candidate.label,
+      distanceKm: candidate.distanceKm,
       coordinates: {
         lat: candidate.lat,
         lng: candidate.lng,

@@ -5941,6 +5941,7 @@ export default function MenuApp() {
     deliveryZonesEnabled &&
     deliveryQuote?.allowed !== true
   const deliveryCity = String(menu?.city || '').trim()
+  const deliveryProvince = String(menu?.province || '').trim()
   const orderTotal = cartTotal + selectedDeliveryFee
   const orderTotalLabel = orderTotal > 0
     ? formatPrice(orderTotal, currencySymbol)
@@ -5998,6 +5999,7 @@ export default function MenuApp() {
       neighborhood: String(form.neighborhood || '').trim(),
       city: String(form.city || menu?.city || '').trim(),
     })
+    if (deliveryProvince) params.set('province', deliveryProvince)
     if (form.coordinates?.lat && form.coordinates?.lng) {
       params.set('lat', String(form.coordinates.lat))
       params.set('lng', String(form.coordinates.lng))
@@ -6015,7 +6017,7 @@ export default function MenuApp() {
     }
 
     return payload
-  }, [accountId, deliveryZonesEnabled, menu?.city])
+  }, [accountId, deliveryProvince, deliveryZonesEnabled, menu?.city])
 
   useEffect(() => {
     let cancelled = false
@@ -8536,7 +8538,7 @@ export default function MenuApp() {
                           {deliveryCity ? (
                             <div className="checkout-city-note">
                               <span>Ciudad del local</span>
-                              <strong>{deliveryCity}</strong>
+                              <strong>{deliveryProvince ? `${deliveryCity}, ${deliveryProvince}` : deliveryCity}</strong>
                             </div>
                           ) : null}
                         </div>
