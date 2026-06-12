@@ -55,6 +55,15 @@ export default async function handler(req, res) {
 
     res.status(201).json(order)
   } catch (error) {
+    if (error?.code === 'DELIVERY_OUT_OF_AREA') {
+      res.status(error.statusCode ?? 422).json({
+        error: 'DELIVERY_OUT_OF_AREA',
+        message: error.message,
+        deliveryQuote: error.deliveryQuote ?? null,
+      })
+      return
+    }
+
     if (error?.code === 'RESTAURANT_CLOSED') {
       res.status(error.statusCode ?? 409).json({
         error: 'RESTAURANT_CLOSED',
