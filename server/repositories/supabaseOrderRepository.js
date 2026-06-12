@@ -6,6 +6,7 @@ import {
   parseInteger,
 } from './loyaltyUtils.js'
 import { getBusinessOpenStatus } from '../../shared/businessHours.js'
+import { resolveDeliveryQuote } from '../deliveryZones.js'
 
 export class SupabaseOrderRepository {
   constructor(config) {
@@ -51,7 +52,25 @@ export class SupabaseOrderRepository {
     const discountAmount = redemptionPreview?.discountAmount ?? 0
     const discountedSubtotal = Math.max(0, subtotal - discountAmount)
     const shouldChargeDelivery = payload.deliveryType === 'delivery'
-    const deliveryFee = shouldChargeDelivery ? Number(restaurant.delivery_fee ?? 0) : 0
+    const deliveryQuote = shouldChargeDelivery
+      ? await resolveDeliveryQuote({
+          horarios: restaurant.horarios,
+          fallbackFee: restaurant.delivery_fee,
+          address: payload.customer?.address,
+          neighborhood: payload.customer?.neighborhood,
+          city: payload.customer?.city || restaurant.city,
+        })
+      : null
+
+    if (shouldChargeDelivery && deliveryQuote?.allowed === false) {
+      const error = new Error(deliveryQuote.message || 'La direccion esta fuera del area de entrega.')
+      error.code = 'DELIVERY_OUT_OF_AREA'
+      error.statusCode = 422
+      error.deliveryQuote = deliveryQuote
+      throw error
+    }
+
+    const deliveryFee = shouldChargeDelivery ? Number(deliveryQuote?.fee ?? restaurant.delivery_fee ?? 0) : 0
     const total = discountedSubtotal + deliveryFee
 
     const [pedido] = await this.request('/pedidos', {
@@ -84,6 +103,7 @@ export class SupabaseOrderRepository {
             customer: payload.customer,
             items: orderProducts,
             redemptions: redemptionPreview?.allRedemptions ?? redemptionPreview?.lineItems ?? [],
+            deliveryQuote,
           },
         },
       ]),

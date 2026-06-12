@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { getBusinessOpenStatus } from '../shared/businessHours.js'
 
@@ -5651,6 +5651,8 @@ export default function MenuApp() {
   const [searchQuery, setSearchQuery] = useState('')
   const [checkoutStatus, setCheckoutStatus] = useState('idle')
   const [checkoutMessage, setCheckoutMessage] = useState('')
+  const [deliveryQuote, setDeliveryQuote] = useState(null)
+  const [deliveryQuoteStatus, setDeliveryQuoteStatus] = useState('idle')
   const [lastOrder, setLastOrder] = useState(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [isLoyaltyOpen, setIsLoyaltyOpen] = useState(false)
@@ -5921,8 +5923,23 @@ export default function MenuApp() {
   const hasDiscountRedemptions = rewardRedemptions.some((line) => line.rewardType === 'discount')
   const orderCount = cartCount + redemptionCount
   const hasOrderItems = orderCount > 0
+  const deliveryZonesEnabled = Boolean(
+    menu?.deliveryZonesEnabled &&
+      Array.isArray(menu?.deliveryZones) &&
+      menu.deliveryZones.some((zone) => zone?.active !== false && Array.isArray(zone?.polygon) && zone.polygon.length >= 3),
+  )
   const selectedDeliveryFee =
-    hasOrderItems && !isKikaTableOrder && orderForm.deliveryType === 'delivery' ? configuredDeliveryFee : 0
+    hasOrderItems && !isKikaTableOrder && orderForm.deliveryType === 'delivery'
+      ? deliveryZonesEnabled
+        ? Number(deliveryQuote?.fee || 0)
+        : configuredDeliveryFee
+      : 0
+  const deliveryZoneBlocksCheckout =
+    hasOrderItems &&
+    !isKikaTableOrder &&
+    orderForm.deliveryType === 'delivery' &&
+    deliveryZonesEnabled &&
+    deliveryQuote?.allowed !== true
   const orderTotal = cartTotal + selectedDeliveryFee
   const orderTotalLabel = orderTotal > 0
     ? formatPrice(orderTotal, currencySymbol)
@@ -5958,6 +5975,108 @@ export default function MenuApp() {
       }
   const orderingBlocked = Boolean(orderingStatus.configured && !orderingStatus.isOpen)
   const orderingClosedMessage = getOrderingClosedMessage(orderingStatus)
+
+  const requestDeliveryQuote = useCallback(async (form) => {
+    const address = String(form.address || '').trim()
+
+    if (!deliveryZonesEnabled || form.deliveryType !== 'delivery') {
+      return null
+    }
+
+    if (address.length < 4) {
+      return {
+        enabled: true,
+        allowed: false,
+        fee: 0,
+        message: 'Ingresa calle y altura para calcular el envio.',
+      }
+    }
+
+    const params = new URLSearchParams({
+      address,
+      neighborhood: String(form.neighborhood || '').trim(),
+      city: String(form.city || menu?.city || '').trim(),
+    })
+    const response = await fetch(
+      `/api/accounts/${encodeURIComponent(accountId)}/delivery-zone?${params.toString()}`,
+      { cache: 'no-store' },
+    )
+    const payload = await response.json().catch(() => null)
+
+    if (!response.ok) {
+      throw new Error(payload?.message || 'No pudimos calcular el envio para esa direccion.')
+    }
+
+    return payload
+  }, [accountId, deliveryZonesEnabled, menu?.city])
+
+  useEffect(() => {
+    let cancelled = false
+    const address = orderForm.address.trim()
+    const deliveryType = orderForm.deliveryType
+    const quoteForm = {
+      address: orderForm.address,
+      neighborhood: orderForm.neighborhood,
+      city: orderForm.city,
+      deliveryType,
+    }
+
+    const timeout = window.setTimeout(async () => {
+      if (!deliveryZonesEnabled || deliveryType !== 'delivery') {
+        if (!cancelled) {
+          setDeliveryQuote(null)
+          setDeliveryQuoteStatus('idle')
+        }
+        return
+      }
+
+      if (address.length < 4) {
+        if (!cancelled) {
+          setDeliveryQuote({
+            enabled: true,
+            allowed: false,
+            fee: 0,
+            message: 'Ingresa calle y altura para calcular el envio.',
+          })
+          setDeliveryQuoteStatus('idle')
+        }
+        return
+      }
+
+      try {
+        if (!cancelled) setDeliveryQuoteStatus('checking')
+        const quote = await requestDeliveryQuote(quoteForm)
+
+        if (!cancelled) {
+          setDeliveryQuote(quote)
+          setDeliveryQuoteStatus(quote?.allowed ? 'ready' : 'error')
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setDeliveryQuote({
+            enabled: true,
+            allowed: false,
+            fee: 0,
+            message: error instanceof Error ? error.message : 'No pudimos calcular el envio.',
+          })
+          setDeliveryQuoteStatus('error')
+        }
+      }
+    }, 650)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timeout)
+    }
+  }, [
+    accountId,
+    deliveryZonesEnabled,
+    orderForm.address,
+    orderForm.city,
+    orderForm.deliveryType,
+    orderForm.neighborhood,
+    requestDeliveryQuote,
+  ])
 
   function showOrderingClosedNotice() {
     setOrderingNotice(orderingClosedMessage)
@@ -6688,6 +6807,29 @@ export default function MenuApp() {
       return
     }
 
+    let confirmedDeliveryQuote = deliveryQuote
+
+    if (!isKikaTableOrder && orderForm.deliveryType === 'delivery' && deliveryZonesEnabled) {
+      setCheckoutStatus('submitting')
+      setCheckoutMessage('Calculando area de entrega...')
+
+      try {
+        confirmedDeliveryQuote = await requestDeliveryQuote(orderForm)
+        setDeliveryQuote(confirmedDeliveryQuote)
+        setDeliveryQuoteStatus(confirmedDeliveryQuote?.allowed ? 'ready' : 'error')
+      } catch (error) {
+        setCheckoutStatus('error')
+        setCheckoutMessage(error instanceof Error ? error.message : 'No pudimos calcular el envio.')
+        return
+      }
+
+      if (confirmedDeliveryQuote?.allowed !== true) {
+        setCheckoutStatus('error')
+        setCheckoutMessage(confirmedDeliveryQuote?.message || 'La direccion esta fuera del area de entrega.')
+        return
+      }
+    }
+
     const rawPhone = (orderForm.phone || loyaltyPhone).trim()
     const phoneDigits = rawPhone.replace(/\D/g, '')
 
@@ -6715,6 +6857,7 @@ export default function MenuApp() {
       deliveryType: effectiveDeliveryType,
       paymentMethod: effectivePaymentMethod,
       notes: isKikaTableOrder ? '' : orderForm.notes.trim(),
+      deliveryQuote: confirmedDeliveryQuote,
       items: cartItems.map((item) => ({
         productId: item.id,
         name: item.name,
@@ -8128,9 +8271,12 @@ export default function MenuApp() {
                       {redemptionDiscountTotal > 0 ? (
                         <small>Descuento: -{formatPrice(redemptionDiscountTotal, currencySymbol)}</small>
                       ) : null}
-                      {selectedDeliveryFee > 0 ? (
-                        <small>Envio: +{formatPrice(selectedDeliveryFee, currencySymbol)}</small>
-                      ) : null}
+                  {selectedDeliveryFee > 0 ? (
+                    <small>Envio: +{formatPrice(selectedDeliveryFee, currencySymbol)}</small>
+                  ) : null}
+                  {deliveryZonesEnabled && orderForm.deliveryType === 'delivery' && deliveryQuote?.zone?.name ? (
+                    <small>Zona: {deliveryQuote.zone.name}</small>
+                  ) : null}
                       {loyaltyEarnPreviewText ? <small>{loyaltyEarnPreviewText}</small> : null}
                     </div>
                     <strong>{formatPrice(orderTotal, currencySymbol)}</strong>
@@ -8351,6 +8497,22 @@ export default function MenuApp() {
                             />
                           </label>
                         </div>
+                        {deliveryZonesEnabled ? (
+                          <div className={`delivery-zone-feedback ${deliveryQuote?.allowed ? 'success' : 'error'}`}>
+                            <strong>
+                              {deliveryQuoteStatus === 'checking'
+                                ? 'Calculando zona de entrega...'
+                                : deliveryQuote?.allowed
+                                  ? `${deliveryQuote.zone?.name || 'Zona habilitada'} - Envio ${formatPrice(Number(deliveryQuote.fee || 0), currencySymbol)}`
+                                  : deliveryQuote?.message || 'Ingresa tu direccion para validar el area de entrega.'}
+                            </strong>
+                            <span>
+                              {deliveryQuote?.allowed
+                                ? 'El pedido esta dentro del area de entrega.'
+                                : 'Si queda fuera de zona, podes elegir retiro por el local.'}
+                            </span>
+                          </div>
+                        ) : null}
                       </>
                     ) : null}
 
@@ -8373,7 +8535,7 @@ export default function MenuApp() {
                 <button
                   type="submit"
                   className="primary-action"
-                  disabled={checkoutStatus === 'submitting' || orderingBlocked}
+                  disabled={checkoutStatus === 'submitting' || orderingBlocked || deliveryZoneBlocksCheckout}
                 >
                   <span>
                     {orderingBlocked

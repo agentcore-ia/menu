@@ -6031,6 +6031,35 @@
   color: var(--theme-accent);
 }
 
+.delivery-zone-feedback {
+  display: grid;
+  gap: 0.35rem;
+  border-radius: 1.1rem;
+  padding: 0.9rem 1rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.delivery-zone-feedback strong {
+  font-size: 0.9rem;
+}
+
+.delivery-zone-feedback span {
+  opacity: 0.82;
+}
+
+.delivery-zone-feedback.success {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid rgba(22, 101, 52, 0.16);
+}
+
+.delivery-zone-feedback.error {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid rgba(153, 27, 27, 0.16);
+}
+
 .cart-panel {
   margin-top: 1.45rem;
 }

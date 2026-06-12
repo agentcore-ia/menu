@@ -158,6 +158,12 @@ export class SupabaseMenuRepository {
       accountId: restaurant.slug,
       accountName: restaurant.name,
       deliveryFee: Number(restaurant.delivery_fee ?? 0),
+      deliveryZones:
+        restaurant.horarios?._settings?.deliveryZonesEnabled === true
+          ? restaurant.horarios?._settings?.deliveryZones ?? []
+          : [],
+      deliveryZonesEnabled: restaurant.horarios?._settings?.deliveryZonesEnabled === true,
+      city: restaurant.city || '',
       currency: 'USD',
       locale: 'es',
       presentationConfig,

@@ -7,6 +7,7 @@ import { createLoyaltyRepository } from './repositories/loyaltyRepository.js'
 import { createAdminRepository } from './admin/createAdminRepository.js'
 import { assertAdminToken } from './admin/requireAdminToken.js'
 import { createMenuManifest } from './pwaManifest.js'
+import { resolveDeliveryQuote } from './deliveryZones.js'
 
 const config = getServerConfig()
 const repository = createMenuRepository(config)
@@ -146,6 +147,37 @@ app.get('/api/accounts/:accountId/manifest.webmanifest', async (req, res) => {
   }
 })
 
+app.get('/api/accounts/:accountId/delivery-zone', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, max-age=0')
+
+  try {
+    const menu = await repository.getMenuByAccountId(req.params.accountId)
+
+    if (!menu) {
+      res.status(404).json({
+        error: 'ACCOUNT_NOT_FOUND',
+        message: 'No se encontro la cuenta para calcular el envio.',
+      })
+      return
+    }
+
+    const quote = await resolveDeliveryQuote({
+      horarios: menu.businessHours,
+      fallbackFee: menu.deliveryFee,
+      address: req.query.address,
+      neighborhood: req.query.neighborhood,
+      city: req.query.city || menu.city,
+    })
+
+    res.json(quote)
+  } catch (error) {
+    res.status(500).json({
+      error: 'DELIVERY_ZONE_FAILED',
+      message: error instanceof Error ? error.message : 'No se pudo calcular la zona de entrega.',
+    })
+  }
+})
+
 app.post('/api/accounts/:accountId/orders', async (req, res) => {
   try {
     const payload = req.body ?? {}
@@ -197,6 +229,15 @@ app.post('/api/accounts/:accountId/orders', async (req, res) => {
 
     res.status(201).json(order)
   } catch (error) {
+    if (error?.code === 'DELIVERY_OUT_OF_AREA') {
+      res.status(error.statusCode ?? 422).json({
+        error: 'DELIVERY_OUT_OF_AREA',
+        message: error.message,
+        deliveryQuote: error.deliveryQuote ?? null,
+      })
+      return
+    }
+
     if (error?.code === 'RESTAURANT_CLOSED') {
       res.status(error.statusCode ?? 409).json({
         error: 'RESTAURANT_CLOSED',
