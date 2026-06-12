@@ -46,7 +46,7 @@ export function createMenuManifest(menu, req) {
   )
 
   return {
-    id: `/neurorest-menu-${accountId}`,
+    id: `/capta-menu-${accountId}`,
     name: appName,
     short_name: truncateShortName(accountName),
     description: `Menu digital, pedidos y puntos de ${accountName}.`,
@@ -61,21 +61,21 @@ export function createMenuManifest(menu, req) {
     lang: 'es-AR',
     icons: [
       {
-        src: '/assets/neurorest-pwa-icon-192.png',
+        src: '/assets/capta-pwa-icon-192.png',
         sizes: '192x192',
         type: 'image/png',
         purpose: 'any maskable',
       },
       {
-        src: '/assets/neurorest-pwa-icon-512.png',
+        src: '/assets/capta-pwa-icon-512.png',
         sizes: '512x512',
         type: 'image/png',
         purpose: 'any maskable',
       },
       {
-        src: '/assets/neurorest-pwa-icon.svg',
+        src: '/assets/capta-pwa-icon.png',
         sizes: 'any',
-        type: 'image/svg+xml',
+        type: 'image/png',
         purpose: 'any maskable',
       },
     ],

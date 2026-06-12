@@ -58,7 +58,7 @@ export const mockMenus = [
         items: [
           {
             id: 5,
-            name: 'Lomo glaseado NeuroRest',
+            name: 'Lomo glaseado Capta',
             description: 'Coccion lenta con guarnicion de estacion.',
             unitPrice: 26,
             price: '$26',
@@ -114,8 +114,8 @@ export const mockMenus = [
     ],
   },
   {
-    accountId: 'neurorest-demo',
-    accountName: 'NeuroRest Demo',
+    accountId: 'capta-demo',
+    accountName: 'Capta Demo',
     currency: 'USD',
     locale: 'es',
     categories: [
@@ -151,7 +151,7 @@ export const mockMenus = [
         items: [
           {
             id: 103,
-            name: 'Bife NeuroRest',
+            name: 'Bife Capta',
             description: 'Corte premium con vegetales grillados.',
             unitPrice: 24,
             price: '$24',

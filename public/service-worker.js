@@ -1,5 +1,5 @@
-const CACHE_NAME = 'neurorest-menu-v2'
-const CORE_ASSETS = ['/', '/favicon.svg', '/assets/neurorest-pwa-icon.svg']
+const CACHE_NAME = 'capta-menu-v2'
+const CORE_ASSETS = ['/', '/favicon.png', '/assets/capta-pwa-icon.png']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

@@ -387,7 +387,7 @@ function getPublicMenuUrl(accountSlug) {
 }
 
 function readSavedToken() {
-  return window.localStorage.getItem('neurorest-admin-token') ?? ''
+  return window.localStorage.getItem('capta-admin-token') ?? window.localStorage.getItem('neurorest-admin-token') ?? ''
 }
 
 function authHeaders(token) {
@@ -551,7 +551,7 @@ export default function AdminApp() {
       return
     }
 
-    window.localStorage.setItem('neurorest-admin-token', token)
+    window.localStorage.setItem('capta-admin-token', token)
   }, [token])
 
   useEffect(() => {
@@ -764,7 +764,7 @@ export default function AdminApp() {
     }
 
     const confirmed = window.confirm(
-      `Vas a eliminar el menu digital "${restaurant.name}". No se borran productos, pedidos ni datos del restaurante en NeuroRest. Continuar?`,
+      `Vas a eliminar el menu digital "${restaurant.name}". No se borran productos, pedidos ni datos del restaurante en Capta. Continuar?`,
     )
 
     if (!confirmed) {
@@ -1021,7 +1021,7 @@ export default function AdminApp() {
         <header className="admin-header admin-hero-card">
           <div>
             <span className="admin-kicker">Panel interno</span>
-            <h1>NeuroRest Menu Admin</h1>
+            <h1>Capta Menu Admin</h1>
             <p>Gestiona menus digitales, identidad visual y media de producto desde un solo lugar.</p>
           </div>
           <div className="admin-header-actions">
@@ -1051,7 +1051,7 @@ export default function AdminApp() {
                 type="password"
                 value={token}
                 onChange={(event) => setToken(event.target.value)}
-                placeholder="NEUROREST_ADMIN_TOKEN"
+                placeholder="CAPTA_ADMIN_TOKEN"
               />
             </label>
           </div>
@@ -1085,7 +1085,7 @@ export default function AdminApp() {
               <div>
                 <span className="admin-kicker">Nuevo menu</span>
                 <h2>Crear cuenta</h2>
-                <p>Crea un menu real por slug o una cuenta demo sin tener que abrirla antes en NeuroRest.</p>
+                <p>Crea un menu real por slug o una cuenta demo sin tener que abrirla antes en Capta.</p>
               </div>
             </div>
             <form className="admin-form" onSubmit={handleCreateAccount}>

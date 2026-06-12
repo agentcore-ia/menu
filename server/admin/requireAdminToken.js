@@ -1,6 +1,6 @@
 export function assertAdminToken(config, req) {
   if (!config.adminToken) {
-    throw new Error('NEUROREST_ADMIN_TOKEN no esta configurado.')
+    throw new Error('CAPTA_ADMIN_TOKEN no esta configurado.')
   }
 
   const providedToken =

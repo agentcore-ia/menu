@@ -8,7 +8,7 @@ const defaultPresentation = {
   template: 'editorial',
   layout: 'editorial',
   branding: {
-    wordmark: 'NEUROREST',
+    wordmark: 'CAPTA',
     subtitle: 'DIGITAL MENU',
   },
   theme: {
@@ -795,7 +795,7 @@ function getAccountDocumentTitle(accountId, presentation) {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
 
-  return `${accountTitle || 'NeuroRest'} | Menu digital`
+  return `${accountTitle || 'Capta'} | Menu digital`
 }
 
 function setDocumentFavicon(href) {
@@ -3583,7 +3583,7 @@ function MenuLoadingScreen({ accountId }) {
       section: 'RECOMENDADOS',
     },
     default: {
-      title: 'NeuroRest',
+      title: 'Capta',
       subtitle: 'digital menu',
       icon: <IconLeafMark />,
       kicker: 'Menu digital',

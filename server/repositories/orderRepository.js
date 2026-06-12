@@ -7,7 +7,7 @@ export function createOrderRepository(config) {
 
   return {
     async createOrder() {
-      throw new Error('Los pedidos solo estan habilitados con NEUROREST_DATA_PROVIDER=supabase.')
+      throw new Error('Los pedidos solo estan habilitados con CAPTA_DATA_PROVIDER=supabase.')
     },
   }
 }

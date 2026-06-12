@@ -1,4 +1,4 @@
-# NeuroRest Menu
+# Capta Menu
 
 Menu digital responsive inspirado en BioMenus, preparado para trabajar por cuenta.
 
@@ -6,7 +6,7 @@ Menu digital responsive inspirado en BioMenus, preparado para trabajar por cuent
 
 - cada cuenta tiene su propio menu digital
 - el frontend carga categorias y productos desde `GET /api/accounts/:accountId/menu`
-- el frontend puede enviar pedidos reales a NeuroRest desde `POST /api/accounts/:accountId/orders`
+- el frontend puede enviar pedidos reales a Capta desde `POST /api/accounts/:accountId/orders`
 - el backend puede acreditar puntos automaticamente por compra usando el numero de telefono del cliente
 - puedes abrir cuentas distintas con `?account=totta`, `?account=bruder`, `?account=sandras-rose`
 - tambien soporta rutas limpias como `/totta` y `/bruder`
@@ -30,22 +30,22 @@ Esto levanta:
 ## Cuentas de ejemplo
 
 - `http://127.0.0.1:5173/?account=sandras-rose`
-- `http://127.0.0.1:5173/?account=neurorest-demo`
+- `http://127.0.0.1:5173/?account=capta-demo`
 - `http://127.0.0.1:5173/?account=totta`
 - `http://127.0.0.1:5173/?account=bruder`
 
-## Conectar la base real de NeuroRest
+## Conectar la base real de Capta
 
 Modo actual recomendado:
 
 1. copia `.env.example` a `.env`
-2. usa `NEUROREST_DATA_PROVIDER=supabase`
-3. completa `NEUROREST_SUPABASE_URL`
-4. completa `NEUROREST_SUPABASE_API_KEY` con una key de backend de solo lectura para la API
-5. define `NEUROREST_ADMIN_TOKEN` para habilitar el panel interno
-6. define `NEUROREST_SUPABASE_STORAGE_BUCKET=menu-videos` para uploads de preview
-7. para uploads seguros, define `NEUROREST_SUPABASE_STORAGE_API_KEY` con una key de backend para Storage
-8. para crear pedidos reales, define `NEUROREST_SUPABASE_WRITE_API_KEY` con una key de backend con permisos de escritura
+2. usa `CAPTA_DATA_PROVIDER=supabase`
+3. completa `CAPTA_SUPABASE_URL`
+4. completa `CAPTA_SUPABASE_API_KEY` con una key de backend de solo lectura para la API
+5. define `CAPTA_ADMIN_TOKEN` para habilitar el panel interno
+6. define `CAPTA_SUPABASE_STORAGE_BUCKET=menu-videos` para uploads de preview
+7. para uploads seguros, define `CAPTA_SUPABASE_STORAGE_API_KEY` con una key de backend para Storage
+8. para crear pedidos reales, define `CAPTA_SUPABASE_WRITE_API_KEY` con una key de backend con permisos de escritura
 
 El backend lee:
 
@@ -62,11 +62,11 @@ Para pedidos reales, el backend escribe en:
 - `customer_loyalty_accounts`
 - `customer_loyalty_transactions`
 
-Asi el pedido aparece en el dashboard de NeuroRest y queda historial por cliente usando `phone`.
+Asi el pedido aparece en el dashboard de Capta y queda historial por cliente usando `phone`.
 
 ## Programa de puntos
 
-El sistema de puntos queda preparado para que la configuracion y administracion se haga desde el dashboard principal de NeuroRest, no desde `/admin` de esta app.
+El sistema de puntos queda preparado para que la configuracion y administracion se haga desde el dashboard principal de Capta, no desde `/admin` de esta app.
 
 Tablas nuevas:
 
@@ -102,7 +102,7 @@ Nueva migracion:
 
 - [supabase/migrations/20260513_loyalty_program.sql](C:/Users/matii/Documents/menu/supabase/migrations/20260513_loyalty_program.sql)
 
-Esta app no administra puntos desde `/admin`; el dashboard de NeuroRest debe crear y editar filas en esas tablas.
+Esta app no administra puntos desde `/admin`; el dashboard de Capta debe crear y editar filas en esas tablas.
 
 ## Arquitectura de presentacion por cuenta
 
@@ -154,8 +154,8 @@ Endpoints disponibles:
 Con eso ya puedes:
 
 - crear una cuenta nueva en `restaurants`
-- enlazar por `slug` una cuenta ya existente de NeuroRest sin duplicarla
-- eliminar/publicar como inactivo un menu digital sin borrar productos ni pedidos de NeuroRest
+- enlazar por `slug` una cuenta ya existente de Capta sin duplicarla
+- eliminar/publicar como inactivo un menu digital sin borrar productos ni pedidos de Capta
 - editar `layout`, `theme`, `branding`, `hero` y `preview`
 - guardar `image_url` y `video_url` por producto
 - subir fotos o videos directo a Supabase Storage desde el panel
@@ -170,12 +170,12 @@ Requisitos:
 
 - bucket publico
 - videos cortos en `.mp4`
-- ideal: usar `NEUROREST_SUPABASE_STORAGE_API_KEY` para que el upload salga desde backend y no abrir permisos publicos de escritura
+- ideal: usar `CAPTA_SUPABASE_STORAGE_API_KEY` para que el upload salga desde backend y no abrir permisos publicos de escritura
 
 Variables:
 
-- `NEUROREST_SUPABASE_STORAGE_BUCKET=menu-videos`
-- `NEUROREST_SUPABASE_STORAGE_API_KEY=...`
+- `CAPTA_SUPABASE_STORAGE_BUCKET=menu-videos`
+- `CAPTA_SUPABASE_STORAGE_API_KEY=...`
 
 Flujo en `/admin`:
 
@@ -268,14 +268,14 @@ Este repo ahora ya incluye funciones serverless en:
 
 En Vercel solo necesitas cargar estas variables de entorno y redeploy:
 
-- `NEUROREST_DATA_PROVIDER=supabase`
-- `NEUROREST_SUPABASE_URL=https://eqnjyygokjinmsfvogxi.supabase.co`
-- `NEUROREST_SUPABASE_API_KEY=...`
-- `NEUROREST_ADMIN_TOKEN=...`
+- `CAPTA_DATA_PROVIDER=supabase`
+- `CAPTA_SUPABASE_URL=https://eqnjyygokjinmsfvogxi.supabase.co`
+- `CAPTA_SUPABASE_API_KEY=...`
+- `CAPTA_ADMIN_TOKEN=...`
 
 Alternativa:
 
-- puedes seguir usando `NEUROREST_DATA_PROVIDER=sql` si en el futuro quieres leer directo desde Postgres/MySQL sin pasar por Supabase REST
+- puedes seguir usando `CAPTA_DATA_PROVIDER=sql` si en el futuro quieres leer directo desde Postgres/MySQL sin pasar por Supabase REST
 
 El adaptador SQL espera este modelo base:
 
@@ -285,7 +285,7 @@ El adaptador SQL espera este modelo base:
 
 ## Importante
 
-La conexion real a la base de NeuroRest queda preparada, pero para enchufarla de verdad todavia hace falta confirmar:
+La conexion real a la base de Capta queda preparada, pero para enchufarla de verdad todavia hace falta confirmar:
 
 - motor real de base de datos
 - credenciales

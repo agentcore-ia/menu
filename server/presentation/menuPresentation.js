@@ -527,7 +527,7 @@ const accountPresentations = {
   saborapampa: presentationPresets.saborPampa,
   'sabor-pampa': presentationPresets.saborPampa,
   'sabor-a-pampa-cocina': presentationPresets.saborPampa,
-  'neurorest-demo': presentationPresets.default,
+  'capta-demo': presentationPresets.default,
 }
 
 export function resolveMenuPresentation(accountId) {
