@@ -5940,6 +5940,7 @@ export default function MenuApp() {
     orderForm.deliveryType === 'delivery' &&
     deliveryZonesEnabled &&
     deliveryQuote?.allowed !== true
+  const deliveryCity = String(menu?.city || '').trim()
   const orderTotal = cartTotal + selectedDeliveryFee
   const orderTotalLabel = orderTotal > 0
     ? formatPrice(orderTotal, currencySymbol)
@@ -5997,6 +5998,12 @@ export default function MenuApp() {
       neighborhood: String(form.neighborhood || '').trim(),
       city: String(form.city || menu?.city || '').trim(),
     })
+    if (form.coordinates?.lat && form.coordinates?.lng) {
+      params.set('lat', String(form.coordinates.lat))
+      params.set('lng', String(form.coordinates.lng))
+      params.set('confirmed', 'true')
+      if (form.coordinates.label) params.set('label', String(form.coordinates.label))
+    }
     const response = await fetch(
       `/api/accounts/${encodeURIComponent(accountId)}/delivery-zone?${params.toString()}`,
       { cache: 'no-store' },
@@ -6017,7 +6024,7 @@ export default function MenuApp() {
     const quoteForm = {
       address: orderForm.address,
       neighborhood: orderForm.neighborhood,
-      city: orderForm.city,
+      city: deliveryCity,
       deliveryType,
     }
 
@@ -6072,9 +6079,9 @@ export default function MenuApp() {
     accountId,
     deliveryZonesEnabled,
     orderForm.address,
-    orderForm.city,
     orderForm.deliveryType,
     orderForm.neighborhood,
+    deliveryCity,
     requestDeliveryQuote,
   ])
 
@@ -6529,6 +6536,34 @@ export default function MenuApp() {
     if (field === 'phone') {
       setLoyaltyPhone(value)
     }
+
+    if (field === 'address' || field === 'neighborhood' || field === 'deliveryType') {
+      setDeliveryQuote(null)
+      setDeliveryQuoteStatus('idle')
+    }
+  }
+
+  async function handleSelectDeliveryCandidate(candidate) {
+    if (!candidate?.coordinates) return
+
+    setDeliveryQuoteStatus('checking')
+    try {
+      const quote = await requestDeliveryQuote({
+        ...orderForm,
+        city: deliveryCity,
+        coordinates: candidate.coordinates,
+      })
+      setDeliveryQuote(quote)
+      setDeliveryQuoteStatus(quote?.allowed ? 'ready' : 'error')
+    } catch (error) {
+      setDeliveryQuote({
+        enabled: true,
+        allowed: false,
+        fee: 0,
+        message: error instanceof Error ? error.message : 'No pudimos calcular el envio.',
+      })
+      setDeliveryQuoteStatus('error')
+    }
   }
 
   function handleAddRewardRedemption(reward) {
@@ -6813,19 +6848,30 @@ export default function MenuApp() {
       setCheckoutStatus('submitting')
       setCheckoutMessage('Calculando area de entrega...')
 
-      try {
-        confirmedDeliveryQuote = await requestDeliveryQuote(orderForm)
-        setDeliveryQuote(confirmedDeliveryQuote)
-        setDeliveryQuoteStatus(confirmedDeliveryQuote?.allowed ? 'ready' : 'error')
-      } catch (error) {
-        setCheckoutStatus('error')
-        setCheckoutMessage(error instanceof Error ? error.message : 'No pudimos calcular el envio.')
-        return
+      if (deliveryQuote?.allowed === true && deliveryQuote?.coordinates) {
+        confirmedDeliveryQuote = deliveryQuote
+      } else {
+        try {
+          confirmedDeliveryQuote = await requestDeliveryQuote({
+            ...orderForm,
+            city: deliveryCity,
+          })
+          setDeliveryQuote(confirmedDeliveryQuote)
+          setDeliveryQuoteStatus(confirmedDeliveryQuote?.allowed ? 'ready' : 'error')
+        } catch (error) {
+          setCheckoutStatus('error')
+          setCheckoutMessage(error instanceof Error ? error.message : 'No pudimos calcular el envio.')
+          return
+        }
       }
 
       if (confirmedDeliveryQuote?.allowed !== true) {
         setCheckoutStatus('error')
-        setCheckoutMessage(confirmedDeliveryQuote?.message || 'La direccion esta fuera del area de entrega.')
+        setCheckoutMessage(
+          confirmedDeliveryQuote?.needsConfirmation
+            ? 'Confirma una direccion de la lista para calcular el envio.'
+            : confirmedDeliveryQuote?.message || 'La direccion esta fuera del area de entrega.',
+        )
         return
       }
     }
@@ -6852,7 +6898,7 @@ export default function MenuApp() {
         phone: rawPhone,
         address: isKikaTableOrder ? '' : orderForm.address.trim(),
         neighborhood: isKikaTableOrder ? '' : orderForm.neighborhood.trim(),
-        city: isKikaTableOrder ? '' : orderForm.city.trim(),
+        city: isKikaTableOrder ? '' : deliveryCity,
       },
       deliveryType: effectiveDeliveryType,
       paymentMethod: effectivePaymentMethod,
@@ -8487,15 +8533,12 @@ export default function MenuApp() {
                               placeholder="Barrio"
                             />
                           </label>
-
-                          <label className="checkout-field">
-                            <span>Ciudad</span>
-                            <input
-                              value={orderForm.city}
-                              onChange={(event) => updateOrderForm('city', event.target.value)}
-                              placeholder="Ciudad"
-                            />
-                          </label>
+                          {deliveryCity ? (
+                            <div className="checkout-city-note">
+                              <span>Ciudad del local</span>
+                              <strong>{deliveryCity}</strong>
+                            </div>
+                          ) : null}
                         </div>
                         {deliveryZonesEnabled ? (
                           <div className={`delivery-zone-feedback ${deliveryQuote?.allowed ? 'success' : 'error'}`}>
@@ -8511,6 +8554,24 @@ export default function MenuApp() {
                                 ? 'El pedido esta dentro del area de entrega.'
                                 : 'Si queda fuera de zona, podes elegir retiro por el local.'}
                             </span>
+                            {deliveryQuote?.needsConfirmation && Array.isArray(deliveryQuote.candidates) && deliveryQuote.candidates.length > 0 ? (
+                              <div className="delivery-address-options">
+                                {deliveryQuote.candidates.map((candidate) => (
+                                  <button
+                                    type="button"
+                                    key={candidate.id}
+                                    onClick={() => handleSelectDeliveryCandidate(candidate)}
+                                  >
+                                    <span>{candidate.label}</span>
+                                    <small>
+                                      {candidate.allowed
+                                        ? `${candidate.zone?.name || 'Zona habilitada'} - ${formatPrice(Number(candidate.fee || 0), currencySymbol)}`
+                                        : 'Fuera del area'}
+                                    </small>
+                                  </button>
+                                ))}
+                              </div>
+                            ) : null}
                           </div>
                         ) : null}
                       </>

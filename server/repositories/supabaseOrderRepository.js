@@ -59,6 +59,8 @@ export class SupabaseOrderRepository {
           address: payload.customer?.address,
           neighborhood: payload.customer?.neighborhood,
           city: payload.customer?.city || restaurant.city,
+          confirmed: Boolean(payload.deliveryQuote?.coordinates),
+          coordinates: payload.deliveryQuote?.coordinates ?? null,
         })
       : null
 

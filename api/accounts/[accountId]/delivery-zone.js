@@ -34,6 +34,15 @@ export default async function handler(req, res) {
       address: req.query.address,
       neighborhood: req.query.neighborhood,
       city: req.query.city || menu.city,
+      confirmed: req.query.confirmed === 'true',
+      coordinates:
+        req.query.lat && req.query.lng
+          ? {
+              lat: req.query.lat,
+              lng: req.query.lng,
+              label: req.query.label,
+            }
+          : null,
     })
 
     res.status(200).json(quote)

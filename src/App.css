@@ -6018,6 +6018,29 @@
   resize: vertical;
 }
 
+.checkout-city-note {
+  display: grid;
+  align-content: center;
+  gap: 0.35rem;
+  min-height: 3rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 1rem;
+  border: 1px solid var(--theme-border);
+  background: color-mix(in srgb, var(--theme-surface) 78%, var(--theme-primary) 8%);
+}
+
+.checkout-city-note span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--theme-muted);
+  text-transform: uppercase;
+}
+
+.checkout-city-note strong {
+  font-size: 0.95rem;
+  color: var(--theme-text);
+}
+
 .checkout-message {
   margin: 0;
   font-weight: 700;
@@ -6058,6 +6081,36 @@
   color: #991b1b;
   background: #fee2e2;
   border: 1px solid rgba(153, 27, 27, 0.16);
+}
+
+.delivery-address-options {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+}
+
+.delivery-address-options button {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgba(153, 27, 27, 0.18);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.72);
+  color: inherit;
+  text-align: left;
+}
+
+.delivery-address-options button span {
+  font-size: 0.82rem;
+  font-weight: 800;
+  opacity: 1;
+}
+
+.delivery-address-options button small {
+  font-size: 0.74rem;
+  font-weight: 800;
+  opacity: 0.72;
 }
 
 .cart-panel {

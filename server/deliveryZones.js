@@ -60,18 +60,50 @@ export function findDeliveryZone(point, zones) {
   return normalizeDeliveryZones(zones).find((zone) => zone.active && pointInPolygon(point, zone.polygon)) ?? null
 }
 
-export async function geocodeDeliveryAddress({ address, neighborhood, city }) {
+function normalizeCoordinates(value) {
+  const lat = Number(value?.lat)
+  const lng = Number(value?.lng ?? value?.lon)
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return null
+  }
+
+  return {
+    lat,
+    lng,
+    label: value?.label || '',
+  }
+}
+
+function mapGeocodeCandidate(result, fallbackLabel) {
+  const coordinates = normalizeCoordinates({
+    lat: result?.lat,
+    lng: result?.lon,
+    label: result?.display_name || fallbackLabel,
+  })
+
+  if (!coordinates) return null
+
+  return {
+    id: String(result?.place_id || `${coordinates.lat},${coordinates.lng}`),
+    lat: coordinates.lat,
+    lng: coordinates.lng,
+    label: coordinates.label,
+  }
+}
+
+export async function geocodeDeliveryCandidates({ address, neighborhood, city, limit = 5 }) {
   const parts = [address, neighborhood, city, DEFAULT_COUNTRY]
     .map((part) => String(part || '').trim())
     .filter(Boolean)
 
   if (!parts.length || String(address || '').trim().length < 4) {
-    return null
+    return []
   }
 
   const url = new URL('https://nominatim.openstreetmap.org/search')
   url.searchParams.set('format', 'jsonv2')
-  url.searchParams.set('limit', '1')
+  url.searchParams.set('limit', String(Math.min(Math.max(Number(limit) || 5, 1), 8)))
   url.searchParams.set('addressdetails', '1')
   url.searchParams.set('countrycodes', 'ar')
   url.searchParams.set('q', parts.join(', '))
@@ -83,50 +115,23 @@ export async function geocodeDeliveryAddress({ address, neighborhood, city }) {
     },
   })
 
-  if (!response.ok) return null
+  if (!response.ok) return []
 
-  const [result] = await response.json()
-  const lat = Number(result?.lat)
-  const lng = Number(result?.lon)
+  const results = await response.json()
 
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-    return null
-  }
+  if (!Array.isArray(results)) return []
 
-  return {
-    lat,
-    lng,
-    label: result?.display_name || parts.join(', '),
-  }
+  return results
+    .map((result) => mapGeocodeCandidate(result, parts.join(', ')))
+    .filter(Boolean)
 }
 
-export async function resolveDeliveryQuote({ horarios, fallbackFee, address, neighborhood, city }) {
-  const settings = getDeliveryZoneSettings(horarios)
+export async function geocodeDeliveryAddress(input) {
+  const [candidate] = await geocodeDeliveryCandidates({ ...input, limit: 1 })
+  return candidate ?? null
+}
 
-  if (!settings.enabled) {
-    return {
-      enabled: false,
-      allowed: true,
-      fee: Math.max(0, Number(fallbackFee || 0)),
-      zone: null,
-      coordinates: null,
-      message: '',
-    }
-  }
-
-  const coordinates = await geocodeDeliveryAddress({ address, neighborhood, city })
-
-  if (!coordinates) {
-    return {
-      enabled: true,
-      allowed: false,
-      fee: 0,
-      zone: null,
-      coordinates: null,
-      message: 'No pudimos ubicar esa direccion. Revisa calle, altura y ciudad.',
-    }
-  }
-
+function buildQuoteForCoordinates({ coordinates, settings }) {
   const zone = findDeliveryZone(coordinates, settings.zones)
 
   if (!zone) {
@@ -152,4 +157,77 @@ export async function resolveDeliveryQuote({ horarios, fallbackFee, address, nei
     coordinates,
     message: `Zona de entrega: ${zone.name}.`,
   }
+}
+
+export async function resolveDeliveryQuote({ horarios, fallbackFee, address, neighborhood, city, coordinates, confirmed = false }) {
+  const settings = getDeliveryZoneSettings(horarios)
+
+  if (!settings.enabled) {
+    return {
+      enabled: false,
+      allowed: true,
+      fee: Math.max(0, Number(fallbackFee || 0)),
+      zone: null,
+      coordinates: null,
+      message: '',
+    }
+  }
+
+  const selectedCoordinates = normalizeCoordinates(coordinates)
+
+  if (selectedCoordinates) {
+    return buildQuoteForCoordinates({ coordinates: selectedCoordinates, settings })
+  }
+
+  const candidates = await geocodeDeliveryCandidates({ address, neighborhood, city, limit: 5 })
+
+  if (!candidates.length) {
+    return {
+      enabled: true,
+      allowed: false,
+      fee: 0,
+      zone: null,
+      coordinates: null,
+      candidates: [],
+      needsConfirmation: false,
+      message: 'No pudimos ubicar esa direccion. Proba escribir calle y altura, sin ciudad.',
+    }
+  }
+
+  const candidatesWithZones = candidates.map((candidate) => {
+    const zone = findDeliveryZone(candidate, settings.zones)
+    return {
+      id: candidate.id,
+      label: candidate.label,
+      coordinates: {
+        lat: candidate.lat,
+        lng: candidate.lng,
+        label: candidate.label,
+      },
+      allowed: Boolean(zone),
+      fee: zone?.fee ?? 0,
+      zone: zone
+        ? {
+            id: zone.id,
+            name: zone.name,
+            fee: zone.fee,
+          }
+        : null,
+    }
+  })
+
+  if (!confirmed) {
+    return {
+      enabled: true,
+      allowed: false,
+      fee: 0,
+      zone: null,
+      coordinates: null,
+      candidates: candidatesWithZones,
+      needsConfirmation: true,
+      message: 'Confirma cual de estas direcciones es la correcta.',
+    }
+  }
+
+  return buildQuoteForCoordinates({ coordinates: candidates[0], settings })
 }
