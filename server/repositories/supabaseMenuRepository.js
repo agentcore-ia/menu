@@ -157,6 +157,9 @@ export class SupabaseMenuRepository {
 
     const businessLocation = normalizeBusinessLocation(restaurant.horarios)
 
+    const ordering = getBusinessOpenStatus(restaurant.horarios)
+    const orderTakingPaused = restaurant.horarios?._settings?.orderTakingPaused === true
+
     return {
       accountId: restaurant.slug,
       accountName: restaurant.name,
@@ -175,7 +178,16 @@ export class SupabaseMenuRepository {
       categories,
       loyalty,
       businessHours: restaurant.horarios ?? null,
-      ordering: getBusinessOpenStatus(restaurant.horarios),
+      ordering: orderTakingPaused
+        ? {
+            ...ordering,
+            isOpen: false,
+            paused: true,
+            message:
+              restaurant.horarios?._settings?.orderTakingPauseMessage ||
+              'El local no esta tomando pedidos por ahora. Podes volver a intentar mas tarde.',
+          }
+        : ordering,
     }
   }
 

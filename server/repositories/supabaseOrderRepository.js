@@ -20,6 +20,22 @@ export class SupabaseOrderRepository {
       return null
     }
 
+    if (restaurant.horarios?._settings?.orderTakingPaused === true) {
+      const error = new Error(
+        restaurant.horarios?._settings?.orderTakingPauseMessage ||
+          'El local no esta tomando pedidos por ahora. Podes volver a intentar mas tarde.',
+      )
+      error.code = 'ORDER_TAKING_PAUSED'
+      error.statusCode = 409
+      error.ordering = {
+        configured: true,
+        isOpen: false,
+        paused: true,
+        message: error.message,
+      }
+      throw error
+    }
+
     const orderingStatus = getBusinessOpenStatus(restaurant.horarios)
 
     if (orderingStatus.configured && !orderingStatus.isOpen) {
