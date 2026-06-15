@@ -258,7 +258,7 @@ app.post('/api/accounts/:accountId/orders', async (req, res) => {
       return
     }
 
-    if (error?.code === 'ORDER_TAKING_PAUSED') {
+    if (error?.code === 'ORDER_TAKING_PAUSED' || error?.ordering?.paused === true) {
       res.status(error.statusCode ?? 409).json({
         error: 'ORDER_TAKING_PAUSED',
         message: error.message,
