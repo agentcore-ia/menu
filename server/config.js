@@ -25,6 +25,16 @@ export function getServerConfig() {
       process.env.NEUROREST_N8N_WHATSAPP_WEBHOOK_URL ||
       'https://agentcore-n8n.8zp1cp.easypanel.host/webhook/menu-whatsapp-confirmation',
     n8nWebhookSecret: process.env.CAPTA_N8N_WEBHOOK_SECRET ?? process.env.NEUROREST_N8N_WEBHOOK_SECRET ?? '',
+    dashboardUrl:
+      process.env.CAPTA_DASHBOARD_URL ??
+      process.env.NEUROREST_DASHBOARD_URL ??
+      process.env.NEXT_PUBLIC_APP_URL ??
+      'https://app.capta.ar',
+    internalServiceKey:
+      process.env.CAPTA_INTERNAL_SERVICE_KEY ??
+      process.env.NEUROREST_INTERNAL_SERVICE_KEY ??
+      process.env.SUPABASE_SERVICE_ROLE_KEY ??
+      '',
     databaseProvider: process.env.CAPTA_DB_PROVIDER ?? process.env.NEUROREST_DB_PROVIDER ?? 'postgres',
     databaseUrl: process.env.DATABASE_URL ?? '',
     mysqlHost: process.env.MYSQL_HOST ?? '',

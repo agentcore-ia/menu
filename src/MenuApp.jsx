@@ -6889,10 +6889,11 @@ export default function MenuApp() {
 
     setCheckoutStatus('submitting')
     setCheckoutMessage('')
-    const whatsappWindow = isKikaTableOrder ? null : window.open('', '_blank')
 
     const effectiveDeliveryType = isKikaTableOrder ? 'mesa' : orderForm.deliveryType
     const effectivePaymentMethod = isKikaTableOrder ? 'mesa' : orderForm.paymentMethod
+    const shouldRedirectToMercadoPago = effectivePaymentMethod === 'mercado_pago'
+    const whatsappWindow = isKikaTableOrder || shouldRedirectToMercadoPago ? null : window.open('', '_blank')
 
     const payload = {
       customer: {
@@ -6933,12 +6934,21 @@ export default function MenuApp() {
         throw new Error(result.message ?? 'No se pudo enviar el pedido.')
       }
 
+      if (shouldRedirectToMercadoPago && !result.paymentLink) {
+        throw new Error(
+          result.paymentWarning ||
+            'El pedido se cargo, pero no pudimos abrir Mercado Pago. El local va a coordinar el pago.',
+        )
+      }
+
       setLastOrder(result)
       setCheckoutStatus('success')
       setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
       setCart([])
       setRewardRedemptions([])
-      if (!isKikaTableOrder) {
+      if (shouldRedirectToMercadoPago) {
+        window.location.assign(result.paymentLink)
+      } else if (!isKikaTableOrder) {
         openWhatsappOrderChat(result.customerWhatsapp?.url, whatsappWindow)
       }
       setLoyaltyData((current) =>

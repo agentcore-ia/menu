@@ -150,6 +150,11 @@ export class SupabaseOrderRepository {
       throw error
     }
 
+    const mercadoPagoPreference = await this.createMercadoPagoPreferenceForOrder({
+      pedido,
+      paymentMethod: payload.paymentMethod,
+    })
+
     const redemptionResult = await this.commitRewardRedemptions({
       preview: redemptionPreview,
       restaurant,
@@ -186,6 +191,7 @@ export class SupabaseOrderRepository {
           address: payload.customer.address,
           notes: payload.notes,
           loyalty: loyaltyEarn,
+          paymentLink: mercadoPagoPreference?.paymentLink,
         })
       : ''
 
@@ -206,6 +212,7 @@ export class SupabaseOrderRepository {
           total,
           deliveryType: payload.deliveryType,
           paymentMethod: payload.paymentMethod,
+          paymentLink: mercadoPagoPreference?.paymentLink,
         })
       : {
           status: 'skipped',
@@ -258,6 +265,20 @@ export class SupabaseOrderRepository {
           },
       whatsapp: whatsappDispatch,
       customerWhatsapp,
+      payment:
+        payload.paymentMethod === 'mercado_pago'
+          ? {
+              provider: 'mercadopago',
+              status: mercadoPagoPreference?.paymentLink ? 'pending' : 'failed',
+              paymentLink: mercadoPagoPreference?.paymentLink ?? null,
+              preferenceId: mercadoPagoPreference?.preferenceId ?? null,
+              externalReference: mercadoPagoPreference?.externalReference ?? null,
+              expiresAt: mercadoPagoPreference?.expiresAt ?? null,
+              warning: mercadoPagoPreference?.warning ?? null,
+            }
+          : null,
+      paymentLink: mercadoPagoPreference?.paymentLink ?? null,
+      paymentWarning: mercadoPagoPreference?.warning ?? null,
     }
   }
 
@@ -732,6 +753,7 @@ export class SupabaseOrderRepository {
     address,
     notes,
     loyalty,
+    paymentLink,
   }) {
     const isMenuOnlyPlan = restaurant.plan_code === 'menu'
     const lines = items.map((item) => {
@@ -767,6 +789,7 @@ export class SupabaseOrderRepository {
       '',
       deliveryLine,
       paymentLabel ? `Pago: ${paymentLabel}` : null,
+      paymentLink ? `Link de pago: ${paymentLink}` : null,
       notes ? `Notas: ${notes}` : null,
       `Total: $${this.formatMoney(total)}`,
       loyalty?.pointsEarned
@@ -926,6 +949,7 @@ export class SupabaseOrderRepository {
     total,
     deliveryType,
     paymentMethod,
+    paymentLink,
   }) {
     if (!this.config.n8nWhatsappWebhookUrl) {
       return {
@@ -962,6 +986,7 @@ export class SupabaseOrderRepository {
             total,
             deliveryType,
             paymentMethod,
+            paymentLink: paymentLink ?? null,
             items,
             redemptions: redemptionItems,
             discounts: discountItems ?? [],
@@ -992,6 +1017,51 @@ export class SupabaseOrderRepository {
       return {
         status: 'failed',
         reason: error instanceof Error ? error.message : 'No se pudo disparar n8n.',
+      }
+    }
+  }
+
+  async createMercadoPagoPreferenceForOrder({ pedido, paymentMethod }) {
+    if (paymentMethod !== 'mercado_pago') {
+      return null
+    }
+
+    const baseUrl = String(this.config.dashboardUrl || '').replace(/\/+$/, '')
+    const serviceKey = this.config.internalServiceKey || this.config.supabaseWriteApiKey
+
+    if (!baseUrl || !serviceKey) {
+      return {
+        warning: 'No esta configurada la conexion interna para generar el link de Mercado Pago.',
+      }
+    }
+
+    try {
+      const response = await fetch(`${baseUrl}/api/payments/mercadopago/create-preference`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-capta-service-key': serviceKey,
+        },
+        body: JSON.stringify({
+          orderId: pedido.id,
+        }),
+      })
+      const text = await response.text()
+      const data = text ? JSON.parse(text) : {}
+
+      if (!response.ok) {
+        throw new Error(data?.error || `Mercado Pago respondio ${response.status}`)
+      }
+
+      return {
+        paymentLink: data.paymentLink ?? null,
+        preferenceId: data.preferenceId ?? null,
+        externalReference: data.externalReference ?? null,
+        expiresAt: data.expiresAt ?? null,
+      }
+    } catch (error) {
+      return {
+        warning: error instanceof Error ? error.message : 'No se pudo generar el link de Mercado Pago.',
       }
     }
   }
