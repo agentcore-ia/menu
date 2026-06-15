@@ -73,6 +73,15 @@ export default async function handler(req, res) {
       return
     }
 
+    if (error?.code === 'ORDER_TAKING_PAUSED' || error?.ordering?.paused === true) {
+      res.status(error.statusCode ?? 409).json({
+        error: 'ORDER_TAKING_PAUSED',
+        message: error.message,
+        ordering: error.ordering ?? null,
+      })
+      return
+    }
+
     res.status(500).json({
       error: 'ORDER_CREATE_FAILED',
       message: error instanceof Error ? error.message : 'No se pudo crear el pedido.',
