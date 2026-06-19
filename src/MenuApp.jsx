@@ -1168,6 +1168,24 @@ function getHeroImages(presentation, fallbackImage) {
   )
 }
 
+function getBurgerHeroImages(presentation, fallbackImage) {
+  const headerImages = normalizeImageList(
+    presentation.hero?.images,
+    presentation.theme?.headerImages,
+  )
+
+  if (headerImages.length) {
+    return headerImages
+  }
+
+  const heroImage = String(presentation.hero?.image ?? '').trim()
+
+  if (heroImage) {
+    return [heroImage]
+  }
+
+  return normalizeImageList(fallbackImage)
+}
 function getHeroVideo(presentation) {
   return String(
     presentation.hero?.video ||
@@ -3179,7 +3197,7 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
     return (
       <section className="hero-content hero-content-burger">
         <HeroImageSlider
-          images={getHeroImages(presentation, heroDish?.image ?? '/dishes/hero-clean-cut.png')}
+          images={getBurgerHeroImages(presentation, heroDish?.image ?? '/dishes/hero-clean-cut.png')}
           video={heroVideo}
           imageClassName="burger-header-image"
           alt="Grill House Burger Co. Hechas para gustar."
@@ -3211,7 +3229,7 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
     return (
       <section className="hero-content hero-content-blue-burger">
         <HeroImageSlider
-          images={getHeroImages(presentation, heroDish?.image ?? '/dishes/hero-clean-cut.png')}
+          images={getBurgerHeroImages(presentation, heroDish?.image ?? '/dishes/hero-clean-cut.png')}
           video={heroVideo}
           imageClassName="blue-burger-header-image"
           alt={`${presentation.branding?.wordmark ?? 'JBurger'} menu`}
