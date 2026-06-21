@@ -9068,13 +9068,15 @@ export default function MenuApp() {
               <div className="confirmation-step">
                 <span />
                 <div>
-                  <strong>{templateId === 'kika' || templateId === 'almendra' ? 'En preparación' : 'Envio por WhatsApp'}</strong>
+                  <strong>{isTableOrder || templateId === 'kika' || templateId === 'almendra' ? 'En preparación' : 'Envio por WhatsApp'}</strong>
                   <small>
-                    {templateId === 'kika' || templateId === 'almendra'
-                      ? `El equipo de ${templateId === 'almendra' ? 'Almendra' : 'Kika'} lo ver? desde la cafeter?a para prepararlo.`
+                    {isTableOrder
+                      ? 'El equipo del local ya recibió tu pedido y lo está preparando.'
+                      : templateId === 'kika' || templateId === 'almendra'
+                      ? `El equipo de ${templateId === 'almendra' ? 'Almendra' : 'Kika'} lo verá desde el local para prepararlo.`
                       : lastOrder.customerWhatsapp?.url
-                        ? 'Se abrio el chat con el pedido listo para enviar.'
-                        : 'Te vamos a contactar para coordinar el pedido.'}
+                      ? 'Se abrio el chat con el pedido listo para enviar.'
+                      : 'Te vamos a contactar para coordinar el pedido.'}
                   </small>
                 </div>
               </div>
