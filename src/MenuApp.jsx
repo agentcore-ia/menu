@@ -8428,7 +8428,7 @@ export default function MenuApp() {
                   <h2>{isTableOrder ? 'Confirmar en mesa' : 'Confirmar pedido'}</h2>
                   <p>
                     {isTableOrder
-                      ? 'Solo necesitamos tus datos para identificar el pedido en la cafetería.'
+                      ? 'Solo necesitamos tus datos para identificar el pedido en el local.'
                       : 'Completa tus datos para terminar el pedido.'}
                   </p>
                 </div>
@@ -9009,7 +9009,7 @@ export default function MenuApp() {
                     : templateId === 'sabor-pampa'
                       ? 'Listo para preparar'
                       : templateId === 'kika' || templateId === 'almendra'
-                        ? 'Pedido en cafetería'
+                        ? 'Pedido en el local'
                       : 'Pedido enviado'}
             </span>
             <h3>
@@ -9021,7 +9021,7 @@ export default function MenuApp() {
               {templateId === 'sabor-pampa'
                 ? 'Ya recibimos tu pedido. Lo preparamos con el sabor de casa y te contactamos para coordinarlo.'
                 : templateId === 'kika' || templateId === 'almendra'
-                  ? 'Gracias. Tu pedido ya quedó registrado para prepararlo en la cafetería.'
+                  ? 'Gracias. Tu pedido ya quedó registrado para prepararlo en el local.'
                 : 'Ya recibimos tu pedido y vamos a seguir informandote por WhatsApp.'}
             </p>
             <div className="confirmation-meta">
