@@ -93,8 +93,8 @@ export class SupabaseOrderRepository {
     const deliveryFee = shouldChargeDelivery ? Number(deliveryQuote?.fee ?? restaurant.delivery_fee ?? 0) : 0
     const total = discountedSubtotal + deliveryFee
 
-    
     let resolvedTableId = null;
+    let resolvedTableName = null;
     if (payload.mesa_id) {
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(payload.mesa_id);
       if (isUUID) {
@@ -102,16 +102,25 @@ export class SupabaseOrderRepository {
       } else {
         try {
           const decodedName = decodeURIComponent(payload.mesa_id).toLowerCase().trim();
-          const tablesResponse = await this.request(`/mesas?restaurant_id=eq.${restaurant.id}`, { method: 'GET' });
-          const matchedTable = (tablesResponse || []).find(t => 
-            t.name?.toLowerCase().trim() === decodedName || 
-            t.name?.toLowerCase().trim() === `mesa ${decodedName}`
+          const tablesResponse = await this.request(
+            `/mesas?restaurant_id=eq.${restaurant.id}&select=id,name`,
+            { method: 'GET' }
+          );
+          const matchedTable = (tablesResponse || []).find(t =>
+            t.name?.toLowerCase().trim() === decodedName ||
+            t.name?.toLowerCase().trim() === `mesa ${decodedName}` ||
+            t.name?.toLowerCase().trim() === `mesa${decodedName}`
           );
           if (matchedTable) {
             resolvedTableId = matchedTable.id;
+            resolvedTableName = matchedTable.name;
+          } else {
+            // No encontramos la mesa por UUID - guardamos al menos el nombre del param
+            resolvedTableName = `Mesa ${decodeURIComponent(payload.mesa_id)}`;
           }
         } catch(e) {
           console.error('Error resolving table:', e);
+          resolvedTableName = `Mesa ${payload.mesa_id}`;
         }
       }
     }
@@ -137,13 +146,14 @@ export class SupabaseOrderRepository {
           discount_label: redemptionPreview?.discountLabel ?? null,
           discount_source: discountAmount > 0 ? 'loyalty' : null,
           total,
-          notes: payload.notes || null,
+          notes: resolvedTableName ? `Pedido de ${resolvedTableName}` : (payload.notes || null),
           customer_name: customer.name || payload.customer.name || null,
           customer_phone: customer.phone,
           source: payload.mesa_id ? 'qr_mesa' : 'menu_digital',
           table_id: resolvedTableId,
           transcription: {
             channel: payload.mesa_id ? 'qr_mesa' : 'menu_digital',
+            mesa_name: resolvedTableName || null,
             customer: payload.customer,
             items: orderProducts,
             redemptions: redemptionPreview?.allRedemptions ?? redemptionPreview?.lineItems ?? [],
