@@ -5703,15 +5703,32 @@ export default function MenuApp() {
   const [gelatoSizeId, setGelatoSizeId] = useState('')
   const [gelatoFlavorFilter, setGelatoFlavorFilter] = useState('Todos')
   const [gelatoSelectedFlavors, setGelatoSelectedFlavors] = useState([])
-  const [orderForm, setOrderForm] = useState({
-    name: '',
-    phone: '',
-    address: '',
-    neighborhood: '',
-    city: '',
-    deliveryType: 'delivery',
-    paymentMethod: 'cash',
-    notes: '',
+  const [mesaId, setMesaId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const search = new URLSearchParams(window.location.search)
+      return search.get('mesa') || search.get('mesa_id') || null
+    }
+    return null
+  })
+
+  const [orderForm, setOrderForm] = useState(() => {
+    let deliveryType = 'delivery'
+    if (typeof window !== 'undefined') {
+      const search = new URLSearchParams(window.location.search)
+      if (search.has('mesa') || search.has('mesa_id')) {
+        deliveryType = 'local'
+      }
+    }
+    return {
+      name: '',
+      phone: '',
+      address: '',
+      neighborhood: '',
+      city: '',
+      deliveryType,
+      paymentMethod: 'cash',
+      notes: '',
+    }
   })
 
   useEffect(() => {
@@ -5826,7 +5843,7 @@ export default function MenuApp() {
 
   const presentation = menu?.presentation ?? defaultPresentation
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
-  const isKikaTableOrder = templateId === 'kika' || templateId === 'almendra'
+  const isTableOrder = mesaId != null || templateId === 'kika' || templateId === 'almendra'
   const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled === true
   const rawCategories = menu?.categories ?? emptyCategories
   const categories = useMemo(
@@ -5947,14 +5964,14 @@ export default function MenuApp() {
       menu.deliveryZones.some((zone) => zone?.active !== false && Array.isArray(zone?.polygon) && zone.polygon.length >= 3),
   )
   const selectedDeliveryFee =
-    hasOrderItems && !isKikaTableOrder && orderForm.deliveryType === 'delivery'
+    hasOrderItems && !isTableOrder && orderForm.deliveryType === 'delivery'
       ? deliveryZonesEnabled
         ? Number(deliveryQuote?.fee || 0)
         : configuredDeliveryFee
       : 0
   const deliveryZoneBlocksCheckout =
     hasOrderItems &&
-    !isKikaTableOrder &&
+    !isTableOrder &&
     orderForm.deliveryType === 'delivery' &&
     deliveryZonesEnabled &&
     deliveryQuote?.allowed !== true
@@ -6856,7 +6873,7 @@ export default function MenuApp() {
       return
     }
 
-    if (!isKikaTableOrder && orderForm.deliveryType === 'delivery' && !orderForm.address.trim()) {
+    if (!isTableOrder && orderForm.deliveryType === 'delivery' && !orderForm.address.trim()) {
       setCheckoutStatus('error')
       setCheckoutMessage('Si eliges delivery, debes ingresar la direccion.')
       return
@@ -6864,7 +6881,7 @@ export default function MenuApp() {
 
     let confirmedDeliveryQuote = deliveryQuote
 
-    if (!isKikaTableOrder && orderForm.deliveryType === 'delivery' && deliveryZonesEnabled) {
+    if (!isTableOrder && orderForm.deliveryType === 'delivery' && deliveryZonesEnabled) {
       setCheckoutStatus('submitting')
       setCheckoutMessage('Calculando area de entrega...')
 
@@ -6908,23 +6925,24 @@ export default function MenuApp() {
     setCheckoutStatus('submitting')
     setCheckoutMessage('')
 
-    const effectiveDeliveryType = isKikaTableOrder ? 'mesa' : orderForm.deliveryType
-    const effectivePaymentMethod = isKikaTableOrder ? 'mesa' : orderForm.paymentMethod
+    const effectiveDeliveryType = isTableOrder ? 'mesa' : orderForm.deliveryType
+    const effectivePaymentMethod = isTableOrder ? 'mesa' : orderForm.paymentMethod
     const shouldRedirectToMercadoPago = effectivePaymentMethod === 'mercado_pago'
-    const whatsappWindow = isKikaTableOrder || shouldRedirectToMercadoPago ? null : window.open('', '_blank')
+    const whatsappWindow = isTableOrder || shouldRedirectToMercadoPago ? null : window.open('', '_blank')
 
     const payload = {
       customer: {
         name: orderForm.name.trim(),
         phone: rawPhone,
-        address: isKikaTableOrder ? '' : orderForm.address.trim(),
-        neighborhood: isKikaTableOrder ? '' : orderForm.neighborhood.trim(),
-        city: isKikaTableOrder ? '' : deliveryCity,
+        address: isTableOrder ? '' : orderForm.address.trim(),
+        neighborhood: isTableOrder ? '' : orderForm.neighborhood.trim(),
+        city: isTableOrder ? '' : deliveryCity,
       },
       deliveryType: effectiveDeliveryType,
       paymentMethod: effectivePaymentMethod,
-      notes: isKikaTableOrder ? '' : orderForm.notes.trim(),
+      notes: isTableOrder ? '' : orderForm.notes.trim(),
       deliveryQuote: confirmedDeliveryQuote,
+      mesa_id: mesaId,
       items: cartItems.map((item) => ({
         productId: item.id,
         name: item.name,
@@ -6966,7 +6984,7 @@ export default function MenuApp() {
       setRewardRedemptions([])
       if (shouldRedirectToMercadoPago) {
         window.location.assign(result.paymentLink)
-      } else if (!isKikaTableOrder) {
+      } else if (!isTableOrder) {
         openWhatsappOrderChat(result.customerWhatsapp?.url, whatsappWindow)
       }
       setLoyaltyData((current) =>
@@ -8407,9 +8425,9 @@ export default function MenuApp() {
                   <IconBack />
                 </button>
                 <div>
-                  <h2>{isKikaTableOrder ? 'Confirmar en mesa' : 'Confirmar pedido'}</h2>
+                  <h2>{isTableOrder ? 'Confirmar en mesa' : 'Confirmar pedido'}</h2>
                   <p>
-                    {isKikaTableOrder
+                    {isTableOrder
                       ? 'Solo necesitamos tus datos para identificar el pedido en la cafetería.'
                       : 'Completa tus datos para terminar el pedido.'}
                   </p>
@@ -8515,7 +8533,7 @@ export default function MenuApp() {
                   />
                 </label>
 
-                {!isKikaTableOrder ? (
+                {!isTableOrder ? (
                   <>
                     <div className="checkout-grid">
                       <label className="checkout-field">
