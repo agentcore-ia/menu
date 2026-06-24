@@ -19,6 +19,19 @@ const fallbackImages = [
 
 const DELETED_MENU_THEME_ID = 'menu-deleted'
 const INHERITED_THEME_PREFIX = 'inherits-'
+const DAILY_MENU_LABEL = 'Menu del dia'
+
+function getArgentinaDateValue(date = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date)
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+
+  return `${values.year}-${values.month}-${values.day}`
+}
 
 function getInheritedPresetFromThemeId(themeId) {
   if (typeof themeId !== 'string' || !themeId.startsWith(INHERITED_THEME_PREFIX)) {
@@ -135,11 +148,12 @@ export class SupabaseMenuRepository {
       return null
     }
 
-    const [products, presentationConfig, loyalty, stockAvailability] = await Promise.all([
+    const [products, presentationConfig, loyalty, stockAvailability, dailyMenu] = await Promise.all([
       this.fetchProducts(restaurant.id),
       this.fetchPresentationConfig(restaurant.id),
       this.fetchLoyaltyProgram(restaurant.id),
       this.fetchStockAvailability(restaurant.id),
+      this.fetchDailyMenu(restaurant.id),
     ])
 
     if (presentationConfig?.isDeleted) {
@@ -149,11 +163,19 @@ export class SupabaseMenuRepository {
     this.accountIdForFallback =
       presentationConfig?.theme?.inheritPreset || presentationConfig?.layout || restaurant.slug
     const stockByProductId = new Map(stockAvailability.map((entry) => [entry.product_id, entry]))
-    const categories = this.groupProductsByCategory(
+    const productById = new Map(products.map((product) => [product.id, product]))
+    const regularCategories = this.groupProductsByCategory(
       products,
       stockByProductId,
       Boolean(restaurant.stock_strict_mode),
     )
+    const dailyMenuCategory = this.mapDailyMenuCategory(
+      dailyMenu,
+      productById,
+      stockByProductId,
+      Boolean(restaurant.stock_strict_mode),
+    )
+    const categories = dailyMenuCategory ? [dailyMenuCategory, ...regularCategories] : regularCategories
 
     const businessLocation = normalizeBusinessLocation(restaurant.horarios)
 
@@ -176,6 +198,7 @@ export class SupabaseMenuRepository {
       locale: 'es',
       presentationConfig,
       categories,
+      dailyMenu,
       loyalty,
       businessHours: restaurant.horarios ?? null,
       ordering: orderTakingPaused
@@ -228,6 +251,31 @@ export class SupabaseMenuRepository {
         message.includes('42883')
       ) {
         return []
+      }
+
+      throw error
+    }
+  }
+
+  async fetchDailyMenu(restaurantId) {
+    const date = getArgentinaDateValue()
+
+    try {
+      const data = await this.rpc('get_restaurant_daily_menu_context', {
+        p_restaurant_id: restaurantId,
+        p_service_date: date,
+      })
+
+      return data && typeof data === 'object' ? data : { date, items: [] }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      if (
+        message.includes('get_restaurant_daily_menu_context') ||
+        message.includes('PGRST') ||
+        message.includes('42P01') ||
+        message.includes('42883')
+      ) {
+        return { date, items: [] }
       }
 
       throw error
@@ -360,6 +408,71 @@ export class SupabaseMenuRepository {
     })
 
     return [...groups.values()]
+  }
+
+  mapDailyMenuCategory(dailyMenu, productById = new Map(), stockByProductId = new Map(), stockStrictMode = false) {
+    const dailyItems = Array.isArray(dailyMenu?.items) ? dailyMenu.items : []
+    const items = dailyItems
+      .filter((item) => item?.available !== false)
+      .map((item, index) => {
+        const product = item.product_id ? productById.get(item.product_id) : null
+        const customImage = String(product?.image_url ?? '').trim()
+        const stockInfo = item.product_id ? stockByProductId.get(item.product_id) ?? null : null
+        const isStockTracked = Boolean(stockInfo?.is_stock_tracked)
+        const maxAvailable = stockInfo?.max_available == null ? null : Number(stockInfo.max_available)
+        const stockLimit = item.stock_limit == null ? null : Number(item.stock_limit)
+        const availableForOrder = !(
+          stockStrictMode &&
+          isStockTracked &&
+          Number(maxAvailable ?? 0) <= 0
+        )
+
+        return {
+          id: product?.id || `daily-${item.id || index}`,
+          productId: item.product_id || product?.id || null,
+          name: item.name || product?.name || DAILY_MENU_LABEL,
+          description: item.description ?? product?.description ?? '',
+          unitPrice: Number(item.price ?? product?.price ?? 0),
+          price: this.formatPrice(Number(item.price ?? product?.price ?? 0)),
+          image:
+            customImage ||
+            getBurgerFallbackImage(this.accountIdForFallback, product || item, index) ||
+            getPizzeriaFallbackImage(this.accountIdForFallback, product || item, index) ||
+            fallbackImages[index % fallbackImages.length],
+          hasCustomImage: Boolean(customImage),
+          video: product ? getProductVideo(product) : null,
+          imageAnimation: normalizeProductImageAnimation(product?.image_animation),
+          optionGroups: product ? parseProductOptionGroups(product) : [],
+          badge: DAILY_MENU_LABEL,
+          categoryLabel: DAILY_MENU_LABEL,
+          dietary: [],
+          isDailyMenu: true,
+          dailyMenuDate: dailyMenu?.date || null,
+          availableForOrder,
+          maxQuantity:
+            stockLimit != null
+              ? Math.max(0, stockLimit)
+              : stockStrictMode && isStockTracked
+                ? Math.max(0, Number(maxAvailable || 0))
+                : null,
+          stock: {
+            strict: stockStrictMode,
+            tracked: isStockTracked,
+            status: stockInfo?.stock_status ?? 'untracked',
+            maxAvailable,
+          },
+        }
+      })
+
+    if (!items.length) {
+      return null
+    }
+
+    return {
+      id: 'menu-del-dia',
+      label: DAILY_MENU_LABEL,
+      items,
+    }
   }
 
   async fetchProductsMapByIds(productIds) {

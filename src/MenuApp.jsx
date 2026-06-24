@@ -948,6 +948,19 @@ function isPromoCategoryLabel(label) {
   return key.includes('promo') || key.includes('oferta') || key.includes('descuento')
 }
 
+function isDailyMenuCategoryLabel(label) {
+  const key = slugify(label ?? '')
+  return key === 'menu-del-dia' || key === 'menu-diario' || key.includes('plato-del-dia')
+}
+
+function isDailyMenuItem(item) {
+  return Boolean(
+    item?.isDailyMenu ||
+      isDailyMenuCategoryLabel(item?.categoryLabel) ||
+      isDailyMenuCategoryLabel(item?.badge),
+  )
+}
+
 function isComboCategoryLabel(label) {
   return slugify(label ?? '').includes('combo')
 }
@@ -2924,6 +2937,7 @@ function getSaborPampaBadgeText(item, index, categoryLabel) {
   const itemKey = slugify(item?.name ?? '')
   const categoryKey = slugify(categoryLabel ?? '')
 
+  if (isDailyMenuItem({ ...item, categoryLabel })) return 'Menu del dia'
   if (isPromoCategoryLabel(categoryLabel) || itemKey.includes('promo')) return 'Promo'
   if (index === 0) return 'Recomendado'
   if (itemKey.includes('combo')) return 'Combo'
@@ -3152,6 +3166,7 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
   const hasStandaloneHeroImage = standaloneHeroImages.length > 0
   const heroVideo = getHeroVideo(presentation)
   const hasStandaloneHeroMedia = hasStandaloneHeroImage || Boolean(heroVideo)
+  const isDailyHero = isDailyMenuItem(heroDish)
 
   if (
     templateId !== 'almendra' &&
@@ -3420,7 +3435,7 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
     return (
       <section className="hero-content hero-content-bistro">
         <div className="hero-copy hero-copy-bistro">
-          <span className="hero-kicker">MENU DESTACADO</span>
+          <span className="hero-kicker">{isDailyHero ? 'MENU DEL DIA' : 'MENU DESTACADO'}</span>
           <h1>
             <span className="hero-line">{presentation.hero?.title ?? 'Cocina honesta,'}</span>
             <span className="hero-accent">{presentation.hero?.accent ?? 'mesa vibrante'}</span>
@@ -3442,7 +3457,7 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
             <img src={getHeroImage(presentation, heroDish)} alt={heroDish?.name ?? 'Header'} />
           )}
           <div className="hero-bistro-caption">
-            <strong>{heroDish?.name ?? presentation.branding?.wordmark ?? 'Menu destacado'}</strong>
+            <strong>{heroDish?.name ?? presentation.branding?.wordmark ?? (isDailyHero ? 'Menu del dia' : 'Menu destacado')}</strong>
             <span>{heroDish?.price ?? ''}</span>
           </div>
         </div>
@@ -4788,13 +4803,15 @@ function TemplateMenuCollection({
         ...item,
         categoryLabel: item.categoryLabel ?? category.label,
       }))
+    const dailyMenuCategory = orderedCategories.find((category) => isDailyMenuCategoryLabel(category.label))
+    const dailyMenuItems = dailyMenuCategory ? getItemsWithCategoryLabel(dailyMenuCategory) : []
     const selectedCategoryItems = selectedCategory ? getItemsWithCategoryLabel(selectedCategory) : []
     const homeCategorySections = orderedCategories
       .map((category) => ({
         ...category,
         items: getItemsWithCategoryLabel(category),
       }))
-      .filter((category) => category.items.length)
+      .filter((category) => category.items.length && (!dailyMenuItems.length || !isDailyMenuCategoryLabel(category.label)))
     const homeItems = homeCategorySections.flatMap((category) => category.items)
     const highlightedItems = isSearchActive
       ? categoryItems
@@ -4805,7 +4822,8 @@ function TemplateMenuCollection({
     const uniqueHighlightedItems = highlightedItems.filter(
       (item, index, list) => list.findIndex((entry) => entry.id === item.id) === index,
     )
-    const featuredItems = uniqueHighlightedItems.slice(0, 4)
+    const featuredItems = (dailyMenuItems.length ? dailyMenuItems : uniqueHighlightedItems).slice(0, 4)
+    const featuredTitle = dailyMenuItems.length ? 'Menu del dia' : 'Destacados'
     const listItems = isSearchActive ? categoryItems : selectedCategoryItems
 
     const renderPampaProductCards = (items, { showRibbon = true } = {}) => (
@@ -4902,7 +4920,7 @@ function TemplateMenuCollection({
         {!isSearchActive && featuredItems.length ? (
           <article className="pampa-featured-section">
             <div className="pampa-section-heading">
-              <h2>Destacados</h2>
+              <h2>{featuredTitle}</h2>
               <span aria-hidden="true" />
             </div>
 
@@ -6209,6 +6227,7 @@ export default function MenuApp() {
         {
           lineId,
           id: item.id,
+          productId: item.productId || (item.isDailyMenu ? null : item.id),
           name: item.name,
           price: formatPrice(unitPrice, currencySymbol),
           unitPrice,
@@ -6944,7 +6963,7 @@ export default function MenuApp() {
       deliveryQuote: confirmedDeliveryQuote,
       mesa_id: mesaId,
       items: cartItems.map((item) => ({
-        productId: item.id,
+        productId: item.productId ?? item.id,
         name: item.name,
         unitPrice: item.unitPrice,
         quantity: item.quantity,
