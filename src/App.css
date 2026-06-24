@@ -1694,8 +1694,8 @@
     transform: translateY(1rem) scale(0.98);
   }
   to {
-    opacity: 1;
     transform: translateY(0) scale(1);
+    opacity: 1;
   }
 }
 
@@ -14905,4 +14905,102 @@ button:focus-visible {
     transform: translateY(0) scale(1);
     opacity: 1;
   }
+}
+/* ==========================================================================
+   BRANZEN CUSTOMIZATIONS
+   ========================================================================== */
+
+.account-branzen.template-kika,
+.account-branzen .template-kika .hero,
+.account-branzen .phone-surface.template-kika,
+.account-branzen .detail-phone.template-kika,
+.app-shell.account-branzen:has(.template-kika) {
+  --kika-page-bg: #fcf9f2;
+  --kika-cream: #fcf9f2;
+  --kika-card: #ffffff;
+  --kika-green: #6a7c5a;
+  --kika-green-dark: #4d5c41;
+  --kika-ink: #3d4035;
+  --kika-ink-soft: #6e7565;
+  --kika-line: #e3ded5;
+  --kika-category-font: 'Montserrat', sans-serif;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.account-branzen .kika-product-copy h3,
+.account-branzen .kika-section-head h2,
+.account-branzen .kika-detail-intro h2,
+.account-branzen .kika-detail-section h3 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+}
+
+.account-branzen .kika-detail-price,
+.account-branzen .kika-product-points {
+  color: #c4826b !important;
+}
+
+.account-branzen .kika-favorite {
+  background: #6a7c5a;
+  color: #ffffff;
+}
+.account-branzen .kika-favorite:hover,
+.account-branzen .kika-favorite:active {
+  background: #4d5c41;
+}
+
+.account-branzen .kika-category-button {
+  font-weight: 500;
+  position: relative;
+}
+
+.account-branzen .kika-category-icon {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.account-branzen .kika-category-button.active .kika-category-icon {
+  background: transparent;
+  color: #3d4035;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.account-branzen .kika-category-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background: #6a7c5a;
+  border-radius: 50%;
+}
+
+.account-branzen .kika-detail-add {
+  background: #6a7c5a;
+  color: #ffffff;
+}
+
+.account-branzen .kika-section-head button {
+  color: #c4826b;
+  border-color: #c4826b;
+}
+
+.account-branzen .kika-gluten-banner {
+  background: #c4826b;
+  color: #ffffff;
+}
+.account-branzen .kika-gluten-banner > span {
+  background: rgba(255, 255, 255, 0.2);
+}
+.account-branzen .kika-nav-badge {
+  background: #c4826b;
+  border-color: #fcf9f2;
+  color: #ffffff;
+}
+.account-branzen .kika-bottom-nav button.active {
+  color: #6a7c5a;
 }
