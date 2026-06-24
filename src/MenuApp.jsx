@@ -6963,7 +6963,7 @@ export default function MenuApp() {
       deliveryQuote: confirmedDeliveryQuote,
       mesa_id: mesaId,
       items: cartItems.map((item) => ({
-        productId: item.productId ?? item.id,
+        productId: item.productId || null,
         name: item.name,
         unitPrice: item.unitPrice,
         quantity: item.quantity,
