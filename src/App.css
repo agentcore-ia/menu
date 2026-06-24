@@ -14914,7 +14914,7 @@ button:focus-visible {
 .account-branzen .template-kika .hero,
 .account-branzen .phone-surface.template-kika,
 .account-branzen .detail-phone.template-kika,
-.app-shell.account-branzen:has(.template-kika) {
+.app-shell:has(.account-branzen.template-kika) {
   --kika-page-bg: #fcf9f2;
   --kika-cream: #fcf9f2;
   --kika-card: #ffffff;
