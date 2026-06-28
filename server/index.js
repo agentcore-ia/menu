@@ -559,3 +559,128 @@ function isValidOrderItem(item) {
     unitPrice >= 0
   )
 }
+
+
+// ---- TABLE QR EXPERIENCE ENDPOINTS ----
+app.get('/api/accounts/:accountId/tables/:mesaId/session', async (req, res) => {
+  try {
+    const { accountId, mesaId } = req.params;
+    
+    // Resolve restaurant ID first
+    const restRes = await fetch(`${config.supabaseUrl}/rest/v1/restaurants?slug=eq.${encodeURIComponent(accountId)}&select=id`, {
+      headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
+    });
+    const restData = await restRes.json();
+    if (!restData || restData.length === 0) return res.status(404).json({ error: 'Not found' });
+    const restaurantId = restData[0].id;
+
+    // Get current session
+    const sessionRes = await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?restaurant_id=eq.${restaurantId}&table_id=eq.${mesaId}&status=in.(open,pending_payment,partially_paid)&select=*&limit=1`, {
+      headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
+    });
+    const sessionData = await sessionRes.json();
+    
+    if (sessionData && sessionData.length > 0) {
+      res.json(sessionData[0]);
+    } else {
+      res.json(null);
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+app.get('/api/accounts/:accountId/tables/:mesaId/orders', async (req, res) => {
+  try {
+    const { accountId, mesaId } = req.params;
+    
+    const restRes = await fetch(`${config.supabaseUrl}/rest/v1/restaurants?slug=eq.${encodeURIComponent(accountId)}&select=id`, {
+      headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
+    });
+    const restData = await restRes.json();
+    if (!restData || restData.length === 0) return res.status(404).json({ error: 'Not found' });
+    const restaurantId = restData[0].id;
+
+    const ordersRes = await fetch(`${config.supabaseUrl}/rest/v1/pedidos?restaurant_id=eq.${restaurantId}&table_id=eq.${mesaId}&status=in.(new,preparing,ready,delivering)&select=*,items_pedido(*)`, {
+      headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
+    });
+    const ordersData = await ordersRes.json();
+    
+    res.json(ordersData || []);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+app.post('/api/accounts/:accountId/tables/:mesaId/pay', express.json(), async (req, res) => {
+  try {
+    const { accountId, mesaId } = req.params;
+    const { amount, payment_method } = req.body;
+    
+    const restRes = await fetch(`${config.supabaseUrl}/rest/v1/restaurants?slug=eq.${encodeURIComponent(accountId)}&select=id`, {
+      headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
+    });
+    const restData = await restRes.json();
+    if (!restData || restData.length === 0) return res.status(404).json({ error: 'Not found' });
+    const restaurantId = restData[0].id;
+
+    const sessionRes = await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?restaurant_id=eq.${restaurantId}&table_id=eq.${mesaId}&status=in.(open,pending_payment)&select=id&limit=1`, {
+      headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
+    });
+    const sessionData = await sessionRes.json();
+    
+    if (sessionData && sessionData.length > 0) {
+      // Mock payment: update session to paid
+      await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?id=eq.${sessionData[0].id}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          apikey: config.supabaseWriteApiKey, 
+          Authorization: `Bearer ${config.supabaseWriteApiKey}`,
+          Prefer: 'return=representation'
+        },
+        body: JSON.stringify({ status: 'paid', paid_amount: amount, closed_at: new Date().toISOString() })
+      });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+app.post('/api/accounts/:accountId/tables/:mesaId/feedback', express.json(), async (req, res) => {
+  try {
+    const { accountId, mesaId } = req.params;
+    const { rating, comment } = req.body;
+    
+    const restRes = await fetch(`${config.supabaseUrl}/rest/v1/restaurants?slug=eq.${encodeURIComponent(accountId)}&select=id`, {
+      headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
+    });
+    const restData = await restRes.json();
+    if (!restData || restData.length === 0) return res.status(404).json({ error: 'Not found' });
+    const restaurantId = restData[0].id;
+
+    await fetch(`${config.supabaseUrl}/rest/v1/table_feedback`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        apikey: config.supabaseWriteApiKey, 
+        Authorization: `Bearer ${config.supabaseWriteApiKey}`
+      },
+      body: JSON.stringify({
+        restaurant_id: restaurantId,
+        table_id: mesaId,
+        rating,
+        comment,
+        experience_type: rating >= 4 ? 'positive' : rating === 3 ? 'neutral' : 'negative'
+      })
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+// ------------------------------------------
+

@@ -2,6 +2,10 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } f
 import './App.css'
 import { getBusinessOpenStatus } from '../shared/businessHours.js'
 
+import QRLanding from './QRLanding.jsx'
+import QRBill from './QRBill.jsx'
+import QRFeedback from './QRFeedback.jsx'
+
 const emptyCategories = []
 
 const defaultPresentation = {
