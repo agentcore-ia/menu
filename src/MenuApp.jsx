@@ -5676,13 +5676,6 @@ function TemplateMenuCollection({
 
 export default function MenuApp() {
   const [accountId] = useState(getInitialAccountId)
-  const [mesaId, setMesaId] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const search = new URLSearchParams(window.location.search)
-      return search.get('mesa') || search.get('mesa_id') || null
-    }
-    return null
-  })
   const [qrLandingView, setQrLandingView] = useState('landing')
   const [menu, setMenu] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState('')
