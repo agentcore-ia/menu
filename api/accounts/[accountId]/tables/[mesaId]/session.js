@@ -1,4 +1,4 @@
-import { getServerConfig } from '../../../../../../server/config.js'
+import { getServerConfig } from '../../../../../server/config.js'
 
 async function resolveMesaId(config, restaurantId, mesaIdParam) {
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(mesaIdParam)) {
