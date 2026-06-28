@@ -185,6 +185,11 @@ export class SupabaseMenuRepository {
     return {
       accountId: restaurant.slug,
       accountName: restaurant.name,
+      table_experience_enabled: restaurant.table_experience_enabled === true,
+      table_welcome_text: restaurant.table_welcome_text || '',
+      feedback_enabled: restaurant.feedback_enabled !== false,
+      allow_item_payment: restaurant.allow_item_payment !== false,
+      allow_split_bill: restaurant.allow_split_bill !== false,
       deliveryFee: Number(restaurant.delivery_fee ?? 0),
       deliveryZones:
         restaurant.horarios?._settings?.deliveryZonesEnabled === true
