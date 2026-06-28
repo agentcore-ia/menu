@@ -5676,6 +5676,14 @@ function TemplateMenuCollection({
 
 export default function MenuApp() {
   const [accountId] = useState(getInitialAccountId)
+  const [mesaId, setMesaId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const search = new URLSearchParams(window.location.search)
+      return search.get('mesa') || search.get('mesa_id') || null
+    }
+    return null
+  })
+  const [qrLandingView, setQrLandingView] = useState('landing')
   const [menu, setMenu] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedDish, setSelectedDish] = useState(null)
@@ -7102,6 +7110,50 @@ export default function MenuApp() {
 
   if (status === 'loading') {
     return <MenuLoadingScreen accountId={accountId} />
+  }
+
+  if (menu?.restaurant?.table_experience_enabled && mesaId) {
+    if (qrLandingView === 'landing') {
+      return (
+        <QRLanding 
+          accountId={accountId}
+          mesaId={mesaId}
+          restaurantName={menu.restaurant.name}
+          logoUrl={presentation?.branding?.logo}
+          welcomeText={menu.restaurant.table_welcome_text}
+          primaryColor={presentation?.branding?.primaryColor}
+          onVerMenu={() => setQrLandingView('menu')}
+          onPagarCuenta={() => setQrLandingView('bill')}
+          onDejarCalificacion={() => setQrLandingView('feedback')}
+        />
+      )
+    }
+
+    if (qrLandingView === 'bill') {
+      return (
+        <QRBill
+          accountId={accountId}
+          mesaId={mesaId}
+          restaurantName={menu.restaurant.name}
+          logoUrl={presentation?.branding?.logo}
+          primaryColor={presentation?.branding?.primaryColor}
+          onBack={() => setQrLandingView('landing')}
+          onFeedback={() => setQrLandingView('feedback')}
+        />
+      )
+    }
+
+    if (qrLandingView === 'feedback') {
+      return (
+        <QRFeedback
+          accountId={accountId}
+          mesaId={mesaId}
+          restaurantName={menu.restaurant.name}
+          primaryColor={presentation?.branding?.primaryColor}
+          onClose={() => setQrLandingView('landing')}
+        />
+      )
+    }
   }
 
   return (
