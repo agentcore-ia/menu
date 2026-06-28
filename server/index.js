@@ -590,7 +590,25 @@ app.get('/api/accounts/:accountId/tables/:mesaId/session', async (req, res) => {
   }
 });
 
-app.get('/api/accounts/:accountId/tables/:mesaId/orders', async (req, res) => {
+
+  async function resolveMesaId(restaurantId, mesaIdParam) {
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(mesaIdParam)) {
+      return mesaIdParam;
+    }
+    const decodedName = decodeURIComponent(mesaIdParam).toLowerCase().trim();
+    const res = await fetch(`${config.supabaseUrl}/rest/v1/mesas?restaurant_id=eq.${restaurantId}&select=id,name`, {
+      headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
+    });
+    const tables = await res.json();
+    const matched = (tables || []).find(t => 
+      t.name?.toLowerCase().trim() === decodedName ||
+      t.name?.toLowerCase().trim() === `mesa ${decodedName}` ||
+      t.name?.toLowerCase().trim() === `mesa${decodedName}`
+    );
+    return matched ? matched.id : null;
+  }
+
+  app.get('/api/accounts/:accountId/tables/:mesaId/orders', async (req, res) => {
   try {
     const { accountId, mesaId } = req.params;
     
@@ -599,9 +617,12 @@ app.get('/api/accounts/:accountId/tables/:mesaId/orders', async (req, res) => {
     });
     const restData = await restRes.json();
     if (!restData || restData.length === 0) return res.status(404).json({ error: 'Not found' });
-    const restaurantId = restData[0].id;
-
-    const ordersRes = await fetch(`${config.supabaseUrl}/rest/v1/pedidos?restaurant_id=eq.${restaurantId}&table_id=eq.${mesaId}&status=in.(new,preparing,ready,delivering)&select=*,items_pedido(*)`, {
+          const restaurantId = restData[0].id;
+      
+      const realTableId = await resolveMesaId(restaurantId, mesaId);
+      if (!realTableId) return res.json([]);
+  
+      const ordersRes = await fetch(`${config.supabaseUrl}/rest/v1/pedidos?restaurant_id=eq.${restaurantId}&table_id=eq.${realTableId}&status=in.(new,preparing,ready,delivering)&select=*,items_pedido(*)`, {
       headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
     });
     const ordersData = await ordersRes.json();
