@@ -7105,15 +7105,15 @@ export default function MenuApp() {
     return <MenuLoadingScreen accountId={accountId} />
   }
 
-  if (menu?.restaurant?.table_experience_enabled && mesaId) {
+  if (menu?.table_experience_enabled && mesaId) {
     if (qrLandingView === 'landing') {
       return (
         <QRLanding 
           accountId={accountId}
           mesaId={mesaId}
-          restaurantName={menu.restaurant.name}
+          restaurantName={menu.accountName}
           logoUrl={presentation?.branding?.logo}
-          welcomeText={menu.restaurant.table_welcome_text}
+          welcomeText={menu.table_welcome_text}
           primaryColor={presentation?.branding?.primaryColor}
           onVerMenu={() => setQrLandingView('menu')}
           onPagarCuenta={() => setQrLandingView('bill')}
@@ -7127,7 +7127,7 @@ export default function MenuApp() {
         <QRBill
           accountId={accountId}
           mesaId={mesaId}
-          restaurantName={menu.restaurant.name}
+          restaurantName={menu.accountName}
           logoUrl={presentation?.branding?.logo}
           primaryColor={presentation?.branding?.primaryColor}
           onBack={() => setQrLandingView('landing')}
@@ -7141,7 +7141,7 @@ export default function MenuApp() {
         <QRFeedback
           accountId={accountId}
           mesaId={mesaId}
-          restaurantName={menu.restaurant.name}
+          restaurantName={menu.accountName}
           primaryColor={presentation?.branding?.primaryColor}
           onClose={() => setQrLandingView('landing')}
         />
