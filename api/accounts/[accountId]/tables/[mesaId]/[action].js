@@ -85,12 +85,28 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST' && action === 'pay') {
-      const { amount, payment_method } = req.body || {};
+      const { payment_method } = req.body || {};
+      let { amount } = req.body || {};
+      amount = Number(amount) || 0;
 
       // Get existing session or create one if none exists
       const sessionId = await getOrCreateSession(config, restaurantId, realTableId);
       if (!sessionId) {
         return res.status(500).json({ error: 'No se pudo obtener o crear la sesión de mesa' });
+      }
+
+      // If amount is 0 or missing, calculate from pending orders
+      if (amount <= 0) {
+        const ordersRes = await fetch(
+          `${config.supabaseUrl}/rest/v1/pedidos?restaurant_id=eq.${restaurantId}&table_id=eq.${realTableId}&status=in.(new,preparing,ready,delivering,delivered)&select=total`,
+          { headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` } }
+        );
+        const orders = await ordersRes.json();
+        amount = (orders || []).reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+      }
+
+      if (amount <= 0) {
+        return res.status(400).json({ error: 'No hay monto a pagar. Agregá productos al pedido primero.' });
       }
 
       if (payment_method === 'mercadopago' || payment_method === 'applepay') {
