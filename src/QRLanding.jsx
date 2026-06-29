@@ -79,16 +79,12 @@ export default function QRLanding({
       }}>
         
         <div style={{ padding: '36px 24px 24px 24px', textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>
-          {logoUrl ? (
+          {logoUrl && (
             <img 
               src={logoUrl} 
               alt={restaurantName} 
               style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '50%', marginBottom: '16px', border: '1px solid #eee' }} 
             />
-          ) : (
-            <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#f4f4f5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto', border: '1px solid #eee' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '32px', color: '#999' }}>restaurant</span>
-            </div>
           )}
           
           <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#000', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>
