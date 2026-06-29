@@ -187,6 +187,8 @@ export class SupabaseMenuRepository {
       accountName: restaurant.name,
       table_experience_enabled: restaurant.table_experience_enabled === true,
       table_welcome_text: restaurant.table_welcome_text || '',
+      qr_background_url: restaurant.qr_background_url || null,
+      review_google_url: restaurant.review_google_url || null,
       feedback_enabled: restaurant.feedback_enabled !== false,
       allow_item_payment: restaurant.allow_item_payment !== false,
       allow_split_bill: restaurant.allow_split_bill !== false,

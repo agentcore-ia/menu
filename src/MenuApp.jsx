@@ -7115,6 +7115,8 @@ export default function MenuApp() {
           logoUrl={presentation?.branding?.logo}
           welcomeText={menu.table_welcome_text}
           primaryColor={presentation?.branding?.primaryColor}
+          qrBackgroundUrl={menu.qr_background_url}
+          reviewGoogleUrl={menu.review_google_url}
           onVerMenu={() => setQrLandingView('menu')}
           onPagarCuenta={() => setQrLandingView('bill')}
           onDejarCalificacion={() => setQrLandingView('feedback')}
