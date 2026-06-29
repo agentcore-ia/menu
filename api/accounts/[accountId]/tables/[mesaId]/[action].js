@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET' && action === 'session') {
-      const sessionRes = await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?restaurant_id=eq.${restaurantId}&table_id=eq.${realTableId}&status=in.(open,pending_payment,partially_paid)&select=*&limit=1`, {
+      const sessionRes = await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?restaurant_id=eq.${restaurantId}&table_id=eq.${realTableId}&order=opened_at.desc&limit=1`, {
         headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
       });
       const sessionData = await sessionRes.json();
@@ -58,8 +58,11 @@ export default async function handler(req, res) {
       });
       const sessionData = await sessionRes.json();
       
-      if (sessionData && sessionData.length > 0) {
-        const sessionId = sessionData[0].id;
+      if (!sessionData || sessionData.length === 0) {
+        return res.status(400).json({ error: 'La mesa ya fue pagada o no tiene sesión activa' });
+      }
+
+      const sessionId = sessionData[0].id;
         
         if (payment_method === 'mercadopago' || payment_method === 'applepay') {
           const baseUrl = String(config.dashboardUrl || '').replace(/\/+$/, '');
@@ -100,13 +103,11 @@ export default async function handler(req, res) {
           });
           return res.json({ success: true });
         }
-      }
-      return res.json({ success: true });
     }
 
     if (req.method === 'POST' && action === 'feedback') {
       const { rating, comment } = req.body || {};
-      const sessionRes = await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?restaurant_id=eq.${restaurantId}&table_id=eq.${realTableId}&order=created_at.desc&limit=1`, {
+      const sessionRes = await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?restaurant_id=eq.${restaurantId}&table_id=eq.${realTableId}&order=opened_at.desc&limit=1`, {
         headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
       });
       const sessionData = await sessionRes.json();
