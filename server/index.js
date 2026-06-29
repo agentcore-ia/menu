@@ -651,17 +651,78 @@ app.post('/api/accounts/:accountId/tables/:mesaId/pay', express.json(), async (r
     const sessionData = await sessionRes.json();
     
     if (sessionData && sessionData.length > 0) {
-      // Mock payment: update session to paid
-      await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?id=eq.${sessionData[0].id}`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          apikey: config.supabaseWriteApiKey, 
-          Authorization: `Bearer ${config.supabaseWriteApiKey}`,
-          Prefer: 'return=representation'
-        },
-        body: JSON.stringify({ status: 'paid', paid_amount: amount, closed_at: new Date().toISOString() })
-      });
+      const sessionId = sessionData[0].id;
+      
+      if (payment_method === 'mercadopago' || payment_method === 'applepay') {
+        const integrationRes = await fetch(`${config.supabaseUrl}/rest/v1/restaurant_payment_integrations?restaurant_id=eq.${restaurantId}&provider=eq.mercadopago&select=*`, {
+          headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
+        });
+        const integrations = await integrationRes.json();
+        
+        if (integrations && integrations.length > 0 && integrations[0].enabled && integrations[0].access_token) {
+          const accessToken = integrations[0].access_token;
+          const tableNumber = decodeURIComponent(mesaId || '').replace(/mesa\s*/i, '');
+          const prefBody = {
+            items: [{
+              title: `Consumo Mesa N°${tableNumber}`,
+              quantity: 1,
+              unit_price: Number(amount) || 0,
+              currency_id: "ARS"
+            }],
+            external_reference: `mesa_${sessionId}`,
+            statement_descriptor: "CAPTA",
+            back_urls: {
+              success: `https://menu.net.ar/${accountId}?mesa=${mesaId}`,
+              pending: `https://menu.net.ar/${accountId}?mesa=${mesaId}`,
+              failure: `https://menu.net.ar/${accountId}?mesa=${mesaId}`
+            },
+            auto_return: "approved"
+          };
+
+          const mpRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(prefBody)
+          });
+
+          if (mpRes.ok) {
+            const prefData = await mpRes.json();
+            const paymentUrl = prefData.init_point || prefData.sandbox_init_point;
+            
+            await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?id=eq.${sessionId}`, {
+              method: 'PATCH',
+              headers: { 
+                'Content-Type': 'application/json',
+                apikey: config.supabaseWriteApiKey, 
+                Authorization: `Bearer ${config.supabaseWriteApiKey}`,
+                Prefer: 'return=representation'
+              },
+              body: JSON.stringify({ status: 'pending_payment' })
+            });
+
+            return res.json({ success: true, payment_url: paymentUrl });
+          } else {
+            return res.status(500).json({ error: 'Failed to create payment preference' });
+          }
+        } else {
+           return res.status(400).json({ error: 'Mercado Pago not configured for this restaurant' });
+        }
+      } else {
+        // Mock payment fallback
+        await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?id=eq.${sessionId}`, {
+          method: 'PATCH',
+          headers: { 
+            'Content-Type': 'application/json',
+            apikey: config.supabaseWriteApiKey, 
+            Authorization: `Bearer ${config.supabaseWriteApiKey}`,
+            Prefer: 'return=representation'
+          },
+          body: JSON.stringify({ status: 'paid', paid_amount: amount, closed_at: new Date().toISOString() })
+        });
+      }
     }
 
     res.json({ success: true });

@@ -50,7 +50,12 @@ export default function QRBill({
         })
       });
       if (response.ok) {
-        onFeedback();
+        const data = await response.json();
+        if (data.payment_url) {
+          window.location.href = data.payment_url;
+        } else {
+          onFeedback();
+        }
       } else {
         alert("Hubo un error al procesar el pago");
       }
@@ -72,7 +77,11 @@ export default function QRBill({
   const tableNumber = decodeURIComponent(mesaId || '').replace(/mesa\s*/i, '');
   const allItems = orders.flatMap(order => order.items_pedido || []);
 
-  const fixedTips = [2000, 3500, 5000];
+  const fixedTips = [
+    { pct: 10, amount: Math.round(subtotal * 0.10) },
+    { pct: 15, amount: Math.round(subtotal * 0.15) },
+    { pct: 20, amount: Math.round(subtotal * 0.20) }
+  ];
 
   const handleSelectFixedTip = (index, amount) => {
     setSelectedTipIndex(index);
@@ -115,25 +124,28 @@ export default function QRBill({
         <div style={{ padding: '0 24px' }}>
           {/* Top row with fixed tips */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '12px' }}>
-            {fixedTips.map((amount, idx) => (
+            {fixedTips.map((tip, idx) => (
               <button
                 key={idx}
-                onClick={() => handleSelectFixedTip(idx, amount)}
+                onClick={() => handleSelectFixedTip(idx, tip.amount)}
                 style={{
                   backgroundColor: selectedTipIndex === idx ? '#6c5ce7' : 'white',
                   color: selectedTipIndex === idx ? 'white' : '#1c1c1e',
                   border: 'none',
                   borderRadius: '16px',
-                  padding: '20px 0',
-                  fontSize: '18px',
-                  fontWeight: '700',
+                  padding: '16px 0',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   cursor: 'pointer',
                   boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
                   transition: 'all 0.2s ease',
                   fontFamily: 'inherit'
                 }}
               >
-                ${amount}
+                <span style={{ fontSize: '18px', fontWeight: '700' }}>${tip.amount}</span>
+                <span style={{ fontSize: '12px', opacity: 0.8 }}>{tip.pct}%</span>
               </button>
             ))}
           </div>
