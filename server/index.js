@@ -654,8 +654,9 @@ app.post('/api/accounts/:accountId/tables/:mesaId/pay', express.json(), async (r
       const sessionId = sessionData[0].id;
       
       if (payment_method === 'mercadopago' || payment_method === 'applepay') {
+        const authKey = config.internalServiceKey || config.supabaseWriteApiKey || config.supabaseApiKey;
         const integrationRes = await fetch(`${config.supabaseUrl}/rest/v1/restaurant_payment_integrations?restaurant_id=eq.${restaurantId}&provider=eq.mercadopago&select=*`, {
-          headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
+          headers: { apikey: authKey, Authorization: `Bearer ${authKey}` }
         });
         const integrations = await integrationRes.json();
         
@@ -705,7 +706,9 @@ app.post('/api/accounts/:accountId/tables/:mesaId/pay', express.json(), async (r
 
             return res.json({ success: true, payment_url: paymentUrl });
           } else {
-            return res.status(500).json({ error: 'Failed to create payment preference' });
+            const mpErr = await mpRes.text();
+            console.error("MP Preference Error:", mpErr);
+            return res.status(500).json({ error: 'Failed to create payment preference', details: mpErr });
           }
         } else {
            return res.status(400).json({ error: 'Mercado Pago not configured for this restaurant' });
