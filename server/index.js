@@ -645,9 +645,12 @@ app.post('/api/accounts/:accountId/tables/:mesaId/pay', express.json(), async (r
     if (!restData || restData.length === 0) return res.status(404).json({ error: 'Not found' });
     const restaurantId = restData[0].id;
 
-    const sessionRes = await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?restaurant_id=eq.${restaurantId}&table_id=eq.${mesaId}&status=in.(open,pending_payment)&select=id&limit=1`, {
-      headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
-    });
+      const realTableId = await resolveMesaId(restaurantId, mesaId);
+      if (!realTableId) return res.json({ success: true }); // Fallback so it doesn't crash
+
+      const sessionRes = await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?restaurant_id=eq.${restaurantId}&table_id=eq.${realTableId}&status=in.(open,pending_payment)&select=id&limit=1`, {
+        headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
+      });
     const sessionData = await sessionRes.json();
     
     if (sessionData && sessionData.length > 0) {

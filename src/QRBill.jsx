@@ -45,7 +45,7 @@ export default function QRBill({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: (session?.pending_amount || 0) + tipAmount,
+          amount: (session?.pending_amount > 0 ? session.pending_amount : subtotal) + tipAmount,
           payment_method: method
         })
       });
