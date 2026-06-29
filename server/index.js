@@ -654,64 +654,30 @@ app.post('/api/accounts/:accountId/tables/:mesaId/pay', express.json(), async (r
       const sessionId = sessionData[0].id;
       
       if (payment_method === 'mercadopago' || payment_method === 'applepay') {
-        const authKey = config.internalServiceKey || config.supabaseWriteApiKey || config.supabaseApiKey;
-        const integrationRes = await fetch(`${config.supabaseUrl}/rest/v1/restaurant_payment_integrations?restaurant_id=eq.${restaurantId}&provider=eq.mercadopago&select=*`, {
-          headers: { apikey: authKey, Authorization: `Bearer ${authKey}` }
+        const baseUrl = String(config.dashboardUrl || '').replace(/\/+$/, '');
+        const serviceKey = config.internalServiceKey || config.supabaseWriteApiKey || config.supabaseApiKey;
+
+        const mpRes = await fetch(`${baseUrl}/api/payments/mercadopago/create-table-preference`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-capta-service-key': serviceKey,
+          },
+          body: JSON.stringify({
+            tableSessionId: sessionId,
+            amount: amount,
+            accountId: accountId
+          })
         });
-        const integrations = await integrationRes.json();
-        
-        if (integrations && integrations.length > 0 && integrations[0].enabled && integrations[0].access_token) {
-          const accessToken = integrations[0].access_token;
-          const tableNumber = decodeURIComponent(mesaId || '').replace(/mesa\s*/i, '');
-          const prefBody = {
-            items: [{
-              title: `Consumo Mesa N°${tableNumber}`,
-              quantity: 1,
-              unit_price: Number(amount) || 0,
-              currency_id: "ARS"
-            }],
-            external_reference: `mesa_${sessionId}`,
-            statement_descriptor: "CAPTA",
-            back_urls: {
-              success: `https://menu.net.ar/${accountId}?mesa=${mesaId}`,
-              pending: `https://menu.net.ar/${accountId}?mesa=${mesaId}`,
-              failure: `https://menu.net.ar/${accountId}?mesa=${mesaId}`
-            },
-            auto_return: "approved"
-          };
 
-          const mpRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(prefBody)
-          });
-
-          if (mpRes.ok) {
-            const prefData = await mpRes.json();
-            const paymentUrl = prefData.init_point || prefData.sandbox_init_point;
-            
-            await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?id=eq.${sessionId}`, {
-              method: 'PATCH',
-              headers: { 
-                'Content-Type': 'application/json',
-                apikey: config.supabaseWriteApiKey, 
-                Authorization: `Bearer ${config.supabaseWriteApiKey}`,
-                Prefer: 'return=representation'
-              },
-              body: JSON.stringify({ status: 'pending_payment' })
-            });
-
-            return res.json({ success: true, payment_url: paymentUrl });
-          } else {
-            const mpErr = await mpRes.text();
-            console.error("MP Preference Error:", mpErr);
-            return res.status(500).json({ error: 'Failed to create payment preference', details: mpErr });
-          }
+        if (mpRes.ok) {
+          const prefData = await mpRes.json();
+          // The dashboard endpoint already updates table_sessions to pending_payment
+          return res.json({ success: true, payment_url: prefData.paymentLink });
         } else {
-           return res.status(400).json({ error: 'Mercado Pago not configured for this restaurant' });
+          const mpErr = await mpRes.text();
+          console.error("Dashboard MP Preference Error:", mpErr);
+          return res.status(500).json({ error: 'Failed to create payment preference via dashboard', details: mpErr });
         }
       } else {
         // Mock payment fallback
