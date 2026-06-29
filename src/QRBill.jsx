@@ -103,16 +103,16 @@ export default function QRBill({
       </div>
 
       <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#000', margin: '8px 24px 24px 24px', letterSpacing: '-0.5px' }}>
-        Table Nº{tableNumber}
+        Mesa Nº{tableNumber}
       </h1>
 
       <div className="scallop-card">
         <div style={{ padding: '24px' }}>
           <div style={{ fontSize: '13px', color: '#8e8e93', marginBottom: '8px', fontWeight: '500' }}>
-            Table Nº{tableNumber}
+            Mesa Nº{tableNumber}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <span style={{ fontSize: '20px', fontWeight: '700', color: '#000' }}>Bill total</span>
+            <span style={{ fontSize: '20px', fontWeight: '700', color: '#000' }}>Total a pagar</span>
             <span style={{ fontSize: '20px', fontWeight: '800', color: '#000' }}>${subtotal}</span>
           </div>
 
@@ -134,7 +134,7 @@ export default function QRBill({
       </div>
 
       <div style={{ textAlign: 'center', marginTop: '40px', color: '#8e8e93', fontSize: '12px' }}>
-        By continuing, you accept the <strong>Terms of Service</strong>
+        Al continuar, aceptas los <strong>Términos de Servicio</strong>
       </div>
 
       <div style={{
@@ -151,7 +151,7 @@ export default function QRBill({
         zIndex: 100
       }}>
         <div style={{ textAlign: 'center', color: '#8e8e93', fontSize: '13px', marginBottom: '20px', fontWeight: '500' }}>
-          To split the bill, please ask the waiter
+          Para dividir la cuenta, por favor avisa al camarero
         </div>
         {isPaid ? (
           <button
@@ -188,7 +188,7 @@ export default function QRBill({
               fontFamily: 'inherit'
             }}
           >
-            {isPaying ? 'Procesando...' : 'Pay the bill'}
+            {isPaying ? 'Procesando...' : 'Pagar la cuenta'}
           </button>
         )}
       </div>
