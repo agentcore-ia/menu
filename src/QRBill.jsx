@@ -13,6 +13,11 @@ export default function QRBill({
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaying, setIsPaying] = useState(false);
+  
+  // 'bill' | 'tip'
+  const [step, setStep] = useState('bill');
+  const [tipAmount, setTipAmount] = useState(0);
+  const [selectedTipIndex, setSelectedTipIndex] = useState(null); // 0, 1, 2, 'other', 'none'
 
   useEffect(() => {
     async function loadData() {
@@ -33,15 +38,15 @@ export default function QRBill({
     loadData();
   }, [accountId, mesaId]);
 
-  const handlePay = async () => {
+  const handlePay = async (method) => {
     setIsPaying(true);
     try {
       const response = await fetch(`/api/accounts/${accountId}/tables/${mesaId}/pay`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: session?.pending_amount || 0,
-          payment_method: 'mercadopago_mock'
+          amount: (session?.pending_amount || 0) + tipAmount,
+          payment_method: method
         })
       });
       if (response.ok) {
@@ -64,12 +69,201 @@ export default function QRBill({
   const subtotal = orders.reduce((acc, order) => acc + (order.total || 0), 0);
   const isPaid = session?.status === 'paid' || session?.status === 'closed';
   
-  // Clean up mesaId for display
-  const tableNumber = decodeURIComponent(mesaId).replace(/mesa\s*/i, '');
-  
-  // Flatten all items from all orders
+  const tableNumber = decodeURIComponent(mesaId || '').replace(/mesa\s*/i, '');
   const allItems = orders.flatMap(order => order.items_pedido || []);
 
+  const fixedTips = [2000, 3500, 5000];
+
+  const handleSelectFixedTip = (index, amount) => {
+    setSelectedTipIndex(index);
+    setTipAmount(amount);
+  };
+
+  const handleSelectNoTip = () => {
+    setSelectedTipIndex('none');
+    setTipAmount(0);
+  };
+
+  const handleSelectOtherTip = () => {
+    setSelectedTipIndex('other');
+    const amount = prompt("Ingresa el monto de propina:");
+    if (amount !== null && !isNaN(Number(amount))) {
+      setTipAmount(Number(amount));
+    } else {
+      handleSelectNoTip();
+    }
+  };
+
+  const totalWithTip = subtotal + tipAmount;
+
+  if (step === 'tip') {
+    return (
+      <div style={{ backgroundColor: '#f4f4f5', minHeight: '100dvh', paddingBottom: '220px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+        <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center' }}>
+          <button 
+            onClick={() => setStep('bill')}
+            style={{ background: 'none', border: 'none', fontSize: '28px', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#000', padding: 0 }}
+          >
+            ←
+          </button>
+        </div>
+
+        <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#000', margin: '8px 24px 32px 24px', letterSpacing: '-0.5px', lineHeight: '1.2' }}>
+          ¿Cuánto te gustaría dejar de propina?
+        </h1>
+
+        <div style={{ padding: '0 24px' }}>
+          {/* Top row with fixed tips */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '12px' }}>
+            {fixedTips.map((amount, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleSelectFixedTip(idx, amount)}
+                style={{
+                  backgroundColor: selectedTipIndex === idx ? '#6c5ce7' : 'white',
+                  color: selectedTipIndex === idx ? 'white' : '#1c1c1e',
+                  border: 'none',
+                  borderRadius: '16px',
+                  padding: '20px 0',
+                  fontSize: '18px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+                  transition: 'all 0.2s ease',
+                  fontFamily: 'inherit'
+                }}
+              >
+                ${amount}
+              </button>
+            ))}
+          </div>
+
+          {/* Bottom row with Other and None */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <button
+              onClick={handleSelectOtherTip}
+              style={{
+                backgroundColor: selectedTipIndex === 'other' ? '#6c5ce7' : 'white',
+                color: selectedTipIndex === 'other' ? 'white' : '#1c1c1e',
+                border: 'none',
+                borderRadius: '16px',
+                padding: '16px 0',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+                transition: 'all 0.2s ease',
+                fontFamily: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
+              Otro monto
+            </button>
+            <button
+              onClick={handleSelectNoTip}
+              style={{
+                backgroundColor: selectedTipIndex === 'none' ? '#6c5ce7' : 'white',
+                color: selectedTipIndex === 'none' ? 'white' : '#1c1c1e',
+                border: 'none',
+                borderRadius: '16px',
+                padding: '16px 0',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+                transition: 'all 0.2s ease',
+                fontFamily: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>cancel</span>
+              No propina
+            </button>
+          </div>
+        </div>
+
+        <div style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: '#f4f4f5',
+          padding: '24px',
+          paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
+          zIndex: 100
+        }}>
+          <div style={{ textAlign: 'center', color: '#8e8e93', fontSize: '12px', marginBottom: '24px' }}>
+            Al continuar, aceptas los <strong>Términos de Servicio</strong>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <span style={{ fontSize: '16px', fontWeight: '600', color: '#8e8e93', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              Total <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>info</span>
+            </span>
+            <span style={{ fontSize: '24px', fontWeight: '800', color: '#000' }}>
+              ${totalWithTip}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <button
+              disabled={isPaying}
+              onClick={() => handlePay('mercadopago')}
+              style={{
+                width: '100%',
+                backgroundColor: '#374151',
+                color: 'white',
+                border: 'none',
+                padding: '16px',
+                borderRadius: '16px',
+                fontSize: '17px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              Mercado Pago
+            </button>
+            <button
+              disabled={isPaying}
+              onClick={() => handlePay('applepay')}
+              style={{
+                width: '100%',
+                backgroundColor: '#111827',
+                color: 'white',
+                border: 'none',
+                padding: '16px',
+                borderRadius: '16px',
+                fontSize: '17px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+               Pay
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // default 'bill' view
   return (
     <div style={{ backgroundColor: '#f4f4f5', minHeight: '100dvh', paddingBottom: '160px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       <style>{`
@@ -172,8 +366,8 @@ export default function QRBill({
           </button>
         ) : (
           <button
-            disabled={isPaying || subtotal === 0}
-            onClick={handlePay}
+            disabled={subtotal === 0}
+            onClick={() => setStep('tip')}
             style={{
               width: '100%',
               backgroundColor: subtotal > 0 ? '#6c5ce7' : '#e5e7eb',
@@ -188,7 +382,7 @@ export default function QRBill({
               fontFamily: 'inherit'
             }}
           >
-            {isPaying ? 'Procesando...' : 'Pagar la cuenta'}
+            Pagar la cuenta
           </button>
         )}
       </div>
