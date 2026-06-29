@@ -58,83 +58,137 @@ export default function QRBill({
   };
 
   if (isLoading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Cargando cuenta...</div>;
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f4f4f5' }}>Cargando cuenta...</div>;
   }
 
   const subtotal = orders.reduce((acc, order) => acc + (order.total || 0), 0);
   const isPaid = session?.status === 'paid' || session?.status === 'closed';
+  
+  // Clean up mesaId for display
+  const tableNumber = decodeURIComponent(mesaId).replace(/mesa\s*/i, '');
+  
+  // Flatten all items from all orders
+  const allItems = orders.flatMap(order => order.items_pedido || []);
 
   return (
-    <div style={{ backgroundColor: '#f8f9fa', minHeight: '100dvh', padding: '24px' }}>
-      <button 
-        onClick={onBack}
-        style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', padding: '8px 0', marginBottom: '16px' }}
-      >
-        ←
-      </button>
+    <div style={{ backgroundColor: '#f4f4f5', minHeight: '100dvh', paddingBottom: '160px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      <style>{`
+        .scallop-card {
+          background-color: white;
+          border-radius: 24px 24px 0 0;
+          position: relative;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+          margin: 0 16px;
+        }
+        .scallop-card::after {
+          content: "";
+          position: absolute;
+          bottom: -10px;
+          left: 0;
+          right: 0;
+          height: 10px;
+          background-image: radial-gradient(circle at 10px 0, white 10px, transparent 11px);
+          background-size: 20px 10px;
+          background-repeat: repeat-x;
+        }
+      `}</style>
+      
+      <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center' }}>
+        <button 
+          onClick={onBack}
+          style={{ background: 'none', border: 'none', fontSize: '28px', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#000', padding: 0 }}
+        >
+          ←
+        </button>
+      </div>
 
-      <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          {logoUrl && <img src={logoUrl} alt={restaurantName} style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} />}
-          <h2 style={{ fontSize: '20px', margin: '8px 0 4px 0' }}>{restaurantName}</h2>
-          <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Mesa {decodeURIComponent(mesaId).replace(/mesa /i, '')}</p>
-        </div>
+      <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#000', margin: '8px 24px 24px 24px', letterSpacing: '-0.5px' }}>
+        Table Nº{tableNumber}
+      </h1>
 
-        <h3 style={{ fontSize: '18px', marginBottom: '16px', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>Tu Consumo</h3>
-        
-        {orders.length === 0 ? (
-          <p style={{ color: '#6b7280', textAlign: 'center' }}>No hay pedidos registrados en esta mesa.</p>
-        ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {orders.map((order, index) => (
-              <li key={index} style={{ marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <strong style={{ fontSize: '15px' }}>Pedido #{order.orderNumber || order.id.slice(0,6)}</strong>
-                  <span style={{ fontWeight: '600' }}>${order.total}</span>
-                </div>
-                {order.items_pedido && order.items_pedido.map(item => (
-                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#6b7280' }}>
-                    <span>{item.quantity}x {item.name}</span>
-                    <span>${item.price * item.quantity}</span>
-                  </div>
-                ))}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '2px dashed #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '18px', fontWeight: '500' }}>Total a pagar</span>
-          <span style={{ fontSize: '24px', fontWeight: '700', color: primaryColor || '#000' }}>
-            ${subtotal}
-          </span>
-        </div>
-
-        {isPaid ? (
-          <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#ecfdf5', color: '#059669', borderRadius: '12px', textAlign: 'center', fontWeight: '600' }}>
-            ¡Cuenta pagada!
-            <button onClick={onFeedback} style={{ display: 'block', width: '100%', marginTop: '12px', background: 'transparent', border: '1px solid currentColor', borderRadius: '8px', padding: '8px', color: 'inherit', cursor: 'pointer' }}>
-              Dejar sugerencia
-            </button>
+      <div className="scallop-card">
+        <div style={{ padding: '24px' }}>
+          <div style={{ fontSize: '13px', color: '#8e8e93', marginBottom: '8px', fontWeight: '500' }}>
+            Table Nº{tableNumber}
           </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <span style={{ fontSize: '20px', fontWeight: '700', color: '#000' }}>Bill total</span>
+            <span style={{ fontSize: '20px', fontWeight: '800', color: '#000' }}>${subtotal}</span>
+          </div>
+
+          <div style={{ height: '1px', backgroundColor: '#f0f0f0', margin: '0 0 20px 0' }} />
+
+          {allItems.length === 0 ? (
+            <p style={{ color: '#8e8e93', textAlign: 'center', fontSize: '15px' }}>No hay pedidos registrados.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {allItems.map((item, idx) => (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', color: '#1c1c1e', fontWeight: '500' }}>
+                  <span>{item.quantity} x {item.name}</span>
+                  <span style={{ fontWeight: '700' }}>${item.price * item.quantity}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ textAlign: 'center', marginTop: '40px', color: '#8e8e93', fontSize: '12px' }}>
+        By continuing, you accept the <strong>Terms of Service</strong>
+      </div>
+
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'white',
+        padding: '24px',
+        paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
+        boxShadow: '0 -4px 30px rgba(0,0,0,0.04)',
+        borderTopLeftRadius: '24px',
+        borderTopRightRadius: '24px',
+        zIndex: 100
+      }}>
+        <div style={{ textAlign: 'center', color: '#8e8e93', fontSize: '13px', marginBottom: '20px', fontWeight: '500' }}>
+          To split the bill, please ask the waiter
+        </div>
+        {isPaid ? (
+          <button
+            onClick={onFeedback}
+            style={{
+              width: '100%',
+              backgroundColor: '#10b981',
+              color: 'white',
+              border: 'none',
+              padding: '18px',
+              borderRadius: '16px',
+              fontSize: '16px',
+              fontWeight: '700',
+              cursor: 'pointer'
+            }}
+          >
+            Cuenta pagada - Dejar sugerencia
+          </button>
         ) : (
           <button
             disabled={isPaying || subtotal === 0}
             onClick={handlePay}
             style={{
               width: '100%',
-              marginTop: '24px',
-              backgroundColor: subtotal > 0 ? (primaryColor || '#000') : '#e5e7eb',
+              backgroundColor: subtotal > 0 ? '#6c5ce7' : '#e5e7eb',
               color: subtotal > 0 ? 'white' : '#9ca3af',
               border: 'none',
-              padding: '16px',
-              borderRadius: '12px',
+              padding: '18px',
+              borderRadius: '16px',
               fontSize: '16px',
-              fontWeight: '600',
-              cursor: subtotal > 0 ? 'pointer' : 'not-allowed'
+              fontWeight: '700',
+              cursor: subtotal > 0 ? 'pointer' : 'not-allowed',
+              transition: 'all 0.2s ease',
+              fontFamily: 'inherit'
             }}
           >
-            {isPaying ? 'Procesando...' : 'Ir a Pagar'}
+            {isPaying ? 'Procesando...' : 'Pay the bill'}
           </button>
         )}
       </div>
