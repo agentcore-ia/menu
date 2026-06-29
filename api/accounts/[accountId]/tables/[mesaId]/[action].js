@@ -17,6 +17,39 @@ async function resolveMesaId(config, restaurantId, mesaIdParam) {
   return matched ? matched.id : null;
 }
 
+async function getOrCreateSession(config, restaurantId, realTableId) {
+  // Look for existing open/pending_payment session
+  const sessionRes = await fetch(
+    `${config.supabaseUrl}/rest/v1/table_sessions?restaurant_id=eq.${restaurantId}&table_id=eq.${realTableId}&status=in.(open,pending_payment)&select=id,status&order=opened_at.desc&limit=1`,
+    { headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` } }
+  );
+  const sessions = await sessionRes.json();
+  if (sessions && sessions.length > 0) return sessions[0].id;
+
+  // No active session — create one automatically
+  const createRes = await fetch(`${config.supabaseUrl}/rest/v1/table_sessions`, {
+    method: 'POST',
+    headers: {
+      apikey: config.supabaseWriteApiKey,
+      Authorization: `Bearer ${config.supabaseWriteApiKey}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation'
+    },
+    body: JSON.stringify({
+      restaurant_id: restaurantId,
+      table_id: realTableId,
+      status: 'open',
+      total_amount: 0,
+      paid_amount: 0,
+      pending_amount: 0
+    })
+  });
+  const created = await createRes.json();
+  if (Array.isArray(created) && created.length > 0) return created[0].id;
+  if (created?.id) return created.id;
+  return null;
+}
+
 export default async function handler(req, res) {
   try {
     const config = getServerConfig();
@@ -53,56 +86,52 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST' && action === 'pay') {
       const { amount, payment_method } = req.body || {};
-      const sessionRes = await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?restaurant_id=eq.${restaurantId}&table_id=eq.${realTableId}&status=in.(open,pending_payment)&select=id&limit=1`, {
-        headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
-      });
-      const sessionData = await sessionRes.json();
-      
-      if (!sessionData || sessionData.length === 0) {
-        return res.status(400).json({ error: 'La mesa ya fue pagada o no tiene sesión activa' });
+
+      // Get existing session or create one if none exists
+      const sessionId = await getOrCreateSession(config, restaurantId, realTableId);
+      if (!sessionId) {
+        return res.status(500).json({ error: 'No se pudo obtener o crear la sesión de mesa' });
       }
 
-      const sessionId = sessionData[0].id;
-        
-        if (payment_method === 'mercadopago' || payment_method === 'applepay') {
-          const baseUrl = String(config.dashboardUrl || '').replace(/\/+$/, '');
-          const serviceKey = config.internalServiceKey || config.supabaseWriteApiKey || config.supabaseApiKey;
-  
-          const mpRes = await fetch(`${baseUrl}/api/payments/mercadopago/create-table-preference`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-capta-service-key': serviceKey,
-            },
-            body: JSON.stringify({
-              tableSessionId: sessionId,
-              amount: amount,
-              accountId: accountId
-            })
-          });
-  
-          if (mpRes.ok) {
-            const prefData = await mpRes.json();
-            return res.json({ success: true, payment_url: prefData.paymentLink });
-          } else {
-            const mpErr = await mpRes.text();
-            console.error("Dashboard MP Preference Error:", mpErr);
-            return res.status(500).json({ error: 'Failed to create payment preference via dashboard', details: mpErr });
-          }
+      if (payment_method === 'mercadopago' || payment_method === 'applepay') {
+        const baseUrl = String(config.dashboardUrl || '').replace(/\/+$/, '');
+        const serviceKey = config.internalServiceKey || config.supabaseWriteApiKey || config.supabaseApiKey;
+
+        const mpRes = await fetch(`${baseUrl}/api/payments/mercadopago/create-table-preference`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-capta-service-key': serviceKey,
+          },
+          body: JSON.stringify({
+            tableSessionId: sessionId,
+            amount: amount,
+            accountId: accountId
+          })
+        });
+
+        if (mpRes.ok) {
+          const prefData = await mpRes.json();
+          return res.json({ success: true, payment_url: prefData.paymentLink });
         } else {
-          // Mock payment fallback
-          await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?id=eq.${sessionId}`, {
-            method: 'PATCH',
-            headers: { 
-              'Content-Type': 'application/json',
-              apikey: config.supabaseWriteApiKey, 
-              Authorization: `Bearer ${config.supabaseWriteApiKey}`,
-              Prefer: 'return=representation'
-            },
-            body: JSON.stringify({ status: 'pending_payment' })
-          });
-          return res.json({ success: true });
+          const mpErr = await mpRes.text();
+          console.error('Dashboard MP Preference Error:', mpErr);
+          return res.status(500).json({ error: 'Failed to create payment preference via dashboard', details: mpErr });
         }
+      } else {
+        // Cash / other payment — mark as pending_payment
+        await fetch(`${config.supabaseUrl}/rest/v1/table_sessions?id=eq.${sessionId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: config.supabaseWriteApiKey,
+            Authorization: `Bearer ${config.supabaseWriteApiKey}`,
+            Prefer: 'return=minimal'
+          },
+          body: JSON.stringify({ status: 'pending_payment' })
+        });
+        return res.json({ success: true });
+      }
     }
 
     if (req.method === 'POST' && action === 'feedback') {
@@ -114,10 +143,10 @@ export default async function handler(req, res) {
       const sessionId = sessionData && sessionData.length > 0 ? sessionData[0].id : null;
       await fetch(`${config.supabaseUrl}/rest/v1/table_feedback`, {
         method: 'POST',
-        headers: { 
-          apikey: config.supabaseWriteApiKey, 
+        headers: {
+          apikey: config.supabaseWriteApiKey,
           Authorization: `Bearer ${config.supabaseWriteApiKey}`,
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           restaurant_id: restaurantId,
