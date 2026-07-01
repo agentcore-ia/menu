@@ -129,13 +129,56 @@ export async function geocodeDeliveryCandidates({ address, neighborhood, city, p
     return []
   }
 
+  const queryLabel = parts.join(', ')
+  const origin = normalizeCoordinates(originCoordinates)
+
+  const googleApiKey = process.env.GOOGLE_MAPS_API_KEY
+  if (googleApiKey) {
+    const googleUrl = new URL('https://maps.googleapis.com/maps/api/geocode/json')
+    googleUrl.searchParams.set('address', queryLabel)
+    googleUrl.searchParams.set('key', googleApiKey)
+    if (origin) {
+      googleUrl.searchParams.set('location', `${origin.lat},${origin.lng}`)
+      googleUrl.searchParams.set('radius', '20000')
+    }
+
+    try {
+      const response = await fetch(googleUrl, { headers: { Accept: 'application/json' } })
+      if (response.ok) {
+        const data = await response.json()
+        if (data.status === 'OK' && Array.isArray(data.results)) {
+          return data.results
+            .map((r) => {
+              const location = r.geometry?.location
+              const coords = normalizeCoordinates({ lat: location?.lat, lng: location?.lng, label: String(r.formatted_address || queryLabel) })
+              if (!coords) return null
+              return {
+                id: String(r.place_id || `${coords.lat},${coords.lng}`),
+                lat: coords.lat,
+                lng: coords.lng,
+                label: coords.label,
+                engine: 'google',
+              }
+            })
+            .filter(Boolean)
+            .map((candidate) => ({
+              ...candidate,
+              distanceKm: origin ? getDistanceKm(candidate, origin) : null,
+            }))
+            .sort((a, b) => (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY))
+        }
+      }
+    } catch (err) {
+      console.warn('menu: Google Maps geocoding failed, falling back to Nominatim', err)
+    }
+  }
+
   const url = new URL('https://nominatim.openstreetmap.org/search')
   url.searchParams.set('format', 'jsonv2')
   url.searchParams.set('limit', String(Math.min(Math.max(Number(limit) || 5, 1), 8)))
   url.searchParams.set('addressdetails', '1')
   url.searchParams.set('countrycodes', 'ar')
-  url.searchParams.set('q', parts.join(', '))
-  const origin = normalizeCoordinates(originCoordinates)
+  url.searchParams.set('q', queryLabel)
 
   if (origin) {
     const delta = 0.35
@@ -159,7 +202,11 @@ export async function geocodeDeliveryCandidates({ address, neighborhood, city, p
   if (!Array.isArray(results)) return []
 
   return results
-    .map((result) => mapGeocodeCandidate(result, parts.join(', ')))
+    .map((result) => {
+      const mapped = mapGeocodeCandidate(result, queryLabel)
+      if (!mapped) return null
+      return { ...mapped, engine: 'nominatim' }
+    })
     .filter(Boolean)
     .map((candidate) => ({
       ...candidate,
@@ -262,6 +309,7 @@ export async function resolveDeliveryQuote({
       id: candidate.id,
       label: candidate.label,
       distanceKm: candidate.distanceKm,
+      engine: candidate.engine || 'unknown',
       coordinates: {
         lat: candidate.lat,
         lng: candidate.lng,
