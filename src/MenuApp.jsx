@@ -2791,43 +2791,38 @@ function HostMediaPlaceholder() {
 }
 
 const saborPampaCategoryOrder = [
-  'promo',
-  'oferta',
-  'sandwich',
-  'para-pedir',
-  'pedido',
-  'hamburgues',
-  'burger',
-  'empanada',
-  'carne',
-  'milanesa',
-  'suprema',
-  'pollo',
-  'pasta',
-  'pizza',
-  'tarta',
-  'tortilla',
-  'omelette',
-  'ensalada',
-  'guarnicion',
-  'papa',
-  'salsa',
-  'verdura',
-  'bebida',
-  'postre',
-  'sugerencia',
-  'chef',
+  ['milanesa'],
+  ['carne'],
+  ['guarnicion', 'papa'],
+  ['hamburgues', 'burger'],
+  ['sandwich-gourmet'],
+  ['pasta'],
+  ['pizza-gourmet'],
+  ['empanada'],
+  ['tarta'],
+  ['sandwich-artesanal'],
+  ['ensalada'],
+  ['postre'],
 ]
 
 function getSaborPampaOrderedCategories(categories = []) {
-  return [...categories].sort((left, right) => {
-    const leftKey = slugify(left.label)
-    const rightKey = slugify(right.label)
-    const leftIndex = saborPampaCategoryOrder.findIndex((token) => leftKey.includes(token))
-    const rightIndex = saborPampaCategoryOrder.findIndex((token) => rightKey.includes(token))
+  return categories
+    .map((category, index) => ({ category, index }))
+    .sort((left, right) => {
+      const leftKey = slugify(left.category.label)
+      const rightKey = slugify(right.category.label)
+      const leftIndex = saborPampaCategoryOrder.findIndex((tokens) =>
+        tokens.some((token) => leftKey.includes(token)),
+      )
+      const rightIndex = saborPampaCategoryOrder.findIndex((tokens) =>
+        tokens.some((token) => rightKey.includes(token)),
+      )
+      const normalizedLeftIndex = leftIndex === -1 ? saborPampaCategoryOrder.length : leftIndex
+      const normalizedRightIndex = rightIndex === -1 ? saborPampaCategoryOrder.length : rightIndex
 
-    return (leftIndex === -1 ? 99 : leftIndex) - (rightIndex === -1 ? 99 : rightIndex)
-  })
+      return normalizedLeftIndex - normalizedRightIndex || left.index - right.index
+    })
+    .map(({ category }) => category)
 }
 
 function getSaborPampaCategoryMeta(label) {
