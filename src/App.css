@@ -12044,7 +12044,6 @@ button:focus-visible {
   color: #f7efe2;
   background: rgba(3, 5, 5, 0.52);
   box-shadow: inset 0 0 0 0.08rem rgba(244, 183, 57, 0.08);
-  backdrop-filter: blur(1rem);
 }
 
 .template-sabor-pampa .cart-badge {
@@ -12176,7 +12175,6 @@ button:focus-visible {
   border: 0.08rem solid rgba(247, 239, 226, 0.22);
   border-radius: 1.45rem;
   background: linear-gradient(135deg, rgba(24, 22, 18, 0.86), rgba(10, 11, 9, 0.82));
-  backdrop-filter: blur(1rem);
 }
 
 .pampa-feature-strip span {
@@ -12574,6 +12572,8 @@ button:focus-visible {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(0.72rem, 2.8vw, 1rem);
+  isolation: isolate;
+  contain: layout paint;
 }
 
 .pampa-product-card {
@@ -12584,15 +12584,16 @@ button:focus-visible {
   overflow: hidden;
   border: 0.08rem solid rgba(247, 239, 226, 0.2);
   border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(18, 17, 14, 0.96), rgba(6, 8, 7, 0.98));
+  background: #11100d;
+  isolation: isolate;
+  contain: layout paint;
+  backface-visibility: hidden;
 }
 
 .pampa-product-card.no-media {
   min-height: clamp(8.6rem, 34vw, 10.6rem);
   grid-template-rows: 1fr;
-  background:
-    radial-gradient(circle at 86% 18%, rgba(244, 183, 57, 0.11), transparent 30%),
-    linear-gradient(145deg, rgba(21, 19, 15, 0.98), rgba(5, 7, 6, 0.98));
+  background: #11100d;
 }
 
 .pampa-product-media {
@@ -12625,31 +12626,29 @@ button:focus-visible {
 }
 
 .pampa-product-copy h3 {
-  display: -webkit-box;
+  display: block;
   overflow: hidden;
   font-size: clamp(1.05rem, 4.6vw, 1.45rem);
   line-height: 1;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  max-height: 2.1em;
 }
 
 .pampa-product-card.no-media .pampa-product-copy h3 {
   font-size: clamp(1.14rem, 5vw, 1.58rem);
-  -webkit-line-clamp: 3;
+  max-height: 3.1em;
 }
 
 .pampa-product-copy p {
-  display: -webkit-box;
+  display: block;
   overflow: hidden;
   margin-block: 0.55rem 0;
   font-size: clamp(0.72rem, 2.8vw, 0.88rem);
   line-height: 1.32;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  max-height: 2.7em;
 }
 
 .pampa-product-card.no-media .pampa-product-copy p {
-  -webkit-line-clamp: 3;
+  max-height: 4em;
 }
 
 .pampa-product-footer {
