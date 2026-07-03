@@ -2171,14 +2171,8 @@ function isGroupMultiple(group) {
 function buildInitialSelections(groups) {
   return Object.fromEntries(
     groups.map((group) => {
-      const options = group.options.map(normalizeOptionEntry)
-
       if (isGroupMultiple(group)) {
         return [group.id, []]
-      }
-
-      if (group.required) {
-        return [group.id, options[0]?.value ?? '']
       }
 
       return [group.id, '']
@@ -6181,6 +6175,20 @@ export default function MenuApp() {
       return false
     }
 
+    if (!configuration) {
+      const optionGroups = getSelectableOptionGroups(
+        getTemplateProductOptionGroups(templateId, item, allItems),
+      )
+      const hasRequiredOptions = optionGroups.some(
+        (group) => group.required || Number(group.minSelect || 0) > 0,
+      )
+
+      if (hasRequiredOptions) {
+        handleOpenDish(item)
+        return false
+      }
+    }
+
     const maxQuantity = typeof item.maxQuantity === 'number' ? item.maxQuantity : null
     const currentQuantity = cart.reduce(
       (total, line) => total + (line.id === item.id ? Number(line.quantity || 0) : 0),
@@ -7738,6 +7746,9 @@ export default function MenuApp() {
                                 value={selectedOptions[group.id] ?? ''}
                                 onChange={(event) => handleSelectDetailOption(group, event.target.value)}
                               >
+                                <option value="" disabled>
+                                  Elegi una opcion
+                                </option>
                                 {group.options.map((rawOption) => {
                                   const option = normalizeOptionEntry(rawOption)
 
