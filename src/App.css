@@ -12355,6 +12355,8 @@ button:focus-visible {
   color: #f7efe2;
   background: transparent;
   font: 700 clamp(0.72rem, 2.8vw, 0.95rem) / 1.1 var(--font-body);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .pampa-category-pill > span:last-child {
@@ -12375,6 +12377,10 @@ button:focus-visible {
   border-radius: 50%;
   color: #f4b739;
   background: rgba(16, 16, 13, 0.64);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .pampa-category-icon svg {
@@ -12440,6 +12446,8 @@ button:focus-visible {
   border-radius: 1rem;
   background: #11100d;
   scroll-snap-align: start;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .pampa-featured-card.no-media {
@@ -12587,6 +12595,8 @@ button:focus-visible {
   background: #11100d;
   isolation: isolate;
   contain: layout paint;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
   backface-visibility: hidden;
 }
 
