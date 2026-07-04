@@ -739,7 +739,7 @@ function getInitialAccountId() {
     const subdomain = hostname.slice(0, -domainSuffix.length).split('.').filter(Boolean).at(-1)
 
     if (subdomain && subdomain !== 'www') {
-      return decodeURIComponent(subdomain)
+      return normalizeAccountAlias(decodeURIComponent(subdomain))
     }
   }
 
@@ -749,11 +749,21 @@ function getInitialAccountId() {
     .at(0)
 
   if (pathAccount && pathAccount !== 'admin') {
-    return decodeURIComponent(pathAccount)
+    return normalizeAccountAlias(decodeURIComponent(pathAccount))
   }
 
   const params = new URLSearchParams(window.location.search)
-  return params.get('account') ?? 'sandras-rose'
+  return normalizeAccountAlias(params.get('account') ?? 'sandras-rose')
+}
+
+function normalizeAccountAlias(accountId) {
+  const key = slugify(accountId ?? '')
+
+  if (key === 'saborapampa') {
+    return 'sabor-a-pampa'
+  }
+
+  return accountId
 }
 
 function getAccountFaviconHref(accountId) {
@@ -765,6 +775,10 @@ function getAccountFaviconHref(accountId) {
 
   if (key === 'almendra' || key.includes('almendra')) {
     return '/almendra/logo.png'
+  }
+
+  if (key.includes('sabor') && key.includes('pampa')) {
+    return '/sabor-a-pampa/logo.png'
   }
 
   return key === 'host' || key.startsWith('host-') ? '/assets/host-favicon.png' : '/favicon.svg'
@@ -779,6 +793,10 @@ function getAccountDocumentTitle(accountId, presentation) {
 
   if (key === 'kika' || key.includes('kika')) {
     return 'Kika | Menu digital'
+  }
+
+  if (key.includes('sabor') && key.includes('pampa')) {
+    return 'Sabor a Pampa | Menu digital'
   }
 
   if (key === 'host' || key.startsWith('host-')) {

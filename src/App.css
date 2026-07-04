@@ -12117,7 +12117,7 @@ button:focus-visible {
   margin-top: clamp(1.55rem, 5.4vw, 2.6rem);
   display: grid;
   justify-items: center;
-  width: clamp(3.65rem, 14.5vw, 5.25rem);
+  width: clamp(6.25rem, 25vw, 9.1rem);
   aspect-ratio: 1;
   pointer-events: none;
 }
@@ -12142,8 +12142,8 @@ button:focus-visible {
   margin: 0;
   max-width: 10ch;
   color: #f7efe2;
-  font: 900 clamp(2.15rem, 10vw, 3.75rem) / 0.94 var(--font-body);
-  letter-spacing: -0.05em;
+  font: 900 clamp(1.55rem, 7vw, 2.55rem) / 0.95 var(--font-body);
+  letter-spacing: -0.035em;
   text-transform: uppercase;
 }
 

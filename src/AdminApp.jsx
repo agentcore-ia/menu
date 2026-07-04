@@ -383,7 +383,17 @@ function getPublicMenuUrl(accountSlug) {
       : normalizedHost
   const portSuffix = port ? `:${port}` : ''
 
-  return `${protocol}//${encodeURIComponent(slug)}.${baseDomain}${portSuffix}`
+  return `${protocol}//${encodeURIComponent(getPublicMenuSubdomain(slug))}.${baseDomain}${portSuffix}`
+}
+
+function getPublicMenuSubdomain(accountSlug) {
+  const slug = String(accountSlug ?? '').trim()
+
+  if (slug === 'sabor-a-pampa' || slug === 'sabor-pampa') {
+    return 'saborapampa'
+  }
+
+  return slug
 }
 
 function readSavedToken() {
