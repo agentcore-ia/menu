@@ -190,6 +190,23 @@ function IconLeafMark() {
   )
 }
 
+function IconStar() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  )
+}
+
+function IconChefHat() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
+      <line x1="6" y1="17" x2="18" y2="17"/>
+    </svg>
+  )
+}
+
 function IconServe() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -972,7 +989,7 @@ function isPromoCategoryLabel(label) {
 
 function isDailyMenuCategoryLabel(label) {
   const key = slugify(label ?? '')
-  return key === 'menu-del-dia' || key === 'menu-diario' || key.includes('plato-del-dia')
+  return key === 'menu-del-dia' || key === 'menu-diario' || key.includes('plato-del-dia') || key.includes('menu-gourmet') || key.includes('menu-saludable') || key.includes('menu-especial')
 }
 
 function isDailyMenuItem(item) {
@@ -4400,6 +4417,7 @@ function TemplateMenuCollection({
   pointsName = 'puntos',
   orderCount = 0,
 }) {
+  const [dailyMenuFilter, setDailyMenuFilter] = useState('all')
   if (templateId === 'kika') {
     const sections = isSearchActive
       ? [
@@ -4814,15 +4832,25 @@ function TemplateMenuCollection({
         ...item,
         categoryLabel: item.categoryLabel ?? category.label,
       }))
-    const dailyMenuCategory = orderedCategories.find((category) => isDailyMenuCategoryLabel(category.label))
-    const dailyMenuItems = dailyMenuCategory ? getItemsWithCategoryLabel(dailyMenuCategory) : []
+    const dailyMenuCategories = orderedCategories.filter((category) => isDailyMenuCategoryLabel(category.label))
+    let dailyMenuItems = dailyMenuCategories.flatMap(cat => getItemsWithCategoryLabel(cat))
+    const hasAnyDailyMenuItems = dailyMenuItems.length > 0
+    
+    if (dailyMenuFilter !== 'all') {
+      dailyMenuItems = dailyMenuItems.filter(item => {
+        const catLabel = slugify(item.categoryLabel ?? '')
+        const badge = slugify(item.badge ?? '')
+        return catLabel.includes(dailyMenuFilter) || badge.includes(dailyMenuFilter)
+      })
+    }
+
     const selectedCategoryItems = selectedCategory ? getItemsWithCategoryLabel(selectedCategory) : []
     const homeCategorySections = orderedCategories
       .map((category) => ({
         ...category,
         items: getItemsWithCategoryLabel(category),
       }))
-      .filter((category) => category.items.length && (!dailyMenuItems.length || !isDailyMenuCategoryLabel(category.label)))
+      .filter((category) => category.items.length && (!hasAnyDailyMenuItems || !isDailyMenuCategoryLabel(category.label)))
     const homeItems = homeCategorySections.flatMap((category) => category.items)
     const highlightedItems = isSearchActive
       ? categoryItems
@@ -4833,7 +4861,7 @@ function TemplateMenuCollection({
     const uniqueHighlightedItems = highlightedItems.filter(
       (item, index, list) => list.findIndex((entry) => entry.id === item.id) === index,
     )
-    const featuredItems = (dailyMenuItems.length ? dailyMenuItems : uniqueHighlightedItems).slice(0, 4)
+    const featuredItems = dailyMenuItems.length ? dailyMenuItems : uniqueHighlightedItems.slice(0, 4)
     const featuredTitle = dailyMenuItems.length ? 'Menu del dia' : 'Destacados'
     const listItems = isSearchActive ? categoryItems : selectedCategoryItems
 
@@ -4928,12 +4956,41 @@ function TemplateMenuCollection({
           </p>
         ) : null}
 
-        {!isSearchActive && featuredItems.length ? (
+        {!isSearchActive && (featuredItems.length || hasAnyDailyMenuItems) ? (
           <article className="pampa-featured-section">
             <div className="pampa-section-heading">
               <h2>{featuredTitle}</h2>
               <span aria-hidden="true" />
             </div>
+
+            {hasAnyDailyMenuItems && (
+              <div className="pampa-daily-filter-row">
+                <button
+                  type="button"
+                  className={`pampa-daily-filter-pill ${dailyMenuFilter === 'gourmet' ? 'active' : ''}`}
+                  onClick={() => setDailyMenuFilter(dailyMenuFilter === 'gourmet' ? 'all' : 'gourmet')}
+                >
+                  <IconChefHat />
+                  <span>Menú gourmet</span>
+                </button>
+                <button
+                  type="button"
+                  className={`pampa-daily-filter-pill ${dailyMenuFilter === 'saludable' ? 'active' : ''}`}
+                  onClick={() => setDailyMenuFilter(dailyMenuFilter === 'saludable' ? 'all' : 'saludable')}
+                >
+                  <IconLeafMark />
+                  <span>Menú saludable</span>
+                </button>
+                <button
+                  type="button"
+                  className={`pampa-daily-filter-pill ${dailyMenuFilter === 'especial' ? 'active' : ''}`}
+                  onClick={() => setDailyMenuFilter(dailyMenuFilter === 'especial' ? 'all' : 'especial')}
+                >
+                  <IconStar />
+                  <span>Menú especial</span>
+                </button>
+              </div>
+            )}
 
             <div className="pampa-featured-row">
               {featuredItems.map((item, index) => {
@@ -4977,7 +5034,7 @@ function TemplateMenuCollection({
             </div>
 
             <div className="pampa-slider-dots" aria-hidden="true">
-              {featuredItems.slice(0, 4).map((item, index) => (
+              {featuredItems.map((item, index) => (
                 <span key={item.id} className={index === 0 ? 'active' : ''} />
               ))}
             </div>

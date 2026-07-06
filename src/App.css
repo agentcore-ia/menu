@@ -12423,6 +12423,40 @@ button:focus-visible {
   font-size: clamp(1.4rem, 5vw, 1.95rem);
 }
 
+.pampa-daily-filter-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
+  scrollbar-width: none;
+}
+.pampa-daily-filter-row::-webkit-scrollbar {
+  display: none;
+}
+.pampa-daily-filter-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  background: transparent;
+  border: 0.08rem solid #f4b739;
+  color: #f7efe2;
+  font: 600 clamp(0.75rem, 2.8vw, 0.9rem) / 1.1 var(--font-body);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+.pampa-daily-filter-pill svg {
+  font-size: 1.1em;
+}
+.pampa-daily-filter-pill.active {
+  background: #f4b739;
+  color: #090806;
+}
+
 .pampa-featured-row {
   display: grid;
   grid-auto-flow: column;
