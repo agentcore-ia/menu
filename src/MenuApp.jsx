@@ -4853,7 +4853,10 @@ function TemplateMenuCollection({
     const uniqueHighlightedItems = highlightedItems.filter(
       (item, index, list) => list.findIndex((entry) => entry.id === item.id) === index,
     )
-    const featuredItems = hasAnyDailyMenuItems ? dailyMenuItems : uniqueHighlightedItems.slice(0, 4)
+    const uniqueDailyMenuItems = dailyMenuItems.filter(
+      (item, index, list) => list.findIndex((entry) => entry.id === item.id) === index,
+    )
+    const featuredItems = hasAnyDailyMenuItems ? uniqueDailyMenuItems : uniqueHighlightedItems.slice(0, 4)
     const featuredTitle = hasAnyDailyMenuItems ? 'Menu del dia' : 'Destacados'
     const listItems = isSearchActive ? categoryItems : selectedCategoryItems
 
