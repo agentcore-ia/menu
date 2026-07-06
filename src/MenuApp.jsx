@@ -4410,6 +4410,7 @@ function TemplateMenuCollection({
   orderCount = 0,
 }) {
   const [dailyMenuFilter, setDailyMenuFilter] = useState('all')
+  const [activeFeaturedIndex, setActiveFeaturedIndex] = useState(0)
   if (templateId === 'kika') {
     const sections = isSearchActive
       ? [
@@ -4987,7 +4988,19 @@ function TemplateMenuCollection({
               </div>
             )}
 
-            <div className="pampa-featured-row">
+            <div 
+              className="pampa-featured-row"
+              onScroll={(e) => {
+                const child = e.target.firstElementChild
+                if (!child) return
+                const scrollLeft = e.target.scrollLeft
+                const width = child.offsetWidth + 16
+                const newActive = Math.round(scrollLeft / width)
+                if (newActive !== activeFeaturedIndex) {
+                  setActiveFeaturedIndex(newActive)
+                }
+              }}
+            >
               {featuredItems.map((item, index) => {
                 const productMedia = renderProductMedia(item)
                 const hasMedia = Boolean(productMedia)
@@ -5032,7 +5045,7 @@ function TemplateMenuCollection({
 
             <div className="pampa-slider-dots" aria-hidden="true">
               {featuredItems.map((item, index) => (
-                <span key={item.id} className={index === 0 ? 'active' : ''} />
+                <span key={item.id} className={index === activeFeaturedIndex ? 'active' : ''} />
               ))}
             </div>
           </article>
