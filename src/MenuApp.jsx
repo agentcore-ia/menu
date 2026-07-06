@@ -700,7 +700,7 @@ function IconTart() {
 
 function IconChefHat() {
   return (
-    <svg viewBox="0 0 32 32" aria-hidden="true">
+    <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
       <path d="M9.2 14.5c-1.8-.3-3.1-1.8-3.1-3.6 0-2.1 1.7-3.7 3.8-3.7.8 0 1.5.2 2.1.6 1-1.7 2.5-2.6 4.4-2.6 2.4 0 4.2 1.4 5 3.5.5-.2 1.1-.4 1.7-.4 2.1 0 3.8 1.7 3.8 3.8 0 1.8-1.3 3.3-3.1 3.6" />
       <path d="M9.2 14.3h14.6l-1 10.1H10.2L9.2 14.3z" />
       <path d="M12.2 18.1h7.6M12.6 21h6.8" />
@@ -2956,12 +2956,13 @@ function getSaborPampaBadgeText(item, index, categoryLabel) {
   const itemKey = slugify(item?.name ?? '')
   const categoryKey = slugify(categoryLabel ?? '')
 
+  if (isDailyMenuCategoryLabel(categoryLabel)) return categoryLabel
   if (isDailyMenuItem({ ...item, categoryLabel })) return 'Menu del dia'
   if (isPromoCategoryLabel(categoryLabel) || itemKey.includes('promo')) return 'Promo'
   if (index === 0) return 'Recomendado'
   if (itemKey.includes('combo')) return 'Combo'
   if (categoryKey.includes('empanada')) return 'Casero'
-  return 'Sabor Pampa'
+  return ''
 }
 
 function isDarkSolidColor(value) {
@@ -4852,8 +4853,8 @@ function TemplateMenuCollection({
     const uniqueHighlightedItems = highlightedItems.filter(
       (item, index, list) => list.findIndex((entry) => entry.id === item.id) === index,
     )
-    const featuredItems = dailyMenuItems.length ? dailyMenuItems : uniqueHighlightedItems.slice(0, 4)
-    const featuredTitle = dailyMenuItems.length ? 'Menu del dia' : 'Destacados'
+    const featuredItems = hasAnyDailyMenuItems ? dailyMenuItems : uniqueHighlightedItems.slice(0, 4)
+    const featuredTitle = hasAnyDailyMenuItems ? 'Menu del dia' : 'Destacados'
     const listItems = isSearchActive ? categoryItems : selectedCategoryItems
 
     const renderPampaProductCards = (items, { showRibbon = true } = {}) => (
@@ -4997,15 +4998,17 @@ function TemplateMenuCollection({
                         onClick={() => onOpenDish(item)}
                         aria-label={`Ver ${item.name}`}
                       >
-                        <span className="pampa-card-badge">
-                          {getSaborPampaBadgeText(item, index, item.categoryLabel)}
-                        </span>
+                        {(() => {
+                          const badge = getSaborPampaBadgeText(item, index, item.categoryLabel)
+                          return badge ? <span className="pampa-card-badge">{badge}</span> : null
+                        })()}
                         {productMedia}
                       </button>
                     ) : (
-                      <span className="pampa-card-badge">
-                        {getSaborPampaBadgeText(item, index, item.categoryLabel)}
-                      </span>
+                      (() => {
+                        const badge = getSaborPampaBadgeText(item, index, item.categoryLabel)
+                        return badge ? <span className="pampa-card-badge">{badge}</span> : null
+                      })()
                     )}
                     <button
                       type="button"
