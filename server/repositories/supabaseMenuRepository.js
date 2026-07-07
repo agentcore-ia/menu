@@ -136,6 +136,53 @@ function getBurgerFallbackImage(accountId, product, index) {
   return `/burger/burger-${(index % 3) + 1}.svg`
 }
 
+// Categorias que por defecto son adicionales/opcionales de un producto (salsas,
+// guarniciones, etc.) y no deberian aparecer como seccion propia en la barra del
+// menu, salvo que el restaurante las marque como visibles desde el dashboard.
+const ADDON_CATEGORY_PATTERN = /salsa|guarnicion|aderezo|adicional|topping|acompanamiento/
+
+function normalizeMenuCategoryKey(value) {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+}
+
+// Aplica la configuracion de categorias definida en el dashboard
+// (restaurant.horarios._settings.menuCategories): filtra las ocultas y respeta el
+// orden elegido. Si no hay configuracion guardada, oculta por defecto las
+// categorias que parecen adicionales (salsas/guarniciones/etc.).
+function applyMenuCategoryConfig(categories, config) {
+  const list = Array.isArray(categories) ? categories.slice() : []
+  const configList = Array.isArray(config) ? config : null
+
+  if (!configList || !configList.length) {
+    return list.filter((cat) => !ADDON_CATEGORY_PATTERN.test(normalizeMenuCategoryKey(cat?.label ?? cat?.id)))
+  }
+
+  const byKey = new Map()
+  configList.forEach((entry, index) => {
+    const key = normalizeMenuCategoryKey(entry?.key ?? entry?.label)
+    if (key && !byKey.has(key)) {
+      byKey.set(key, { visible: entry?.visible !== false, order: index })
+    }
+  })
+
+  return list
+    .map((cat, index) => {
+      const key = normalizeMenuCategoryKey(cat?.label ?? cat?.id)
+      const cfg = byKey.get(key)
+      const configured = cfg != null
+      const visible = configured ? cfg.visible : !ADDON_CATEGORY_PATTERN.test(key)
+      const order = configured ? cfg.order : configList.length + index
+      return { cat, visible, order, index }
+    })
+    .filter((entry) => entry.visible)
+    .sort((a, b) => a.order - b.order || a.index - b.index)
+    .map((entry) => entry.cat)
+}
+
 export class SupabaseMenuRepository {
   constructor(config) {
     this.config = config
@@ -175,7 +222,13 @@ export class SupabaseMenuRepository {
       stockByProductId,
       Boolean(restaurant.stock_strict_mode),
     )
-    const categories = dailyMenuCategory ? [dailyMenuCategory, ...regularCategories] : regularCategories
+    const visibleRegularCategories = applyMenuCategoryConfig(
+      regularCategories,
+      restaurant.horarios?._settings?.menuCategories,
+    )
+    const categories = dailyMenuCategory
+      ? [dailyMenuCategory, ...visibleRegularCategories]
+      : visibleRegularCategories
 
     const businessLocation = normalizeBusinessLocation(restaurant.horarios)
 
@@ -435,7 +488,7 @@ export class SupabaseMenuRepository {
         )
 
         return {
-          id: product?.id || `daily-${item.id || index}`,
+          id: `daily-${item.id || product?.id || index}`,
           productId: item.product_id || product?.id || null,
           name: item.name || product?.name || DAILY_MENU_LABEL,
           description: item.description ?? product?.description ?? '',
