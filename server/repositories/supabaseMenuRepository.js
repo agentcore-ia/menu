@@ -230,15 +230,15 @@ export class SupabaseMenuRepository {
       ? [dailyMenuCategory, ...visibleRegularCategories]
       : visibleRegularCategories
 
-    // Productos de la categoria "Adicionales" para el carrito. Se toman de
+    // Productos de "Adicionales" y "Bebidas" para el carrito. Se toman de
     // regularCategories (antes de ocultar del bar) para que sigan disponibles en
     // el checkout aunque la categoria no aparezca en la barra del menu.
-    const adicionalesCategory = regularCategories.find((category) =>
-      normalizeMenuCategoryKey(category?.label).includes('adicional'),
-    )
-    const cartAddonItems = adicionalesCategory
-      ? adicionalesCategory.items.filter((item) => item?.availableForOrder !== false)
-      : []
+    const findCategoryItems = (matcher) => {
+      const category = regularCategories.find((cat) => matcher(normalizeMenuCategoryKey(cat?.label)))
+      return category ? category.items.filter((item) => item?.availableForOrder !== false) : []
+    }
+    const cartAddonItems = findCategoryItems((key) => key.includes('adicional'))
+    const cartBeverageItems = findCategoryItems((key) => key.includes('bebida'))
 
     const businessLocation = normalizeBusinessLocation(restaurant.horarios)
 
@@ -269,6 +269,7 @@ export class SupabaseMenuRepository {
       presentationConfig,
       categories,
       cartAddonItems,
+      cartBeverageItems,
       dailyMenu,
       loyalty,
       businessHours: restaurant.horarios ?? null,

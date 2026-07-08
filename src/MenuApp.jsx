@@ -6068,11 +6068,15 @@ export default function MenuApp() {
       categoryLabel: category.label,
     })),
   )
-  // Productos de la categoria "Adicionales" para mostrar en el carrito (llegan
+  // Productos de "Adicionales" y "Bebidas" para mostrar en el carrito (llegan
   // aparte del payload porque la categoria puede estar oculta de la barra).
   const adicionalesItems = useMemo(() => {
     const raw = Array.isArray(menu?.cartAddonItems) ? menu.cartAddonItems : []
     return raw.map((item) => ({ ...item, categoryLabel: item.categoryLabel || 'Adicionales' }))
+  }, [menu])
+  const bebidasItems = useMemo(() => {
+    const raw = Array.isArray(menu?.cartBeverageItems) ? menu.cartBeverageItems : []
+    return raw.map((item) => ({ ...item, categoryLabel: item.categoryLabel || 'Bebidas' }))
   }, [menu])
   const currentCategory =
     categories.find((category) => category.id === selectedCategory) ??
@@ -6187,12 +6191,20 @@ export default function MenuApp() {
       : ''
   const cartRecommendations = buildCartRecommendations(cartItems, allItems)
   const cartPairings = buildCartPairingSuggestions(cartItems, allItems)
-  // En el carrito mostramos todos los productos de "Adicionales" si existen;
-  // si no hay categoria de adicionales, caemos a las sugerencias heuristicas.
-  const cartExtras = adicionalesItems.length
-    ? adicionalesItems.map((product) => ({ label: product.name, product }))
-    : cartPairings
-  const cartExtrasTitle = adicionalesItems.length ? 'Adicionales' : 'Acompanamientos sugeridos'
+  // En el carrito mostramos todos los productos de "Adicionales" y "Bebidas" si
+  // existen; si no hay ninguna de las dos categorias, caemos a las sugerencias
+  // heuristicas (una sola seccion generica).
+  const cartExtraSections = [
+    adicionalesItems.length
+      ? { key: 'adicionales', title: 'Adicionales', items: adicionalesItems.map((product) => ({ label: product.name, product })) }
+      : null,
+    bebidasItems.length
+      ? { key: 'bebidas', title: 'Bebidas', items: bebidasItems.map((product) => ({ label: product.name, product })) }
+      : null,
+  ].filter(Boolean)
+  if (!cartExtraSections.length && cartPairings.length) {
+    cartExtraSections.push({ key: 'pairings', title: 'Acompanamientos sugeridos', items: cartPairings })
+  }
   const orderingStatus = menu?.businessHours
     ? getBusinessOpenStatus(menu.businessHours, new Date(currentTime))
     : menu?.ordering ?? {
@@ -8578,13 +8590,13 @@ export default function MenuApp() {
                     </section>
                   ) : null}
 
-                  {cartExtras.length ? (
-                    <section className="cart-panel">
+                  {cartExtraSections.map((section) => (
+                    <section key={section.key} className="cart-panel">
                       <div className="section-heading compact">
-                        <h2>{cartExtrasTitle}</h2>
+                        <h2>{section.title}</h2>
                       </div>
                       <div className="recommendation-row recommendation-row-2 pairing-mini-row">
-                        {cartExtras.map(({ label, product }) => {
+                        {section.items.map(({ label, product }) => {
                           const isAdded = pairingFeedbackId === product.id
 
                           return (
@@ -8613,7 +8625,7 @@ export default function MenuApp() {
                         })}
                       </div>
                     </section>
-                  ) : null}
+                  ))}
 
                   <div className="cart-summary-card">
                     <div>
