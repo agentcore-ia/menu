@@ -4051,7 +4051,7 @@ function TemplateCategorySelector({
         </div>
 
         <div className="burger-category-row">
-          {orderedCategories.map((category) => {
+          {orderedCategories.filter((category) => !category?.hiddenFromBar).map((category) => {
             const Icon = useHostCategorySet
               ? getHostCategoryIcon(category.label)
               : getBurgerCategoryIcon(category.label)
@@ -4084,7 +4084,7 @@ function TemplateCategorySelector({
     return (
       <div className="host-category-shell" data-host-categories>
         <div className="host-category-row">
-          {orderedCategories.map((category) => {
+          {orderedCategories.filter((category) => !category?.hiddenFromBar).map((category) => {
             const Icon = getHostCategoryIcon(category.label)
             const isActive = category.id === currentCategory?.id
 
@@ -4108,7 +4108,7 @@ function TemplateCategorySelector({
   if (templateId === 'kika') {
     return (
       <div className="kika-category-row" aria-label="Categorias de Kika">
-        {getKikaPrimaryCategories(categories).map((category) => {
+        {getKikaPrimaryCategories(categories).filter((category) => !category?.hiddenFromBar).map((category) => {
           const meta = getKikaCategoryMeta(category.label)
           const Icon = meta.icon
           const isActive = category.id === currentCategory?.id
@@ -4139,7 +4139,7 @@ function TemplateCategorySelector({
           <h2>Explorá nuestro menú</h2>
         </div>
         <div className="almendra-category-row">
-          {getAlmendraOrderedCategories(categories).map((category) => {
+          {getAlmendraOrderedCategories(categories).filter((category) => !category?.hiddenFromBar).map((category) => {
             const meta = getAlmendraCategoryMeta(category.label)
             const Icon = meta.icon
             const isActive = category.id === currentCategory?.id
@@ -4168,7 +4168,7 @@ function TemplateCategorySelector({
 
     return (
       <div className="florian-category-shell" aria-label="Categorias de Florian">
-        {orderedCategories.map((category) => {
+        {orderedCategories.filter((category) => !category?.hiddenFromBar).map((category) => {
           const meta = getFlorianCategoryMeta(category.label)
           const Icon = meta.icon
           const isActive = category.id === currentCategory?.id
@@ -4244,7 +4244,7 @@ function TemplateCategorySelector({
         ) : null}
 
         <div className="pampa-category-row">
-          {orderedCategories.map((category) => {
+          {orderedCategories.filter((category) => !category?.hiddenFromBar).map((category) => {
             const meta = getSaborPampaCategoryMeta(category.label)
             const Icon = meta.icon
             const isActive = category.id === currentCategory?.id
@@ -4273,7 +4273,7 @@ function TemplateCategorySelector({
     const orderedCategories = getPizzeriaOrderedCategories(categories)
     return (
       <div className="pizzeria-category-row">
-        {orderedCategories.map((category) => {
+        {orderedCategories.filter((category) => !category?.hiddenFromBar).map((category) => {
           const key = slugify(category.label)
           const isActive = category.id === currentCategory?.id
           const categoryKind = key.includes('pizza')
@@ -4316,7 +4316,7 @@ function TemplateCategorySelector({
   if (templateId === 'bistro') {
     return (
       <div className="bistro-category-row">
-        {categories.map((category) => {
+        {categories.filter((category) => !category?.hiddenFromBar).map((category) => {
           const Icon = getCategoryIcon(category.label)
           const isActive = category.id === currentCategory?.id
 
@@ -4342,7 +4342,7 @@ function TemplateCategorySelector({
   if (templateId === 'luxe') {
     return (
       <div className="luxe-category-row">
-        {categories.map((category) => {
+        {categories.filter((category) => !category?.hiddenFromBar).map((category) => {
           const isActive = category.id === currentCategory?.id
 
           return (
@@ -4362,7 +4362,7 @@ function TemplateCategorySelector({
 
   return (
     <div className="category-row">
-      {categories.map((category) => {
+      {categories.filter((category) => !category?.hiddenFromBar).map((category) => {
         const Icon = getCategoryIcon(category.label)
         const isActive = category.id === currentCategory?.id
 

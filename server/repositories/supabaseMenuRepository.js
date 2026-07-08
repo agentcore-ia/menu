@@ -149,16 +149,21 @@ function normalizeMenuCategoryKey(value) {
     .replace(/[̀-ͯ]/g, '')
 }
 
-// Aplica la configuracion de categorias definida en el dashboard
-// (restaurant.horarios._settings.menuCategories): filtra las ocultas y respeta el
-// orden elegido. Si no hay configuracion guardada, oculta por defecto las
-// categorias que parecen adicionales (salsas/guarniciones/etc.).
+// Aplica la configuracion de categorias del dashboard
+// (restaurant_menu_presentations.theme_overrides.menuCategories): NO elimina
+// categorias, solo marca cuales se ocultan de la BARRA de categorias
+// (hiddenFromBar) y respeta el orden elegido. Los productos/secciones del menu
+// siguen intactos (y el agente no usa esto). Sin config, oculta de la barra por
+// defecto las categorias que parecen adicionales (salsas/guarniciones/etc.).
 function applyMenuCategoryConfig(categories, config) {
   const list = Array.isArray(categories) ? categories.slice() : []
   const configList = Array.isArray(config) ? config : null
 
   if (!configList || !configList.length) {
-    return list.filter((cat) => !ADDON_CATEGORY_PATTERN.test(normalizeMenuCategoryKey(cat?.label ?? cat?.id)))
+    return list.map((cat) => ({
+      ...cat,
+      hiddenFromBar: ADDON_CATEGORY_PATTERN.test(normalizeMenuCategoryKey(cat?.label ?? cat?.id)),
+    }))
   }
 
   const byKey = new Map()
@@ -174,11 +179,10 @@ function applyMenuCategoryConfig(categories, config) {
       const key = normalizeMenuCategoryKey(cat?.label ?? cat?.id)
       const cfg = byKey.get(key)
       const configured = cfg != null
-      const visible = configured ? cfg.visible : !ADDON_CATEGORY_PATTERN.test(key)
+      const hiddenFromBar = configured ? !cfg.visible : ADDON_CATEGORY_PATTERN.test(key)
       const order = configured ? cfg.order : configList.length + index
-      return { cat, visible, order, index }
+      return { cat: { ...cat, hiddenFromBar }, order, index }
     })
-    .filter((entry) => entry.visible)
     .sort((a, b) => a.order - b.order || a.index - b.index)
     .map((entry) => entry.cat)
 }
@@ -222,13 +226,15 @@ export class SupabaseMenuRepository {
       stockByProductId,
       Boolean(restaurant.stock_strict_mode),
     )
-    const visibleRegularCategories = applyMenuCategoryConfig(
+    // Todas las categorias siguen en el payload (secciones/productos intactos);
+    // solo se marca hiddenFromBar para que el cliente las saque de la BARRA.
+    const orderedRegularCategories = applyMenuCategoryConfig(
       regularCategories,
       presentationConfig?.theme?.menuCategories,
     )
     const categories = dailyMenuCategory
-      ? [dailyMenuCategory, ...visibleRegularCategories]
-      : visibleRegularCategories
+      ? [dailyMenuCategory, ...orderedRegularCategories]
+      : orderedRegularCategories
 
     // Productos de "Adicionales" y "Bebidas" para el carrito. Se toman de
     // regularCategories (antes de ocultar del bar) para que sigan disponibles en
