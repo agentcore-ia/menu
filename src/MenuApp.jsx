@@ -5808,6 +5808,89 @@ export default function MenuApp() {
     return null
   })
 
+  // --- Boton "atras" del navegador: cerrar la vista abierta en vez de salir ---
+  // Los overlays (detalle de producto, carrito, checkout, buscador, etc.) se
+  // abren por estado, no por ruta; sin esto, "atras" abandona la pagina. Con el
+  // History API mantenemos una entrada "guardia" mientras haya un overlay abierto
+  // y, al presionar atras, cerramos el overlay superior en vez de salir del menu.
+  const anyOverlayOpen = Boolean(
+    selectedDish ||
+      gelatoBuilderOpen ||
+      isCheckoutOpen ||
+      isCartOpen ||
+      isSearchOpen ||
+      isSocialMenuOpen ||
+      isCommunityOpen ||
+      isLoyaltyOpen,
+  )
+
+  const closeTopOverlay = useCallback(() => {
+    if (selectedDish) return setSelectedDish(null)
+    if (gelatoBuilderOpen) return setGelatoBuilderOpen(false)
+    if (isCheckoutOpen) {
+      // El checkout se abre desde el carrito: al volver, reabrir el carrito.
+      setIsCheckoutOpen(false)
+      setIsCartOpen(true)
+      return
+    }
+    if (isCartOpen) return setIsCartOpen(false)
+    if (isSearchOpen) return setIsSearchOpen(false)
+    if (isSocialMenuOpen) return setIsSocialMenuOpen(false)
+    if (isCommunityOpen) return setIsCommunityOpen(false)
+    if (isLoyaltyOpen) return setIsLoyaltyOpen(false)
+  }, [
+    selectedDish,
+    gelatoBuilderOpen,
+    isCheckoutOpen,
+    isCartOpen,
+    isSearchOpen,
+    isSocialMenuOpen,
+    isCommunityOpen,
+    isLoyaltyOpen,
+  ])
+
+  const overlayGuardRef = useRef(false)
+  const skipPopRef = useRef(false)
+  const [guardNonce, setGuardNonce] = useState(0)
+
+  // Reconcilia la entrada "guardia" del historial con el estado de los overlays:
+  // debe existir una guardia siempre que haya al menos un overlay abierto. El
+  // nonce fuerza esta reconciliacion despues de cada "atras" (por si al cerrar el
+  // overlay superior todavia queda otro abierto, p. ej. checkout -> carrito).
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (anyOverlayOpen && !overlayGuardRef.current) {
+      overlayGuardRef.current = true
+      window.history.pushState({ __menuOverlayGuard: true }, '')
+    } else if (!anyOverlayOpen && overlayGuardRef.current) {
+      // Se cerro por la UI (boton X, backdrop, etc.): consumimos la guardia.
+      overlayGuardRef.current = false
+      if (window.history.state && window.history.state.__menuOverlayGuard) {
+        skipPopRef.current = true
+        window.history.back()
+      }
+    }
+  }, [anyOverlayOpen, guardNonce])
+
+  // Al presionar "atras" con un overlay abierto, cerrar el superior en vez de
+  // abandonar la pagina. El navegador ya consumio nuestra guardia al hacer pop.
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const handlePopState = () => {
+      if (skipPopRef.current) {
+        skipPopRef.current = false
+        return
+      }
+      if (!overlayGuardRef.current) return
+      overlayGuardRef.current = false
+      closeTopOverlay()
+      // Reconciliar: si todavia queda un overlay abierto, se re-arma la guardia.
+      setGuardNonce((value) => value + 1)
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [closeTopOverlay])
+
   const [orderForm, setOrderForm] = useState(() => {
     let deliveryType = 'delivery'
     if (typeof window !== 'undefined') {
