@@ -5985,6 +5985,12 @@ export default function MenuApp() {
       categoryLabel: category.label,
     })),
   )
+  // Productos de la categoria "Adicionales" para mostrar en el carrito (llegan
+  // aparte del payload porque la categoria puede estar oculta de la barra).
+  const adicionalesItems = useMemo(() => {
+    const raw = Array.isArray(menu?.cartAddonItems) ? menu.cartAddonItems : []
+    return raw.map((item) => ({ ...item, categoryLabel: item.categoryLabel || 'Adicionales' }))
+  }, [menu])
   const currentCategory =
     categories.find((category) => category.id === selectedCategory) ??
     (templateId === 'kika' || templateId === 'sabor-pampa' ? null : categories[0] ?? null)
@@ -6098,6 +6104,12 @@ export default function MenuApp() {
       : ''
   const cartRecommendations = buildCartRecommendations(cartItems, allItems)
   const cartPairings = buildCartPairingSuggestions(cartItems, allItems)
+  // En el carrito mostramos todos los productos de "Adicionales" si existen;
+  // si no hay categoria de adicionales, caemos a las sugerencias heuristicas.
+  const cartExtras = adicionalesItems.length
+    ? adicionalesItems.map((product) => ({ label: product.name, product }))
+    : cartPairings
+  const cartExtrasTitle = adicionalesItems.length ? 'Adicionales' : 'Acompanamientos sugeridos'
   const orderingStatus = menu?.businessHours
     ? getBusinessOpenStatus(menu.businessHours, new Date(currentTime))
     : menu?.ordering ?? {
@@ -8483,13 +8495,13 @@ export default function MenuApp() {
                     </section>
                   ) : null}
 
-                  {cartPairings.length ? (
+                  {cartExtras.length ? (
                     <section className="cart-panel">
                       <div className="section-heading compact">
-                        <h2>Acompanamientos sugeridos</h2>
+                        <h2>{cartExtrasTitle}</h2>
                       </div>
                       <div className="pairing-grid">
-                        {cartPairings.map(({ label, product }) => {
+                        {cartExtras.map(({ label, product }) => {
                           const isAdded = pairingFeedbackId === product.id
 
                           return (
