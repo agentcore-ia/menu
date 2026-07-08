@@ -6245,6 +6245,19 @@
   background: #f4b739;
 }
 
+.pairing-mini-card {
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.pairing-mini-card.is-added {
+  border-color: color-mix(in srgb, var(--theme-primary) 52%, var(--theme-border));
+  box-shadow: 0 0.8rem 1.45rem color-mix(in srgb, var(--theme-primary) 12%, transparent);
+  animation: pairing-added-pop 520ms ease both;
+}
+
 @keyframes pairing-added-pop {
   0% {
     transform: scale(1);
@@ -7617,6 +7630,30 @@
   gap: 0.9rem;
   overflow-x: auto;
   padding-bottom: 0.3rem;
+}
+
+/* Dos filas deslizantes: las cards se acomodan en 2 filas y se desplazan en
+   horizontal (grid-auto-flow: column) en vez de una sola fila larga. */
+.recommendation-row-2 {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  gap: 0.9rem;
+}
+
+.recommendation-row-2 .mini-card {
+  flex: none;
+  width: 9.5rem;
+}
+
+.recommendation-row::-webkit-scrollbar,
+.recommendation-row-2::-webkit-scrollbar {
+  display: none;
+}
+
+.recommendation-row,
+.recommendation-row-2 {
+  scrollbar-width: none;
 }
 
 .mini-card {

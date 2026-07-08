@@ -8583,27 +8583,32 @@ export default function MenuApp() {
                       <div className="section-heading compact">
                         <h2>{cartExtrasTitle}</h2>
                       </div>
-                      <div className="pairing-grid">
+                      <div className="recommendation-row recommendation-row-2 pairing-mini-row">
                         {cartExtras.map(({ label, product }) => {
                           const isAdded = pairingFeedbackId === product.id
 
                           return (
-                            <button
+                            <article
                               key={product.id}
-                              type="button"
-                              className={`pairing-card pairing-chip-action ${isAdded ? 'is-added' : ''}`}
-                              onClick={() => handleAddPairing(product)}
-                              aria-label={`Agregar ${product.name}`}
+                              className={`mini-card pairing-mini-card ${product.video || product.hasCustomImage ? '' : 'no-media'} ${isAdded ? 'is-added' : ''}`}
                             >
-                              <span className="pairing-card-copy">
-                                {product.categoryLabel ? <small>{product.categoryLabel}</small> : null}
-                                <strong>{product.name || label}</strong>
-                                <em>{product.price}</em>
-                              </span>
-                              <span className="pairing-card-plus" aria-hidden="true">
-                                +
-                              </span>
-                            </button>
+                              {renderMiniCardMedia(product)}
+                              <div className="mini-card-body">
+                                <h4>{product.name || label}</h4>
+                                {product.categoryLabel ? <p className="mini-card-category">{product.categoryLabel}</p> : null}
+                                <div className="mini-card-footer">
+                                  <strong>{product.price}</strong>
+                                  <button
+                                    type="button"
+                                    className="mini-add"
+                                    onClick={() => handleAddPairing(product)}
+                                    aria-label={`Agregar ${product.name}`}
+                                  >
+                                    <IconPlus />
+                                  </button>
+                                </div>
+                              </div>
+                            </article>
                           )
                         })}
                       </div>
