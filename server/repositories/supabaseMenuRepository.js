@@ -224,7 +224,7 @@ export class SupabaseMenuRepository {
     )
     const visibleRegularCategories = applyMenuCategoryConfig(
       regularCategories,
-      restaurant.horarios?._settings?.menuCategories,
+      presentationConfig?.theme?.menuCategories,
     )
     const categories = dailyMenuCategory
       ? [dailyMenuCategory, ...visibleRegularCategories]
