@@ -149,6 +149,15 @@ function normalizeMenuCategoryKey(value) {
     .replace(/[̀-ͯ]/g, '')
 }
 
+// Categorias de producto que corresponden al "menu del dia" (especial, gourmet,
+// saludable, diario, del dia). El menu del dia real se sirve por la carga diaria
+// por fecha; los productos que quedan en estas categorias suelen ser del dia
+// anterior, por eso se excluyen del menu.
+function isDailyMenuProductCategory(label) {
+  const key = normalizeMenuCategoryKey(label)
+  return /\bmenu\b/.test(key) && /(del dia|diario|de hoy|salud|gourmet|especial)/.test(key)
+}
+
 // Aplica la configuracion de categorias del dashboard
 // (restaurant_menu_presentations.theme_overrides.menuCategories): NO elimina
 // categorias, solo marca cuales se ocultan de la BARRA de categorias
@@ -215,10 +224,17 @@ export class SupabaseMenuRepository {
       presentationConfig?.theme?.inheritPreset || presentationConfig?.layout || restaurant.slug
     const stockByProductId = new Map(stockAvailability.map((entry) => [entry.product_id, entry]))
     const productById = new Map(products.map((product) => [product.id, product]))
-    const regularCategories = this.groupProductsByCategory(
+    const allRegularCategories = this.groupProductsByCategory(
       products,
       stockByProductId,
       Boolean(restaurant.stock_strict_mode),
+    )
+    // El "menu del dia" (especial/gourmet/saludable/diario) se sirve desde la
+    // carga diaria por fecha (dailyMenuCategory, RPC). Los productos que quedan
+    // en esas categorias en la tabla products son del dia anterior (stale), asi
+    // que se excluyen del menu para no mostrar el menu del dia viejo.
+    const regularCategories = allRegularCategories.filter(
+      (category) => !isDailyMenuProductCategory(category?.label),
     )
     const dailyMenuCategory = this.mapDailyMenuCategory(
       dailyMenu,
