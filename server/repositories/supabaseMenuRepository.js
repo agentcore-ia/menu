@@ -537,8 +537,11 @@ export class SupabaseMenuRepository {
           video: product ? getProductVideo(product) : null,
           imageAnimation: normalizeProductImageAnimation(product?.image_animation),
           optionGroups: product ? parseProductOptionGroups(product) : [],
-          badge: DAILY_MENU_LABEL,
-          categoryLabel: DAILY_MENU_LABEL,
+          // Conservar la sub-categoria del item (Menu gourmet/saludable/especial)
+          // para que el sub-filtro del menu del dia funcione; si no tiene, cae a
+          // "Menu del dia". La categoria contenedora sigue siendo "Menu del dia".
+          badge: item.category || DAILY_MENU_LABEL,
+          categoryLabel: item.category || DAILY_MENU_LABEL,
           dietary: [],
           isDailyMenu: true,
           dailyMenuDate: dailyMenu?.date || null,
