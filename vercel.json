@@ -1,6 +1,41 @@
 {
   "framework": "vite",
+  "functions": {
+    "api/social-index.js": {
+      "includeFiles": "dist/index.html"
+    }
+  },
   "rewrites": [
+    {
+      "source": "/:path((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "saborapampa.menu.net.ar"
+        }
+      ],
+      "destination": "/api/social-index?account=saborapampa"
+    },
+    {
+      "source": "/:path((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "kika.menu.net.ar"
+        }
+      ],
+      "destination": "/api/social-index?account=kika"
+    },
+    {
+      "source": "/:path((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "almendra.menu.net.ar"
+        }
+      ],
+      "destination": "/api/social-index?account=almendra"
+    },
     {
       "source": "/:account((?!api|assets|dishes|favicon\\.svg|icons\\.svg|service-worker\\.js).*)",
       "destination": "/index.html"
