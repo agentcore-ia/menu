@@ -4,11 +4,25 @@ import { resolve } from 'node:path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'host-html-fallback',
+      configureServer(server) {
+        server.middlewares.use((request, _response, next) => {
+          const pathname = request.url?.split('?')[0] ?? '/'
+          if (!pathname.startsWith('/api/') && !pathname.includes('.')) {
+            request.url = `/host.html${request.url?.includes('?') ? request.url.slice(request.url.indexOf('?')) : ''}`
+          }
+          next()
+        })
+      },
+    },
+  ],
   build: {
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
+        main: resolve(__dirname, 'host.html'),
         almendra: resolve(__dirname, 'almendra.html'),
         kika: resolve(__dirname, 'kika.html'),
         saborapampa: resolve(__dirname, 'saborapampa.html'),
