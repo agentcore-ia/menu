@@ -2,6 +2,36 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "saborapampa.menu.net.ar"
+        }
+      ],
+      "destination": "/saborapampa.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "kika.menu.net.ar"
+        }
+      ],
+      "destination": "/kika.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "almendra.menu.net.ar"
+        }
+      ],
+      "destination": "/almendra.html"
+    },
+    {
       "source": "/:path((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra).*)",
       "has": [
         {
