@@ -1,10 +1,5 @@
 {
   "framework": "vite",
-  "functions": {
-    "api/social-index.js": {
-      "includeFiles": "dist/index.html"
-    }
-  },
   "rewrites": [
     {
       "source": "/:path((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra).*)",
@@ -14,7 +9,7 @@
           "value": "saborapampa.menu.net.ar"
         }
       ],
-      "destination": "/api/social-index?account=saborapampa"
+      "destination": "/saborapampa.html"
     },
     {
       "source": "/:path((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra).*)",
@@ -24,7 +19,7 @@
           "value": "kika.menu.net.ar"
         }
       ],
-      "destination": "/api/social-index?account=kika"
+      "destination": "/kika.html"
     },
     {
       "source": "/:path((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra).*)",
@@ -34,7 +29,7 @@
           "value": "almendra.menu.net.ar"
         }
       ],
-      "destination": "/api/social-index?account=almendra"
+      "destination": "/almendra.html"
     },
     {
       "source": "/:account((?!api|assets|dishes|favicon\\.svg|icons\\.svg|service-worker\\.js).*)",
