@@ -1,9 +1,46 @@
 {
   "framework": "vite",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra).*)",
-      "destination": "/index.html"
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "saborapampa.menu.net.ar"
+        }
+      ],
+      "dest": "/saborapampa.html"
+    },
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "kika.menu.net.ar"
+        }
+      ],
+      "dest": "/kika.html"
+    },
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "almendra.menu.net.ar"
+        }
+      ],
+      "dest": "/almendra.html"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
