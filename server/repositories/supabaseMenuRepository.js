@@ -223,9 +223,17 @@ export class SupabaseMenuRepository {
     this.accountIdForFallback =
       presentationConfig?.theme?.inheritPreset || presentationConfig?.layout || restaurant.slug
     const stockByProductId = new Map(stockAvailability.map((entry) => [entry.product_id, entry]))
-    const productById = new Map(products.map((product) => [product.id, product]))
+    // Productos ocultos del menu digital (solo pedidos manuales del dashboard).
+    // Contrato con el dashboard: restaurants.horarios._settings.hiddenProducts.
+    const hiddenIds = Array.isArray(restaurant?.horarios?._settings?.hiddenProducts)
+      ? new Set(restaurant.horarios._settings.hiddenProducts.map(String))
+      : null
+    const visibleProducts = hiddenIds && hiddenIds.size
+      ? products.filter((product) => !hiddenIds.has(String(product.id)))
+      : products
+    const productById = new Map(visibleProducts.map((product) => [product.id, product]))
     const allRegularCategories = this.groupProductsByCategory(
-      products,
+      visibleProducts,
       stockByProductId,
       Boolean(restaurant.stock_strict_mode),
     )
