@@ -11,7 +11,7 @@ export default defineConfig({
       configureServer(server) {
         server.middlewares.use((request, _response, next) => {
           const pathname = request.url?.split('?')[0] ?? '/'
-          if (!pathname.startsWith('/api/') && !pathname.includes('.')) {
+          if (!pathname.startsWith('/api/') && !pathname.startsWith('/@') && !pathname.includes('.')) {
             request.url = `/host.html${request.url?.includes('?') ? request.url.slice(request.url.indexOf('?')) : ''}`
           }
           next()
