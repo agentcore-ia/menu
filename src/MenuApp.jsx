@@ -2171,6 +2171,330 @@ function getIncludedOptionGroups(groups = []) {
   return groups.filter(isIncludedOptionGroup)
 }
 
+// --- Plan semanal -----------------------------------------------------------
+// Algunos negocios (viandas, meal prep) venden un pack donde el cliente elige
+// un producto para cada dia de la semana. Eso se modela con un grupo de
+// opciones por dia (`kind: 'day'`), y se muestra como planificador en vez de
+// como lista larga de chips.
+
+const WEEKDAY_SEQUENCE = [
+  { key: 'lunes', label: 'Lunes', short: 'Lun' },
+  { key: 'martes', label: 'Martes', short: 'Mar' },
+  { key: 'miercoles', label: 'Miercoles', short: 'Mie' },
+  { key: 'jueves', label: 'Jueves', short: 'Jue' },
+  { key: 'viernes', label: 'Viernes', short: 'Vie' },
+  { key: 'sabado', label: 'Sabado', short: 'Sab' },
+  { key: 'domingo', label: 'Domingo', short: 'Dom' },
+]
+
+function normalizeDayKey(value) {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+}
+
+function getGroupWeekday(group) {
+  const explicit = normalizeDayKey(group?.day)
+  const fromTitle = normalizeDayKey(group?.title)
+
+  return (
+    WEEKDAY_SEQUENCE.find((day) => day.key === explicit) ??
+    WEEKDAY_SEQUENCE.find((day) => day.key === fromTitle) ??
+    null
+  )
+}
+
+function getWeeklyPlanDays(groups = []) {
+  return groups
+    .map((group) => {
+      const weekday = getGroupWeekday(group)
+
+      if (!weekday && String(group?.kind ?? '') !== 'day') {
+        return null
+      }
+
+      return {
+        group,
+        weekday: weekday ?? {
+          key: slugify(group.title),
+          label: group.title,
+          short: String(group.title).slice(0, 3),
+        },
+      }
+    })
+    .filter(Boolean)
+}
+
+function findGroupOption(group, value) {
+  if (!value) {
+    return null
+  }
+
+  return group.options.map(normalizeOptionEntry).find((option) => option.value === value) ?? null
+}
+
+function WeeklyPlanDetail({
+  dish,
+  days,
+  selections,
+  onSelectOption,
+  currencySymbol,
+  extraTotal,
+  quantity,
+  onQuantityChange,
+  onClose,
+  onAdd,
+  addDisabled,
+  addLabel,
+}) {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [activeTag, setActiveTag] = useState('')
+
+  const activeEntry = days[activeIndex] ?? days[0]
+  const activeGroup = activeEntry.group
+  const activeValue = selections[activeGroup.id] ?? ''
+  const basePrice = dish.unitPrice ?? toNumericPrice(dish.price)
+
+  const activeOptions = useMemo(
+    () =>
+      activeGroup.options.map((rawOption) => ({
+        ...normalizeOptionEntry(rawOption),
+        tag: String(rawOption?.tag ?? '').trim(),
+      })),
+    [activeGroup],
+  )
+  const tags = useMemo(() => {
+    const unique = []
+    activeOptions.forEach((option) => {
+      if (option.tag && !unique.includes(option.tag)) {
+        unique.push(option.tag)
+      }
+    })
+    return unique
+  }, [activeOptions])
+
+  const visibleOptions = activeTag
+    ? activeOptions.filter((option) => option.tag === activeTag)
+    : activeOptions
+
+  const chosenDays = days.filter((entry) => Boolean(selections[entry.group.id]))
+  const missingRequired = days.filter(
+    (entry) => entry.group.required && !selections[entry.group.id],
+  )
+  const progress = Math.round((chosenDays.length / days.length) * 100)
+
+  function handlePick(option) {
+    onSelectOption(activeGroup, option.value)
+    setActiveTag('')
+
+    const alreadySelected = activeValue === option.value
+
+    if (alreadySelected) {
+      return
+    }
+
+    const nextPending = days.findIndex(
+      (entry, index) => index > activeIndex && !selections[entry.group.id],
+    )
+
+    if (nextPending >= 0) {
+      setActiveIndex(nextPending)
+    }
+  }
+
+  return (
+    <section className="weekly-plan">
+      <header className="weekly-plan-head">
+        <button type="button" className="floating-button light" onClick={onClose} aria-label="Volver">
+          <IconBack />
+        </button>
+        <div className="weekly-plan-headline">
+          <span className="weekly-plan-eyebrow">Arma tu semana</span>
+          <h2>{dish.name}</h2>
+        </div>
+      </header>
+
+      <div className="weekly-plan-progress">
+        <div className="weekly-plan-progress-track">
+          <span style={{ width: `${progress}%` }} />
+        </div>
+        <p>
+          {missingRequired.length === 0
+            ? chosenDays.length === days.length
+              ? 'Semana completa'
+              : `${chosenDays.length} de ${days.length} dias elegidos`
+            : `${chosenDays.length} de ${days.length} dias · falta ${missingRequired[0].weekday.label.toLowerCase()}`}
+        </p>
+      </div>
+
+      <nav className="weekly-plan-rail" aria-label="Dias de la semana">
+        {days.map((entry, index) => {
+          const option = findGroupOption(entry.group, selections[entry.group.id])
+          const classes = [
+            'weekly-plan-day',
+            index === activeIndex ? 'active' : '',
+            option ? 'filled' : '',
+            entry.group.required ? 'required' : 'optional',
+          ]
+            .filter(Boolean)
+            .join(' ')
+
+          return (
+            <button
+              key={entry.group.id}
+              type="button"
+              className={classes}
+              onClick={() => {
+                setActiveIndex(index)
+                setActiveTag('')
+              }}
+              aria-current={index === activeIndex}
+            >
+              <span className="weekly-plan-day-short">{entry.weekday.short}</span>
+              <span className="weekly-plan-day-state" aria-hidden="true">
+                {option ? '✓' : entry.group.required ? '•' : '+'}
+              </span>
+            </button>
+          )
+        })}
+      </nav>
+
+      <div className="weekly-plan-body">
+        <div className="weekly-plan-day-head">
+          <h3>{activeEntry.weekday.label}</h3>
+          <p>
+            {activeGroup.required
+              ? 'Elegi la vianda de este dia'
+              : 'Dia opcional: sumalo solo si lo necesitas'}
+          </p>
+        </div>
+
+        {tags.length > 1 ? (
+          <div className="weekly-plan-filters" role="tablist">
+            <button
+              type="button"
+              className={activeTag ? '' : 'active'}
+              onClick={() => setActiveTag('')}
+            >
+              Todas
+            </button>
+            {tags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                className={activeTag === tag ? 'active' : ''}
+                onClick={() => setActiveTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        <div className="weekly-plan-grid">
+          {visibleOptions.map((option) => {
+            const isSelected = activeValue === option.value
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                className={`weekly-plan-option ${isSelected ? 'selected' : ''}`}
+                onClick={() => handlePick(option)}
+              >
+                <span className="weekly-plan-option-media">
+                  {option.image ? <img src={option.image} alt="" loading="lazy" /> : null}
+                  {isSelected ? (
+                    <span className="weekly-plan-option-check" aria-hidden="true">
+                      ✓
+                    </span>
+                  ) : null}
+                </span>
+                <span className="weekly-plan-option-body">
+                  <strong>{option.label}</strong>
+                  {option.subtitle ? <small>{option.subtitle}</small> : null}
+                </span>
+                <span className="weekly-plan-option-price">
+                  {option.price > 0 ? `+${formatPrice(option.price, currencySymbol)}` : 'Incluida'}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+
+        {!activeGroup.required && activeValue ? (
+          <button
+            type="button"
+            className="weekly-plan-clear"
+            onClick={() => onSelectOption(activeGroup, activeValue)}
+          >
+            Quitar el {activeEntry.weekday.label.toLowerCase()}
+          </button>
+        ) : null}
+      </div>
+
+      <div className="weekly-plan-summary">
+        <div className="weekly-plan-summary-head">
+          <h3>Tu semana</h3>
+          <div className="weekly-plan-quantity">
+            <button
+              type="button"
+              onClick={() => onQuantityChange(Math.max(1, quantity - 1))}
+              aria-label="Menos packs"
+            >
+              <IconMinus />
+            </button>
+            <span>{quantity}</span>
+            <button type="button" onClick={() => onQuantityChange(quantity + 1)} aria-label="Mas packs">
+              <IconPlus />
+            </button>
+          </div>
+        </div>
+
+        <ul>
+          {days.map((entry, index) => {
+            const option = findGroupOption(entry.group, selections[entry.group.id])
+
+            return (
+              <li key={entry.group.id} className={option ? 'filled' : ''}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveIndex(index)
+                    setActiveTag('')
+                  }}
+                >
+                  <span className="weekly-plan-summary-day">{entry.weekday.label}</span>
+                  <span className="weekly-plan-summary-dish">
+                    {option ? option.label : entry.group.required ? 'Sin elegir' : 'Sin vianda'}
+                  </span>
+                  {option && option.price > 0 ? (
+                    <span className="weekly-plan-summary-price">
+                      +{formatPrice(option.price, currencySymbol)}
+                    </span>
+                  ) : null}
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+
+      <footer className="weekly-plan-footer">
+        <div className="weekly-plan-total">
+          <span>Total</span>
+          <strong>{formatPrice((basePrice + extraTotal) * quantity, currencySymbol)}</strong>
+        </div>
+        <button type="button" className="weekly-plan-add" disabled={addDisabled} onClick={onAdd}>
+          {addLabel}
+        </button>
+      </footer>
+    </section>
+  )
+}
+
 function getGroupSelectionLimit(group) {
   if (group.selection === 'multiple') {
     if (group.maxSelect && Number(group.maxSelect) > 0) {
@@ -5710,39 +6034,58 @@ function TemplateMenuCollection({
       </div>
 
       <div className="dish-list">
-        {categoryItems.map((item, index) => (
-          <article key={item.id} className="dish-card">
-            <button type="button" className="dish-media-button" onClick={() => onOpenDish(item)}>
-              {renderProductMedia(item)}
-              {index === 0 ? <span className="dish-badge">Mas pedido</span> : null}
-              {item.video && presentation.preview?.productMedia === 'image-with-video-chip' ? (
-                <span className="video-badge">
-                  <IconPlay />
-                  Video
-                </span>
-              ) : null}
-            </button>
+        {categoryItems.map((item, index) => {
+          const planDays = getWeeklyPlanDays(getSelectableOptionGroups(item.optionGroups ?? []))
+          const isPlan = planDays.length >= 2
+          const planFixedDays = planDays.every((entry) => entry.group.required)
+          const planBadgeLabel = planFixedDays
+            ? `${planDays.length} dias a elegir`
+            : `hasta ${planDays.length} dias`
 
-            <div className="dish-body">
-              <button type="button" className="dish-main" onClick={() => onOpenDish(item)}>
-                <h3>{item.name}</h3>
-                <p>{item.description}</p>
+          return (
+            <article key={item.id} className={`dish-card ${isPlan ? 'dish-card-plan' : ''}`}>
+              <button type="button" className="dish-media-button" onClick={() => onOpenDish(item)}>
+                {renderProductMedia(item)}
+                {isPlan ? (
+                  <span className="dish-badge plan-badge">{planBadgeLabel}</span>
+                ) : index === 0 ? (
+                  <span className="dish-badge">Mas pedido</span>
+                ) : null}
+                {item.video && presentation.preview?.productMedia === 'image-with-video-chip' ? (
+                  <span className="video-badge">
+                    <IconPlay />
+                    Video
+                  </span>
+                ) : null}
               </button>
 
-              <div className="dish-footer">
-                <strong>{item.price}</strong>
-                <button
-                  type="button"
-                  className="add-button"
-                  onClick={() => onAddItem(item)}
-                  aria-label={`Agregar ${item.name}`}
-                >
-                  <IconPlus />
+              <div className="dish-body">
+                <button type="button" className="dish-main" onClick={() => onOpenDish(item)}>
+                  <h3>{item.name}</h3>
+                  <p>{item.description}</p>
                 </button>
+
+                <div className="dish-footer">
+                  <strong>{item.price}</strong>
+                  {isPlan ? (
+                    <button type="button" className="plan-cta" onClick={() => onOpenDish(item)}>
+                      Armar mi semana
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="add-button"
+                      onClick={() => onAddItem(item)}
+                      aria-label={`Agregar ${item.name}`}
+                    >
+                      <IconPlus />
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          )
+        })}
       </div>
     </section>
   )
@@ -7251,6 +7594,13 @@ export default function MenuApp() {
   )
   const isHostDetail = templateId === 'host' && Boolean(selectedDish)
   const isKikaDetail = templateId === 'kika' && Boolean(selectedDish)
+  // El planificador semanal gana sobre el template: si el producto tiene un
+  // grupo de opciones por dia, elegir la semana es la experiencia principal.
+  const detailWeeklyPlanDays = selectedDish ? getWeeklyPlanDays(detailSelectableGroups) : []
+  const isWeeklyPlanDetail = detailWeeklyPlanDays.length >= 2
+  const weeklyPlanMissingDays = detailWeeklyPlanDays.filter(
+    (entry) => entry.group.required && !selectedOptions[entry.group.id],
+  )
   const showSaborPampaDetailBulkActions =
     templateId === 'sabor-pampa' && shouldShowSaborPampaBulkActions(selectedDish)
   const detailHasHeroMedia = hasProductMedia(selectedDish)
@@ -7824,7 +8174,39 @@ export default function MenuApp() {
             style={getPresentationStyles(presentation, accountId)}
             onClick={(event) => event.stopPropagation()}
           >
-            {isKikaDetail ? (
+            {isWeeklyPlanDetail ? (
+              <WeeklyPlanDetail
+                dish={selectedDish}
+                days={detailWeeklyPlanDays}
+                selections={selectedOptions}
+                onSelectOption={handleSelectDetailOption}
+                currencySymbol={currencySymbol}
+                extraTotal={detailExtraTotal}
+                quantity={detailQuantity}
+                onQuantityChange={setDetailQuantity}
+                onClose={() => setSelectedDish(null)}
+                addDisabled={!detailSelectionsValid || orderingBlocked || detailStockBlocked}
+                addLabel={
+                  orderingBlocked
+                    ? 'Pedidos cerrados'
+                    : detailStockBlocked
+                      ? 'Sin stock'
+                      : detailSelectionsValid
+                        ? 'Agregar al pedido'
+                        : weeklyPlanMissingDays.length === 1
+                          ? `Falta el ${weeklyPlanMissingDays[0].weekday.label.toLowerCase()}`
+                          : `Faltan ${weeklyPlanMissingDays.length} dias`
+                }
+                onAdd={() => {
+                  handleAddItem(selectedDish, detailQuantity, {
+                    summary: buildSelectionSummary(detailSelectableGroups, selectedOptions),
+                    unitPrice:
+                      (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal,
+                  })
+                  setSelectedDish(null)
+                }}
+              />
+            ) : isKikaDetail ? (
               <>
                 <section className="kika-detail-hero">
                   <KikaDetailHeroVisual dish={selectedDish} presentation={presentation} />
@@ -8415,7 +8797,7 @@ export default function MenuApp() {
               </>
             )}
 
-            {(!isHostDetail && !isKikaDetail && (templateId !== 'pizzeria' || hasOrderItems)) ? (
+            {(!isHostDetail && !isKikaDetail && !isWeeklyPlanDetail && (templateId !== 'pizzeria' || hasOrderItems)) ? (
               <footer className="detail-order-bar">
                 <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                   <div className="order-bar-copy">

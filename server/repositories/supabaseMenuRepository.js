@@ -74,6 +74,7 @@ function parseProductOptionGroups(product) {
               image: String(option?.image || '').trim(),
               video: String(option?.video || '').trim(),
               subtitle: String(option?.subtitle || '').trim(),
+              tag: String(option?.tag || '').trim(),
             }))
             .filter((option) => option.label && option.value)
         : []
@@ -97,6 +98,11 @@ function parseProductOptionGroups(product) {
         selection,
         minSelect: Number(group?.minSelect || 0),
         maxSelect,
+        // `kind` y `day` marcan los grupos que representan un dia de la semana,
+        // para que el menu los muestre como planificador en vez de lista de chips.
+        kind: String(group?.kind || '').trim() || undefined,
+        day: String(group?.day || '').trim() || undefined,
+        display: String(group?.display || '').trim() || undefined,
         options,
       }
     })

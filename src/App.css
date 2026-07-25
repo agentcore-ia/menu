@@ -15084,3 +15084,485 @@ button:focus-visible {
 .account-branzen .kika-bottom-nav button.active {
   color: #6a7c5a;
 }
+
+/* ==========================================================================
+   Plan semanal (viandas / meal prep)
+   Producto con un grupo de opciones por dia: en vez de apilar todas las
+   opciones de todos los dias, se navega dia por dia con progreso y resumen.
+   ========================================================================== */
+
+.dish-card-plan {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.85rem;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--theme-primary) 10%, var(--theme-surface)) 0%,
+    var(--theme-surface) 62%
+  );
+  border-color: color-mix(in srgb, var(--theme-primary) 34%, transparent);
+  box-shadow: 0 18px 36px color-mix(in srgb, var(--theme-primary) 16%, var(--theme-shadow));
+}
+
+.dish-card-plan .dish-thumb {
+  height: 10.5rem;
+}
+
+.dish-card-plan .dish-main h3 {
+  font-size: 1.16rem;
+}
+
+.dish-badge.plan-badge {
+  background: var(--theme-primary);
+  color: var(--theme-primary-text);
+  letter-spacing: 0.04em;
+}
+
+.plan-cta {
+  border: 0;
+  cursor: pointer;
+  padding: 0.62rem 1.05rem;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 650;
+  font-size: 0.85rem;
+  background: var(--theme-primary);
+  color: var(--theme-primary-text);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--theme-primary) 34%, transparent);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.plan-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px color-mix(in srgb, var(--theme-primary) 42%, transparent);
+}
+
+.plan-cta:active {
+  transform: translateY(0);
+}
+
+.weekly-plan {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  background: var(--theme-bg);
+  color: var(--theme-text);
+}
+
+.weekly-plan-head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.1rem 1.15rem 0.5rem;
+}
+
+.weekly-plan-headline {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.weekly-plan-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--theme-primary);
+  font-weight: 700;
+}
+
+.weekly-plan-headline h2 {
+  margin: 0;
+  font-size: 1.28rem;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weekly-plan-progress {
+  padding: 0.35rem 1.15rem 0.9rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.weekly-plan-progress-track {
+  height: 0.32rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-primary) 16%, transparent);
+  overflow: hidden;
+}
+
+.weekly-plan-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--theme-primary);
+  transition: width 0.3s ease;
+}
+
+.weekly-plan-progress p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--theme-muted);
+}
+
+.weekly-plan-rail {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1.15rem 0.9rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.weekly-plan-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.weekly-plan-day {
+  flex: 1 0 auto;
+  min-width: 3.55rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.22rem;
+  padding: 0.6rem 0.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+  color: var(--theme-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.weekly-plan-day-state {
+  font-size: 0.72rem;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.weekly-plan-day.filled {
+  border-color: color-mix(in srgb, var(--theme-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--theme-primary) 12%, var(--theme-surface));
+  color: var(--theme-primary);
+}
+
+.weekly-plan-day.active {
+  background: var(--theme-primary);
+  border-color: var(--theme-primary);
+  color: var(--theme-primary-text);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--theme-primary) 30%, transparent);
+}
+
+.weekly-plan-day.active .weekly-plan-day-state {
+  opacity: 1;
+}
+
+.weekly-plan-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 1.15rem 1.1rem;
+}
+
+.weekly-plan-day-head h3 {
+  margin: 0 0 0.15rem;
+  font-size: 1.18rem;
+}
+
+.weekly-plan-day-head p {
+  margin: 0 0 0.85rem;
+  font-size: 0.84rem;
+  color: var(--theme-muted);
+}
+
+.weekly-plan-filters {
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 0.9rem;
+}
+
+.weekly-plan-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.weekly-plan-filters button {
+  flex: 0 0 auto;
+  border: 1px solid var(--theme-border);
+  background: transparent;
+  color: var(--theme-muted);
+  border-radius: 999px;
+  padding: 0.36rem 0.85rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.weekly-plan-filters button.active {
+  background: color-mix(in srgb, var(--theme-primary) 14%, transparent);
+  border-color: color-mix(in srgb, var(--theme-primary) 40%, transparent);
+  color: var(--theme-primary);
+}
+
+.weekly-plan-grid {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.weekly-plan-option {
+  display: grid;
+  grid-template-columns: 3.6rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.8rem;
+  text-align: left;
+  padding: 0.6rem;
+  border-radius: 1.1rem;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.weekly-plan-option:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--theme-primary) 34%, transparent);
+}
+
+.weekly-plan-option.selected {
+  border-color: var(--theme-primary);
+  background: color-mix(in srgb, var(--theme-primary) 10%, var(--theme-surface));
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--theme-primary) 16%, transparent);
+}
+
+.weekly-plan-option-media {
+  position: relative;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  background: var(--theme-surface-alt);
+}
+
+.weekly-plan-option-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.weekly-plan-option-check {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--theme-primary) 78%, transparent);
+  color: var(--theme-primary-text);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.weekly-plan-option-body {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.weekly-plan-option-body strong {
+  font-size: 0.92rem;
+  font-weight: 640;
+  line-height: 1.25;
+}
+
+.weekly-plan-option-body small {
+  font-size: 0.75rem;
+  color: var(--theme-muted);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.weekly-plan-option-price {
+  font-size: 0.76rem;
+  font-weight: 650;
+  color: var(--theme-muted);
+  white-space: nowrap;
+}
+
+.weekly-plan-option.selected .weekly-plan-option-price {
+  color: var(--theme-primary);
+}
+
+.weekly-plan-clear {
+  margin-top: 0.85rem;
+  width: 100%;
+  border: 1px dashed var(--theme-border);
+  background: transparent;
+  color: var(--theme-muted);
+  border-radius: 0.95rem;
+  padding: 0.6rem;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.weekly-plan-summary {
+  border-top: 1px solid var(--theme-border);
+  padding: 0.95rem 1.15rem 0.4rem;
+  background: color-mix(in srgb, var(--theme-surface) 60%, transparent);
+}
+
+.weekly-plan-summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.weekly-plan-summary-head h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.weekly-plan-quantity {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.weekly-plan-quantity button {
+  width: 1.9rem;
+  height: 1.9rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.weekly-plan-quantity button svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.weekly-plan-quantity span {
+  min-width: 1.1rem;
+  text-align: center;
+  font-weight: 650;
+  font-size: 0.92rem;
+}
+
+.weekly-plan-summary ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.1rem;
+  max-height: 8.2rem;
+  overflow-y: auto;
+}
+
+.weekly-plan-summary li button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 5.4rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.6rem;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 0.34rem 0;
+  cursor: pointer;
+}
+
+.weekly-plan-summary-day {
+  font-size: 0.78rem;
+  color: var(--theme-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.weekly-plan-summary-dish {
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--theme-text) 55%, transparent);
+}
+
+.weekly-plan-summary li.filled .weekly-plan-summary-dish {
+  color: var(--theme-text);
+  font-weight: 600;
+}
+
+.weekly-plan-summary-price {
+  font-size: 0.75rem;
+  color: var(--theme-primary);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.weekly-plan-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.85rem 1.15rem calc(0.95rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+}
+
+.weekly-plan-total {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.weekly-plan-total span {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--theme-muted);
+}
+
+.weekly-plan-total strong {
+  font-size: 1.15rem;
+}
+
+.weekly-plan-add {
+  flex: 1;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.9rem 1.1rem;
+  font: inherit;
+  font-weight: 680;
+  font-size: 0.92rem;
+  background: var(--theme-primary);
+  color: var(--theme-primary-text);
+  cursor: pointer;
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--theme-primary) 30%, transparent);
+  transition: transform 0.16s ease, opacity 0.16s ease;
+}
+
+.weekly-plan-add:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.weekly-plan-add:not(:disabled):active {
+  transform: translateY(1px);
+}
