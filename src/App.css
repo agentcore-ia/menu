@@ -15574,15 +15574,23 @@ button:focus-visible {
    hero es mas alto y el titulo mas chico: asi la bajada termina antes de que
    empiece la comida. */
 .account-alacarta .hero-content {
-  min-height: 27.5rem;
+  min-height: 22rem;
+}
+
+.account-alacarta .hero-copy {
+  padding-top: 0.65rem;
 }
 
 .account-alacarta .hero-copy h1 {
-  font-size: 2.2rem;
+  font-size: 2.05rem;
+}
+
+.account-alacarta .hero-divider {
+  margin: 0.85rem 0 0.95rem;
 }
 
 .account-alacarta .hero-plate {
-  width: 23rem;
-  right: -2rem;
+  width: 20rem;
+  right: -1.5rem;
   bottom: -1rem;
 }
