@@ -15589,8 +15589,11 @@ button:focus-visible {
   margin: 0.85rem 0 0.95rem;
 }
 
+/* El plato se agranda y sangra mas a derecha y abajo: asi las viandas se ven
+   grandes sin estirar el hero. Se pierden de vista el salmon y el limon, que
+   a este tamano eran ilegibles igual. */
 .account-alacarta .hero-plate {
-  width: 20rem;
-  right: -1.5rem;
-  bottom: -1rem;
+  width: 26rem;
+  right: -6.5rem;
+  bottom: -3.6rem;
 }
