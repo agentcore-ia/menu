@@ -32,6 +32,30 @@
       "destination": "/almendra.html"
     },
     {
+      "source": "/almendra",
+      "destination": "/almendra.html"
+    },
+    {
+      "source": "/almendra/:path*",
+      "destination": "/almendra.html"
+    },
+    {
+      "source": "/kika",
+      "destination": "/kika.html"
+    },
+    {
+      "source": "/kika/:path*",
+      "destination": "/kika.html"
+    },
+    {
+      "source": "/sabor-a-pampa",
+      "destination": "/saborapampa.html"
+    },
+    {
+      "source": "/sabor-a-pampa/:path*",
+      "destination": "/saborapampa.html"
+    },
+    {
       "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra).*)",
       "destination": "/host.html"
     }
