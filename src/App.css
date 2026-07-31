@@ -15600,18 +15600,47 @@ button:focus-visible {
 
 /* ==========================================================================
    Totta: carta de rotiseria
-   Hero verde botella con el video real del plato como protagonista, y el
-   menu como hoja crema tipografica. Con 180+ productos casi sin fotos, las
-   cards sin imagen se vuelven filas de carta impresa (via :has); las pocas
-   con foto o video conservan su card con media.
+   Header cinematografico: el video real del plato ocupa todo el hero con la
+   marca encima, y la carta crema se monta sobre el borde inferior. El menu
+   es una hoja tipografica: con 180+ productos casi sin fotos, las cards sin
+   imagen se vuelven filas de carta impresa (via :has) y las pocas con media
+   conservan su card.
    ========================================================================== */
+
+.account-totta .hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 22rem;
+}
+
+/* Velo: oscurece arriba para la marca y funde abajo hacia el verde de base,
+   donde se monta la hoja crema. */
+.account-totta .hero::after {
+  background: linear-gradient(
+    180deg,
+    rgba(9, 24, 15, 0.66) 0%,
+    rgba(9, 24, 15, 0.22) 38%,
+    rgba(9, 24, 15, 0.08) 58%,
+    rgba(13, 33, 21, 0.55) 82%,
+    #0d2115 100%
+  );
+  z-index: 1;
+}
+
+.account-totta .hero-topbar,
+.account-totta .hero-brand {
+  position: relative;
+  z-index: 2;
+}
 
 .account-totta .hero-topbar .icon-button,
 .account-totta .hero-topbar .cart-button {
-  background: rgba(246, 239, 225, 0.1);
-  border-color: rgba(246, 239, 225, 0.24);
+  background: rgba(9, 24, 15, 0.38);
+  border-color: rgba(246, 239, 225, 0.28);
   color: #f6efe1;
   box-shadow: none;
+  backdrop-filter: blur(6px);
 }
 
 .account-totta .cart-badge {
@@ -15619,76 +15648,59 @@ button:focus-visible {
   color: #fdf6ea;
 }
 
+/* Marca sola sobre el video: un unico lockup tipografico, sin icono ni
+   titulo redundante debajo. */
 .account-totta .hero-brand {
   color: #f6efe1;
+  margin-top: 2.4rem;
+  text-shadow: 0 2px 22px rgba(0, 0, 0, 0.55);
 }
 
 .account-totta .hero-brand .brand-mark {
-  color: #e2694b;
+  display: none;
 }
 
 .account-totta .hero-brand .brand-name {
   font-family: 'Fraunces', serif;
-  font-size: 1.9rem;
-  letter-spacing: 0.34em;
-  margin-right: -0.34em;
+  font-size: 2.85rem;
+  letter-spacing: 0.3em;
+  margin-right: -0.3em;
   font-weight: 600;
+  line-height: 1.05;
 }
 
 .account-totta .hero-brand .brand-subtitle {
-  color: rgba(246, 239, 225, 0.62);
-  letter-spacing: 0.42em;
-  margin-right: -0.42em;
-  font-size: 0.62rem;
+  color: rgba(246, 239, 225, 0.85);
+  letter-spacing: 0.44em;
+  margin-right: -0.44em;
+  font-size: 0.64rem;
+  margin-top: 0.55rem;
 }
 
-/* El hero deja de ser copy + recorte flotante: pasa a bloque en columna con
-   el video como banda completa debajo del titulo. */
+/* El video cubre todo el hero; hero-content queda estatico para que el
+   absoluto se ancle al hero completo. */
 .account-totta .hero-content {
+  position: static;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1.05rem;
-  padding: 0.9rem 1.15rem 1.5rem;
+  padding: 0;
+  flex: 1 1 auto;
 }
 
 .account-totta .hero-copy {
-  position: static;
-  width: 100%;
-  max-width: none;
-  padding-top: 0.4rem;
-  color: #f6efe1;
-}
-
-.account-totta .hero-copy h1 {
-  font-size: 2.3rem;
-  color: #f6efe1;
-}
-
-.account-totta .hero-copy .hero-accent {
-  color: #e2694b;
-}
-
-.account-totta .hero-divider {
-  background: #c8402e;
-  margin: 0.85rem 0 0.9rem;
-}
-
-.account-totta .hero-copy p {
-  color: rgba(246, 239, 225, 0.72);
-  max-width: 17rem;
-  font-size: 0.88rem;
+  display: none;
 }
 
 .account-totta .hero-plate {
-  position: static;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: 12.5rem;
-  overflow: hidden;
-  border-radius: 1.15rem;
-  border: 1px solid rgba(246, 239, 225, 0.2);
-  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.34);
+  height: 100%;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+  z-index: 0;
   pointer-events: none;
+  overflow: hidden;
 }
 
 .account-totta .hero-plate img,
@@ -15699,9 +15711,16 @@ button:focus-visible {
   display: block;
 }
 
-/* Chips de categoria: pills de texto compactas en vez de circulos con icono.
-   Con 18 categorias los iconos ocupaban media pantalla y las etiquetas en
-   mayusculas se recortaban entre si. */
+/* La hoja crema se monta sobre el hero con esquinas redondeadas. */
+.account-totta .content-panel {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 auto;
+  margin-top: -1.5rem;
+  border-radius: 1.6rem 1.6rem 0 0;
+}
+
+/* Chips de categoria: pills de texto compactas con scroll horizontal. */
 .account-totta .category-chip {
   min-width: 0;
   flex: 0 0 auto;
@@ -15739,8 +15758,8 @@ button:focus-visible {
   padding-bottom: 0.35rem;
 }
 
-/* Encabezados de seccion: kicker chico para "Categorias", titulo Fraunces
-   con subrayado rojo para la categoria activa. */
+/* Encabezados: kicker chico para "Categorias", titulo Fraunces con
+   subrayado rojo para la categoria activa. */
 .account-totta .section-heading h2 {
   font-family: 'Fraunces', serif;
   font-size: 1.42rem;
@@ -15776,8 +15795,8 @@ button:focus-visible {
   color: #c8402e;
 }
 
-/* Carta tipografica: los productos sin media pierden la card y la columna de
-   imagen vacia, y se vuelven filas con separador fino. */
+/* Carta tipografica: los productos sin media pierden la card y la columna
+   de imagen vacia, y se vuelven filas con separador fino. */
 .account-totta .dish-card:not(:has(.dish-thumb)) {
   grid-template-columns: minmax(0, 1fr);
   background: transparent;
@@ -15855,17 +15874,11 @@ button:focus-visible {
   border-bottom: 0;
 }
 
-/* Las cards que si tienen foto o video conservan chrome propio dentro de la
-   hoja, separadas del listado tipografico. */
+/* Las cards que si tienen foto o video conservan chrome propio dentro de
+   la hoja. */
 .account-totta .dish-card:has(.dish-thumb) {
   margin: 0.8rem 0;
   border-bottom: 1px solid rgba(29, 64, 40, 0.14);
   border-radius: 1.05rem;
   padding-bottom: 0.95rem;
-}
-
-/* El panel de contenido debe llenar el alto: sin esto, una categoria corta
-   dejaba a la vista un bloque enorme del fondo de pagina. */
-.account-totta .content-panel {
-  flex: 1 1 auto;
 }
