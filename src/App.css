@@ -15699,31 +15699,81 @@ button:focus-visible {
   display: block;
 }
 
-/* Pills de categoria: sello de carta, mayusculas cortas. */
-.account-totta .category-row button,
-.account-totta .category-pill {
+/* Chips de categoria: pills de texto compactas en vez de circulos con icono.
+   Con 18 categorias los iconos ocupaban media pantalla y las etiquetas en
+   mayusculas se recortaban entre si. */
+.account-totta .category-chip {
+  min-width: 0;
+  flex: 0 0 auto;
+  flex-direction: row;
+  gap: 0;
+}
+
+.account-totta .category-chip .category-icon {
+  display: none;
+}
+
+.account-totta .category-chip .category-label {
   font-family: 'Montserrat', sans-serif;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  font-size: 0.66rem;
+  white-space: nowrap;
+  color: #1b3122;
+  background: #fffcf3;
+  border: 1px solid rgba(29, 64, 40, 0.26);
+  border-radius: 999px;
+  padding: 0.55rem 0.95rem;
+  transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
 }
 
-.account-totta .section-head h2 {
+.account-totta .category-chip.active .category-label {
+  background: #c8402e;
+  border-color: #c8402e;
+  color: #fdf6ea;
+}
+
+.account-totta .category-row {
+  gap: 0.5rem;
+  padding-bottom: 0.35rem;
+}
+
+/* Encabezados de seccion: kicker chico para "Categorias", titulo Fraunces
+   con subrayado rojo para la categoria activa. */
+.account-totta .section-heading h2 {
   font-family: 'Fraunces', serif;
-  font-size: 1.5rem;
-  letter-spacing: 0.02em;
+  font-size: 1.42rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: #1b3122;
 }
 
-.account-totta .section-head h2::after {
+.account-totta .section-heading h2::after {
   content: '';
   display: block;
   width: 2.1rem;
   height: 0.2rem;
   border-radius: 999px;
-  margin-top: 0.45rem;
+  margin-top: 0.4rem;
   background: #c8402e;
+}
+
+.account-totta [data-section='categories'] .section-heading h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(27, 49, 34, 0.55);
+}
+
+.account-totta [data-section='categories'] .section-heading h2::after {
+  display: none;
+}
+
+.account-totta .section-heading button {
+  color: #c8402e;
 }
 
 /* Carta tipografica: los productos sin media pierden la card y la columna de
@@ -15812,4 +15862,10 @@ button:focus-visible {
   border-bottom: 1px solid rgba(29, 64, 40, 0.14);
   border-radius: 1.05rem;
   padding-bottom: 0.95rem;
+}
+
+/* El panel de contenido debe llenar el alto: sin esto, una categoria corta
+   dejaba a la vista un bloque enorme del fondo de pagina. */
+.account-totta .content-panel {
+  flex: 1 1 auto;
 }
