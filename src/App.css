@@ -15597,3 +15597,219 @@ button:focus-visible {
   right: -6.5rem;
   bottom: -3.6rem;
 }
+
+/* ==========================================================================
+   Totta: carta de rotiseria
+   Hero verde botella con el video real del plato como protagonista, y el
+   menu como hoja crema tipografica. Con 180+ productos casi sin fotos, las
+   cards sin imagen se vuelven filas de carta impresa (via :has); las pocas
+   con foto o video conservan su card con media.
+   ========================================================================== */
+
+.account-totta .hero-topbar .icon-button,
+.account-totta .hero-topbar .cart-button {
+  background: rgba(246, 239, 225, 0.1);
+  border-color: rgba(246, 239, 225, 0.24);
+  color: #f6efe1;
+  box-shadow: none;
+}
+
+.account-totta .cart-badge {
+  background: #c8402e;
+  color: #fdf6ea;
+}
+
+.account-totta .hero-brand {
+  color: #f6efe1;
+}
+
+.account-totta .hero-brand .brand-mark {
+  color: #e2694b;
+}
+
+.account-totta .hero-brand .brand-name {
+  font-family: 'Fraunces', serif;
+  font-size: 1.9rem;
+  letter-spacing: 0.34em;
+  margin-right: -0.34em;
+  font-weight: 600;
+}
+
+.account-totta .hero-brand .brand-subtitle {
+  color: rgba(246, 239, 225, 0.62);
+  letter-spacing: 0.42em;
+  margin-right: -0.42em;
+  font-size: 0.62rem;
+}
+
+/* El hero deja de ser copy + recorte flotante: pasa a bloque en columna con
+   el video como banda completa debajo del titulo. */
+.account-totta .hero-content {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+  padding: 0.9rem 1.15rem 1.5rem;
+}
+
+.account-totta .hero-copy {
+  position: static;
+  width: 100%;
+  max-width: none;
+  padding-top: 0.4rem;
+  color: #f6efe1;
+}
+
+.account-totta .hero-copy h1 {
+  font-size: 2.3rem;
+  color: #f6efe1;
+}
+
+.account-totta .hero-copy .hero-accent {
+  color: #e2694b;
+}
+
+.account-totta .hero-divider {
+  background: #c8402e;
+  margin: 0.85rem 0 0.9rem;
+}
+
+.account-totta .hero-copy p {
+  color: rgba(246, 239, 225, 0.72);
+  max-width: 17rem;
+  font-size: 0.88rem;
+}
+
+.account-totta .hero-plate {
+  position: static;
+  width: 100%;
+  height: 12.5rem;
+  overflow: hidden;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(246, 239, 225, 0.2);
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.34);
+  pointer-events: none;
+}
+
+.account-totta .hero-plate img,
+.account-totta .hero-plate video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Pills de categoria: sello de carta, mayusculas cortas. */
+.account-totta .category-row button,
+.account-totta .category-pill {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+}
+
+.account-totta .section-head h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
+  color: #1b3122;
+}
+
+.account-totta .section-head h2::after {
+  content: '';
+  display: block;
+  width: 2.1rem;
+  height: 0.2rem;
+  border-radius: 999px;
+  margin-top: 0.45rem;
+  background: #c8402e;
+}
+
+/* Carta tipografica: los productos sin media pierden la card y la columna de
+   imagen vacia, y se vuelven filas con separador fino. */
+.account-totta .dish-card:not(:has(.dish-thumb)) {
+  grid-template-columns: minmax(0, 1fr);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(29, 64, 40, 0.14);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0.95rem 0.2rem;
+}
+
+.account-totta .dish-card:not(:has(.dish-thumb)) .dish-media-button {
+  display: none;
+}
+
+.account-totta .dish-card:not(:has(.dish-thumb)) .dish-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.account-totta .dish-main h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.04rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #1b3122;
+}
+
+.account-totta .dish-main p {
+  color: rgba(27, 49, 34, 0.62);
+}
+
+.account-totta .dish-card:not(:has(.dish-thumb)) .dish-main p {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin-top: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.account-totta .dish-card:not(:has(.dish-thumb)) .dish-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-top: 0;
+}
+
+.account-totta .dish-footer strong {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.02rem;
+  white-space: nowrap;
+}
+
+.account-totta .dish-card:not(:has(.dish-thumb)) .add-button {
+  width: 2rem;
+  height: 2rem;
+}
+
+.account-totta .dish-list {
+  gap: 0;
+  background: #fffcf3;
+  border: 1px solid rgba(29, 64, 40, 0.14);
+  border-radius: 1.25rem;
+  padding: 0.35rem 1.05rem;
+  box-shadow: 0 14px 30px rgba(15, 36, 23, 0.07);
+}
+
+.account-totta .dish-list .dish-card:last-child {
+  border-bottom: 0;
+}
+
+/* Las cards que si tienen foto o video conservan chrome propio dentro de la
+   hoja, separadas del listado tipografico. */
+.account-totta .dish-card:has(.dish-thumb) {
+  margin: 0.8rem 0;
+  border-bottom: 1px solid rgba(29, 64, 40, 0.14);
+  border-radius: 1.05rem;
+  padding-bottom: 0.95rem;
+}
