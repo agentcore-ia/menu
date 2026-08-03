@@ -286,6 +286,11 @@ export class SupabaseOrderRepository {
       notes: payload.notes,
     })
 
+    // Aviso del pedido al WhatsApp del dueno (locales sin computadora). El
+    // dashboard decide si corresponde segun su configuracion; nunca puede
+    // romper la creacion del pedido.
+    void this.notifyOwnerOnDashboard(restaurant.id, pedido.id)
+
     return {
       id: pedido.id,
       orderNumber: pedido.order_number,
@@ -329,6 +334,24 @@ export class SupabaseOrderRepository {
           : null,
       paymentLink: mercadoPagoPreference?.paymentLink ?? null,
       paymentWarning: mercadoPagoPreference?.warning ?? null,
+    }
+  }
+
+  // Pide al dashboard que avise el pedido por WhatsApp al dueno. Se autentica
+  // con la service key que este servicio ya tiene; si falla, el pedido igual
+  // queda creado (el dashboard reintenta en su barrido).
+  async notifyOwnerOnDashboard(restaurantId, orderId) {
+    const baseUrl = String(this.config.dashboardUrl || '').replace(/\/+$/, '')
+    const key = this.config.internalServiceKey
+    if (!baseUrl || !key || !restaurantId || !orderId) return
+    try {
+      await fetch(`${baseUrl}/api/orders/notify-owner`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-order-secret': key },
+        body: JSON.stringify({ restaurantId, orderId, kind: 'new' }),
+      })
+    } catch {
+      // el aviso nunca rompe la creacion del pedido
     }
   }
 
