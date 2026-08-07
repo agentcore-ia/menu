@@ -125,6 +125,24 @@ export class SupabaseOrderRepository {
       }
     }
 
+    // Telefono de PRUEBA (Ajustes > Agente > "Telefonos de prueba" del
+    // dashboard, horarios._settings.agentTestPhones): el pedido se marca
+    // transcription.test=true igual que los del agente de WhatsApp, asi NO
+    // imprime comanda, NO cuenta en caja y NO se auto-factura. Sin esto una
+    // prueba por el menu digital imprimio comandas reales en la cocina.
+    // Match por ultimos 10 digitos (misma convencion que el agente).
+    const esTelefonoPrueba = (() => {
+      const lista = restaurant.horarios?._settings?.agentTestPhones
+      const arr = Array.isArray(lista) ? lista : []
+      const digits = String(customer.phone || '').replace(/\D/g, '')
+      const cola = digits.slice(-10)
+      if (!cola) return false
+      return arr.some((t) => {
+        const td = String(t || '').replace(/\D/g, '')
+        return td.length >= 6 && (td.slice(-10) === cola || td === digits)
+      })
+    })()
+
     const [pedido] = await this.request('/pedidos', {
       method: 'POST',
       headers: {
@@ -147,11 +165,14 @@ export class SupabaseOrderRepository {
           discount_source: discountAmount > 0 ? 'loyalty' : null,
           total,
           notes: resolvedTableName ? `Pedido de ${resolvedTableName}` : (payload.notes || null),
-          customer_name: customer.name || payload.customer.name || null,
+          customer_name: esTelefonoPrueba
+            ? `PRUEBA - ${customer.name || payload.customer.name || 'Cliente'}`
+            : (customer.name || payload.customer.name || null),
           customer_phone: customer.phone,
           source: payload.mesa_id ? 'qr_mesa' : 'menu_digital',
           table_id: resolvedTableId,
           transcription: {
+            ...(esTelefonoPrueba ? { test: true } : {}),
             channel: payload.mesa_id ? 'qr_mesa' : 'menu_digital',
             mesa_name: resolvedTableName || null,
             customer: payload.customer,
