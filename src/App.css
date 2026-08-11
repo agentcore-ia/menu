@@ -15882,3 +15882,58 @@ button:focus-visible {
   border-radius: 1.05rem;
   padding-bottom: 0.95rem;
 }
+
+/* ==========================================================================
+   Cards sin foto
+   Un producto sin imagen ni video dejaba la columna de la miniatura vacia:
+   ~7rem de blanco a la izquierda del nombre. Cuando no hay media, la card
+   pasa a una sola columna y el badge, que estaba absoluto sobre la foto,
+   vuelve al flujo como chip arriba del nombre.
+   ========================================================================== */
+
+.dish-card:not(:has(.dish-thumb)) {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.55rem;
+  padding: 1rem 1.1rem;
+}
+
+.dish-card:not(:has(.dish-thumb)) .dish-media-button {
+  border-radius: 0;
+  overflow: visible;
+  cursor: default;
+  /* Un <button> centra su contenido: sin esto el badge queda al medio. */
+  display: block;
+  text-align: left;
+}
+
+/* Sin badge la fila no ocupa nada; con badge queda un chip sobre el titulo. */
+.dish-card:not(:has(.dish-thumb)) .dish-media-button:empty {
+  display: none;
+}
+
+.dish-card:not(:has(.dish-thumb)) .dish-badge {
+  position: static;
+  font-size: 0.7rem;
+  min-height: 0;
+  padding: 0.24rem 0.6rem;
+  letter-spacing: 0.04em;
+}
+
+/* El texto ya no compite con la miniatura: puede respirar a lo ancho. */
+.dish-card:not(:has(.dish-thumb)) .dish-body {
+  gap: 0.6rem;
+}
+
+.dish-card:not(:has(.dish-thumb)) .dish-footer {
+  margin-top: 0.15rem;
+}
+
+/* Las opciones del planificador siguen la misma regla: sin foto no se
+   reserva el cuadrado de la miniatura. */
+.weekly-plan-option:not(:has(img)) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.weekly-plan-option:not(:has(img)) .weekly-plan-option-media {
+  display: none;
+}
