@@ -2227,12 +2227,29 @@ function getWeeklyPlanDays(groups = []) {
     .filter(Boolean)
 }
 
-function findGroupOption(group, value) {
-  if (!value) {
-    return null
+// Un dia puede estar configurado como single (un plato) o multiple (varios).
+// Estas dos funciones normalizan esa diferencia para que el planificador lea
+// siempre una lista: sin esto, un grupo multiple guarda [] y `Boolean([])` es
+// true, con lo cual los dias figuraban elegidos sin que el cliente eligiera.
+function getDaySelectedValues(group, selections) {
+  const value = selections?.[group.id]
+
+  if (Array.isArray(value)) {
+    return value.filter(Boolean)
   }
 
-  return group.options.map(normalizeOptionEntry).find((option) => option.value === value) ?? null
+  return value ? [value] : []
+}
+
+function getDaySelectedOptions(group, selections) {
+  const values = getDaySelectedValues(group, selections)
+
+  if (!values.length) {
+    return []
+  }
+
+  const options = group.options.map(normalizeOptionEntry)
+  return values.map((value) => options.find((option) => option.value === value)).filter(Boolean)
 }
 
 function WeeklyPlanDetail({
@@ -2254,7 +2271,8 @@ function WeeklyPlanDetail({
 
   const activeEntry = days[activeIndex] ?? days[0]
   const activeGroup = activeEntry.group
-  const activeValue = selections[activeGroup.id] ?? ''
+  const activeValues = getDaySelectedValues(activeGroup, selections)
+  const activeIsMultiple = isGroupMultiple(activeGroup)
   const basePrice = dish.unitPrice ?? toNumericPrice(dish.price)
 
   const activeOptions = useMemo(
@@ -2279,9 +2297,9 @@ function WeeklyPlanDetail({
     ? activeOptions.filter((option) => option.tag === activeTag)
     : activeOptions
 
-  const chosenDays = days.filter((entry) => Boolean(selections[entry.group.id]))
+  const chosenDays = days.filter((entry) => getDaySelectedValues(entry.group, selections).length)
   const missingRequired = days.filter(
-    (entry) => entry.group.required && !selections[entry.group.id],
+    (entry) => entry.group.required && !getDaySelectedValues(entry.group, selections).length,
   )
   const progress = Math.round((chosenDays.length / days.length) * 100)
 
@@ -2289,14 +2307,16 @@ function WeeklyPlanDetail({
     onSelectOption(activeGroup, option.value)
     setActiveTag('')
 
-    const alreadySelected = activeValue === option.value
-
-    if (alreadySelected) {
+    // En un dia de seleccion multiple el cliente puede seguir sumando platos,
+    // asi que no se avanza solo; en uno de un plato, si se acaba de elegir, se
+    // salta al proximo dia que todavia no tiene nada.
+    if (activeIsMultiple || activeValues.includes(option.value)) {
       return
     }
 
     const nextPending = days.findIndex(
-      (entry, index) => index > activeIndex && !selections[entry.group.id],
+      (entry, index) =>
+        index > activeIndex && !getDaySelectedValues(entry.group, selections).length,
     )
 
     if (nextPending >= 0) {
@@ -2331,11 +2351,11 @@ function WeeklyPlanDetail({
 
       <nav className="weekly-plan-rail" aria-label="Dias de la semana">
         {days.map((entry, index) => {
-          const option = findGroupOption(entry.group, selections[entry.group.id])
+          const elegidas = getDaySelectedValues(entry.group, selections).length
           const classes = [
             'weekly-plan-day',
             index === activeIndex ? 'active' : '',
-            option ? 'filled' : '',
+            elegidas ? 'filled' : '',
             entry.group.required ? 'required' : 'optional',
           ]
             .filter(Boolean)
@@ -2354,7 +2374,7 @@ function WeeklyPlanDetail({
             >
               <span className="weekly-plan-day-short">{entry.weekday.short}</span>
               <span className="weekly-plan-day-state" aria-hidden="true">
-                {option ? '✓' : entry.group.required ? '•' : '+'}
+                {elegidas > 1 ? `${elegidas}` : elegidas ? '✓' : entry.group.required ? '•' : '+'}
               </span>
             </button>
           )
@@ -2367,7 +2387,9 @@ function WeeklyPlanDetail({
           <p>
             {activeGroup.required
               ? 'Elegi la vianda de este dia'
-              : 'Dia opcional: sumalo solo si lo necesitas'}
+              : activeIsMultiple
+                ? 'Dia opcional: podes sumar mas de una vianda'
+                : 'Dia opcional: sumalo solo si lo necesitas'}
           </p>
         </div>
 
@@ -2395,7 +2417,7 @@ function WeeklyPlanDetail({
 
         <div className="weekly-plan-grid">
           {visibleOptions.map((option) => {
-            const isSelected = activeValue === option.value
+            const isSelected = activeValues.includes(option.value)
 
             return (
               <button
@@ -2424,11 +2446,11 @@ function WeeklyPlanDetail({
           })}
         </div>
 
-        {!activeGroup.required && activeValue ? (
+        {!activeGroup.required && activeValues.length ? (
           <button
             type="button"
             className="weekly-plan-clear"
-            onClick={() => onSelectOption(activeGroup, activeValue)}
+            onClick={() => activeValues.forEach((value) => onSelectOption(activeGroup, value))}
           >
             Quitar el {activeEntry.weekday.label.toLowerCase()}
           </button>
@@ -2455,10 +2477,11 @@ function WeeklyPlanDetail({
 
         <ul>
           {days.map((entry, index) => {
-            const option = findGroupOption(entry.group, selections[entry.group.id])
+            const elegidas = getDaySelectedOptions(entry.group, selections)
+            const extraDelDia = elegidas.reduce((total, option) => total + Number(option.price || 0), 0)
 
             return (
-              <li key={entry.group.id} className={option ? 'filled' : ''}>
+              <li key={entry.group.id} className={elegidas.length ? 'filled' : ''}>
                 <button
                   type="button"
                   onClick={() => {
@@ -2468,11 +2491,15 @@ function WeeklyPlanDetail({
                 >
                   <span className="weekly-plan-summary-day">{entry.weekday.label}</span>
                   <span className="weekly-plan-summary-dish">
-                    {option ? option.label : entry.group.required ? 'Sin elegir' : 'Sin vianda'}
+                    {elegidas.length
+                      ? elegidas.map((option) => option.label).join(' + ')
+                      : entry.group.required
+                        ? 'Sin elegir'
+                        : 'Sin vianda'}
                   </span>
-                  {option && option.price > 0 ? (
+                  {extraDelDia > 0 ? (
                     <span className="weekly-plan-summary-price">
-                      +{formatPrice(option.price, currencySymbol)}
+                      +{formatPrice(extraDelDia, currencySymbol)}
                     </span>
                   ) : null}
                 </button>
@@ -7599,8 +7626,15 @@ export default function MenuApp() {
   const detailWeeklyPlanDays = selectedDish ? getWeeklyPlanDays(detailSelectableGroups) : []
   const isWeeklyPlanDetail = detailWeeklyPlanDays.length >= 2
   const weeklyPlanMissingDays = detailWeeklyPlanDays.filter(
-    (entry) => entry.group.required && !selectedOptions[entry.group.id],
+    (entry) => entry.group.required && !getDaySelectedValues(entry.group, selectedOptions).length,
   )
+  // Si el pack no tiene ningun dia obligatorio, igual hay que elegir al menos
+  // una vianda: sin esto se podia mandar a la cocina un pack vacio de $0.
+  const weeklyPlanIsEmpty =
+    isWeeklyPlanDetail &&
+    detailWeeklyPlanDays.every(
+      (entry) => !getDaySelectedValues(entry.group, selectedOptions).length,
+    )
   const showSaborPampaDetailBulkActions =
     templateId === 'sabor-pampa' && shouldShowSaborPampaBulkActions(selectedDish)
   const detailHasHeroMedia = hasProductMedia(selectedDish)
@@ -8185,17 +8219,21 @@ export default function MenuApp() {
                 quantity={detailQuantity}
                 onQuantityChange={setDetailQuantity}
                 onClose={() => setSelectedDish(null)}
-                addDisabled={!detailSelectionsValid || orderingBlocked || detailStockBlocked}
+                addDisabled={
+                  !detailSelectionsValid || weeklyPlanIsEmpty || orderingBlocked || detailStockBlocked
+                }
                 addLabel={
                   orderingBlocked
                     ? 'Pedidos cerrados'
                     : detailStockBlocked
                       ? 'Sin stock'
-                      : detailSelectionsValid
-                        ? 'Agregar al pedido'
-                        : weeklyPlanMissingDays.length === 1
-                          ? `Falta el ${weeklyPlanMissingDays[0].weekday.label.toLowerCase()}`
-                          : `Faltan ${weeklyPlanMissingDays.length} dias`
+                      : weeklyPlanIsEmpty
+                        ? 'Elegi al menos una vianda'
+                        : detailSelectionsValid
+                          ? 'Agregar al pedido'
+                          : weeklyPlanMissingDays.length === 1
+                            ? `Falta el ${weeklyPlanMissingDays[0].weekday.label.toLowerCase()}`
+                            : `Faltan ${weeklyPlanMissingDays.length} dias`
                 }
                 onAdd={() => {
                   handleAddItem(selectedDish, detailQuantity, {
