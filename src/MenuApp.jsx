@@ -2241,6 +2241,22 @@ function getDaySelectedValues(group, selections) {
   return value ? [value] : []
 }
 
+// Precio de entrada de un pack: si el producto no tiene precio propio, sale de
+// la vianda mas barata que se pueda elegir.
+function getPlanStartingPrice(dish, days) {
+  const base = dish.unitPrice ?? toNumericPrice(dish.price)
+
+  if (base > 0) {
+    return 0
+  }
+
+  const precios = days
+    .flatMap((entry) => entry.group.options.map((option) => Number(option?.price || 0)))
+    .filter((precio) => precio > 0)
+
+  return precios.length ? Math.min(...precios) : 0
+}
+
 function getDaySelectedOptions(group, selections) {
   const values = getDaySelectedValues(group, selections)
 
@@ -4759,6 +4775,7 @@ function TemplateMenuCollection({
   loyaltySettings = null,
   pointsName = 'puntos',
   orderCount = 0,
+  currencySymbol = '$',
 }) {
   const [dailyMenuFilter, setDailyMenuFilter] = useState('all')
   const [activeFeaturedIndex, setActiveFeaturedIndex] = useState(0)
@@ -6068,6 +6085,10 @@ function TemplateMenuCollection({
           const planBadgeLabel = planFixedDays
             ? `${planDays.length} dias a elegir`
             : `hasta ${planDays.length} dias`
+          // Un pack a medida no tiene precio propio: lo arma el cliente eligiendo
+          // viandas. Mostrar "$0" en la card confunde, asi que se muestra desde
+          // cuanto sale la vianda mas barata.
+          const planFromPrice = isPlan ? getPlanStartingPrice(item, planDays) : 0
 
           return (
             <article key={item.id} className={`dish-card ${isPlan ? 'dish-card-plan' : ''}`}>
@@ -6093,7 +6114,9 @@ function TemplateMenuCollection({
                 </button>
 
                 <div className="dish-footer">
-                  <strong>{item.price}</strong>
+                  <strong>
+                    {planFromPrice > 0 ? `Desde ${formatPrice(planFromPrice, currencySymbol)}` : item.price}
+                  </strong>
                   {isPlan ? (
                     <button type="button" className="plan-cta" onClick={() => onOpenDish(item)}>
                       Armar mi semana
@@ -7883,6 +7906,7 @@ export default function MenuApp() {
                   loyaltySettings={loyaltySettings}
                   pointsName={pointsName}
                   orderCount={orderCount}
+                  currencySymbol={currencySymbol}
                 />
               </>
             ) : null}
