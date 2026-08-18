@@ -15980,3 +15980,18 @@ button:focus-visible {
 .account-lo-de-totto .pampa-hero-media .hero-image-slider {
   height: 100%;
 }
+
+/* .hero-sabor-pampa trae una altura fija (~30rem) pensada para la foto
+   vertical de Sabor a Pampa. El banner de Lo de Toto es panoramico
+   (1740x904): forzarlo a esa altura recortaba casi todo el ancho. Se
+   reemplaza por el aspecto real de la foto, asi entra completa. */
+.account-lo-de-totto .hero-sabor-pampa {
+  height: auto;
+  aspect-ratio: 1740 / 904;
+}
+
+/* Se pide sacar la tira de beneficios (Pedi facil / Elaboracion diaria
+   / Ingredientes / Hecho con amor). */
+.account-lo-de-totto .pampa-feature-strip {
+  display: none;
+}
