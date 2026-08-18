@@ -15953,3 +15953,30 @@ button:focus-visible {
 .weekly-plan-option:not(:has(img)) .weekly-plan-option-media {
   display: none;
 }
+
+/* Lo de Toto: el banner real del negocio ya trae el sello "Lo de Toto"
+   horneado en la foto. El logo suelto (pampa-brand-lockup) quedaba
+   superpuesto arriba, duplicando la marca con otra tipografia. */
+.account-lo-de-totto .pampa-brand-lockup {
+  display: none;
+}
+
+/* El banner real ya trae su propio texto y sello horneados en la foto:
+   se sacan el titulo/descripcion del hero y el velo oscuro que los
+   templates usan para dar contraste a ESE texto, para que quede la
+   imagen limpia tal cual es. */
+.account-lo-de-totto .pampa-hero-copy {
+  display: none;
+}
+
+.account-lo-de-totto .pampa-hero-media::after {
+  display: none;
+}
+
+/* Con una sola imagen (sin carrusel), .hero-image-slider no tiene alto
+   propio -- solo se estira via position:absolute cuando hay mas de una
+   foto -- asi que la imagen caia a su alto intrinseco en vez de cubrir
+   el hero. Se le da alto acá, acotado a esta cuenta. */
+.account-lo-de-totto .pampa-hero-media .hero-image-slider {
+  height: 100%;
+}
