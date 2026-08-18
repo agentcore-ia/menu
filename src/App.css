@@ -15988,6 +15988,7 @@ button:focus-visible {
 .account-lo-de-totto .hero-sabor-pampa {
   height: auto;
   aspect-ratio: 1740 / 904;
+  border-radius: 0;
 }
 
 /* Se pide sacar la tira de beneficios (Pedi facil / Elaboracion diaria
