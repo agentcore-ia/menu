@@ -3056,19 +3056,6 @@ function getBurgerCategoryIcon(label) {
   return IconServe
 }
 
-function getBurgerOrderedCategories(categories) {
-  const order = ['hamburgues', 'burger', 'promo', 'oferta', 'descuento', 'combo', 'entrada', 'papa', 'bebida', 'postre']
-
-  return [...categories].sort((left, right) => {
-    const leftKey = slugify(left.label)
-    const rightKey = slugify(right.label)
-    const leftIndex = order.findIndex((token) => leftKey.includes(token))
-    const rightIndex = order.findIndex((token) => rightKey.includes(token))
-
-    return (leftIndex === -1 ? 99 : leftIndex) - (rightIndex === -1 ? 99 : rightIndex)
-  })
-}
-
 function getBurgerDishParts(item) {
   const name = String(item?.name ?? '').replace(/^hamburguesa\s+/i, '').trim()
   const words = name.split(/\s+/).filter(Boolean)
@@ -4382,9 +4369,11 @@ function TemplateCategorySelector({
 
   if (templateId === 'burger') {
     const useHostCategorySet = shouldUseHostCategorySet(accountId, templateId, categories)
-    const orderedCategories = useHostCategorySet
-      ? getHostOrderedCategories(categories)
-      : getBurgerOrderedCategories(categories)
+    // El orden ya viene resuelto del backend (menuCategories del dashboard,
+    // o category.asc por defecto): antes se pisaba con un heuristico fijo
+    // (hamburguesa/combo/entrada/bebida/postre primero) que no dejaba
+    // ordenar la carta a mano para cuentas con un menu mas amplio.
+    const orderedCategories = useHostCategorySet ? getHostOrderedCategories(categories) : categories
 
     return (
       <div className="burger-menu-head">
@@ -5480,7 +5469,7 @@ function TemplateMenuCollection({
     // quedaba escondido hasta tocar otro chip.
     const showAllSections = !isSearchActive && !currentCategory
     const sections = showAllSections
-      ? getBurgerOrderedCategories(categories)
+      ? categories
           .filter((category) => !category?.hiddenFromBar && category.items?.length)
           .map((category) => ({
             id: category.id,
