@@ -1,4 +1,24 @@
+import { existsSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
+
 const MENU_NET_DOMAIN = '.menu.net.ar'
+const PUBLIC_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'public')
+
+// Cuentas con icono propio en public/<accountId>/icon-192.png + icon-512.png
+// (mismo criterio que logo.svg/logo.png por cuenta). El resto sigue usando el
+// icono generico de capta, que es lo que habia para todas las cuentas antes.
+function getAccountIconPaths(accountId) {
+  const folder = String(accountId ?? '').trim()
+  const icon192 = `/${folder}/icon-192.png`
+  const icon512 = `/${folder}/icon-512.png`
+
+  if (existsSync(join(PUBLIC_DIR, folder, 'icon-192.png')) && existsSync(join(PUBLIC_DIR, folder, 'icon-512.png'))) {
+    return { icon192, icon512 }
+  }
+
+  return null
+}
 
 function normalizeColor(value, fallback) {
   const color = String(value ?? '').trim()
@@ -44,6 +64,17 @@ export function createMenuManifest(menu, req) {
     theme.background || theme.pageBackground || theme.surface,
     '#ffffff',
   )
+  const accountIcons = getAccountIconPaths(accountId)
+  const icons = accountIcons
+    ? [
+        { src: accountIcons.icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+        { src: accountIcons.icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+      ]
+    : [
+        { src: '/assets/capta-pwa-icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+        { src: '/assets/capta-pwa-icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+        { src: '/assets/capta-pwa-icon.png', sizes: 'any', type: 'image/png', purpose: 'any maskable' },
+      ]
 
   return {
     id: `/capta-menu-${accountId}`,
@@ -59,25 +90,6 @@ export function createMenuManifest(menu, req) {
     theme_color: themeColor,
     categories: ['food', 'shopping', 'business'],
     lang: 'es-AR',
-    icons: [
-      {
-        src: '/assets/capta-pwa-icon-192.png',
-        sizes: '192x192',
-        type: 'image/png',
-        purpose: 'any maskable',
-      },
-      {
-        src: '/assets/capta-pwa-icon-512.png',
-        sizes: '512x512',
-        type: 'image/png',
-        purpose: 'any maskable',
-      },
-      {
-        src: '/assets/capta-pwa-icon.png',
-        sizes: 'any',
-        type: 'image/png',
-        purpose: 'any maskable',
-      },
-    ],
+    icons,
   }
 }

@@ -802,6 +802,26 @@ function getAccountFaviconHref(accountId) {
   return key === 'host' || key.startsWith('host-') ? '/assets/host-favicon.png' : '/favicon.svg'
 }
 
+// iOS ignora los icons del manifest.webmanifest al hacer "Agregar a inicio":
+// solo lee <link rel="apple-touch-icon">, y tiene que ser PNG (nada de SVG).
+function getAccountAppleTouchIconHref(accountId) {
+  const key = slugify(accountId)
+
+  if (key === 'almendra' || key.includes('almendra')) {
+    return '/almendra/logo.png'
+  }
+
+  if (key.includes('sabor') && key.includes('pampa')) {
+    return '/sabor-a-pampa/logo.png'
+  }
+
+  if (key.includes('totto')) {
+    return '/lo-de-totto/icon-512.png'
+  }
+
+  return '/assets/capta-pwa-icon.png'
+}
+
 function getAccountDocumentTitle(accountId, presentation) {
   const key = slugify(accountId)
 
@@ -865,6 +885,18 @@ function setDocumentManifest(href) {
   if (!link) {
     link = document.createElement('link')
     link.rel = 'manifest'
+    document.head.appendChild(link)
+  }
+
+  link.href = href
+}
+
+function setDocumentAppleTouchIcon(href) {
+  let link = document.querySelector('link[rel="apple-touch-icon"]')
+
+  if (!link) {
+    link = document.createElement('link')
+    link.rel = 'apple-touch-icon'
     document.head.appendChild(link)
   }
 
@@ -6350,6 +6382,7 @@ export default function MenuApp() {
 
   useEffect(() => {
     setDocumentFavicon(getAccountFaviconHref(accountId))
+    setDocumentAppleTouchIcon(getAccountAppleTouchIconHref(accountId))
     setDocumentTitle(getAccountDocumentTitle(accountId))
     setDocumentManifest(`/api/accounts/${encodeURIComponent(accountId)}/manifest.webmanifest`)
     registerMenuServiceWorker()
@@ -6460,6 +6493,7 @@ export default function MenuApp() {
 
   const presentation = menu?.presentation ?? defaultPresentation
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
+  const hideNeighborhoodField = ['lo-de-totto', 'sabor-a-pampa'].includes(slugify(accountId))
   const isTableOrder = mesaId != null || templateId === 'kika' || templateId === 'almendra'
   const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled === true
   const rawCategories = menu?.categories ?? emptyCategories
@@ -9366,14 +9400,16 @@ export default function MenuApp() {
                         </label>
 
                         <div className="checkout-grid">
-                          <label className="checkout-field">
-                            <span>Barrio</span>
-                            <input
-                              value={orderForm.neighborhood}
-                              onChange={(event) => updateOrderForm('neighborhood', event.target.value)}
-                              placeholder="Barrio"
-                            />
-                          </label>
+                          {!hideNeighborhoodField ? (
+                            <label className="checkout-field">
+                              <span>Barrio</span>
+                              <input
+                                value={orderForm.neighborhood}
+                                onChange={(event) => updateOrderForm('neighborhood', event.target.value)}
+                                placeholder="Barrio"
+                              />
+                            </label>
+                          ) : null}
                           {deliveryCity ? (
                             <div className="checkout-city-note">
                               <span>Ciudad del local</span>
