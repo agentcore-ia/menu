@@ -1285,14 +1285,9 @@ function getInitialCategoryId(payload) {
   }
 
   if (templateId === 'burger') {
-    return (
-      payload.categories.find((category) => {
-        const key = slugify(category.label)
-        return key.includes('hamburgues') || key.includes('burger')
-      })?.id ??
-      payload.categories[0]?.id ??
-      ''
-    )
+    // Al entrar sin categoria elegida se muestra la carta completa (ver
+    // showsFullMenuByDefault), asi que aca no hay que forzar "Hamburguesas".
+    return ''
   }
 
   if (templateId === 'blue-burger') {
@@ -5465,7 +5460,6 @@ function TemplateMenuCollection({
   }
 
   if (templateId === 'burger') {
-    const highlightedItems = categoryItems
     const promoTarget = findExplicitPromosCategory(categories)
     const comboBannerSrc = isHostLikeAccount(accountId, templateId)
       ? '/host/banner.png'
@@ -5479,78 +5473,93 @@ function TemplateMenuCollection({
       categories.find((category) => slugify(category.label).includes('bebida')) ??
       currentCategory
 
+    // Recien entrando (sin categoria ni busqueda activa) se arma una seccion
+    // por categoria, cada una con su titulo, en vez de un unico grid con
+    // solo los productos de la primera categoria. Sin esto el cliente
+    // aterrizaba viendo unicamente "Hamburguesas" y el resto de la carta
+    // quedaba escondido hasta tocar otro chip.
+    const showAllSections = !isSearchActive && !currentCategory
+    const sections = showAllSections
+      ? getBurgerOrderedCategories(categories)
+          .filter((category) => !category?.hiddenFromBar && category.items?.length)
+          .map((category) => ({
+            id: category.id,
+            // Mismo texto que su chip (getBurgerCategoryChipLabel ya
+            // resuelve colisiones tipo "Bebidas" vs "Bebidas con alcohol").
+            label: getBurgerCategoryChipLabel(category, categories),
+            items: category.items,
+          }))
+      : [{ id: currentCategory?.id ?? 'resultados', label: currentCategory?.label ?? '', items: categoryItems }]
+
+    function renderBurgerCard(item) {
+      const [title, accent] = getBurgerDishParts(item)
+      const hasActualMedia = Boolean(item.video || item.hasCustomImage)
+      // Sin foto/video real, la caja de media quedaba vacia (el fallback de
+      // renderProductMedia no dibuja nada, solo el <button> hueco). Antes
+      // esto solo se corregia para cuentas detectadas como Host; se aplica
+      // a cualquier producto sin media, sea la cuenta que sea.
+      const hideEmptyMedia = !hasActualMedia
+
+      return (
+        <article key={item.id} className={`burger-dish-card ${hideEmptyMedia ? 'no-media' : ''}`}>
+          <button type="button" className="burger-favorite" aria-label="Guardar favorito">
+            <IconHeart />
+          </button>
+
+          {!hideEmptyMedia ? (
+            <button
+              type="button"
+              className="burger-dish-media"
+              onClick={() => onOpenDish(item)}
+              aria-label={`Ver ${item.name}`}
+            >
+              {renderProductMedia(item)}
+            </button>
+          ) : null}
+
+          <div className="burger-dish-body">
+            <button type="button" className="burger-dish-copy" onClick={() => onOpenDish(item)}>
+              <h3>
+                <span>{title}</span>
+                <strong>{accent}</strong>
+              </h3>
+              <p>{item.description}</p>
+            </button>
+
+            <div className="burger-dish-footer">
+              <strong>{item.price}</strong>
+              <button
+                type="button"
+                className="burger-add-button"
+                onClick={() => onAddItem(item)}
+                aria-label={`Agregar ${item.name}`}
+              >
+                <IconPlus />
+              </button>
+            </div>
+          </div>
+        </article>
+      )
+    }
+
     return (
       <section className="section-block section-block-burger">
         {isSearchActive ? (
           <p className="burger-search-results">
-            {highlightedItems.length
-              ? `${highlightedItems.length} resultado${highlightedItems.length === 1 ? '' : 's'} para "${searchQuery}"`
+            {categoryItems.length
+              ? `${categoryItems.length} resultado${categoryItems.length === 1 ? '' : 's'} para "${searchQuery}"`
               : `No encontramos productos para "${searchQuery}"`}
           </p>
         ) : null}
 
-        {highlightedItems.length ? (
-          <div className="burger-card-grid">
-            {highlightedItems.map((item) => {
-              const [title, accent] = getBurgerDishParts(item)
-              const hasActualMedia = Boolean(item.video || item.hasCustomImage)
-              // Sin foto/video real, la caja de media quedaba vacia (el
-              // fallback de renderProductMedia no dibuja nada, solo el
-              // <button> hueco). Antes esto solo se corregia para cuentas
-              // detectadas como Host; se aplica a cualquier producto sin
-              // media, sea la cuenta que sea.
-              const hideEmptyMedia = !hasActualMedia
-
-              return (
-                <article
-                  key={item.id}
-                  className={`burger-dish-card ${hideEmptyMedia ? 'no-media' : ''}`}
-                >
-                  <button type="button" className="burger-favorite" aria-label="Guardar favorito">
-                    <IconHeart />
-                  </button>
-
-                  {!hideEmptyMedia ? (
-                    <button
-                      type="button"
-                      className="burger-dish-media"
-                      onClick={() => onOpenDish(item)}
-                      aria-label={`Ver ${item.name}`}
-                    >
-                      {renderProductMedia(item)}
-                    </button>
-                  ) : null}
-
-                  <div className="burger-dish-body">
-                    <button
-                      type="button"
-                      className="burger-dish-copy"
-                      onClick={() => onOpenDish(item)}
-                    >
-                      <h3>
-                        <span>{title}</span>
-                        <strong>{accent}</strong>
-                      </h3>
-                      <p>{item.description}</p>
-                    </button>
-
-                    <div className="burger-dish-footer">
-                      <strong>{item.price}</strong>
-                      <button
-                        type="button"
-                        className="burger-add-button"
-                        onClick={() => onAddItem(item)}
-                        aria-label={`Agregar ${item.name}`}
-                      >
-                        <IconPlus />
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-        ) : null}
+        {sections.map((section) =>
+          section.items.length ? (
+            <div key={section.id} className="burger-section">
+              {showAllSections ? <h2 className="burger-section-title">{section.label}</h2> : null}
+              <div className="burger-card-grid">{section.items.map(renderBurgerCard)}</div>
+            </div>
+          ) : null,
+        )}
 
         {comboTarget && !isSearchActive ? (
           <article className="burger-combo-banner burger-footer-banner" data-burger-promos>
@@ -6491,11 +6500,15 @@ export default function MenuApp() {
     const raw = Array.isArray(menu?.cartBeverageItems) ? menu.cartBeverageItems : []
     return raw.map((item) => ({ ...item, categoryLabel: item.categoryLabel || 'Bebidas' }))
   }, [menu])
+  // Sin categoria elegida todavia, kika/sabor-pampa/burger arrancan
+  // mostrando la carta completa (una seccion por categoria) en vez de
+  // encerrar al cliente en la primera categoria del orden.
+  const showsFullMenuByDefault =
+    templateId === 'kika' || templateId === 'sabor-pampa' || templateId === 'burger'
   const currentCategory =
     categories.find((category) => category.id === selectedCategory) ??
-    (templateId === 'kika' || templateId === 'sabor-pampa' ? null : categories[0] ?? null)
-  const categoryItems =
-    currentCategory?.items ?? (templateId === 'kika' || templateId === 'sabor-pampa' ? allItems : [])
+    (showsFullMenuByDefault ? null : categories[0] ?? null)
+  const categoryItems = currentCategory?.items ?? (showsFullMenuByDefault ? allItems : [])
   const heroDish = categoryItems[0] ?? allItems[0] ?? null
   const deferredSearchQuery = useDeferredValue(searchQuery)
   const normalizedSearchQuery = normalizeSearchText(deferredSearchQuery)

@@ -8994,6 +8994,22 @@ button:focus-visible {
   margin-top: 1.3rem;
 }
 
+/* Sin categoria elegida, el menu se arma como una seccion por categoria en
+   vez de un unico grid: cada una lleva su propio titulo. */
+.burger-section + .burger-section {
+  margin-top: 2.2rem;
+}
+
+.burger-section-title {
+  margin: 0 0 1rem;
+  color: #f8f3e8;
+  font-family: Impact, 'Arial Narrow', var(--font-display, sans-serif);
+  font-size: 1.55rem;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .burger-card-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
