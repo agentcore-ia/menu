@@ -1091,6 +1091,12 @@ function formatPrice(value, currencySymbol = '$') {
   })}`
 }
 
+function getPaymentSurchargeLabel(paymentMethod) {
+  if (paymentMethod === 'mercado_pago') return 'Mercado Pago'
+  if (paymentMethod === 'transferencia') return 'transferencia'
+  return 'pago'
+}
+
 function formatShortDate(value) {
   if (!value) {
     return ''
@@ -6605,7 +6611,20 @@ export default function MenuApp() {
     deliveryQuote?.allowed !== true
   const deliveryCity = String(menu?.city || '').trim()
   const deliveryProvince = String(menu?.province || '').trim()
-  const orderTotal = cartTotal + selectedDeliveryFee
+  const paymentSurchargeConfig = menu?.businessHours?._settings?.paymentSurcharge
+  const paymentSurchargePercent =
+    hasOrderItems &&
+    !isTableOrder &&
+    paymentSurchargeConfig &&
+    Array.isArray(paymentSurchargeConfig.methods) &&
+    paymentSurchargeConfig.methods.includes(orderForm.paymentMethod)
+      ? Number(paymentSurchargeConfig.percent || 0)
+      : 0
+  const paymentSurchargeAmount =
+    paymentSurchargePercent > 0
+      ? Math.round(((cartTotal + selectedDeliveryFee) * paymentSurchargePercent) / 100)
+      : 0
+  const orderTotal = cartTotal + selectedDeliveryFee + paymentSurchargeAmount
   const orderTotalLabel = orderTotal > 0
     ? formatPrice(orderTotal, currencySymbol)
     : redemptionCount > 0
@@ -9133,6 +9152,12 @@ export default function MenuApp() {
                   {deliveryZonesEnabled && orderForm.deliveryType === 'delivery' && deliveryQuote?.zone?.name ? (
                     <small>Zona: {deliveryQuote.zone.name}</small>
                   ) : null}
+                  {paymentSurchargeAmount > 0 ? (
+                    <small>
+                      Recargo {getPaymentSurchargeLabel(orderForm.paymentMethod)} ({paymentSurchargePercent}%): +
+                      {formatPrice(paymentSurchargeAmount, currencySymbol)}
+                    </small>
+                  ) : null}
                       {loyaltyEarnPreviewText ? <small>{loyaltyEarnPreviewText}</small> : null}
                     </div>
                     <strong>{formatPrice(orderTotal, currencySymbol)}</strong>
@@ -9266,6 +9291,12 @@ export default function MenuApp() {
                     ) : null}
                     {selectedDeliveryFee > 0 ? (
                       <small>Envio: +{formatPrice(selectedDeliveryFee, currencySymbol)}</small>
+                    ) : null}
+                    {paymentSurchargeAmount > 0 ? (
+                      <small>
+                        Recargo {getPaymentSurchargeLabel(orderForm.paymentMethod)} ({paymentSurchargePercent}%): +
+                        {formatPrice(paymentSurchargeAmount, currencySymbol)}
+                      </small>
                     ) : null}
                     {loyaltyEarnPreviewText ? <small>{loyaltyEarnPreviewText}</small> : null}
                   </div>

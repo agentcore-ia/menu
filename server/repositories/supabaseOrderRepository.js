@@ -91,7 +91,22 @@ export class SupabaseOrderRepository {
     }
 
     const deliveryFee = shouldChargeDelivery ? Number(deliveryQuote?.fee ?? restaurant.delivery_fee ?? 0) : 0
-    const total = discountedSubtotal + deliveryFee
+
+    // Recargo por metodo de pago (dashboard > Ajustes > horarios._settings.
+    // paymentSurcharge = { methods: ['transferencia','mercado_pago'], percent }),
+    // mismo mecanismo que agentTestPhones/orderTakingPaused. Se calcula server-side
+    // (no confiamos en el total que mande el cliente) para que tambien quede
+    // reflejado en el link de Mercado Pago, que se genera a partir de pedido.total.
+    const surchargeConfig = restaurant.horarios?._settings?.paymentSurcharge
+    const surchargePercent =
+      surchargeConfig &&
+      Array.isArray(surchargeConfig.methods) &&
+      surchargeConfig.methods.includes(payload.paymentMethod)
+        ? Number(surchargeConfig.percent ?? 0)
+        : 0
+    const surchargeAmount =
+      surchargePercent > 0 ? Math.round(((discountedSubtotal + deliveryFee) * surchargePercent) / 100) : 0
+    const total = discountedSubtotal + deliveryFee + surchargeAmount
 
     let resolvedTableId = null;
     let resolvedTableName = null;
@@ -179,6 +194,9 @@ export class SupabaseOrderRepository {
             items: orderProducts,
             redemptions: redemptionPreview?.allRedemptions ?? redemptionPreview?.lineItems ?? [],
             deliveryQuote,
+            ...(surchargeAmount > 0
+              ? { surcharge: { percent: surchargePercent, amount: surchargeAmount, method: payload.paymentMethod } }
+              : {}),
           },
         },
       ]),
@@ -257,6 +275,8 @@ export class SupabaseOrderRepository {
           redemptionItems: redemptionPreview?.lineItems ?? [],
           discountItems: redemptionPreview?.discountItems ?? [],
           total,
+          surchargeAmount,
+          surchargePercent,
           deliveryType: payload.deliveryType,
           paymentMethod: payload.paymentMethod,
           address: payload.customer.address,
@@ -842,6 +862,8 @@ export class SupabaseOrderRepository {
     redemptionItems,
     discountItems,
     total,
+    surchargeAmount,
+    surchargePercent,
     deliveryType,
     paymentMethod,
     address,
@@ -883,6 +905,7 @@ export class SupabaseOrderRepository {
       '',
       deliveryLine,
       paymentLabel ? `Pago: ${paymentLabel}` : null,
+      surchargeAmount > 0 ? `Recargo ${paymentLabel} (${surchargePercent}%): $${this.formatMoney(surchargeAmount)}` : null,
       paymentLink ? `Link de pago: ${paymentLink}` : null,
       notes ? `Notas: ${notes}` : null,
       `Total: $${this.formatMoney(total)}`,
