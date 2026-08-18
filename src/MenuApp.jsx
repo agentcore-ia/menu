@@ -3034,6 +3034,22 @@ function getBurgerCategoryLabel(label) {
   return label
 }
 
+// getBurgerCategoryLabel simplifica nombres largos ("Bebida con alcohol" ->
+// "Bebidas") pensado para cartas chicas de hamburgueseria. En una carta mas
+// amplia (pizzeria, bar) dos categorias reales distintas pueden colapsar al
+// mismo texto simplificado ("Bebidas" y "Bebidas con alcohol" -> ambas
+// "Bebidas"), dejando dos chips identicos e indistinguibles. Si el nombre
+// simplificado de una categoria coincide con el de otra categoria real de la
+// misma cuenta, se muestra el nombre real en vez del simplificado.
+function getBurgerCategoryChipLabel(category, allCategories) {
+  const simplified = getBurgerCategoryLabel(category.label)
+  const collides = allCategories.some(
+    (other) => other.id !== category.id && getBurgerCategoryLabel(other.label) === simplified,
+  )
+
+  return collides ? category.label : simplified
+}
+
 function getBurgerCategoryIcon(label) {
   const key = slugify(label)
   if (key.includes('hamburgues') || key.includes('burger')) return IconBurger
@@ -4435,7 +4451,7 @@ function TemplateCategorySelector({
                 <span>
                   {useHostCategorySet
                     ? getHostCategoryLabel(category.label)
-                    : getBurgerCategoryLabel(category.label)}
+                    : getBurgerCategoryChipLabel(category, orderedCategories)}
                 </span>
               </button>
             )
@@ -5450,7 +5466,6 @@ function TemplateMenuCollection({
 
   if (templateId === 'burger') {
     const highlightedItems = categoryItems
-    const useHostCategorySet = shouldUseHostCategorySet(accountId, templateId, categories)
     const promoTarget = findExplicitPromosCategory(categories)
     const comboBannerSrc = isHostLikeAccount(accountId, templateId)
       ? '/host/banner.png'
@@ -5479,7 +5494,12 @@ function TemplateMenuCollection({
             {highlightedItems.map((item) => {
               const [title, accent] = getBurgerDishParts(item)
               const hasActualMedia = Boolean(item.video || item.hasCustomImage)
-              const hideEmptyMedia = useHostCategorySet && !hasActualMedia
+              // Sin foto/video real, la caja de media quedaba vacia (el
+              // fallback de renderProductMedia no dibuja nada, solo el
+              // <button> hueco). Antes esto solo se corregia para cuentas
+              // detectadas como Host; se aplica a cualquier producto sin
+              // media, sea la cuenta que sea.
+              const hideEmptyMedia = !hasActualMedia
 
               return (
                 <article
