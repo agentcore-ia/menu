@@ -32,6 +32,16 @@
       "destination": "/almendra.html"
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "lodetoto.menu.net.ar"
+        }
+      ],
+      "destination": "/host.html"
+    },
+    {
       "source": "/almendra",
       "destination": "/almendra.html"
     },

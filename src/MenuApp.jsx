@@ -771,6 +771,12 @@ function normalizeAccountAlias(accountId) {
     return 'sabor-a-pampa'
   }
 
+  // El subdominio pedido (lodetoto.menu.net.ar) se escribe distinto al
+  // slug real de la cuenta en la base (lo-de-totto).
+  if (key === 'lodetoto') {
+    return 'lo-de-totto'
+  }
+
   return accountId
 }
 
