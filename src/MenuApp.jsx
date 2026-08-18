@@ -795,6 +795,10 @@ function getAccountFaviconHref(accountId) {
     return '/sabor-a-pampa/logo.png'
   }
 
+  if (key.includes('totto')) {
+    return '/lo-de-totto/logo.svg'
+  }
+
   return key === 'host' || key.startsWith('host-') ? '/assets/host-favicon.png' : '/favicon.svg'
 }
 
@@ -811,6 +815,10 @@ function getAccountDocumentTitle(accountId, presentation) {
 
   if (key.includes('sabor') && key.includes('pampa')) {
     return 'Sabor a Pampa | Menu digital'
+  }
+
+  if (key.includes('totto')) {
+    return 'Lo de Toto | Menu digital'
   }
 
   if (key === 'host' || key.startsWith('host-')) {

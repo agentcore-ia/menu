@@ -26,6 +26,7 @@ export default defineConfig({
         almendra: resolve(__dirname, 'almendra.html'),
         kika: resolve(__dirname, 'kika.html'),
         saborapampa: resolve(__dirname, 'saborapampa.html'),
+        lodetoto: resolve(__dirname, 'lodetoto.html'),
       },
     },
   },

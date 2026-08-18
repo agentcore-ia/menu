@@ -39,7 +39,7 @@
           "value": "lodetoto.menu.net.ar"
         }
       ],
-      "destination": "/host.html"
+      "destination": "/lodetoto.html"
     },
     {
       "source": "/almendra",
@@ -66,7 +66,15 @@
       "destination": "/saborapampa.html"
     },
     {
-      "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra).*)",
+      "source": "/lodetoto",
+      "destination": "/lodetoto.html"
+    },
+    {
+      "source": "/lodetoto/:path*",
+      "destination": "/lodetoto.html"
+    },
+    {
+      "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto).*)",
       "destination": "/host.html"
     }
   ]
