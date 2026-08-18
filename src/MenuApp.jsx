@@ -935,6 +935,10 @@ function getLoadingTemplate(accountId) {
     return 'almendra'
   }
 
+  if (key.includes('totto')) {
+    return 'toto'
+  }
+
   if (key.includes('florian')) {
     return 'florian'
   }
@@ -4089,6 +4093,32 @@ function MenuLoadingScreen({ accountId }) {
             </div>
 
             <div className="pampa-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'toto') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-toto-simple">
+          <div className="toto-loading-simple" role="status" aria-live="polite" aria-label="Cargando menu de Lo de Toto">
+            <div className="toto-loading-brand">
+              <strong>lo de toto</strong>
+              <span>pizza bar</span>
+            </div>
+
+            <div className="toto-loading-oven" aria-hidden="true">
+              <span className="toto-loading-ember" />
+              <span className="toto-loading-icon">
+                <IconFlame />
+              </span>
+            </div>
+
+            <div className="toto-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>
