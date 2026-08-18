@@ -3175,41 +3175,6 @@ function HostMediaPlaceholder() {
   )
 }
 
-const saborPampaCategoryOrder = [
-  ['milanesa'],
-  ['carne'],
-  ['guarnicion', 'papa'],
-  ['hamburgues', 'burger'],
-  ['sandwich-gourmet'],
-  ['pasta'],
-  ['pizza-gourmet'],
-  ['empanada'],
-  ['tarta'],
-  ['sandwich-artesanal'],
-  ['ensalada'],
-  ['postre'],
-]
-
-function getSaborPampaOrderedCategories(categories = []) {
-  return categories
-    .map((category, index) => ({ category, index }))
-    .sort((left, right) => {
-      const leftKey = slugify(left.category.label)
-      const rightKey = slugify(right.category.label)
-      const leftIndex = saborPampaCategoryOrder.findIndex((tokens) =>
-        tokens.some((token) => leftKey.includes(token)),
-      )
-      const rightIndex = saborPampaCategoryOrder.findIndex((tokens) =>
-        tokens.some((token) => rightKey.includes(token)),
-      )
-      const normalizedLeftIndex = leftIndex === -1 ? saborPampaCategoryOrder.length : leftIndex
-      const normalizedRightIndex = rightIndex === -1 ? saborPampaCategoryOrder.length : rightIndex
-
-      return normalizedLeftIndex - normalizedRightIndex || left.index - right.index
-    })
-    .map(({ category }) => category)
-}
-
 function getSaborPampaCategoryMeta(label) {
   const key = slugify(label)
 
@@ -3257,8 +3222,16 @@ function getSaborPampaCategoryMeta(label) {
     return { label, icon: IconPasta, tone: 'pasta' }
   }
 
-  if (key.includes('pizza')) {
+  if (key.includes('pizza') || key.includes('fugazzeta') || key.includes('fugazza')) {
     return { label, icon: IconPizzaOutline, tone: 'pizza' }
+  }
+
+  if (key.includes('calzon')) {
+    return { label, icon: IconEmpanada, tone: 'empanada' }
+  }
+
+  if (key.includes('helado')) {
+    return { label, icon: IconDessert, tone: 'helado' }
   }
 
   if (key.includes('tarta')) {
@@ -3774,7 +3747,10 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
         </div>
 
         <div className="pampa-brand-lockup">
-          <img src="/sabor-a-pampa/logo.png" alt={presentation.branding?.wordmark ?? 'Sabor a Pampa'} />
+          <img
+            src={presentation.theme?.logoImage || '/sabor-a-pampa/logo.png'}
+            alt={presentation.branding?.wordmark ?? 'Sabor a Pampa'}
+          />
         </div>
 
         <div className="pampa-hero-copy">
@@ -4559,7 +4535,7 @@ function TemplateCategorySelector({
   }
 
   if (templateId === 'sabor-pampa') {
-    const orderedCategories = getSaborPampaOrderedCategories(categories)
+    const orderedCategories = categories
 
     return (
       <div className="pampa-menu-head" aria-label="Categorias de Sabor a Pampa">
@@ -5186,7 +5162,7 @@ function TemplateMenuCollection({
 
 
   if (templateId === 'sabor-pampa') {
-    const orderedCategories = getSaborPampaOrderedCategories(categories)
+    const orderedCategories = categories
     const selectedCategory = currentCategory
     const getItemsWithCategoryLabel = (category) =>
       (category?.items ?? []).map((item) => ({
@@ -6441,7 +6417,10 @@ export default function MenuApp() {
     () => {
       if (templateId === 'kika') return normalizeKikaCategories(rawCategories)
       if (templateId === 'almendra') return normalizeAlmendraCategories(rawCategories)
-      if (templateId === 'sabor-pampa') return getSaborPampaOrderedCategories(rawCategories)
+      // El orden ya viene resuelto del backend (menuCategories del
+      // dashboard, o category.asc por defecto). Antes se pisaba con un
+      // heuristico fijo (milanesa/carne/hamburguesa/... primero) que no
+      // dejaba ordenar la carta a mano para una cuenta distinta.
       return rawCategories
     },
     [rawCategories, templateId],

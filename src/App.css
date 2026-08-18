@@ -15953,11 +15953,3 @@ button:focus-visible {
 .weekly-plan-option:not(:has(img)) .weekly-plan-option-media {
   display: none;
 }
-
-/* Lo de Totto: el banner de combo del template burger es un poster fijo con
-   "GRILL HOUSE" y un precio de combo horneados en el archivo (footer.png),
-   sin relacion con el catalogo real de la cuenta. Se oculta hasta que haya
-   un banner propio. */
-.account-lo-de-totto .burger-footer-banner {
-  display: none;
-}
