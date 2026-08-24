@@ -34,7 +34,7 @@ const RUBROS = {
 }
 
 // Los rubros del dashboard que se comportan igual de este lado.
-const EQUIVALE = {
+const EQUIVALE_RUBRO = {
   restaurante: 'restaurante',
   panaderia: 'panaderia',
   kiosco: 'comercio',
@@ -43,19 +43,37 @@ const EQUIVALE = {
   otro: 'comercio',
 }
 
+// Los valores de `restaurants.business_type`, que es OTRO vocabulario: ahi
+// "otro" quiere decir "otro rubro gastronomico", o sea un restaurante. Usar un
+// solo mapa para los dos hacia que un bar cargado como "otro" apareciera como
+// comercio. Lo que no esta listado es gastronomico y va a restaurante.
+const EQUIVALE_ALTA = {
+  panaderia: 'panaderia',
+  kiosco: 'comercio',
+  dietetica: 'comercio',
+  farmacia: 'comercio',
+  comercio: 'comercio',
+}
+
 /**
  * El rubro del local, leido de sus ajustes.
  *
  * Sin nada configurado es un restaurante: todos los locales que hay hoy lo son
  * y no pueden cambiar de aspecto por este cambio.
  */
-export function rubroDelMenu(businessHours) {
+export function rubroDelMenu(businessHours, businessType) {
   const settings =
     businessHours && typeof businessHours === 'object' && !Array.isArray(businessHours)
       ? businessHours._settings
       : null
-  const id = String(settings?.rubro ?? '').trim()
-  return RUBROS[EQUIVALE[id]] ?? RUBROS.restaurante
+
+  // Primero lo que el local eligio a mano; si no toco nada, lo que se cargo al
+  // crear la cuenta (business_type), que es donde estuvo el dato siempre.
+  const aMano = String(settings?.rubro ?? '').trim()
+  if (EQUIVALE_RUBRO[aMano]) return RUBROS[EQUIVALE_RUBRO[aMano]]
+
+  const delAlta = String(businessType ?? '').trim().toLowerCase()
+  return RUBROS[EQUIVALE_ALTA[delAlta]] ?? RUBROS.restaurante
 }
 
 /** Las palabras de ese rubro, para la pantalla. */

@@ -50,3 +50,19 @@ test('todos los rubros tienen las mismas palabras definidas', () => {
     for (const [k, v] of Object.entries(r)) assert.ok(String(v).trim(), `${r.id}.${k} vacio`)
   }
 })
+
+test('el rubro sale de lo que se cargo al crear la cuenta', () => {
+  assert.equal(rubroDelMenu(null, 'panaderia').id, 'panaderia')
+  assert.equal(rubroDelMenu(null, 'kiosco').id, 'comercio')
+  assert.equal(rubroDelMenu(null, 'farmacia').id, 'comercio')
+  // Los tipos gastronomicos de siempre siguen siendo restaurantes.
+  for (const t of ['restaurant', 'cafeteria', 'heladeria', 'pizzeria', 'bar', 'rotiseria', 'otro', '', null]) {
+    assert.equal(rubroDelMenu(null, t).id, 'restaurante', String(t))
+  }
+})
+
+test('lo elegido a mano le gana a lo del alta', () => {
+  assert.equal(rubroDelMenu({ _settings: { rubro: 'kiosco' } }, 'restaurant').id, 'comercio')
+  assert.equal(rubroDelMenu({ _settings: { rubro: 'restaurante' } }, 'panaderia').id, 'restaurante')
+  assert.equal(rubroDelMenu({ _settings: { rubro: 'no-existe' } }, 'panaderia').id, 'panaderia')
+})

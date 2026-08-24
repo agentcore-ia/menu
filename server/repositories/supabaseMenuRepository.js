@@ -312,7 +312,7 @@ export class SupabaseMenuRepository {
       businessHours: restaurant.horarios ?? null,
       // Que tipo de negocio es. De aca salen las palabras de la pantalla: un
       // kiosco no tiene "menu" ni "platos". El armado del pedido no cambia.
-      rubro: rubroDelMenu(restaurant.horarios).id,
+      rubro: rubroDelMenu(restaurant.horarios, restaurant.business_type).id,
       ordering: orderTakingPaused
         ? {
             ...ordering,
