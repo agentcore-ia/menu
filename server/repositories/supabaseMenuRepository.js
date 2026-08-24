@@ -4,6 +4,7 @@ import {
   mapRewardRow,
 } from './loyaltyUtils.js'
 import { getBusinessOpenStatus } from '../../shared/businessHours.js'
+import { rubroDelMenu } from '../../shared/rubros.js'
 import { normalizeBusinessLocation } from '../deliveryZones.js'
 
 const fallbackImages = [
@@ -309,6 +310,9 @@ export class SupabaseMenuRepository {
       dailyMenu,
       loyalty,
       businessHours: restaurant.horarios ?? null,
+      // Que tipo de negocio es. De aca salen las palabras de la pantalla: un
+      // kiosco no tiene "menu" ni "platos". El armado del pedido no cambia.
+      rubro: rubroDelMenu(restaurant.horarios).id,
       ordering: orderTakingPaused
         ? {
             ...ordering,

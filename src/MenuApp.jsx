@@ -1,6 +1,7 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { getBusinessOpenStatus } from '../shared/businessHours.js'
+import { textosDelMenu } from '../shared/rubros.js'
 
 import QRLanding from './QRLanding.jsx'
 import QRBill from './QRBill.jsx'
@@ -822,7 +823,7 @@ function getAccountAppleTouchIconHref(accountId) {
   return '/assets/capta-pwa-icon.png'
 }
 
-function getAccountDocumentTitle(accountId, presentation) {
+function getAccountDocumentTitle(accountId, presentation, catalogo = 'Menu digital') {
   const key = slugify(accountId)
 
   if (key === 'almendra' || key.includes('almendra')) {
@@ -850,7 +851,7 @@ function getAccountDocumentTitle(accountId, presentation) {
     .replace(/\s+/g, ' ')
 
   if (brand) {
-    return `${brand} | Menu digital`
+    return `${brand} | ${catalogo}`
   }
 
   const accountTitle = String(accountId ?? '')
@@ -859,7 +860,7 @@ function getAccountDocumentTitle(accountId, presentation) {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
 
-  return `${accountTitle || 'capta'} | Menu digital`
+  return `${accountTitle || 'capta'} | ${catalogo}`
 }
 
 function setDocumentFavicon(href) {
@@ -3575,7 +3576,10 @@ function getImageAnimationClass(item) {
   return `product-image-animation product-image-animation-${animation}`
 }
 
-function TemplateHero({ templateId, presentation, heroDish, onCommunityAction }) {
+function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, textos }) {
+  // Las palabras por defecto dependen del rubro: un kiosco no tiene platos ni
+  // carta. Si el local cargo su propia presentacion, manda la suya.
+  const t = textos ?? textosDelMenu('restaurante')
   const standaloneHeroImages = getHeroImages(presentation)
   const hasStandaloneHeroImage = standaloneHeroImages.length > 0
   const heroVideo = getHeroVideo(presentation)
@@ -3852,14 +3856,13 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction })
     return (
       <section className="hero-content hero-content-bistro">
         <div className="hero-copy hero-copy-bistro">
-          <span className="hero-kicker">{isDailyHero ? 'MENU DEL DIA' : 'MENU DESTACADO'}</span>
+          <span className="hero-kicker">{isDailyHero ? 'MENU DEL DIA' : t.kicker}</span>
           <h1>
-            <span className="hero-line">{presentation.hero?.title ?? 'Cocina honesta,'}</span>
-            <span className="hero-accent">{presentation.hero?.accent ?? 'mesa vibrante'}</span>
+            <span className="hero-line">{presentation.hero?.title ?? t.heroTitulo}</span>
+            <span className="hero-accent">{presentation.hero?.accent ?? t.heroAcento}</span>
           </h1>
           <p>
-            {presentation.hero?.description ??
-              'Platos directos, producto fuerte y una carta pensada para convertir.'}
+            {presentation.hero?.description ?? t.heroTexto}
           </p>
         </div>
 
@@ -6492,6 +6495,9 @@ export default function MenuApp() {
   }, [orderingNotice])
 
   const presentation = menu?.presentation ?? defaultPresentation
+  // Las palabras de la pantalla segun el tipo de negocio. Sin rubro cargado da
+  // restaurante, que es lo que decia antes para todos.
+  const textosRubro = textosDelMenu(menu?.rubro)
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
   const hideNeighborhoodField = ['lo-de-totto', 'sabor-a-pampa'].includes(slugify(accountId))
   const isTableOrder = mesaId != null || templateId === 'kika' || templateId === 'almendra'
@@ -6511,9 +6517,9 @@ export default function MenuApp() {
   )
 
   useEffect(() => {
-    setDocumentTitle(getAccountDocumentTitle(accountId, presentation))
+    setDocumentTitle(getAccountDocumentTitle(accountId, presentation, textosRubro.catalogo))
     setDocumentThemeColor(presentation.theme?.primary)
-  }, [accountId, presentation])
+  }, [accountId, presentation, textosRubro])
 
   useEffect(() => {
     if (!pwaPromptEnabled || status !== 'ready' || isPwaInstalled || isStandalonePwa()) {
@@ -7904,6 +7910,7 @@ export default function MenuApp() {
             <TemplateHero
               templateId={templateId}
               presentation={presentation}
+              textos={textosRubro}
               heroDish={heroDish}
               onPrimaryAction={handleNavigateMenu}
               onCommunityAction={handleOpenCommunity}
