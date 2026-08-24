@@ -6840,6 +6840,9 @@ export default function MenuApp() {
   // encerrar al cliente en la primera categoria del orden.
   const showsFullMenuByDefault =
     templateId === 'kika' || templateId === 'sabor-pampa' || templateId === 'burger'
+    // La panaderia entra mostrando destacados y todas las secciones: con una
+    // categoria ya elegida, el cliente aterrizaba viendo solo los panes.
+    || templateId === 'panaderia'
   const currentCategory =
     categories.find((category) => category.id === selectedCategory) ??
     (showsFullMenuByDefault ? null : categories[0] ?? null)
