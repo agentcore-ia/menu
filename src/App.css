@@ -16584,3 +16584,47 @@ button:focus-visible {
   .pan-card.ancha { width: 15rem; }
   .pan-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* --------------------------------------------- PANADERIA: correcciones ---
+   La foto del header ya trae su propio recorte en curva y el encabezado con
+   el logo y el titulo: el encabezado estandar de la app quedaba encima,
+   repitiendo la marca. */
+.template-panaderia .hero-topbar,
+.template-panaderia .hero-brand {
+  display: none;
+}
+
+/* Sin padding ni fondo oscuro: esos 19px eran una franja negra debajo de la
+   foto, porque la curva de la imagen termina en blanco. */
+.template-panaderia .hero,
+.pan-hero {
+  padding: 0;
+  background: #ffffff;
+}
+
+.template-panaderia .hero:after,
+.template-panaderia .hero:before {
+  display: none;
+}
+
+/* La imagen manda el alto del hero; el velo se recorta con ella. */
+.pan-hero-foto {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: -1px; /* mata la linea de subpixel entre la foto y el cuerpo */
+}
+
+/* El texto va sobre la foto, no sobre el blanco de la curva. */
+.pan-hero-velo {
+  bottom: 22%;
+}
+
+/* Una tarjeta sin foto propia ocupa todo el ancho: sin hueco ni recuadro. */
+.pan-card.sin-foto {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pan-card.ancha.sin-foto .pan-card-cuerpo {
+  padding-top: 1rem;
+}

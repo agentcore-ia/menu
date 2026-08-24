@@ -5037,10 +5037,12 @@ function TemplateMenuCollection({
         : todas
 
     const Tarjeta = ({ item, ancha }) => (
-      <article className={`pan-card ${ancha ? 'ancha' : ''}`}>
-        <button type="button" className="pan-card-foto" onClick={() => onOpenDish(item)} aria-label={`Ver ${item.name}`}>
-          {renderProductMedia(item)}
-        </button>
+      <article className={`pan-card ${ancha ? 'ancha' : ''} ${item.hasCustomImage ? '' : 'sin-foto'}`}>
+        {item.hasCustomImage ? (
+          <button type="button" className="pan-card-foto" onClick={() => onOpenDish(item)} aria-label={`Ver ${item.name}`}>
+            {renderProductMedia(item)}
+          </button>
+        ) : null}
         <div className="pan-card-cuerpo">
           <button type="button" className="pan-card-copy" onClick={() => onOpenDish(item)}>
             <h3>{item.name}</h3>
