@@ -66,3 +66,11 @@ test('lo elegido a mano le gana a lo del alta', () => {
   assert.equal(rubroDelMenu({ _settings: { rubro: 'restaurante' } }, 'panaderia').id, 'restaurante')
   assert.equal(rubroDelMenu({ _settings: { rubro: 'no-existe' } }, 'panaderia').id, 'panaderia')
 })
+
+test('el menu del dia es solo de restaurantes', () => {
+  assert.equal(rubroDelMenu(null, 'restaurant').menuDelDia, true)
+  assert.equal(rubroDelMenu(null, null).menuDelDia, true, 'sin rubro, como siempre')
+  assert.equal(rubroDelMenu(null, 'panaderia').menuDelDia, false)
+  assert.equal(rubroDelMenu(null, 'kiosco').menuDelDia, false)
+  assert.equal(rubroDelMenu({ _settings: { rubro: 'kiosco' } }, 'restaurant').menuDelDia, false)
+})

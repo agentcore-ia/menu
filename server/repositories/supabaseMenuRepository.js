@@ -251,12 +251,18 @@ export class SupabaseMenuRepository {
     const regularCategories = allRegularCategories.filter(
       (category) => !isDailyMenuProductCategory(category?.label),
     )
-    const dailyMenuCategory = this.mapDailyMenuCategory(
-      dailyMenu,
-      productById,
-      stockByProductId,
-      Boolean(restaurant.stock_strict_mode),
-    )
+    // El menu del dia es de restaurantes. Una panaderia vende lo mismo todos
+    // los dias: si le quedaron platos cargados de una prueba, no tienen por que
+    // aparecerle al cliente como "menu del dia".
+    const usaMenuDelDia = rubroDelMenu(restaurant.horarios, restaurant.business_type).menuDelDia
+    const dailyMenuCategory = usaMenuDelDia
+      ? this.mapDailyMenuCategory(
+        dailyMenu,
+        productById,
+        stockByProductId,
+        Boolean(restaurant.stock_strict_mode),
+      )
+      : null
     // Todas las categorias siguen en el payload (secciones/productos intactos);
     // solo se marca hiddenFromBar para que el cliente las saque de la BARRA.
     const orderedRegularCategories = applyMenuCategoryConfig(
@@ -307,7 +313,7 @@ export class SupabaseMenuRepository {
       categories,
       cartAddonItems,
       cartBeverageItems,
-      dailyMenu,
+      dailyMenu: usaMenuDelDia ? dailyMenu : null,
       loyalty,
       businessHours: restaurant.horarios ?? null,
       // Que tipo de negocio es. De aca salen las palabras de la pantalla: un

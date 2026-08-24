@@ -9,6 +9,8 @@
 const RUBROS = {
   restaurante: {
     id: 'restaurante',
+    // El menu que cambia dia a dia es de restaurantes.
+    menuDelDia: true,
     catalogo: 'Menu digital',
     kicker: 'MENU DESTACADO',
     heroTitulo: 'Cocina honesta,',
@@ -17,6 +19,8 @@ const RUBROS = {
   },
   comercio: {
     id: 'comercio',
+    // El menu que cambia dia a dia es de restaurantes.
+    menuDelDia: false,
     catalogo: 'Catalogo online',
     kicker: 'DESTACADOS',
     heroTitulo: 'Todo lo que buscás,',
@@ -25,6 +29,8 @@ const RUBROS = {
   },
   panaderia: {
     id: 'panaderia',
+    // El menu que cambia dia a dia es de restaurantes.
+    menuDelDia: false,
     catalogo: 'Catalogo online',
     kicker: 'DESTACADOS',
     heroTitulo: 'Recién hecho,',
