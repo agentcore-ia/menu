@@ -16637,11 +16637,11 @@ button:focus-visible {
 }
 
 .pan-bottom-nav.con-pedido {
-  bottom: 6.6rem;
+  bottom: 8.2rem;
 }
 
 /* Y el contenido deja lugar para las dos, para que el ultimo producto no
    quede escondido detras. */
 .template-panaderia .pan-collection {
-  padding-bottom: 11rem;
+  padding-bottom: 13.5rem;
 }
