@@ -5037,7 +5037,7 @@ function TemplateMenuCollection({
             {item.description ? <p>{item.description}</p> : null}
           </button>
           <div className="pan-card-pie">
-            <strong>{formatPrice(item.price, currencySymbol)}</strong>
+            <strong>{item.price}</strong>
             <button
               type="button"
               className="pan-add"
