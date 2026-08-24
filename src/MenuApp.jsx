@@ -5017,13 +5017,18 @@ function TemplateMenuCollection({
   const [dailyMenuFilter, setDailyMenuFilter] = useState('all')
   const [activeFeaturedIndex, setActiveFeaturedIndex] = useState(0)
   if (templateId === 'panaderia') {
-    // Destacados: los primeros de la primera categoria. No hay marca de
-    // "destacado" en el producto, y arrancar por lo que el local puso primero
-    // es lo mas parecido a lo que el eligio mostrar.
+    // Destacados: los que tienen FOTO propia.
+    //
+    // No hay una marca de "destacado" en el producto, y los productos llegan
+    // ordenados por nombre, asi que tomar el primero de cada categoria dejaba
+    // arriba lo que empezara con A —un agua mineral entre los destacados—. La
+    // foto si la elige el local: subirle una a un producto es exactamente
+    // decir "este quiero mostrar".
     const todas = categories.filter((c) => c?.items?.length)
+    const conFoto = todas.flatMap((c) => c.items).filter((i) => i?.hasCustomImage)
     const destacados = isSearchActive || currentCategory
       ? []
-      : todas.flatMap((c) => c.items.slice(0, 1)).slice(0, 6)
+      : (conFoto.length ? conFoto : todas.flatMap((c) => c.items.slice(0, 1))).slice(0, 6)
 
     const secciones = isSearchActive
       ? [{ id: 'busqueda', label: `Resultados para "${searchQuery}"`, items: categoryItems }]
