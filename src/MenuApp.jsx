@@ -1467,6 +1467,11 @@ function getInitialCategoryId(payload) {
     return ''
   }
 
+  if (templateId === 'panaderia') {
+    // Sin categoria elegida: entra mostrando destacados y todas las secciones.
+    return ''
+  }
+
   if (templateId === 'almendra') {
     return ''
   }
