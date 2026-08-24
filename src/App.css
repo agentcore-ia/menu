@@ -16628,3 +16628,20 @@ button:focus-visible {
 .pan-card.ancha.sin-foto .pan-card-cuerpo {
   padding-top: 1rem;
 }
+
+/* La barra del pedido aparece abajo cuando hay algo en el carrito y quedaba
+   TAPADA por la barra de navegacion. Con pedido, la del pedido manda —es la
+   que cierra la compra— y la de navegacion se corre arriba. */
+.template-panaderia .order-bar {
+  z-index: 45;
+}
+
+.pan-bottom-nav.con-pedido {
+  bottom: 6.6rem;
+}
+
+/* Y el contenido deja lugar para las dos, para que el ultimo producto no
+   quede escondido detras. */
+.template-panaderia .pan-collection {
+  padding-bottom: 11rem;
+}

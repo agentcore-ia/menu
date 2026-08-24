@@ -5105,7 +5105,10 @@ function TemplateMenuCollection({
           )
         })}
 
-        <nav className="pan-bottom-nav" aria-label="Navegación del catálogo">
+        <nav
+          className={`pan-bottom-nav ${orderCount > 0 ? 'con-pedido' : ''}`}
+          aria-label="Navegación del catálogo"
+        >
           <button type="button" className="active" onClick={onNavigateHome}>
             <IconHome /><span>Inicio</span>
           </button>
