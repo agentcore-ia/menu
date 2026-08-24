@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
+import { textosDelMenu } from '../shared/rubros.js'
 
 const MENU_NET_DOMAIN = '.menu.net.ar'
 const PUBLIC_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'public')
@@ -53,11 +54,14 @@ export function createMenuManifest(menu, req) {
   const accountId = menu?.accountId || req?.params?.accountId || req?.query?.accountId || 'menu'
   const presentation = menu?.presentation ?? {}
   const theme = presentation.theme ?? {}
+  // Como se llama esto segun el rubro. Queda pegado en la pantalla de inicio
+  // del celular del cliente: a una panaderia no le puede decir "Menu digital".
+  const { catalogo } = textosDelMenu(menu?.rubro)
   const accountName = normalizeName(
     menu?.accountName || presentation.branding?.wordmark || accountId,
-    'Menu digital',
+    catalogo,
   )
-  const appName = `${accountName} | Menu digital`
+  const appName = `${accountName} | ${catalogo}`
   const startUrl = getManifestStartUrl(req, accountId)
   const themeColor = normalizeColor(theme.primary, '#ff6a00')
   const backgroundColor = normalizeColor(
@@ -80,7 +84,7 @@ export function createMenuManifest(menu, req) {
     id: `/capta-menu-${accountId}`,
     name: appName,
     short_name: truncateShortName(accountName),
-    description: `Menu digital, pedidos y puntos de ${accountName}.`,
+    description: `${catalogo}, pedidos y puntos de ${accountName}.`,
     start_url: startUrl,
     scope: startUrl,
     display: 'standalone',
