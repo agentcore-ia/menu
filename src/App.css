@@ -16134,3 +16134,453 @@ button:focus-visible {
 .account-lo-de-totto .pampa-feature-strip {
   display: none;
 }
+
+/* ==========================================================================
+   PANADERIA - template `panaderia`
+   Hero oscuro con la foto ya recortada en curva, cuerpo claro y ambar en todo
+   lo que se toca. La referencia es el Instagram del local.
+   ========================================================================== */
+
+.template-panaderia .content-panel,
+.template-panaderia .phone-surface {
+  background: var(--theme-background, #fbf7f1);
+}
+
+/* ------------------------------------------------------------------ HERO */
+.pan-hero {
+  position: relative;
+  background: #241a12;
+  padding: 0 0 1.2rem;
+  overflow: hidden;
+}
+
+.pan-hero-foto {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Oscurece la mitad izquierda para que el texto se lea sobre la foto sin
+   taparla del lado del pan. */
+.pan-hero-velo {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, rgba(28, 19, 12, 0.92) 8%, rgba(28, 19, 12, 0.55) 42%, rgba(28, 19, 12, 0) 68%);
+  pointer-events: none;
+}
+
+.pan-hero-copy {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem 1.35rem 0;
+  color: #fff;
+}
+
+.pan-hero-logo {
+  display: grid;
+  place-items: center;
+  width: 5.6rem;
+  height: 5.6rem;
+  border-radius: 50%;
+  background: var(--theme-primary, #eda13a);
+  color: #fff;
+  font-family: var(--font-body, sans-serif);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+}
+
+.pan-hero-copy h1 {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-display, serif);
+  font-weight: 400;
+  font-size: clamp(2.1rem, 9vw, 2.9rem);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  max-width: 8.5em;
+}
+
+.pan-hero-copy h1 em {
+  display: block;
+  font-style: normal;
+  font-size: 0.62em;
+  opacity: 0.92;
+  margin-top: 0.18em;
+}
+
+.pan-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.15rem;
+  margin: 1.1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pan-hero-chips li {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  font-size: 0.76rem;
+  line-height: 1.15;
+  font-weight: 500;
+  max-width: 8.5em;
+}
+
+.pan-hero-chips svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+  color: var(--theme-primary, #eda13a);
+}
+
+/* ------------------------------------------------------------ CATEGORIAS */
+.pan-cat-row {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding: 1.1rem 0.9rem 0.4rem;
+  scrollbar-width: none;
+}
+
+.pan-cat-row::-webkit-scrollbar { display: none; }
+
+.pan-cat {
+  flex: none;
+  width: 4.6rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.42rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--theme-muted, #8b7f70);
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.15;
+  text-align: center;
+  cursor: pointer;
+}
+
+.pan-cat-icono {
+  display: grid;
+  place-items: center;
+  width: 3.3rem;
+  height: 3.3rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--theme-primary, #eda13a) 12%, transparent);
+  color: var(--theme-text, #4a3728);
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.pan-cat-icono svg { width: 1.6rem; height: 1.6rem; }
+
+.pan-cat.active .pan-cat-icono {
+  background: var(--theme-primary, #eda13a);
+  color: #fff;
+}
+
+.pan-cat.active {
+  color: var(--theme-primary, #eda13a);
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------- SECCION */
+.pan-collection { padding: 0 0 6rem; }
+
+.pan-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.3rem 1.1rem 0.7rem;
+}
+
+.pan-section-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-family: var(--font-display, serif);
+  font-weight: 400;
+  font-size: 1.32rem;
+  color: var(--theme-text, #3f2f22);
+}
+
+.pan-section-head h2 svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--theme-primary, #eda13a);
+}
+
+.pan-section-head button {
+  border: 0;
+  background: none;
+  color: var(--theme-primary, #eda13a);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------- TARJETAS */
+.pan-destacados {
+  display: flex;
+  gap: 0.8rem;
+  overflow-x: auto;
+  padding: 0.2rem 1.1rem 0.5rem;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.pan-destacados::-webkit-scrollbar { display: none; }
+
+.pan-card {
+  background: var(--custom-card-bg, #fff);
+  border-radius: 1.1rem;
+  box-shadow: 0 6px 18px rgba(74, 55, 40, 0.08);
+  overflow: hidden;
+}
+
+/* Las destacadas son verticales y entran de a dos y media en pantalla. */
+.pan-card.ancha {
+  flex: none;
+  width: 63vw;
+  max-width: 15rem;
+  scroll-snap-align: start;
+}
+
+.pan-card.ancha .pan-card-foto {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 0;
+  background: color-mix(in srgb, var(--theme-primary, #eda13a) 10%, transparent);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.pan-card.ancha .pan-card-cuerpo { padding: 0.75rem 0.85rem 0.9rem; }
+
+.pan-card-copy {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pan-card-copy h3 {
+  margin: 0;
+  font-family: var(--font-display, serif);
+  font-weight: 400;
+  font-size: 1.02rem;
+  line-height: 1.2;
+  color: var(--custom-card-text, #3f2f22);
+}
+
+.pan-card-copy p {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--custom-card-muted, #8b7f70);
+}
+
+.pan-card-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  margin-top: 0.7rem;
+}
+
+.pan-card-pie strong {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--custom-card-price, #e08c1f);
+}
+
+.pan-add {
+  display: grid;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: var(--custom-add-bg, #eda13a);
+  color: var(--custom-add-text, #fff);
+  font-size: 1.45rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(237, 161, 58, 0.35);
+}
+
+.pan-add:active { transform: scale(0.94); }
+
+/* ------------------------------------------------------ LISTA POR SECCION */
+.pan-lista {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0 1.1rem;
+}
+
+.pan-lista .pan-card {
+  display: grid;
+  grid-template-columns: 5.6rem minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+}
+
+.pan-lista .pan-card-foto {
+  width: 5.6rem;
+  height: 100%;
+  min-height: 5.2rem;
+  padding: 0;
+  border: 0;
+  background: color-mix(in srgb, var(--theme-primary, #eda13a) 10%, transparent);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.pan-lista .pan-card-cuerpo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.85rem;
+}
+
+.pan-lista .pan-card-copy { flex: 1; }
+
+.pan-lista .pan-card-pie {
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 0.35rem;
+  margin: 0;
+}
+
+.pan-card-foto img,
+.pan-card-foto video,
+.pan-card-foto > * {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------------------------------------------------------------- BANNER */
+.pan-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 1.1rem 1.1rem 0;
+  padding: 1rem 1.1rem;
+  border-radius: 1.1rem;
+  background: color-mix(in srgb, var(--theme-primary, #eda13a) 14%, transparent);
+}
+
+.pan-banner-icono {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  flex: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--theme-primary, #eda13a) 30%, #fff);
+  color: #fff;
+}
+
+.pan-banner-icono svg { width: 1.5rem; height: 1.5rem; }
+
+.pan-banner strong {
+  display: block;
+  font-family: var(--font-display, serif);
+  font-weight: 400;
+  font-size: 1.15rem;
+  color: var(--theme-text, #3f2f22);
+}
+
+.pan-banner em {
+  display: block;
+  font-style: normal;
+  font-family: var(--font-display, serif);
+  font-size: 1.15rem;
+  color: var(--theme-primary, #e08c1f);
+}
+
+.pan-banner p {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--theme-muted, #8b7f70);
+}
+
+/* ------------------------------------------------------------ BARRA ABAJO */
+.pan-bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 0.85rem;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  gap: 0.2rem;
+  width: min(92%, 26rem);
+  padding: 0.55rem 0.4rem;
+  border-radius: 1.5rem;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(74, 55, 40, 0.18);
+}
+
+.pan-bottom-nav button {
+  position: relative;
+  flex: 1;
+  display: grid;
+  justify-items: center;
+  gap: 0.18rem;
+  padding: 0.35rem 0.2rem;
+  border: 0;
+  background: none;
+  color: #a1968a;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.pan-bottom-nav button svg { width: 1.35rem; height: 1.35rem; }
+
+.pan-bottom-nav button.active,
+.pan-bottom-nav button.has-order {
+  color: var(--theme-primary, #eda13a);
+  font-weight: 700;
+}
+
+.pan-nav-badge {
+  position: absolute;
+  top: 0.05rem;
+  right: 50%;
+  transform: translateX(1.05rem);
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: var(--theme-primary, #eda13a);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+  text-align: center;
+}
+
+@media (min-width: 720px) {
+  .pan-card.ancha { width: 15rem; }
+  .pan-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

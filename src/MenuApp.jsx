@@ -240,6 +240,111 @@ function IconDrink() {
   )
 }
 
+// Iconos de la panaderia. Trazo fino y redondeado, como los de la referencia.
+function IconPanHogaza() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3.5 13.5c0-3.6 3.8-6.5 8.5-6.5s8.5 2.9 8.5 6.5c0 2.2-1.4 3.5-3.4 3.5H6.9c-2 0-3.4-1.3-3.4-3.5Z" />
+      <path d="M8.5 9.5 7 16M12 9.2 11 16M15.5 9.5 15 16" />
+    </svg>
+  )
+}
+
+function IconMedialuna() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 15.5c2.6 2.4 6.6 3 10 1.4 3.1-1.5 5-4.6 5-7.9-1.6 2.2-3.9 3.3-6 3-2.6-.4-3.9-2.4-6.4-2.6C5.1 9.3 4 10.6 4 12v3.5Z" />
+      <path d="M4 15.5h15" />
+    </svg>
+  )
+}
+
+function IconTorta() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 19h16v-5.2c0-1.2-1-2.2-2.2-2.2H6.2C5 11.6 4 12.6 4 13.8V19Z" />
+      <path d="M4 15.2c1.3 1 2.6 1 4 0s2.6-1 4 0 2.6 1 4 0 2.6-1 4 0" />
+      <path d="M12 8.6V6.4M12 4.2v.4" />
+    </svg>
+  )
+}
+
+function IconGalletita() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="9.5" cy="10" r="1" fill="currentColor" stroke="none" />
+      <circle cx="14" cy="9.5" r="1" fill="currentColor" stroke="none" />
+      <circle cx="12.5" cy="14" r="1" fill="currentColor" stroke="none" />
+      <circle cx="9" cy="14.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
+function IconTaza() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4.5 9h12v5.5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9Z" />
+      <path d="M16.5 10.5h1.6a2.4 2.4 0 0 1 0 4.8h-1.6" />
+      <path d="M8 5.5c0 .8-.8 1-.8 1.8M11.5 5c0 .8-.8 1-.8 1.8" />
+    </svg>
+  )
+}
+
+function IconEspiga() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 21V9" />
+      <path d="M12 9c0-2 1.2-3.6 3-4.4.5 2.2-.6 4-3 4.4ZM12 9c0-2-1.2-3.6-3-4.4-.5 2.2.6 4 3 4.4Z" />
+      <path d="M12 14c0-1.8 1.1-3.2 2.7-4 .4 2-.6 3.6-2.7 4ZM12 14c0-1.8-1.1-3.2-2.7-4-.4 2 .6 3.6 2.7 4Z" />
+    </svg>
+  )
+}
+
+function IconCorazonPan() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 19.5s-6.8-4.1-6.8-8.6a3.6 3.6 0 0 1 6.8-1.7 3.6 3.6 0 0 1 6.8 1.7c0 4.5-6.8 8.6-6.8 8.6Z" />
+    </svg>
+  )
+}
+
+function IconPinPanaderia() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 21s6.5-5.4 6.5-10a6.5 6.5 0 1 0-13 0c0 4.6 6.5 10 6.5 10Z" />
+      <circle cx="12" cy="11" r="2.4" />
+    </svg>
+  )
+}
+
+function IconGrilla() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
+      <circle cx="8.5" cy="8.5" r="2.4" />
+      <circle cx="15.5" cy="8.5" r="2.4" />
+      <circle cx="8.5" cy="15.5" r="2.4" />
+      <circle cx="15.5" cy="15.5" r="2.4" />
+    </svg>
+  )
+}
+
+/**
+ * Que icono le toca a cada categoria de la panaderia.
+ *
+ * Por palabra y no por posicion: el local puede renombrar o reordenar sus
+ * categorias, y el icono tiene que seguir teniendo sentido.
+ */
+function iconoDeCategoriaPanaderia(label) {
+  const t = String(label || '').toLowerCase()
+  if (/factura|medialuna|croissant|churro/.test(t)) return IconMedialuna
+  if (/torta|pastel|dulce|postre|budin/.test(t)) return IconTorta
+  if (/galletit|cookie|alfajor/.test(t)) return IconGalletita
+  if (/bebida|cafe|café|jugo|agua/.test(t)) return IconTaza
+  if (/salado|sandwich|empanada|tarta|pizza/.test(t)) return IconGalletita
+  return IconPanHogaza
+}
+
 function IconShare() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -3852,6 +3957,40 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
     )
   }
 
+  if (templateId === 'panaderia') {
+    // La foto ya trae la curva recortada abajo, asi que va como imagen y no
+    // como fondo: recortarla por CSS le comeria el pan.
+    const foto = standaloneHeroImages[0] || presentation.hero?.image
+    const chips = [
+      { Icon: IconEspiga, texto: presentation.hero?.chip1 || 'Masa madre' },
+      { Icon: IconCorazonPan, texto: presentation.hero?.chip2 || 'Hecho con dedicación' },
+      { Icon: IconPinPanaderia, texto: presentation.hero?.chip3 || 'Chivilcoy, Bs. As.' },
+    ]
+
+    return (
+      <section className="pan-hero">
+        {foto ? <img className="pan-hero-foto" src={foto} alt="" aria-hidden="true" /> : null}
+        <div className="pan-hero-velo" aria-hidden="true" />
+
+        <div className="pan-hero-copy">
+          <span className="pan-hero-logo">{presentation.branding?.wordmark || 'PANACEA'}</span>
+          <h1>
+            {presentation.hero?.title || 'Panadería artesanal'}
+            <em>{presentation.hero?.accent || 'de masa madre'}</em>
+          </h1>
+          <ul className="pan-hero-chips">
+            {chips.map(({ Icon, texto }) => (
+              <li key={texto}>
+                <Icon />
+                <span>{texto}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
   if (templateId === 'bistro') {
     return (
       <section className="hero-content hero-content-bistro">
@@ -4533,6 +4672,38 @@ function TemplateCategorySelector({
     )
   }
 
+  if (templateId === 'panaderia') {
+    const visibles = categories.filter((category) => !category?.hiddenFromBar)
+    return (
+      <div className="pan-cat-row" aria-label="Categorias">
+        {visibles.map((category) => {
+          const Icon = iconoDeCategoriaPanaderia(category.label)
+          const activa = category.id === currentCategory?.id
+          return (
+            <button
+              key={category.id}
+              type="button"
+              className={`pan-cat ${activa ? 'active' : ''}`}
+              onClick={() => onSelectCategory(category.id)}
+            >
+              <span className="pan-cat-icono"><Icon /></span>
+              <span className="pan-cat-label">{category.label}</span>
+            </button>
+          )
+        })}
+        {/* "Ver todo" limpia el filtro, igual que tocar la categoria activa. */}
+        <button
+          type="button"
+          className={`pan-cat ${currentCategory ? '' : 'active'}`}
+          onClick={() => onSelectCategory(null)}
+        >
+          <span className="pan-cat-icono"><IconGrilla /></span>
+          <span className="pan-cat-label">Ver todo</span>
+        </button>
+      </div>
+    )
+  }
+
   if (templateId === 'kika') {
     return (
       <div className="kika-category-row" aria-label="Categorias de Kika">
@@ -4840,6 +5011,112 @@ function TemplateMenuCollection({
 }) {
   const [dailyMenuFilter, setDailyMenuFilter] = useState('all')
   const [activeFeaturedIndex, setActiveFeaturedIndex] = useState(0)
+  if (templateId === 'panaderia') {
+    // Destacados: los primeros de la primera categoria. No hay marca de
+    // "destacado" en el producto, y arrancar por lo que el local puso primero
+    // es lo mas parecido a lo que el eligio mostrar.
+    const todas = categories.filter((c) => c?.items?.length)
+    const destacados = isSearchActive || currentCategory
+      ? []
+      : todas.flatMap((c) => c.items.slice(0, 1)).slice(0, 6)
+
+    const secciones = isSearchActive
+      ? [{ id: 'busqueda', label: `Resultados para "${searchQuery}"`, items: categoryItems }]
+      : currentCategory
+        ? [{ ...currentCategory, items: categoryItems }]
+        : todas
+
+    const Tarjeta = ({ item, ancha }) => (
+      <article className={`pan-card ${ancha ? 'ancha' : ''}`}>
+        <button type="button" className="pan-card-foto" onClick={() => onOpenDish(item)} aria-label={`Ver ${item.name}`}>
+          {renderProductMedia(item)}
+        </button>
+        <div className="pan-card-cuerpo">
+          <button type="button" className="pan-card-copy" onClick={() => onOpenDish(item)}>
+            <h3>{item.name}</h3>
+            {item.description ? <p>{item.description}</p> : null}
+          </button>
+          <div className="pan-card-pie">
+            <strong>{formatPrice(item.price, currencySymbol)}</strong>
+            <button
+              type="button"
+              className="pan-add"
+              onClick={() => onAddItem(item)}
+              aria-label={`Agregar ${item.name}`}
+            >
+              <span aria-hidden="true">+</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    )
+
+    return (
+      <section className="pan-collection">
+        {destacados.length ? (
+          <>
+            <div className="pan-section-head">
+              <h2><IconEspiga />Destacados</h2>
+            </div>
+            <div className="pan-destacados">
+              {destacados.map((item) => <Tarjeta key={`d-${item.id}`} item={item} ancha />)}
+            </div>
+
+            <div className="pan-banner">
+              <span className="pan-banner-icono"><IconCorazonPan /></span>
+              <div>
+                <strong>Hacé tu pedido</strong>
+                <em>de forma fácil y rápida</em>
+                <p>Retirá en nuestra panadería o coordiná tu envío.</p>
+              </div>
+            </div>
+          </>
+        ) : null}
+
+        {secciones.map((seccion) => {
+          const Icon = iconoDeCategoriaPanaderia(seccion.label)
+          return (
+            <div key={seccion.id} className="pan-seccion">
+              <div className="pan-section-head">
+                <h2><Icon />{seccion.label}</h2>
+                {!currentCategory && !isSearchActive && seccion.items.length > 3 ? (
+                  <button type="button" onClick={() => onSelectCategory(seccion.id)}>
+                    Ver todo <span aria-hidden="true">›</span>
+                  </button>
+                ) : null}
+              </div>
+              <div className="pan-lista">
+                {(currentCategory || isSearchActive ? seccion.items : seccion.items.slice(0, 4))
+                  .map((item) => <Tarjeta key={item.id} item={item} />)}
+              </div>
+            </div>
+          )
+        })}
+
+        <nav className="pan-bottom-nav" aria-label="Navegación del catálogo">
+          <button type="button" className="active" onClick={onNavigateHome}>
+            <IconHome /><span>Inicio</span>
+          </button>
+          <button type="button" onClick={onNavigateHome}>
+            <IconSearch /><span>Buscar</span>
+          </button>
+          <button
+            type="button"
+            className={orderCount > 0 ? 'has-order' : ''}
+            onClick={onOpenCart}
+          >
+            <IconKikaBag />
+            {orderCount > 0 ? <strong className="pan-nav-badge">{orderCount}</strong> : null}
+            <span>Mi pedido</span>
+          </button>
+          <button type="button" onClick={onOpenSocialMenu}>
+            <IconKikaUsers /><span>Nosotros</span>
+          </button>
+        </nav>
+      </section>
+    )
+  }
+
   if (templateId === 'kika') {
     const sections = isSearchActive
       ? [
