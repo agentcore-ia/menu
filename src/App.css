@@ -6009,7 +6009,10 @@
 
 .checkout-datos-guardados button {
   flex-shrink: 0;
-  padding: 0;
+  /* El texto es chico pero el dedo no: el padding agranda el area que se puede
+     tocar y el margen negativo la devuelve a su lugar. */
+  padding: 0.7rem 0.4rem;
+  margin: -0.7rem -0.4rem;
   border: 0;
   background: none;
   color: inherit;
