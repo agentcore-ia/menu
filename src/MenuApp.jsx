@@ -2,6 +2,15 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } f
 import './App.css'
 import { getBusinessOpenStatus } from '../shared/businessHours.js'
 import { textosDelMenu } from '../shared/rubros.js'
+import {
+  almacenDelNavegador,
+  coordenadasGuardadas,
+  guardarDatos,
+  hayDatosGuardados,
+  leerDatos,
+  olvidarDatos,
+  prellenarFormulario,
+} from '../shared/datosDelCliente.js'
 
 import QRLanding from './QRLanding.jsx'
 import QRBill from './QRBill.jsx'
@@ -6537,7 +6546,9 @@ export default function MenuApp() {
   const [isLoyaltyOpen, setIsLoyaltyOpen] = useState(false)
   const [isCommunityOpen, setIsCommunityOpen] = useState(false)
   const [isSocialMenuOpen, setIsSocialMenuOpen] = useState(false)
-  const [loyaltyPhone, setLoyaltyPhone] = useState('')
+  // Lo que el cliente cargo la ultima vez que pidio, desde SU telefono.
+  const [datosGuardados, setDatosGuardados] = useState(() => leerDatos(almacenDelNavegador()))
+  const [loyaltyPhone, setLoyaltyPhone] = useState(() => datosGuardados?.phone ?? '')
   const [loyaltyStatus, setLoyaltyStatus] = useState('idle')
   const [loyaltyMessage, setLoyaltyMessage] = useState('')
   const [loyaltyData, setLoyaltyData] = useState(null)
@@ -6657,13 +6668,15 @@ export default function MenuApp() {
 
   const [orderForm, setOrderForm] = useState(() => {
     let deliveryType = 'delivery'
+    let esMesa = false
     if (typeof window !== 'undefined') {
       const search = new URLSearchParams(window.location.search)
       if (search.has('mesa') || search.has('mesa_id')) {
         deliveryType = 'local'
+        esMesa = true
       }
     }
-    return {
+    const base = {
       name: '',
       phone: '',
       address: '',
@@ -6673,6 +6686,8 @@ export default function MenuApp() {
       paymentMethod: 'cash',
       notes: '',
     }
+    // Si ya pidio antes desde este telefono, el formulario arranca completo.
+    return prellenarFormulario(base, datosGuardados, { esMesa })
   })
 
   useEffect(() => {
@@ -7059,6 +7074,14 @@ export default function MenuApp() {
       neighborhood: orderForm.neighborhood,
       city: deliveryCity,
       deliveryType,
+      // Si la direccion es la misma que confirmo la ultima vez, ya sabemos en
+      // que punto del mapa cae: el envio sale con el precio puesto, sin
+      // pedirle otra vez que la elija de la lista.
+      coordinates: coordenadasGuardadas(
+        datosGuardados,
+        { address: orderForm.address, neighborhood: orderForm.neighborhood },
+        deliveryCity,
+      ),
     }
 
     const timeout = window.setTimeout(async () => {
@@ -7110,6 +7133,7 @@ export default function MenuApp() {
     }
   }, [
     accountId,
+    datosGuardados,
     deliveryZonesEnabled,
     orderForm.address,
     orderForm.deliveryType,
@@ -7591,6 +7615,20 @@ export default function MenuApp() {
     }
   }
 
+  function handleOlvidarDatos() {
+    olvidarDatos(almacenDelNavegador())
+    setDatosGuardados(null)
+    setLoyaltyPhone('')
+    // Vaciar el formulario es la unica forma de que se vea que se borraron.
+    setOrderForm((current) => ({
+      ...current,
+      name: '',
+      phone: '',
+      address: '',
+      neighborhood: '',
+    }))
+  }
+
   async function handleSelectDeliveryCandidate(candidate) {
     if (!candidate?.coordinates) return
 
@@ -7989,6 +8027,20 @@ export default function MenuApp() {
       }
 
       setLastOrder(result)
+
+      // El pedido salio: recien ahora los datos valen la pena guardarse.
+      setDatosGuardados(
+        guardarDatos(
+          almacenDelNavegador(),
+          { ...orderForm, phone: rawPhone },
+          {
+            esMesa: isTableOrder,
+            ciudad: deliveryCity,
+            coordenadas: confirmedDeliveryQuote?.coordinates,
+          },
+        ),
+      )
+
       setCheckoutStatus('success')
       setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
       setCart([])
@@ -9641,6 +9693,15 @@ export default function MenuApp() {
               ) : null}
 
               <form className="checkout-form" onSubmit={handleSubmitOrder}>
+                {hayDatosGuardados(datosGuardados) ? (
+                  <p className="checkout-datos-guardados">
+                    <span>Completamos tus datos del último pedido.</span>
+                    <button type="button" onClick={handleOlvidarDatos}>
+                      Borrarlos
+                    </button>
+                  </p>
+                ) : null}
+
                 <label className="checkout-field">
                   <span>Nombre</span>
                   <input

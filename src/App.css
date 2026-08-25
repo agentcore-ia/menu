@@ -5990,6 +5990,35 @@
   gap: 0.8rem;
 }
 
+/* El aviso de que el formulario vino completo. Discreto: es una ayuda, no una
+   novedad. Pero con el boton a la vista, porque puede ser un telefono
+   prestado. */
+.checkout-datos-guardados {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--theme-muted) 10%, transparent);
+  color: var(--theme-muted);
+  font-size: 0.82rem;
+  line-height: 1.3;
+}
+
+.checkout-datos-guardados button {
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .checkout-field {
   display: grid;
   gap: 0.45rem;
