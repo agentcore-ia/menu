@@ -74,6 +74,10 @@
       "destination": "/lodetoto.html"
     },
     {
+      "source": "/api/accounts/:accountId/pay-card",
+      "destination": "/api/accounts/:accountId/orders?accion=pagar-con-tarjeta"
+    },
+    {
       "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto).*)",
       "destination": "/host.html"
     }

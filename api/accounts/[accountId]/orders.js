@@ -1,4 +1,5 @@
 import { getServerConfig } from '../../../server/config.js'
+import { pagarConTarjeta } from '../../../server/pagarConTarjeta.js'
 import { createOrderRepository } from '../../../server/repositories/orderRepository.js'
 
 export default async function handler(req, res) {
@@ -8,6 +9,14 @@ export default async function handler(req, res) {
       error: 'METHOD_NOT_ALLOWED',
       message: 'Solo se permite POST.',
     })
+    return
+  }
+
+  // Vercel cuenta una funcion por archivo y el plan permite doce: ya estaban
+  // todas usadas. El pago con tarjeta entra por aca con un rewrite en vez de
+  // sumar un archivo, que es lo que hizo fallar el deploy sin avisar.
+  if (req.query?.accion === 'pagar-con-tarjeta') {
+    await pagarConTarjeta(req, res)
     return
   }
 
