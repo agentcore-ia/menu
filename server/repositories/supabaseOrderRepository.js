@@ -371,9 +371,11 @@ export class SupabaseOrderRepository {
               externalReference: mercadoPagoPreference?.externalReference ?? null,
               expiresAt: mercadoPagoPreference?.expiresAt ?? null,
               warning: mercadoPagoPreference?.warning ?? null,
+              publicKey: mercadoPagoPreference?.publicKey ?? null,
             }
           : null,
       paymentLink: mercadoPagoPreference?.paymentLink ?? null,
+      paymentPublicKey: mercadoPagoPreference?.publicKey ?? null,
       paymentWarning: mercadoPagoPreference?.warning ?? null,
     }
   }
@@ -1175,6 +1177,9 @@ export class SupabaseOrderRepository {
         preferenceId: data.preferenceId ?? null,
         externalReference: data.externalReference ?? null,
         expiresAt: data.expiresAt ?? null,
+        // Con esto el menu puede cobrar la tarjeta ahi mismo. Solo viene si el
+        // local vinculo su cuenta; si no, el cliente usa el link de siempre.
+        publicKey: data.publicKey ?? null,
       }
     } catch (error) {
       return {

@@ -12,6 +12,7 @@ import {
   prellenarFormulario,
 } from '../shared/datosDelCliente.js'
 
+import PagoTarjeta from './PagoTarjeta.jsx'
 import QRLanding from './QRLanding.jsx'
 import QRBill from './QRBill.jsx'
 import QRFeedback from './QRFeedback.jsx'
@@ -6542,6 +6543,9 @@ export default function MenuApp() {
   const [deliveryQuote, setDeliveryQuote] = useState(null)
   const [deliveryQuoteStatus, setDeliveryQuoteStatus] = useState('idle')
   const [lastOrder, setLastOrder] = useState(null)
+  // El pedido que quedo esperando que el cliente pase la tarjeta, sin salir
+  // del menu. Solo se arma si el local tiene la cuenta vinculada.
+  const [pagoConTarjeta, setPagoConTarjeta] = useState(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [isLoyaltyOpen, setIsLoyaltyOpen] = useState(false)
   const [isCommunityOpen, setIsCommunityOpen] = useState(false)
@@ -8045,7 +8049,17 @@ export default function MenuApp() {
       setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
       setCart([])
       setRewardRedemptions([])
-      if (shouldRedirectToMercadoPago) {
+      if (shouldRedirectToMercadoPago && result.paymentPublicKey) {
+        // Se cobra en el menu. El link de Mercado Pago sigue vivo por si la
+        // tarjeta no entra: nunca se deja al cliente sin forma de pagar.
+        setPagoConTarjeta({
+          publicKey: result.paymentPublicKey,
+          orderId: result.id || null,
+          total: Number(result.total) || orderTotal,
+          email: result.customer?.email || '',
+          link: result.paymentLink || '',
+        })
+      } else if (shouldRedirectToMercadoPago) {
         window.location.assign(result.paymentLink)
       } else if (!isTableOrder) {
         openWhatsappOrderChat(result.customerWhatsapp?.url, whatsappWindow)
@@ -10123,6 +10137,33 @@ export default function MenuApp() {
                 </div>
               ) : null}
             </section>
+          </div>
+        </div>
+      ) : null}
+
+      {/* La tarjeta se cobra ANTES de la confirmacion: el pedido ya esta hecho,
+          pero mostrarle "listo" a alguien que todavia no pago es mentirle. */}
+      {pagoConTarjeta ? (
+        <div className="confirmation-overlay" role="presentation">
+          <div className={`confirmation-card confirmation-card-${templateId} pago-tarjeta-card`}>
+            <h2>Pagá con tu tarjeta</h2>
+            <p className="pago-tarjeta-monto">{formatPrice(pagoConTarjeta.total, currencySymbol)}</p>
+            <PagoTarjeta
+              publicKey={pagoConTarjeta.publicKey}
+              accountId={accountId}
+              orderId={pagoConTarjeta.orderId}
+              total={pagoConTarjeta.total}
+              email={pagoConTarjeta.email}
+              linkDeMercadoPago={pagoConTarjeta.link}
+              onAprobado={() => {
+                setPagoConTarjeta(null)
+                setShowConfirmation(true)
+              }}
+              onCerrar={() => {
+                setPagoConTarjeta(null)
+                setShowConfirmation(true)
+              }}
+            />
           </div>
         </div>
       ) : null}
