@@ -8049,7 +8049,8 @@ export default function MenuApp() {
       setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
       setCart([])
       setRewardRedemptions([])
-      if (shouldRedirectToMercadoPago && result.paymentPublicKey) {
+      const vaAPagarConTarjeta = Boolean(shouldRedirectToMercadoPago && result.paymentPublicKey)
+      if (vaAPagarConTarjeta) {
         // Se cobra en el menu. El link de Mercado Pago sigue vivo por si la
         // tarjeta no entra: nunca se deja al cliente sin forma de pagar.
         setPagoConTarjeta({
@@ -8080,7 +8081,10 @@ export default function MenuApp() {
       )
       setIsCheckoutOpen(false)
       setSelectedDish(null)
-      setShowConfirmation(true)
+      // Con la tarjeta esperando, la confirmacion todavia no: decirle "listo"
+      // a alguien que no pago es mentirle, y ademas quedaba montada DETRAS del
+      // formulario, lista para aparecer si lo cerraba.
+      if (!vaAPagarConTarjeta) setShowConfirmation(true)
     } catch (error) {
       if (whatsappWindow && !whatsappWindow.closed) {
         whatsappWindow.close()
