@@ -16776,3 +16776,59 @@ button:focus-visible {
   color: var(--theme-muted);
   line-height: 1.45;
 }
+
+/* --------------------------------------------- SABORES DE UN FORMATO ---
+   Heladerias: el sabor no es un producto que se pida solo, se elige despues
+   de decir el formato. Se dibuja igual en todos los templates porque toma los
+   colores del tema. */
+.sabor-picker-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.5rem;
+  padding: 1rem 0 1.25rem;
+}
+
+.sabor-opcion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 3.25rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--theme-border, rgba(0, 0, 0, 0.12));
+  border-radius: 1rem;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, #1c1a17);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sabor-opcion.elegido {
+  border-color: var(--theme-primary, #eda13a);
+  background: color-mix(in srgb, var(--theme-primary, #eda13a) 12%, transparent);
+}
+
+.sabor-opcion strong {
+  color: var(--theme-primary, #eda13a);
+}
+
+.sabor-picker-confirmar {
+  width: 100%;
+  min-height: 3.5rem;
+  border: 0;
+  border-radius: 1.25rem;
+  background: var(--theme-primary, #eda13a);
+  color: var(--theme-on-primary, #fff);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sabor-picker-confirmar:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

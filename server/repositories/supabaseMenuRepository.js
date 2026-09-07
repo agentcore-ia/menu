@@ -5,7 +5,35 @@ import {
 } from './loyaltyUtils.js'
 import { getBusinessOpenStatus } from '../../shared/businessHours.js'
 import { rubroDelMenu } from '../../shared/rubros.js'
+import { formaDelCatalogo } from '../../shared/formaDelCatalogo.js'
 import { normalizeBusinessLocation } from '../deliveryZones.js'
+
+/**
+ * Marca las categorias que solo se ELIGEN (los sabores de una heladeria) y las
+ * que se piden (los formatos).
+ *
+ * Un sabor no tiene precio propio: lo pone el formato. Mandarlo con "$0" es
+ * mentira y ademas invita a pedirlo solo.
+ */
+function marcarCategoriasDeEleccion(categorias) {
+  const forma = formaDelCatalogo(categorias)
+  if (!forma.porFormato) return categorias
+
+  for (const categoria of categorias) {
+    const soloEleccion = forma.deEleccion.includes(categoria.label)
+    const pideEleccion = forma.quePiden.includes(categoria.label)
+    if (!soloEleccion && !pideEleccion) continue
+    categoria.soloEleccion = soloEleccion
+    for (const item of categoria.items) {
+      item.soloEleccion = soloEleccion
+      item.pideEleccion = pideEleccion
+      // Sin precio: el "$0" era el precio que NO tiene, no uno de cero.
+      if (soloEleccion) item.price = ''
+    }
+  }
+
+  return categorias
+}
 
 const fallbackImages = [
   '/dishes/hero-steak.jpg',
@@ -525,7 +553,7 @@ export class SupabaseMenuRepository {
       })
     })
 
-    return [...groups.values()]
+    return marcarCategoriasDeEleccion([...groups.values()])
   }
 
   mapDailyMenuCategory(dailyMenu, productById = new Map(), stockByProductId = new Map(), stockStrictMode = false) {

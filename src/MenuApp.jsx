@@ -6574,6 +6574,8 @@ export default function MenuApp() {
   const [isPwaInstalled, setIsPwaInstalled] = useState(() => isStandalonePwa())
   const cartFeedbackIdRef = useRef(0)
   const [gelatoBuilderOpen, setGelatoBuilderOpen] = useState(false)
+  // Formato de heladeria esperando que elijan los sabores.
+  const [saborPicker, setSaborPicker] = useState(null)
   const [gelatoStep, setGelatoStep] = useState(1)
   const [gelatoFormat, setGelatoFormat] = useState('kilo')
   const [gelatoSizeId, setGelatoSizeId] = useState('')
@@ -6595,6 +6597,7 @@ export default function MenuApp() {
   const anyOverlayOpen = Boolean(
     selectedDish ||
       gelatoBuilderOpen ||
+      saborPicker ||
       isCheckoutOpen ||
       isCartOpen ||
       isSearchOpen ||
@@ -6605,6 +6608,7 @@ export default function MenuApp() {
 
   const closeTopOverlay = useCallback(() => {
     if (selectedDish) return setSelectedDish(null)
+    if (saborPicker) return setSaborPicker(null)
     if (gelatoBuilderOpen) return setGelatoBuilderOpen(false)
     if (isCheckoutOpen) {
       // El checkout se abre desde el carrito: al volver, reabrir el carrito.
@@ -6619,6 +6623,7 @@ export default function MenuApp() {
     if (isLoyaltyOpen) return setIsLoyaltyOpen(false)
   }, [
     selectedDish,
+    saborPicker,
     gelatoBuilderOpen,
     isCheckoutOpen,
     isCartOpen,
@@ -6890,6 +6895,13 @@ export default function MenuApp() {
     [allItems, deferredSearchQuery],
   )
   const visibleCategoryItems = isSearchActive ? searchResults : categoryItems
+  // Los sabores de una heladeria, para el selector que se abre al elegir un
+  // formato. Vienen marcados desde la API con la misma regla que usan el panel
+  // y el agente, asi que no hace falta configurar nada por local.
+  const saboresParaElegir = useMemo(
+    () => allItems.filter((item) => item?.soloEleccion && item?.availableForOrder !== false),
+    [allItems],
+  )
   const gelatoFormats = getGelatoFormats()
   const gelatoSizeOptions = [
     ...(categories.find((category) => slugify(category.label).includes('formato-tamano'))?.items ?? []),
@@ -7006,8 +7018,11 @@ export default function MenuApp() {
           currencySymbol,
         )
       : ''
-  const cartRecommendations = buildCartRecommendations(cartItems, allItems)
-  const cartPairings = buildCartPairingSuggestions(cartItems, allItems)
+  // Un sabor no se puede "sumar" al carrito: ofrecerlo como recomendacion es
+  // invitar a algo que despues no se deja hacer.
+  const itemsQueSeVenden = useMemo(() => allItems.filter((item) => !item?.soloEleccion), [allItems])
+  const cartRecommendations = buildCartRecommendations(cartItems, itemsQueSeVenden)
+  const cartPairings = buildCartPairingSuggestions(cartItems, itemsQueSeVenden)
   // En el carrito mostramos todos los productos de "Adicionales" y "Bebidas" si
   // existen; si no hay ninguna de las dos categorias, caemos a las sugerencias
   // heuristicas (una sola seccion generica).
@@ -7190,6 +7205,26 @@ export default function MenuApp() {
   function handleAddItem(item, quantity = 1, configuration = null) {
     if (orderingBlocked) {
       showOrderingClosedNotice()
+      return false
+    }
+
+    // Un sabor no se vende solo: el precio lo pone el formato. Antes se podia
+    // agregar y el carrito quedaba en "1 producto / Sin productos".
+    if (item?.soloEleccion) {
+      const formato = allItems.find((otro) => otro?.pideEleccion)?.name
+      setOrderingNotice({
+        titulo: 'Elegi primero el formato',
+        texto: formato
+          ? `${item.name} se elige despues, cuando pedis un formato (por ejemplo ${formato}).`
+          : `${item.name} se elige despues, cuando pedis un formato.`,
+      })
+      return false
+    }
+
+    // Formato de heladeria: los sabores se preguntan ACA, que es cuando el
+    // cliente lo diria en el mostrador ("un cuarto" -> "de que?").
+    if (!configuration && item?.pideEleccion && saboresParaElegir.length) {
+      setSaborPicker({ item, elegidos: [] })
       return false
     }
 
@@ -8454,8 +8489,10 @@ export default function MenuApp() {
           role="status"
           aria-live="polite"
         >
-          <strong>Pedidos pausados</strong>
-          <p>{orderingNotice}</p>
+          {/* El aviso puede traer su propio titulo: no todo lo que se le dice
+              al cliente por aca es que el local esta cerrado. */}
+          <strong>{orderingNotice?.titulo || 'Pedidos pausados'}</strong>
+          <p>{orderingNotice?.texto || orderingNotice}</p>
         </div>
       ) : null}
 
@@ -8470,6 +8507,76 @@ export default function MenuApp() {
         onInstall={handleInstallApp}
         onClose={handleCloseInstallPrompt}
       />
+
+      {/* Los sabores del formato que se esta pidiendo. Sirve para cualquier
+          template: la heladeria se detecta por como esta cargado el menu. */}
+      {saborPicker ? (
+        <div className="detail-screen" role="presentation" onClick={() => setSaborPicker(null)}>
+          <div
+            className={`detail-phone ${appClassName}`}
+            style={getPresentationStyles(presentation, accountId)}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <section className="checkout-sheet sabor-picker">
+              <div className="checkout-head">
+                <div>
+                  <h2>{saborPicker.item.name}</h2>
+                  <p>
+                    {saborPicker.elegidos.length
+                      ? saborPicker.elegidos.join(' · ')
+                      : 'Que sabores le pongo?'}
+                  </p>
+                </div>
+                <button type="button" className="checkout-close" onClick={() => setSaborPicker(null)}>
+                  ✕
+                </button>
+              </div>
+
+              <div className="sabor-picker-lista">
+                {saboresParaElegir.map((sabor) => {
+                  const elegido = saborPicker.elegidos.includes(sabor.name)
+                  return (
+                    <button
+                      key={sabor.id}
+                      type="button"
+                      className={`sabor-opcion ${elegido ? 'elegido' : ''}`}
+                      onClick={() =>
+                        setSaborPicker((actual) => ({
+                          ...actual,
+                          elegidos: elegido
+                            ? actual.elegidos.filter((n) => n !== sabor.name)
+                            : [...actual.elegidos, sabor.name],
+                        }))
+                      }
+                    >
+                      <span>{sabor.name}</span>
+                      {elegido ? <strong aria-hidden="true">✓</strong> : null}
+                    </button>
+                  )
+                })}
+              </div>
+
+              <button
+                type="button"
+                className="sabor-picker-confirmar"
+                disabled={!saborPicker.elegidos.length}
+                onClick={() => {
+                  const { item, elegidos } = saborPicker
+                  setSaborPicker(null)
+                  // Los sabores viajan en la nota del item: asi llegan a la
+                  // comanda y ademas la base los reconoce por nombre para
+                  // descontar el stock de cada gusto.
+                  handleAddItem(item, 1, { summary: `Sabores: ${elegidos.join(', ')}` })
+                }}
+              >
+                {saborPicker.elegidos.length
+                  ? `Agregar ${saborPicker.item.name}`
+                  : 'Elegi al menos un sabor'}
+              </button>
+            </section>
+          </div>
+        </div>
+      ) : null}
 
       {templateId === 'gelato' && gelatoBuilderOpen ? (
         <div className="detail-screen" role="presentation" onClick={() => setGelatoBuilderOpen(false)}>
