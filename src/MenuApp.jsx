@@ -3719,11 +3719,15 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
   if (templateId === 'gelato') {
     return (
       <section className="hero-content hero-content-gelato">
-        {/* Sin logo propio se escribe el NOMBRE del local. Antes caia en el
-            logo de Dolce, que es la heladeria para la que se hizo esta
-            plantilla: cualquier otro local terminaba con la marca de otro en
-            su propia carta. */}
-        {presentation.theme?.logoImage ? (
+        {/* Imagen de cabecera del local, si cargo una. Suele venir con el logo
+            adentro, asi que reemplaza al logo y no se suma. */}
+        {getHeroImages(presentation, '')[0] ? (
+          <img
+            className="gelato-header-image"
+            src={getHeroImages(presentation, '')[0]}
+            alt={presentation.branding?.wordmark ?? ''}
+          />
+        ) : presentation.theme?.logoImage ? (
           <img
             className="gelato-brand-image"
             src={presentation.theme.logoImage}

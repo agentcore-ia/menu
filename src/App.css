@@ -16928,3 +16928,14 @@ button:focus-visible {
   letter-spacing: 0.1em;
   color: var(--theme-text, #22183b);
 }
+
+/* Cabecera propia del local en la plantilla de heladeria. Va ancha de verdad:
+   suele ser un banner con el logo adentro, no un logo suelto. */
+.gelato-header-image {
+  display: block;
+  width: calc(100% + 2.4rem);
+  margin: -0.5rem -1.2rem 0.25rem;
+  max-width: none;
+  border-radius: 0 0 1.5rem 1.5rem;
+  object-fit: cover;
+}
