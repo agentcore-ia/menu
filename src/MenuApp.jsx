@@ -5074,7 +5074,7 @@ function TemplateMenuCollection({
     )
 
     return (
-      <section className="pan-collection">
+      <section className={`pan-collection ${orderCount > 0 ? 'con-pedido' : ''}`}>
         {destacados.length ? (
           <>
             <div className="pan-section-head">
@@ -6946,6 +6946,12 @@ export default function MenuApp() {
   const hasDiscountRedemptions = rewardRedemptions.some((line) => line.rewardType === 'discount')
   const orderCount = cartCount + redemptionCount
   const hasOrderItems = orderCount > 0
+  // La barra "Ver mi pedido" no tiene nada que mostrar con el carrito vacio.
+  // En panaderia ademas hacia dano: queda fija abajo, encima de la barra de
+  // navegacion, asi que la navegacion parecia aparecer recien al agregar el
+  // primer producto. Siempre habia estado ahi, tapada.
+  const barraDePedidoPideItems = templateId === 'pizzeria' || templateId === 'panaderia'
+  const mostrarBarraDePedido = !barraDePedidoPideItems || hasOrderItems
   const deliveryZonesEnabled = Boolean(
     menu?.deliveryZonesEnabled &&
       Array.isArray(menu?.deliveryZones) &&
@@ -8389,7 +8395,7 @@ export default function MenuApp() {
           templateId !== 'kika' &&
           templateId !== 'almendra' &&
           templateId !== 'florian' &&
-          (templateId !== 'pizzeria' || hasOrderItems) ? (
+          mostrarBarraDePedido ? (
             <footer className="order-bar">
               <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                 <div className="order-bar-copy">
@@ -9329,7 +9335,7 @@ export default function MenuApp() {
               </>
             )}
 
-            {(!isHostDetail && !isKikaDetail && !isWeeklyPlanDetail && (templateId !== 'pizzeria' || hasOrderItems)) ? (
+            {(!isHostDetail && !isKikaDetail && !isWeeklyPlanDetail && mostrarBarraDePedido) ? (
               <footer className="detail-order-bar">
                 <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                   <div className="order-bar-copy">

@@ -5265,10 +5265,16 @@
   opacity: 0.9;
 }
 
+/* Arriba de las barras fijas de abajo (navegacion 40, barra del pedido 45) y
+   debajo de lo que SI tiene que verse sobre el carrito: la confirmacion (60),
+   los avisos (80/90) y el cartel de instalar la app (120).
+   Con z-index 30 el boton "Ver mi pedido" quedaba flotando encima del propio
+   carrito y del formulario de datos, ofreciendo abrir lo que ya estaba
+   abierto. */
 .detail-screen {
   position: fixed;
   inset: 0;
-  z-index: 30;
+  z-index: 50;
   background: rgba(19, 20, 18, 0.36);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -16672,9 +16678,15 @@ button:focus-visible {
   bottom: 8.2rem;
 }
 
-/* Y el contenido deja lugar para las dos, para que el ultimo producto no
-   quede escondido detras. */
+/* Con el carrito vacio abajo solo esta la navegacion: reservarle lugar para
+   dos barras dejaba un hueco al final de la lista. */
 .template-panaderia .pan-collection {
+  padding-bottom: 7.5rem;
+}
+
+/* Con pedido se suma la barra de "Ver mi pedido" y el ultimo producto no puede
+   quedar escondido detras de las dos. */
+.template-panaderia .pan-collection.con-pedido {
   padding-bottom: 13.5rem;
 }
 
