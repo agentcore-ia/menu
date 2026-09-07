@@ -16832,3 +16832,99 @@ button:focus-visible {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* Heladeria que solo vende por peso: la primera pantalla son los tamaños, sin
+   el paso previo de "elegi tipo" (que seria una sola tarjeta). */
+.gelato-tamanos-head {
+  padding: 0 0 0.75rem;
+}
+
+.gelato-tamanos-head h2 {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: 1.75rem;
+  color: var(--theme-text, #22183b);
+}
+
+.gelato-tamanos-head p {
+  margin: 0.3rem 0 0;
+  color: var(--theme-muted, rgba(34, 24, 59, 0.68));
+  font-size: 0.9rem;
+}
+
+/* El texto va sobre fondo propio y la foto ocupa su mitad: puesta de fondo, el
+   nombre y el precio quedaban ilegibles encima del helado. */
+.gelato-tamano-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40%;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--theme-surface, #fff);
+  text-align: left;
+}
+
+.gelato-tamano-card .gelato-format-copy {
+  position: relative;
+  z-index: 1;
+  padding: 1.1rem 0 1.1rem 1.2rem;
+}
+
+.gelato-tamano-card .gelato-format-copy h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  line-height: 1.15;
+  color: var(--theme-text, #22183b);
+}
+
+.gelato-tamano-card .gelato-format-copy p {
+  margin: 0.25rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--theme-primary, #ff5a92);
+}
+
+.gelato-tamano-card .gelato-format-visual {
+  position: relative;
+  inset: auto;
+  height: 100%;
+  min-height: 6.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gelato-tamano-card .gelato-format-image-main {
+  position: relative;
+  width: auto;
+  max-width: 100%;
+  max-height: 7rem;
+  object-fit: contain;
+}
+
+/* Nombre del local cuando no cargo un logo propio. */
+.gelato-brand-texto {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0 0.25rem;
+}
+
+.gelato-brand-texto strong {
+  font-family: var(--font-display), serif;
+  font-size: 2rem;
+  letter-spacing: 0.12em;
+  color: var(--theme-text, #22183b);
+}
+
+.gelato-brand-texto span {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--theme-muted, rgba(34, 24, 59, 0.68));
+}
+
+.gelato-builder-brand-texto {
+  font-family: var(--font-display), serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.1em;
+  color: var(--theme-text, #22183b);
+}

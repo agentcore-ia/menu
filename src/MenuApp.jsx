@@ -3719,11 +3719,22 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
   if (templateId === 'gelato') {
     return (
       <section className="hero-content hero-content-gelato">
-        <img
-          className="gelato-brand-image"
-          src={presentation.theme?.logoImage || '/gelato/logo-dolce.png'}
-          alt={presentation.branding?.wordmark ?? 'Dolce Heladeria'}
-        />
+        {/* Sin logo propio se escribe el NOMBRE del local. Antes caia en el
+            logo de Dolce, que es la heladeria para la que se hizo esta
+            plantilla: cualquier otro local terminaba con la marca de otro en
+            su propia carta. */}
+        {presentation.theme?.logoImage ? (
+          <img
+            className="gelato-brand-image"
+            src={presentation.theme.logoImage}
+            alt={presentation.branding?.wordmark ?? ''}
+          />
+        ) : (
+          <div className="gelato-brand-texto">
+            <strong>{presentation.branding?.wordmark ?? ''}</strong>
+            {presentation.branding?.subtitle ? <span>{presentation.branding.subtitle}</span> : null}
+          </div>
+        )}
 
         <div className="gelato-welcome">
           <h1>{presentation.hero?.title ?? 'Hola!'}</h1>
@@ -5016,6 +5027,7 @@ function TemplateMenuCollection({
   onNavigateHome,
   onNavigatePromos,
   gelatoFormats,
+  gelatoSizeOptions = [],
   onOpenGelatoBuilder,
   searchQuery = '',
   isSearchActive = false,
@@ -6287,6 +6299,38 @@ function TemplateMenuCollection({
   }
 
   if (templateId === 'gelato') {
+    // Con un solo tipo cargado, la pantalla de "elegi tipo" es un paso de mas:
+    // una sola tarjeta que lleva a los tamaños. En ese caso se muestran los
+    // tamaños directamente, que es lo primero que el cliente tiene que decidir.
+    if (gelatoFormats.length <= 1 && gelatoSizeOptions.length) {
+      return (
+        <section className="section-block">
+          <header className="gelato-tamanos-head">
+            <h2>Elegí tu tamaño</h2>
+            <p>Después armás el pote con los gustos que quieras.</p>
+          </header>
+          <div className="gelato-format-stack">
+            {gelatoSizeOptions.map((size) => (
+              <button
+                key={size.id}
+                type="button"
+                className="gelato-format-card active gelato-tamano-card"
+                onClick={() => onOpenGelatoBuilder('kilo', 3, size.id)}
+              >
+                <div className="gelato-format-copy">
+                  <h3>{size.name}</h3>
+                  <p>{size.price}</p>
+                </div>
+                <div className="gelato-format-visual">
+                  <img className="gelato-format-image gelato-format-image-main" src={size.image} alt="" aria-hidden="true" />
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
     return (
       <section className="section-block">
         <div className="gelato-format-stack">
@@ -6902,7 +6946,14 @@ export default function MenuApp() {
     () => allItems.filter((item) => item?.soloEleccion && item?.availableForOrder !== false),
     [allItems],
   )
-  const gelatoFormats = getGelatoFormats()
+  // Solo los tipos que este local TIENE cargados. Los tres son fijos en el
+  // codigo (kilo / conos y copas / promos), asi que una heladeria que solo
+  // vende por peso mostraba dos tarjetas que llevaban a pantallas vacias.
+  const gelatoFormats = getGelatoFormats().filter((formato) => {
+    if (formato.id === 'conos') return categories.some((c) => /cono|copa/i.test(c.label || ''))
+    if (formato.id === 'promos') return categories.some((c) => /promo|combo/i.test(c.label || ''))
+    return true
+  })
   const gelatoSizeOptions = [
     ...(categories.find((category) => slugify(category.label).includes('formato-tamano'))?.items ?? []),
   ].sort((a, b) => a.unitPrice - b.unitPrice)
@@ -7379,7 +7430,7 @@ export default function MenuApp() {
     })
   }
 
-  function handleOpenGelatoBuilder(formatId = 'kilo', initialStep = 1) {
+  function handleOpenGelatoBuilder(formatId = 'kilo', initialStep = 1, sizeId = '') {
     if (orderingBlocked) {
       showOrderingClosedNotice()
       return
@@ -7387,7 +7438,8 @@ export default function MenuApp() {
 
     setGelatoFormat(formatId)
     setGelatoStep(initialStep)
-    setGelatoSizeId(gelatoSizeOptions[0]?.id ?? '')
+    // Si ya eligio el tamaño en la pantalla anterior, se entra con ese.
+    setGelatoSizeId(sizeId || gelatoSizeOptions[0]?.id || '')
     setGelatoFlavorFilter('Todos')
     setGelatoSelectedFlavors([])
     setGelatoBuilderOpen(true)
@@ -8411,6 +8463,7 @@ export default function MenuApp() {
                   onNavigateHome={handleNavigateHome}
                   onNavigatePromos={handleNavigatePromos}
                   gelatoFormats={gelatoFormats}
+                  gelatoSizeOptions={gelatoSizeOptions}
                   onOpenGelatoBuilder={handleOpenGelatoBuilder}
                   searchQuery={deferredSearchQuery}
                   isSearchActive={isSearchActive}
@@ -8604,7 +8657,7 @@ export default function MenuApp() {
                 </button>
 
                 <div className="gelato-builder-brand">
-                  <img className="gelato-builder-brand-image" src="/gelato/logo-dolce.png" alt="Dolce Heladeria" />
+                  {presentation.theme?.logoImage ? (<img className="gelato-builder-brand-image" src={presentation.theme.logoImage} alt={presentation.branding?.wordmark ?? ""} />) : (<strong className="gelato-builder-brand-texto">{presentation.branding?.wordmark ?? ""}</strong>)}
                 </div>
 
                 <button type="button" className="cart-button" onClick={() => setIsCartOpen(true)}>
@@ -8776,9 +8829,12 @@ export default function MenuApp() {
                           onClick={() => handleToggleGelatoFlavor(flavor.id)}
                         >
                           <span className="gelato-flavor-plus">{isSelected ? '' : '+'}</span>
+                          {/* flavor.image la resuelve el servidor: respeta la
+                              foto propia del local si la cargo, y usa el mismo
+                              mapeo por nombre que el resto del menu. */}
                           <img
                             className="gelato-flavor-image"
-                            src={getGelatoFlavorAsset(flavor.name)}
+                            src={flavor.image || getGelatoFlavorAsset(flavor.name)}
                             alt={flavor.name}
                           />
                           <strong>{flavor.name}</strong>
@@ -10297,7 +10353,7 @@ export default function MenuApp() {
             <div className="confirmation-hero" aria-hidden="true">
               {templateId === 'gelato' ? (
                 <div className="confirmation-gelato-top">
-                  <img className="confirmation-gelato-brand" src="/gelato/logo-dolce.png" alt="" />
+                  {presentation.theme?.logoImage ? (<img className="confirmation-gelato-brand" src={presentation.theme.logoImage} alt="" />) : null}
                   <span className="confirmation-gelato-pill">Pedido enviado</span>
                   <img className="confirmation-gelato-scoop" src="/gelato/flavor-fresa.png" alt="" />
                 </div>
