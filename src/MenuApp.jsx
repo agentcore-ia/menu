@@ -3718,7 +3718,9 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
 
   if (templateId === 'gelato') {
     return (
-      <section className="hero-content hero-content-gelato">
+      <section
+        className={`hero-content hero-content-gelato ${presentation.theme?.hideHeroText ? 'sin-saludo' : ''}`}
+      >
         {/* Imagen de cabecera del local, si cargo una. Suele venir con el logo
             adentro, asi que reemplaza al logo y no se suma. */}
         {getHeroImages(presentation, '')[0] ? (
@@ -3740,10 +3742,17 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
           </div>
         )}
 
-        <div className="gelato-welcome">
-          <h1>{presentation.hero?.title ?? 'Hola!'}</h1>
-          <p>{presentation.hero?.accent ?? 'Que se te antoja hoy?'}</p>
-        </div>
+        {/* Un local con banner propio puede querer solo el banner: el saludo
+            encima es ruido. Va por un interruptor y no por dejar el texto en
+            blanco, porque el armado de la presentacion descarta los valores
+            vacios a proposito (para que un campo sin completar no borre el
+            preset), asi que un titulo vacio nunca llega hasta aca. */}
+        {presentation.theme?.hideHeroText ? null : (
+          <div className="gelato-welcome">
+            <h1>{presentation.hero?.title ?? 'Hola!'}</h1>
+            <p>{presentation.hero?.accent ?? 'Que se te antoja hoy?'}</p>
+          </div>
+        )}
       </section>
     )
   }
@@ -6313,23 +6322,37 @@ function TemplateMenuCollection({
             <h2>Elegí tu tamaño</h2>
             <p>Después armás el pote con los gustos que quieras.</p>
           </header>
-          <div className="gelato-format-stack">
-            {gelatoSizeOptions.map((size) => (
-              <button
-                key={size.id}
-                type="button"
-                className="gelato-format-card active gelato-tamano-card"
-                onClick={() => onOpenGelatoBuilder('kilo', 3, size.id)}
-              >
-                <div className="gelato-format-copy">
-                  <h3>{size.name}</h3>
-                  <p>{size.price}</p>
-                </div>
-                <div className="gelato-format-visual">
-                  <img className="gelato-format-image gelato-format-image-main" src={size.image} alt="" aria-hidden="true" />
-                </div>
-              </button>
-            ))}
+          {/* Mismas tarjetas que el paso 2 del armador: ya estaban resueltas y
+              asi la pantalla de entrada y el armador se ven igual. */}
+          <div className="gelato-size-list gelato-size-list-entrada">
+            {gelatoSizeOptions.map((size, index) => {
+              const tonos = [
+                ['#ff5a92', '#fff0f5'],
+                ['#b96ed8', '#f6efff'],
+                ['#65d5c8', '#eefdfa'],
+              ]
+              const [accent, tint] = tonos[index % tonos.length]
+
+              return (
+                <button
+                  key={size.id}
+                  type="button"
+                  className="gelato-size-card"
+                  style={{ '--gelato-size-accent': accent, '--gelato-size-tint': tint }}
+                  onClick={() => onOpenGelatoBuilder('kilo', 3, size.id)}
+                >
+                  <div className="gelato-size-visual">
+                    <img src={size.image} alt="" aria-hidden="true" />
+                  </div>
+                  <div className="gelato-size-copy">
+                    <strong>{size.name}</strong>
+                    <span>{size.price}</span>
+                    <small>Hasta {getGelatoFlavorLimit(size.name)} sabores</small>
+                  </div>
+                  <span className="gelato-size-flecha" aria-hidden="true">›</span>
+                </button>
+              )
+            })}
           </div>
         </section>
       )

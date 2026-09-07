@@ -16852,55 +16852,6 @@ button:focus-visible {
   font-size: 0.9rem;
 }
 
-/* El texto va sobre fondo propio y la foto ocupa su mitad: puesta de fondo, el
-   nombre y el precio quedaban ilegibles encima del helado. */
-.gelato-tamano-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 40%;
-  align-items: center;
-  gap: 0.75rem;
-  background: var(--theme-surface, #fff);
-  text-align: left;
-}
-
-.gelato-tamano-card .gelato-format-copy {
-  position: relative;
-  z-index: 1;
-  padding: 1.1rem 0 1.1rem 1.2rem;
-}
-
-.gelato-tamano-card .gelato-format-copy h3 {
-  margin: 0;
-  font-size: 1.4rem;
-  line-height: 1.15;
-  color: var(--theme-text, #22183b);
-}
-
-.gelato-tamano-card .gelato-format-copy p {
-  margin: 0.25rem 0 0;
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: var(--theme-primary, #ff5a92);
-}
-
-.gelato-tamano-card .gelato-format-visual {
-  position: relative;
-  inset: auto;
-  height: 100%;
-  min-height: 6.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.gelato-tamano-card .gelato-format-image-main {
-  position: relative;
-  width: auto;
-  max-width: 100%;
-  max-height: 7rem;
-  object-fit: contain;
-}
-
 /* Nombre del local cuando no cargo un logo propio. */
 .gelato-brand-texto {
   display: grid;
@@ -16938,4 +16889,43 @@ button:focus-visible {
   max-width: none;
   border-radius: 0 0 1.5rem 1.5rem;
   object-fit: cover;
+}
+
+/* Pantalla de entrada de la heladeria: las mismas tarjetas del armador, con la
+   foto del formato adentro del circulo y una flecha en vez del tilde (aca se
+   avanza, no se marca). */
+.gelato-size-list-entrada {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.gelato-size-list-entrada .gelato-size-card {
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gelato-size-list-entrada .gelato-size-card:active {
+  transform: scale(0.985);
+}
+
+.gelato-size-list-entrada .gelato-size-visual img {
+  width: 3.6rem;
+  height: 3.6rem;
+  object-fit: contain;
+}
+
+.gelato-size-flecha {
+  align-self: center;
+  justify-self: end;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--gelato-size-accent, #ff5a92);
+}
+
+/* Sin saludo la cabecera no tiene que reservar el alto del texto: quedaba un
+   hueco grande entre el banner y las tarjetas. */
+.hero-content-gelato.sin-saludo {
+  min-height: 0;
+  padding-bottom: 0.35rem;
 }
