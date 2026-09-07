@@ -16885,7 +16885,9 @@ button:focus-visible {
 .gelato-header-image {
   display: block;
   width: calc(100% + 2.4rem);
-  margin: -0.5rem -1.2rem 0.25rem;
+  /* Sin margen negativo arriba: con la barra superior flotando el banner
+     arranca en el borde y ese margen lo recortaba. */
+  margin: 0 -1.2rem 0.25rem;
   max-width: none;
   border-radius: 0 0 1.5rem 1.5rem;
   object-fit: cover;
@@ -16928,4 +16930,47 @@ button:focus-visible {
 .hero-content-gelato.sin-saludo {
   min-height: 0;
   padding-bottom: 0.35rem;
+}
+
+/* --------------------------------- HELADERIA: SIN BARRA SUPERIOR ---
+   La franja de arriba ocupaba alto propio y empujaba el banner hacia abajo.
+   Los dos botones pasan a flotar sobre el contenido: no reservan espacio y el
+   banner arranca pegado al borde.
+
+   Solo para esta plantilla: en las demas la barra sigue como estaba. */
+.hero-gelato {
+  background: linear-gradient(180deg, #ffffff 0%, #fff8fb 100%);
+}
+
+.hero-gelato .hero-topbar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  padding: 0.8rem 0.9rem 0;
+  pointer-events: none;
+}
+
+/* La barra no recibe clicks (asi no tapa el banner), pero los botones si. */
+.hero-gelato .hero-topbar > * {
+  pointer-events: auto;
+}
+
+/* Sobre una foto pueden caer en cualquier color: fondo propio y sombra para
+   que se vean siempre. */
+.hero-gelato .hero-topbar .icon-button,
+.hero-gelato .hero-topbar .cart-button {
+  width: 2.9rem;
+  height: 2.9rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--theme-text, #22183b);
+  box-shadow: 0 6px 18px rgba(40, 20, 30, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+/* Con los botones flotando, el banner ya no tiene que dejarles lugar. */
+.hero-content-gelato {
+  padding-top: 0;
 }
