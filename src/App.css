@@ -71,7 +71,7 @@
   place-items: center;
   border-radius: 999px;
   background: #ffffff;
-  color: #ff5a92;
+  color: var(--theme-primary, #ff5a92);
   box-shadow: 0 10px 22px rgba(255, 109, 162, 0.14);
 }
 
@@ -4541,8 +4541,8 @@
   height: 3.45rem;
   border-radius: 999px;
   border: 0;
-  background: #ff5a92;
-  color: #fff;
+  background: var(--theme-primary, #ff5a92);
+  color: var(--theme-primary-text, #fff);
   display: grid;
   place-items: center;
   font-size: 1.35rem;
@@ -4626,8 +4626,8 @@
 
 .gelato-step.active span,
 .gelato-step.done span {
-  background: #ff5a92;
-  color: #fff;
+  background: var(--theme-primary, #ff5a92);
+  color: var(--theme-primary-text, #fff);
 }
 
 .gelato-step small {
@@ -4774,7 +4774,7 @@
   display: grid;
   place-items: center;
   background: #fff1f6;
-  color: #ff5a92;
+  color: var(--theme-primary, #ff5a92);
   font-weight: 800;
 }
 
@@ -4812,8 +4812,8 @@
 }
 
 .gelato-filter-chip.active {
-  background: #ff5a92;
-  color: #fff;
+  background: var(--theme-primary, #ff5a92);
+  color: var(--theme-primary-text, #fff);
   border-color: transparent;
 }
 
@@ -4836,8 +4836,8 @@
 }
 
 .gelato-flavor-card.selected {
-  border-color: #ff5a92;
-  box-shadow: inset 0 0 0 1px #ff5a92;
+  border-color: var(--theme-primary, #ff5a92);
+  box-shadow: inset 0 0 0 1px var(--theme-primary, #ff5a92);
 }
 
 .gelato-flavor-plus {
@@ -4850,12 +4850,12 @@
   display: grid;
   place-items: center;
   border: 1px solid rgba(255, 90, 146, 0.2);
-  color: #ff5a92;
+  color: var(--theme-primary, #ff5a92);
   font-weight: 800;
 }
 
 .gelato-flavor-card.selected .gelato-flavor-plus {
-  background: #ff5a92;
+  background: var(--theme-primary, #ff5a92);
   color: transparent;
 }
 
@@ -4896,7 +4896,7 @@
 .gelato-flavor-card small {
   display: block;
   margin-top: 0.55rem;
-  color: #ff5a92;
+  color: var(--theme-primary, #ff5a92);
   font-weight: 700;
 }
 
@@ -7000,8 +7000,8 @@
   min-height: 2rem;
   padding: 0.3rem 0.8rem;
   border-radius: 999px;
-  background: #ff5a92;
-  color: #fff;
+  background: var(--theme-primary, #ff5a92);
+  color: var(--theme-primary-text, #fff);
   font-size: 0.8rem;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -7334,7 +7334,7 @@
 
 .confirmation-card-gelato .confirmation-kicker {
   background: #fff0f6;
-  color: #ff5a92;
+  color: var(--theme-primary, #ff5a92);
 }
 
 .confirmation-card-burger .confirmation-kicker {
@@ -7549,7 +7549,7 @@
 }
 
 .confirmation-card-gelato .confirmation-step.active > span {
-  background: #ff5a92;
+  background: var(--theme-primary, #ff5a92);
   box-shadow: 0 10px 18px rgba(255, 90, 146, 0.18);
 }
 
@@ -7621,8 +7621,8 @@
 }
 
 .confirmation-card-gelato .confirmation-button {
-  background: linear-gradient(90deg, #ff5a92 0%, #ff7daf 100%);
-  color: #fff;
+  background: linear-gradient(90deg, var(--theme-primary, #ff5a92) 0%, color-mix(in srgb, var(--theme-primary, #ff5a92) 72%, white) 100%);
+  color: var(--theme-primary-text, #fff);
   box-shadow: 0 16px 28px rgba(255, 90, 146, 0.22);
 }
 
@@ -16922,7 +16922,7 @@ button:focus-visible {
   justify-self: end;
   font-size: 1.5rem;
   line-height: 1;
-  color: var(--gelato-size-accent, #ff5a92);
+  color: var(--gelato-size-accent, var(--theme-primary, #ff5a92));
 }
 
 /* Sin saludo la cabecera no tiene que reservar el alto del texto: quedaba un
@@ -16973,4 +16973,31 @@ button:focus-visible {
 /* Con los botones flotando, el banner ya no tiene que dejarles lugar. */
 .hero-content-gelato {
   padding-top: 0;
+}
+
+/* Los tonos de las tarjetas de tamaño salen del color del local y no de tres
+   valores escritos en el codigo (eran de la marca para la que se hizo la
+   plantilla). La intensidad sube con el tamaño: el pote mas grande es el mas
+   saturado, asi se distinguen de un vistazo sin inventar colores ajenos. */
+.gelato-size-card {
+  --gelato-size-accent: var(--theme-primary, #ff5a92);
+  --gelato-size-tint: color-mix(in srgb, var(--theme-primary, #ff5a92) 10%, white);
+}
+
+.gelato-size-list .gelato-size-card:nth-child(3n + 2) {
+  --gelato-size-tint: color-mix(in srgb, var(--theme-primary, #ff5a92) 18%, white);
+}
+
+.gelato-size-list .gelato-size-card:nth-child(3n + 3) {
+  --gelato-size-tint: color-mix(in srgb, var(--theme-primary, #ff5a92) 27%, white);
+}
+
+/* El nombre del tamaño va en la tinta del tema: sobre un fondo claro, el color
+   de marca como TEXTO puede no tener contraste (el verde de Troka da 1.75:1). */
+.gelato-size-copy strong {
+  color: var(--theme-text, #22183b);
+}
+
+.gelato-size-copy span {
+  color: var(--custom-card-price, var(--theme-accent, var(--theme-primary, #ff5a92)));
 }

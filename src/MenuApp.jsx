@@ -3721,12 +3721,15 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
       <section
         className={`hero-content hero-content-gelato ${presentation.theme?.hideHeroText ? 'sin-saludo' : ''}`}
       >
-        {/* Imagen de cabecera del local, si cargo una. Suele venir con el logo
-            adentro, asi que reemplaza al logo y no se suma. */}
-        {getHeroImages(presentation, '')[0] ? (
+        {/* Imagen de cabecera QUE CARGO EL LOCAL. Suele venir con el logo
+            adentro, asi que reemplaza al logo y no se suma.
+            Se miran solo las del local y no getHeroImages(), que cae a la foto
+            del preset: ahi la heladeria de la plantilla terminaba con un plato
+            de carne como cabecera. */}
+        {(presentation.hero?.images?.[0] || presentation.theme?.headerImages?.[0]) ? (
           <img
             className="gelato-header-image"
-            src={getHeroImages(presentation, '')[0]}
+            src={presentation.hero?.images?.[0] || presentation.theme?.headerImages?.[0]}
             alt={presentation.branding?.wordmark ?? ''}
           />
         ) : presentation.theme?.logoImage ? (
@@ -6324,21 +6327,17 @@ function TemplateMenuCollection({
           </header>
           {/* Mismas tarjetas que el paso 2 del armador: ya estaban resueltas y
               asi la pantalla de entrada y el armador se ven igual. */}
+          {/* Sin tonos fijos: el color sale del tema del local (ver el CSS de
+              .gelato-size-card). Los tres rosa/violeta/turquesa que estaban
+              escritos en el codigo eran de la marca para la que se hizo la
+              plantilla y desentonaban con cualquier otra. */}
           <div className="gelato-size-list gelato-size-list-entrada">
-            {gelatoSizeOptions.map((size, index) => {
-              const tonos = [
-                ['#ff5a92', '#fff0f5'],
-                ['#b96ed8', '#f6efff'],
-                ['#65d5c8', '#eefdfa'],
-              ]
-              const [accent, tint] = tonos[index % tonos.length]
-
+            {gelatoSizeOptions.map((size) => {
               return (
                 <button
                   key={size.id}
                   type="button"
                   className="gelato-size-card"
-                  style={{ '--gelato-size-accent': accent, '--gelato-size-tint': tint }}
                   onClick={() => onOpenGelatoBuilder('kilo', 3, size.id)}
                 >
                   <div className="gelato-size-visual">
@@ -8768,21 +8767,14 @@ export default function MenuApp() {
                   </div>
 
                   <div className="gelato-size-list">
-                    {gelatoSizeOptions.map((item, index) => {
+                    {gelatoSizeOptions.map((item) => {
                       const isSelected = item.id === selectedGelatoSize?.id
-                      const tones = [
-                        ['#ff5a92', '#fff0f5'],
-                        ['#b96ed8', '#f6efff'],
-                        ['#65d5c8', '#eefdfa'],
-                      ]
-                      const [accent, tint] = tones[index % tones.length]
 
                       return (
                         <button
                           key={item.id}
                           type="button"
                           className={`gelato-size-card ${isSelected ? 'selected' : ''}`}
-                          style={{ '--gelato-size-accent': accent, '--gelato-size-tint': tint }}
                           onClick={() => setGelatoSizeId(item.id)}
                         >
                           <div className="gelato-size-visual">
