@@ -17001,3 +17001,77 @@ button:focus-visible {
 .gelato-size-copy span {
   color: var(--custom-card-price, var(--theme-accent, var(--theme-primary, #ff5a92)));
 }
+
+/* La plantilla de heladeria no dibuja barra de pedido abajo (tiene el carrito
+   arriba), asi que el lugar que el panel le reservaba quedaba como un hueco
+   blanco despues de la ultima tarjeta. */
+.template-gelato .content-panel {
+  padding-bottom: 1.75rem;
+}
+
+/* Con muchos gustos hay que bajar hasta el final para poder agregar. El pie
+   queda fijo abajo: el contador y el boton siempre a mano. */
+.gelato-builder-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin-top: 1.4rem;
+  /* El degradado es solo el borde de arriba: si la transparencia llega hasta
+     donde va el texto, las bochas de atras se leen encima del contador. */
+  padding: 1.5rem 0 calc(0.9rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(
+    180deg,
+    transparent 0,
+    var(--theme-background, #fff) 1.15rem
+  );
+}
+
+/* Con tres tamaños la pantalla quedaba corta y sobraba una franja vacia abajo.
+   En vez de dejar el hueco, las tarjetas lo reparten: la lista ocupa el alto
+   que queda y cada tarjeta crece por igual. Con muchos tamaños no pasa nada
+   —la lista ya es mas alta que la pantalla y esto no la estira. */
+/* El alto se encadena desde la superficie hasta la lista, en vez de restarle
+   a 100dvh un numero adivinado: la cabecera del local puede tener cualquier
+   proporcion y ese numero nunca iba a servir para todas. */
+.template-gelato .phone-surface,
+.phone-surface.template-gelato {
+  display: flex;
+  flex-direction: column;
+}
+
+.template-gelato .content-panel:has(.gelato-size-list-entrada) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.template-gelato .section-block:has(.gelato-size-list-entrada) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.gelato-size-list-entrada {
+  flex: 1;
+  gap: 0.85rem;
+  align-content: stretch;
+}
+
+.gelato-size-list-entrada .gelato-size-card {
+  padding: 1.25rem 1.1rem;
+  grid-template-columns: 5.4rem minmax(0, 1fr) 1.6rem;
+}
+
+.gelato-size-list-entrada .gelato-size-visual {
+  width: 5.4rem;
+  height: 5.4rem;
+}
+
+.gelato-size-list-entrada .gelato-size-visual img {
+  width: 4.4rem;
+  height: 4.4rem;
+}
+
+.gelato-size-list-entrada .gelato-size-copy strong {
+  font-size: 1.55rem;
+}
