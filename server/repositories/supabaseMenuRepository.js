@@ -15,6 +15,36 @@ import { normalizeBusinessLocation } from '../deliveryZones.js'
  * Un sabor no tiene precio propio: lo pone el formato. Mandarlo con "$0" es
  * mentira y ademas invita a pedirlo solo.
  */
+/**
+ * Foto de reserva para un local que vende por formato.
+ *
+ * Las de reserva genericas son de comida salada: a una heladeria le salia un
+ * BIFE como imagen del "1 Kilo". Estas ya estaban en el repo (public/gelato).
+ *
+ * A diferencia de las otras dos ayudas de este archivo, no se ata a una lista
+ * de cuentas escrita a mano: se usa cuando el catalogo TIENE esta forma, asi
+ * cualquier heladeria queda cubierta sin tocar codigo.
+ *
+ * OJO con cuales se usan: card-kilo.png y hero-kilo.png tienen impreso el
+ * logo de "Dolce", la heladeria para la que se hizo el template gelato. Poner
+ * esas en otro local es ponerle la marca de otro en su propia carta. Las de
+ * bocha y el cucurucho no tienen marca.
+ */
+function imagenDeHeladeria(nombre, soloEleccion) {
+  if (!soloEleccion) return '/gelato/flavor-fresa.png'
+
+  const t = String(nombre || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+
+  if (/frut|fresa|frambues|berr/.test(t)) return '/gelato/flavor-fresa.png'
+  if (/cookie|oreo|granizad|crocante/.test(t)) return '/gelato/flavor-cookies.png'
+  if (/menta|pistach|lima|limon/.test(t)) return '/gelato/flavor-menta.png'
+  if (/vainilla|americana|crema|dulce de leche|sambayon|banana/.test(t)) return '/gelato/flavor-vainilla.png'
+  return '/gelato/flavor-chocolate.png'
+}
+
 function marcarCategoriasDeEleccion(categorias) {
   const forma = formaDelCatalogo(categorias)
   if (!forma.porFormato) return categorias
@@ -29,6 +59,8 @@ function marcarCategoriasDeEleccion(categorias) {
       item.pideEleccion = pideEleccion
       // Sin precio: el "$0" era el precio que NO tiene, no uno de cero.
       if (soloEleccion) item.price = ''
+      // La foto propia del local siempre manda sobre la de reserva.
+      if (!item.hasCustomImage) item.image = imagenDeHeladeria(item.name, soloEleccion)
     }
   }
 
