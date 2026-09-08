@@ -148,6 +148,25 @@ function IconWebsite() {
   )
 }
 
+// Van rellenos, no de contorno como el resto: son sellos chicos dentro de una
+// pastilla y a ese tamaño el trazo se empasta.
+function IconEstrella() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icono-relleno">
+      <path d="M12 3.2l2.6 5.3 5.8.85-4.2 4.1 1 5.75L12 16.5l-5.2 2.7 1-5.75-4.2-4.1 5.8-.85z" />
+    </svg>
+  )
+}
+
+function IconCucurucho() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icono-relleno">
+      <path d="M12 2.6a4.6 4.6 0 0 0-4.5 5.5h9A4.6 4.6 0 0 0 12 2.6z" />
+      <path d="M7.9 9.9h8.2L12.7 21a.8.8 0 0 1-1.4 0z" />
+    </svg>
+  )
+}
+
 function IconCart() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -6322,31 +6341,44 @@ function TemplateMenuCollection({
       return (
         <section className="section-block">
           <header className="gelato-tamanos-head">
+            <span className="gelato-tamanos-kicker">
+              Armá tu pedido
+              <i aria-hidden="true" />
+            </span>
             <h2>Elegí tu tamaño</h2>
             <p>Después armás el pote con los gustos que quieras.</p>
           </header>
-          {/* Mismas tarjetas que el paso 2 del armador: ya estaban resueltas y
-              asi la pantalla de entrada y el armador se ven igual. */}
-          {/* Sin tonos fijos: el color sale del tema del local (ver el CSS de
-              .gelato-size-card). Los tres rosa/violeta/turquesa que estaban
-              escritos en el codigo eran de la marca para la que se hizo la
-              plantilla y desentonaban con cualquier otra. */}
+          {/* El tamaño destacado lo elige el local (theme.tamanoDestacado): sin
+              datos de venta no hay forma de saber cual es el mas pedido, y
+              marcar uno al azar seria decirle al cliente algo que no sabemos. */}
           <div className="gelato-size-list gelato-size-list-entrada">
             {gelatoSizeOptions.map((size) => {
+              const destacado = String(presentation.theme?.tamanoDestacado || '').trim().toLowerCase()
+                === String(size.name || '').trim().toLowerCase()
+
               return (
                 <button
                   key={size.id}
                   type="button"
-                  className="gelato-size-card"
+                  className={`gelato-size-card ${destacado ? 'destacado' : ''}`}
                   onClick={() => onOpenGelatoBuilder('kilo', 3, size.id)}
                 >
+                  {destacado ? (
+                    <span className="gelato-size-badge">
+                      <IconEstrella />
+                      Más elegido
+                    </span>
+                  ) : null}
                   <div className="gelato-size-visual">
                     <img src={size.image} alt="" aria-hidden="true" />
                   </div>
                   <div className="gelato-size-copy">
                     <strong>{size.name}</strong>
                     <span>{size.price}</span>
-                    <small>Hasta {getGelatoFlavorLimit(size.name)} sabores</small>
+                    <small>
+                      <IconCucurucho />
+                      Hasta {getGelatoFlavorLimit(size.name)} sabores
+                    </small>
                   </div>
                   <span className="gelato-size-flecha" aria-hidden="true">›</span>
                 </button>
@@ -8364,7 +8396,9 @@ export default function MenuApp() {
                   onClick={() => setIsCartOpen(true)}
                 >
                   <IconCart />
-                  {orderCount > 0 || templateId === 'almendra' ? <span className="cart-badge">{orderCount}</span> : null}
+                  {orderCount > 0 || templateId === 'almendra' || templateId === 'gelato' ? (
+                    <span className="cart-badge">{orderCount}</span>
+                  ) : null}
                 </button>
               ) : (
                 <span className="hero-topbar-spacer" aria-hidden="true" />

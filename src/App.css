@@ -16893,38 +16893,6 @@ button:focus-visible {
   object-fit: cover;
 }
 
-/* Pantalla de entrada de la heladeria: las mismas tarjetas del armador, con la
-   foto del formato adentro del circulo y una flecha en vez del tilde (aca se
-   avanza, no se marca). */
-.gelato-size-list-entrada {
-  display: grid;
-  gap: 0.7rem;
-}
-
-.gelato-size-list-entrada .gelato-size-card {
-  align-items: center;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.gelato-size-list-entrada .gelato-size-card:active {
-  transform: scale(0.985);
-}
-
-.gelato-size-list-entrada .gelato-size-visual img {
-  width: 3.6rem;
-  height: 3.6rem;
-  object-fit: contain;
-}
-
-.gelato-size-flecha {
-  align-self: center;
-  justify-self: end;
-  font-size: 1.5rem;
-  line-height: 1;
-  color: var(--gelato-size-accent, var(--theme-primary, #ff5a92));
-}
-
 /* Sin saludo la cabecera no tiene que reservar el alto del texto: quedaba un
    hueco grande entre el banner y las tarjetas. */
 .hero-content-gelato.sin-saludo {
@@ -17051,27 +17019,186 @@ button:focus-visible {
   flex: 1;
 }
 
+
+/* ============================ HELADERIA: PANTALLA DE ENTRADA ============ */
+
+.gelato-tamanos-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+  color: var(--custom-card-price, var(--theme-accent));
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* La rayita del rotulo: se corta sola, no ocupa todo el ancho. */
+.gelato-tamanos-kicker i {
+  width: 2.5rem;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.gelato-tamanos-head h2 {
+  font-size: 2.5rem;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.gelato-tamanos-head p {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+}
+
 .gelato-size-list-entrada {
-  flex: 1;
-  gap: 0.85rem;
-  align-content: stretch;
+  display: grid;
+  gap: 0.9rem;
+  padding-top: 1.25rem;
 }
 
+/* Tarjeta blanca: la foto manda a la izquierda y el texto respira. El borde
+   solo aparece en la destacada, para que se note cual es. */
 .gelato-size-list-entrada .gelato-size-card {
-  padding: 1.25rem 1.1rem;
-  grid-template-columns: 5.4rem minmax(0, 1fr) 1.6rem;
+  position: relative;
+  grid-template-columns: 6.6rem minmax(0, 1fr) 3rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1rem 1rem 0.6rem;
+  border: 1.5px solid transparent;
+  border-radius: 1.5rem;
+  background: var(--theme-surface, #fff);
+  box-shadow: 0 8px 22px rgba(46, 32, 24, 0.07);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+.gelato-size-list-entrada .gelato-size-card:active {
+  transform: scale(0.985);
+}
+
+.gelato-size-list-entrada .gelato-size-card.destacado {
+  border-color: var(--theme-primary);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--theme-primary) 22%, transparent);
+}
+
+/* Sin circulo de fondo: la foto del pote se apoya sola sobre la tarjeta. */
 .gelato-size-list-entrada .gelato-size-visual {
-  width: 5.4rem;
-  height: 5.4rem;
+  width: 100%;
+  height: auto;
+  background: none;
+  border-radius: 0;
 }
 
 .gelato-size-list-entrada .gelato-size-visual img {
-  width: 4.4rem;
-  height: 4.4rem;
+  width: 100%;
+  max-height: 7rem;
+  object-fit: contain;
+}
+
+.gelato-size-list-entrada .gelato-size-copy {
+  display: grid;
+  gap: 0.3rem;
+  justify-items: start;
 }
 
 .gelato-size-list-entrada .gelato-size-copy strong {
-  font-size: 1.55rem;
+  font-size: 1.7rem;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.gelato-size-list-entrada .gelato-size-copy span {
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* "Hasta N sabores" va en pastilla: es un dato del producto, no una aclaracion
+   al pie. */
+.gelato-size-list-entrada .gelato-size-copy small {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.15rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-primary) 20%, white);
+  color: var(--custom-card-price, var(--theme-accent));
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.gelato-size-list-entrada .gelato-size-copy small svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.icono-relleno {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* La flecha adentro de un boton redondo: en la destacada va llena, que es la
+   accion que el local quiere empujar. */
+.gelato-size-list-entrada .gelato-size-flecha {
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-primary) 20%, white);
+  color: var(--custom-card-price, var(--theme-accent));
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.gelato-size-list-entrada .gelato-size-card.destacado .gelato-size-flecha {
+  background: var(--theme-primary);
+  color: var(--theme-primary-text, #fff);
+}
+
+/* El sello sale del borde de arriba y se pega a la derecha. */
+.gelato-size-badge {
+  position: absolute;
+  top: -0.7rem;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.42rem 0.85rem;
+  border-radius: 999px 0 999px 999px;
+  background: var(--theme-primary);
+  color: var(--theme-primary-text, #fff);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.gelato-size-badge svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+/* La cabecera ya trae la onda recortada en la propia imagen: redondearla le
+   comeria las puntas. */
+.gelato-header-image {
+  border-radius: 0;
+  margin-bottom: 0;
+}
+
+/* Los botones flotantes van oscuros, como en el diseño. */
+.hero-gelato .hero-topbar .icon-button,
+.hero-gelato .hero-topbar .cart-button {
+  background: rgba(28, 22, 18, 0.82);
+  color: #fff;
+}
+
+.hero-gelato .hero-topbar .cart-button .cart-badge {
+  background: var(--theme-primary);
+  color: var(--theme-primary-text, #fff);
 }
