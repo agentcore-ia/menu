@@ -6679,6 +6679,10 @@ export default function MenuApp() {
   // Formato de heladeria esperando que elijan los sabores.
   const [saborPicker, setSaborPicker] = useState(null)
   const [gelatoStep, setGelatoStep] = useState(1)
+  // Por que paso se entro al armador: hasta ahi se puede volver, mas atras se
+  // cierra. Entrando en el 3 (con el tamaño ya elegido afuera), retroceder
+  // mostraba pantallas que este local no usa.
+  const [gelatoPasoDeEntrada, setGelatoPasoDeEntrada] = useState(1)
   const [gelatoFormat, setGelatoFormat] = useState('kilo')
   const [gelatoSizeId, setGelatoSizeId] = useState('')
   const [gelatoFlavorFilter, setGelatoFlavorFilter] = useState('Todos')
@@ -7496,6 +7500,7 @@ export default function MenuApp() {
 
     setGelatoFormat(formatId)
     setGelatoStep(initialStep)
+    setGelatoPasoDeEntrada(initialStep)
     // Si ya eligio el tamaño en la pantalla anterior, se entra con ese.
     setGelatoSizeId(sizeId || gelatoSizeOptions[0]?.id || '')
     setGelatoFlavorFilter('Todos')
@@ -8704,7 +8709,12 @@ export default function MenuApp() {
                   type="button"
                   className="floating-button light"
                   onClick={() => {
-                    if (gelatoStep === 1) {
+                    // Se vuelve hasta el paso por el que se ENTRO, no hasta el
+                    // 1: cuando el tamaño se eligio en la pantalla anterior,
+                    // retroceder mostraba de nuevo esa eleccion adentro del
+                    // armador, con el diseño viejo, y despues la pantalla de
+                    // "elegi tipo" que ese local ni usa.
+                    if (gelatoStep <= gelatoPasoDeEntrada) {
                       setGelatoBuilderOpen(false)
                       return
                     }
