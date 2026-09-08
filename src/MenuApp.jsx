@@ -1,6 +1,12 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { getBusinessOpenStatus } from '../shared/businessHours.js'
+import {
+  configuracionDeHeladeria,
+  saboresAgrupados,
+  selloDeTamano,
+  topeDeSabores,
+} from '../shared/heladeria.js'
 import { textosDelMenu } from '../shared/rubros.js'
 import {
   almacenDelNavegador,
@@ -3099,23 +3105,6 @@ function buildCartPairingSuggestions(cartItems, allItems) {
   return [...uniqueProducts.values()].slice(0, 4)
 }
 
-function getGelatoFlavorLimit(sizeName) {
-  const text = String(sizeName ?? '').toLowerCase()
-  if (text.includes('1 kilo') || text === '1 kg' || text.includes('1kg')) return 5
-  if (text.includes('3/4')) return 4
-  if (text.includes('1/2')) return 3
-  if (text.includes('1/4')) return 2
-  return 3
-}
-
-function getGelatoFlavorCategory(flavorName) {
-  const text = String(flavorName ?? '').toLowerCase()
-  if (/(frutilla|limon|frutos|fruta)/.test(text)) return 'Frutales'
-  if (/chocolate/.test(text)) return 'Chocolate'
-  if (/(dulce de leche|tramontana|cookies|menta)/.test(text)) return 'Especiales'
-  return 'Clasicos'
-}
-
 function getGelatoFormats() {
   return [
     {
@@ -5063,6 +5052,7 @@ function TemplateMenuCollection({
   onNavigatePromos,
   gelatoFormats,
   gelatoSizeOptions = [],
+  configHeladeria = null,
   onOpenGelatoBuilder,
   searchQuery = '',
   isSearchActive = false,
@@ -6348,25 +6338,24 @@ function TemplateMenuCollection({
             <h2>Elegí tu tamaño</h2>
             <p>Después armás el pote con los gustos que quieras.</p>
           </header>
-          {/* El tamaño destacado lo elige el local (theme.tamanoDestacado): sin
-              datos de venta no hay forma de saber cual es el mas pedido, y
+          {/* El sello y el tope de gustos los elige el local desde el sistema:
+              sin datos de venta no hay forma de saber cual es el mas pedido, y
               marcar uno al azar seria decirle al cliente algo que no sabemos. */}
           <div className="gelato-size-list gelato-size-list-entrada">
             {gelatoSizeOptions.map((size) => {
-              const destacado = String(presentation.theme?.tamanoDestacado || '').trim().toLowerCase()
-                === String(size.name || '').trim().toLowerCase()
+              const sello = selloDeTamano(size, configHeladeria)
 
               return (
                 <button
                   key={size.id}
                   type="button"
-                  className={`gelato-size-card ${destacado ? 'destacado' : ''}`}
+                  className={`gelato-size-card ${sello ? 'destacado' : ''}`}
                   onClick={() => onOpenGelatoBuilder('kilo', 3, size.id)}
                 >
-                  {destacado ? (
+                  {sello ? (
                     <span className="gelato-size-badge">
                       <IconEstrella />
-                      Más elegido
+                      {sello}
                     </span>
                   ) : null}
                   <div className="gelato-size-visual">
@@ -6377,7 +6366,7 @@ function TemplateMenuCollection({
                     <span>{size.price}</span>
                     <small>
                       <IconCucurucho />
-                      Hasta {getGelatoFlavorLimit(size.name)} sabores
+                      Hasta {topeDeSabores(size, configHeladeria)} sabores
                     </small>
                   </div>
                   <span className="gelato-size-flecha" aria-hidden="true">›</span>
@@ -7023,22 +7012,37 @@ export default function MenuApp() {
     if (formato.id === 'promos') return categories.some((c) => /promo|combo/i.test(c.label || ''))
     return true
   })
+  // Los gustos se buscan por la MARCA que les puso el servidor (soloEleccion),
+  // no por como se llama la categoria: buscando "sabores" en el nombre, las
+  // heladerias que la cargaron en singular —que es el nombre que propone el
+  // dashboard— se quedaban sin ningun gusto.
+  //
+  // Los envases si van por nombre primero, porque un local puede tener otra
+  // categoria con precio (conos, promos) y hay que quedarse con la de potes.
   const gelatoSizeOptions = [
-    ...(categories.find((category) => slugify(category.label).includes('formato-tamano'))?.items ?? []),
+    ...(categories.find((category) => slugify(category.label).includes('formato-tamano'))
+      ?? categories.find((category) => category.items?.some((item) => item.pideEleccion)))?.items ?? [],
   ].sort((a, b) => a.unitPrice - b.unitPrice)
-  const gelatoFlavorOptions =
-    categories.find((category) => slugify(category.label).includes('sabores'))?.items.map((item) => ({
-      ...item,
-      flavorCategory: getGelatoFlavorCategory(item.name),
-    })) ?? []
   const selectedGelatoSize =
     gelatoSizeOptions.find((item) => item.id === gelatoSizeId) ?? gelatoSizeOptions[0] ?? null
-  const gelatoFlavorLimit = getGelatoFlavorLimit(selectedGelatoSize?.name)
-  const gelatoFlavorCategories = ['Todos', 'Frutales', 'Clasicos', 'Chocolate', 'Especiales']
+  const configHeladeria = useMemo(
+    () => configuracionDeHeladeria(presentation.theme),
+    [presentation.theme],
+  )
+  const gelatoFlavorLimit = topeDeSabores(selectedGelatoSize, configHeladeria)
+  const { sabores: gelatoFlavorOptions, chips: gelatoFlavorCategories } = useMemo(
+    () => saboresAgrupados(categories.find((category) => category.soloEleccion)?.items, configHeladeria),
+    [categories, configHeladeria],
+  )
+  // Si el local borro el grupo que estaba filtrando, se vuelve a "Todos": el
+  // filtro viejo dejaria la pantalla vacia sin ningun chip marcado.
+  const filtroDeSaboresVigente = gelatoFlavorCategories.includes(gelatoFlavorFilter)
+    ? gelatoFlavorFilter
+    : 'Todos'
   const filteredGelatoFlavors =
-    gelatoFlavorFilter === 'Todos'
+    filtroDeSaboresVigente === 'Todos'
       ? gelatoFlavorOptions
-      : gelatoFlavorOptions.filter((item) => item.flavorCategory === gelatoFlavorFilter)
+      : gelatoFlavorOptions.filter((item) => item.flavorCategory === filtroDeSaboresVigente)
   const recommendations = allItems
     .filter((item) => item.id !== selectedDish?.id)
     .slice(0, 4)
@@ -8570,6 +8574,7 @@ export default function MenuApp() {
                   onNavigatePromos={handleNavigatePromos}
                   gelatoFormats={gelatoFormats}
                   gelatoSizeOptions={gelatoSizeOptions}
+                configHeladeria={configHeladeria}
                   onOpenGelatoBuilder={handleOpenGelatoBuilder}
                   searchQuery={deferredSearchQuery}
                   isSearchActive={isSearchActive}
@@ -8875,7 +8880,7 @@ export default function MenuApp() {
                           <div className="gelato-size-copy">
                             <strong>{item.name}</strong>
                             <span>{item.price}</span>
-                            <small>Hasta {getGelatoFlavorLimit(item.name)} sabores</small>
+                            <small>Hasta {topeDeSabores(item, configHeladeria)} sabores</small>
                           </div>
                           <span className="gelato-size-check" />
                         </button>
@@ -8915,18 +8920,23 @@ export default function MenuApp() {
                     </p>
                   </div>
 
-                  <div className="gelato-flavor-filters">
-                    {gelatoFlavorCategories.map((category) => (
-                      <button
-                        key={category}
-                        type="button"
-                        className={`gelato-filter-chip ${gelatoFlavorFilter === category ? 'active' : ''}`}
-                        onClick={() => setGelatoFlavorFilter(category)}
-                      >
-                        {category}
-                      </button>
-                    ))}
-                  </div>
+                  {/* Los grupos los arma el local. Si no armo ninguno o todos
+                      los gustos caen en el mismo, no hay nada que filtrar y la
+                      fila no se dibuja. */}
+                  {gelatoFlavorCategories.length ? (
+                    <div className="gelato-flavor-filters">
+                      {gelatoFlavorCategories.map((category) => (
+                        <button
+                          key={category}
+                          type="button"
+                          className={`gelato-filter-chip ${filtroDeSaboresVigente === category ? 'active' : ''}`}
+                          onClick={() => setGelatoFlavorFilter(category)}
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
 
                   <div className="gelato-flavor-grid">
                     {filteredGelatoFlavors.map((flavor) => {
