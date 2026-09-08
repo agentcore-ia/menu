@@ -16882,14 +16882,26 @@ button:focus-visible {
 
 /* Cabecera propia del local en la plantilla de heladeria. Va ancha de verdad:
    suele ser un banner con el logo adentro, no un logo suelto. */
+/* La cabecera va de borde a borde. Antes se sacaba con un margen negativo que
+   tenia que coincidir con el padding del hero, definido en otro lado: no
+   coincidia por 2.4px y quedaba una franja blanca a cada costado. Ahora el
+   hero directamente no tiene padding lateral cuando hay cabecera, y el texto
+   —si el local lo muestra— se lo pone el mismo. */
+.hero-content-gelato:has(.gelato-header-image) {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.hero-content-gelato:has(.gelato-header-image) .gelato-welcome {
+  padding-left: 1.55rem;
+  padding-right: 1.55rem;
+}
+
 .gelato-header-image {
   display: block;
-  width: calc(100% + 2.4rem);
-  /* Sin margen negativo arriba: con la barra superior flotando el banner
-     arranca en el borde y ese margen lo recortaba. */
-  margin: 0 -1.2rem 0.25rem;
+  width: 100%;
+  margin: 0;
   max-width: none;
-  border-radius: 0 0 1.5rem 1.5rem;
   object-fit: cover;
 }
 
