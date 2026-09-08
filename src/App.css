@@ -17214,3 +17214,28 @@ button:focus-visible {
   background: var(--theme-primary);
   color: var(--theme-primary-text, #fff);
 }
+
+/* Con la barra del pedido abajo, el contenido le deja lugar. El hueco va
+   DENTRO del bloque que se estira y no despues: puesto afuera, las tarjetas ya
+   se habian estirado a la pantalla completa y el padding empujaba el total mas
+   abajo del borde, con la ultima tarjeta tapada por la barra.
+   La barra solo existe con algo en el carrito, asi que antes no reserva nada. */
+.template-gelato:has(.order-bar) .section-block:has(.gelato-size-list-entrada) {
+  /* Y con barra NO se estira: el estirado existe para que no quede una franja
+     vacia abajo, y la barra ya ocupa ese borde. Estirando ademas de reservarle
+     el lugar, el contenido no entraba en la pantalla y la ultima tarjeta
+     quedaba tapada. */
+  flex: 0 0 auto;
+  padding-bottom: 6.5rem;
+}
+
+.template-gelato:has(.order-bar) .gelato-size-list-entrada {
+  flex: 0 0 auto;
+}
+
+/* La barra de esta plantilla no tiene nada encima que la tape: puede quedarse
+   con el z-index de siempre, pero el color lo pone el local. */
+.template-gelato .order-bar-button {
+  background: var(--theme-primary);
+  color: var(--theme-primary-text, #fff);
+}

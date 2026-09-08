@@ -6921,7 +6921,11 @@ export default function MenuApp() {
   // restaurante, que es lo que decia antes para todos.
   const textosRubro = textosDelMenu(menu?.rubro)
   const templateId = presentation.template ?? presentation.layout ?? 'editorial'
-  const hideNeighborhoodField = ['lo-de-totto', 'sabor-a-pampa'].includes(slugify(accountId))
+  // El barrio se pide salvo que el local diga que no. Antes era una lista de
+  // cuentas escrita a mano: cada local nuevo que no lo queria habia que
+  // agregarlo al codigo. Los dos de la lista se mantienen como estaban.
+  const hideNeighborhoodField = presentation.theme?.pedirBarrio === false
+    || ['lo-de-totto', 'sabor-a-pampa'].includes(slugify(accountId))
   const isTableOrder = mesaId != null || templateId === 'kika' || templateId === 'almendra'
   const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled === true
   const rawCategories = menu?.categories ?? emptyCategories
@@ -7076,6 +7080,7 @@ export default function MenuApp() {
   // navegacion, asi que la navegacion parecia aparecer recien al agregar el
   // primer producto. Siempre habia estado ahi, tapada.
   const barraDePedidoPideItems = templateId === 'pizzeria' || templateId === 'panaderia'
+    || templateId === 'gelato'
   const mostrarBarraDePedido = !barraDePedidoPideItems || hasOrderItems
   const deliveryZonesEnabled = Boolean(
     menu?.deliveryZonesEnabled &&
@@ -8541,8 +8546,7 @@ export default function MenuApp() {
             ) : null}
           </main>
 
-          {templateId !== 'gelato' &&
-          templateId !== 'burger' &&
+          {templateId !== 'burger' &&
           templateId !== 'blue-burger' &&
           templateId !== 'host' &&
           templateId !== 'kika' &&
@@ -8736,24 +8740,32 @@ export default function MenuApp() {
                 </button>
               </div>
 
-              <div className="gelato-stepper">
-                {[
-                  ['1', 'Elegi tipo'],
-                  ['2', 'Elegi tamano'],
-                  ['3', 'Elegi sabores'],
-                ].map(([number, label], index) => {
-                  const stepNumber = index + 1
-                  const isActive = stepNumber === gelatoStep
-                  const isDone = stepNumber < gelatoStep
+              {/* Solo los pasos que este local realmente usa. Con un solo tipo
+                  cargado, "Elegi tipo" no existe en el recorrido y numerarlo
+                  como paso 1 hacia arrancar la cuenta en 2. Los pasos se
+                  renumeran solos. */}
+              {(() => {
+                const pasos = [
+                  ...(gelatoFormats.length > 1 ? [[1, 'Elegí tipo']] : []),
+                  [2, 'Elegí tamaño'],
+                  [3, 'Elegí sabores'],
+                ]
+                if (pasos.length < 2) return null
 
-                  return (
-                    <div key={label} className={`gelato-step ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`}>
-                      <span>{number}</span>
-                      <small>{label}</small>
-                    </div>
-                  )
-                })}
-              </div>
+                return (
+                  <div className="gelato-stepper">
+                    {pasos.map(([paso, label], index) => (
+                      <div
+                        key={label}
+                        className={`gelato-step ${paso === gelatoStep ? 'active' : ''} ${paso < gelatoStep ? 'done' : ''}`}
+                      >
+                        <span>{index + 1}</span>
+                        <small>{label}</small>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
 
               {gelatoStep === 1 ? (
                 <div className="gelato-builder-section">
