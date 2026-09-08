@@ -38,10 +38,19 @@ function imagenDeHeladeria(nombre, soloEleccion) {
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
 
-  if (/frut|fresa|frambues|berr/.test(t)) return '/gelato/flavor-fresa.png'
+  // El orden importa: gana la primera que coincide. La menta va antes que el
+  // granizado ("menta granizada" es verde, no un granizado mas), y el granizado
+  // antes que la crema ("dulce granizado" lleva el chip de chocolate).
+  if (/menta|pistach|lima|limon|kiwi/.test(t)) return '/gelato/flavor-menta.png'
+  // Las frutas de una heladeria de barrio: sin esto, "Anana", "Melon" o
+  // "Durazno" caian en la de chocolate, que es la de descarte.
+  if (/frut|fresa|frambues|berr|anana|durazno|melon|cereza|naranja|kinoto|mango|maracuya|higo|uva/.test(t)) {
+    return '/gelato/flavor-fresa.png'
+  }
   if (/cookie|oreo|granizad|crocante/.test(t)) return '/gelato/flavor-cookies.png'
-  if (/menta|pistach|lima|limon/.test(t)) return '/gelato/flavor-menta.png'
-  if (/vainilla|americana|crema|dulce de leche|sambayon|banana/.test(t)) return '/gelato/flavor-vainilla.png'
+  if (/vainilla|americana|crema|dulce|sambayon|banana|flan|mantecol|coco|nuez/.test(t)) {
+    return '/gelato/flavor-vainilla.png'
+  }
   return '/gelato/flavor-chocolate.png'
 }
 
