@@ -6678,6 +6678,9 @@ export default function MenuApp() {
   const [gelatoBuilderOpen, setGelatoBuilderOpen] = useState(false)
   // Formato de heladeria esperando que elijan los sabores.
   const [saborPicker, setSaborPicker] = useState(null)
+  // Si el formato se eligio DESDE el carrito, al terminar se vuelve ahi: el
+  // cliente estaba cerrando el pedido, no arrancando de nuevo.
+  const [volverAlCarrito, setVolverAlCarrito] = useState(false)
   const [gelatoStep, setGelatoStep] = useState(1)
   // Por que paso se entro al armador: hasta ahi se puede volver, mas atras se
   // cierra. Entrando en el 3 (con el tamaño ya elegido afuera), retroceder
@@ -6714,8 +6717,8 @@ export default function MenuApp() {
 
   const closeTopOverlay = useCallback(() => {
     if (selectedDish) return setSelectedDish(null)
-    if (saborPicker) return setSaborPicker(null)
-    if (gelatoBuilderOpen) return setGelatoBuilderOpen(false)
+    if (saborPicker) return cerrarSelectorDeSabores()
+    if (gelatoBuilderOpen) return cerrarArmador()
     if (isCheckoutOpen) {
       // El checkout se abre desde el carrito: al volver, reabrir el carrito.
       setIsCheckoutOpen(false)
@@ -7342,7 +7345,19 @@ export default function MenuApp() {
     // Formato de heladeria: los sabores se preguntan ACA, que es cuando el
     // cliente lo diria en el mostrador ("un cuarto" -> "de que?").
     if (!configuration && item?.pideEleccion && saboresParaElegir.length) {
-      setSaborPicker({ item, elegidos: [] })
+      // Los dos se abren como pantalla completa y se dibujan ANTES que el
+      // carrito, asi que abiertos desde ahi quedaban tapados y parecia que el
+      // boton no hacia nada. Se cierra el carrito y se vuelve al terminar.
+      if (isCartOpen) {
+        setIsCartOpen(false)
+        setVolverAlCarrito(true)
+      }
+
+      // En gelato manda el armador de siempre: tiene el tope de sabores por
+      // tamaño. Con el selector generico se podian elegir doce gustos para un
+      // cuarto kilo.
+      if (templateId === 'gelato') handleOpenGelatoBuilder('kilo', 3, item.id)
+      else setSaborPicker({ item, elegidos: [] })
       return false
     }
 
@@ -7552,9 +7567,30 @@ export default function MenuApp() {
       },
     )
 
-    setGelatoBuilderOpen(false)
+    cerrarArmador()
     setGelatoStep(1)
     setGelatoSelectedFlavors([])
+  }
+
+  // Cierra el armador y, si se habia entrado desde el carrito, vuelve ahi.
+  // Un solo lugar: se cierra desde el boton de volver, desde el fondo, desde
+  // el "atras" del navegador y al agregar, y en los cuatro tiene que hacer lo
+  // mismo.
+  // Mismo criterio para el selector generico de las demas plantillas.
+  function cerrarSelectorDeSabores() {
+    setSaborPicker(null)
+    if (volverAlCarrito) {
+      setVolverAlCarrito(false)
+      setIsCartOpen(true)
+    }
+  }
+
+  function cerrarArmador() {
+    setGelatoBuilderOpen(false)
+    if (volverAlCarrito) {
+      setVolverAlCarrito(false)
+      setIsCartOpen(true)
+    }
   }
 
   function renderProductMedia(item) {
@@ -8633,7 +8669,7 @@ export default function MenuApp() {
       {/* Los sabores del formato que se esta pidiendo. Sirve para cualquier
           template: la heladeria se detecta por como esta cargado el menu. */}
       {saborPicker ? (
-        <div className="detail-screen" role="presentation" onClick={() => setSaborPicker(null)}>
+        <div className="detail-screen" role="presentation" onClick={() => cerrarSelectorDeSabores()}>
           <div
             className={`detail-phone ${appClassName}`}
             style={getPresentationStyles(presentation, accountId)}
@@ -8649,7 +8685,7 @@ export default function MenuApp() {
                       : 'Que sabores le pongo?'}
                   </p>
                 </div>
-                <button type="button" className="checkout-close" onClick={() => setSaborPicker(null)}>
+                <button type="button" className="checkout-close" onClick={() => cerrarSelectorDeSabores()}>
                   ✕
                 </button>
               </div>
@@ -8684,7 +8720,7 @@ export default function MenuApp() {
                 disabled={!saborPicker.elegidos.length}
                 onClick={() => {
                   const { item, elegidos } = saborPicker
-                  setSaborPicker(null)
+                  cerrarSelectorDeSabores()
                   // Los sabores viajan en la nota del item: asi llegan a la
                   // comanda y ademas la base los reconoce por nombre para
                   // descontar el stock de cada gusto.
@@ -8701,7 +8737,7 @@ export default function MenuApp() {
       ) : null}
 
       {templateId === 'gelato' && gelatoBuilderOpen ? (
-        <div className="detail-screen" role="presentation" onClick={() => setGelatoBuilderOpen(false)}>
+        <div className="detail-screen" role="presentation" onClick={() => cerrarArmador()}>
           <div
             className={`detail-phone ${appClassName}`}
             style={getPresentationStyles(presentation, accountId)}
@@ -8719,7 +8755,7 @@ export default function MenuApp() {
                     // armador, con el diseño viejo, y despues la pantalla de
                     // "elegi tipo" que ese local ni usa.
                     if (gelatoStep <= gelatoPasoDeEntrada) {
-                      setGelatoBuilderOpen(false)
+                      cerrarArmador()
                       return
                     }
 
