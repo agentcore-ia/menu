@@ -1141,6 +1141,10 @@ function getLoadingTemplate(accountId) {
     return 'troka'
   }
 
+  if (key.includes('babson')) {
+    return 'babson'
+  }
+
   if (key.includes('heladeria') || key.includes('dolce')) {
     return 'gelato'
   }
@@ -4403,6 +4407,30 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menú</p>
 
             <div className="troka-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'babson') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-babson">
+          <div className="babson-loading" role="status" aria-live="polite" aria-label="Cargando menu de Babson">
+            {/* La banda con la arcada es lo primero que se ve del menu: la
+                pantalla de carga la repite entera, asi la espera y el menu son
+                la misma pieza. El logo va en su version clara porque el fondo
+                es el mismo azul que la tinta del logo. */}
+            <div className="babson-loading-banda">
+              <img src="/babson/logo-claro.webp" alt="Resto bar Babson" width="900" height="384" />
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="babson-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>

@@ -417,6 +417,10 @@
 .pizzeria-dish-media,
 .pizzeria-dish-copy {
   border: 0;
+  /* Los <button> traen un padding propio del navegador. Sin resetearlo, el
+     nombre y la descripcion quedaban 6px a la derecha del precio, que no esta
+     adentro de un boton. */
+  padding: 0;
   background: transparent;
   text-align: left;
   color: inherit;
@@ -17875,4 +17879,100 @@ button:focus-visible {
   width: 2.4rem;
   height: 2.4rem;
   box-shadow: 0 0 0 3px var(--custom-card-bg, var(--theme-surface));
+}
+
+/* ---------------------------------------------------------------------------
+   Pantalla de carga de Babson.
+
+   Repite la cabecera del menu: banda azul con la arcada abajo y el logo en su
+   version clara. El fondo es el azul de la marca, el mismo de la banda, asi que
+   la espera y el menu se ven como la misma pieza.
+   --------------------------------------------------------------------------- */
+.loading-babson {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #163059;
+}
+
+/* La pantalla de carga generica dibuja un marco y un resplandor borroso abajo,
+   con los colores de otra plantilla. Aca sobran: el fondo es liso. */
+.loading-babson::before,
+.loading-babson::after {
+  display: none;
+}
+
+.babson-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6rem;
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.babson-loading-banda {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 21rem);
+  padding: 2.4rem 1.6rem 2.8rem;
+  background: #1d3d6b;
+  border-radius: 0 0 50% 50% / 0 0 2.8rem 2.8rem;
+}
+
+.babson-loading-banda img {
+  width: min(78%, 15rem);
+  height: auto;
+  animation: babson-loading-latir 1.9s ease-in-out infinite;
+}
+
+.babson-loading p {
+  margin: 0;
+  color: rgba(246, 248, 251, 0.9);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+  text-transform: uppercase;
+}
+
+.babson-loading-progress {
+  width: min(100%, 8.5rem);
+  height: 0.28rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(246, 248, 251, 0.18);
+}
+
+.babson-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: #f6f8fb;
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@keyframes babson-loading-latir {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.86;
+    transform: scale(0.975);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .babson-loading-banda img,
+  .babson-loading-progress span {
+    animation: none;
+  }
 }
