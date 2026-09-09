@@ -94,6 +94,17 @@ export function configuracionDeHeladeria(theme) {
     // los baja (paso: en el menu no aparecia ninguno).
     const ancho = Math.round(Number(entrada?.ancho))
     const alto = Math.round(Number(entrada?.alto))
+
+    // Una promo se puede PEDIR cuando tiene su producto (de ahi sale el precio
+    // que va al carrito y el nombre que sale en la comanda) y dice de cuantos
+    // potes es. Sin eso el cartel sigue estando, pero solo para mirar.
+    const productoId = String(entrada?.productoId ?? '').trim()
+    const potes = Math.round(Number(entrada?.potes))
+    const topePorPote = Math.round(Number(entrada?.topePorPote))
+    const sabores = (Array.isArray(entrada?.sabores) ? entrada.sabores : [])
+      .map((id) => String(id ?? '').trim())
+      .filter(Boolean)
+
     promos.push({
       imagen,
       // El alt no es decoracion: el cartel dice el precio y la condicion, y
@@ -101,6 +112,11 @@ export function configuracionDeHeladeria(theme) {
       alt: String(entrada?.alt ?? '').trim().slice(0, 160),
       ancho: Number.isFinite(ancho) && ancho > 0 ? ancho : undefined,
       alto: Number.isFinite(alto) && alto > 0 ? alto : undefined,
+      productoId: productoId || '',
+      potes: Number.isFinite(potes) && potes >= 1 ? Math.min(potes, 12) : 0,
+      topePorPote: Number.isFinite(topePorPote) && topePorPote >= 1 ? Math.min(topePorPote, 20) : 0,
+      // Vacio = la promo no limita los gustos, entran todos.
+      sabores,
     })
   }
 
@@ -114,6 +130,18 @@ export function configuracionDeHeladeria(theme) {
       texto: destacadoTexto || SELLO_POR_DEFECTO,
     },
   }
+}
+
+/**
+ * Si esta promo se puede pedir desde el menu, o es solo un cartel para mirar.
+ *
+ * Hacen falta las dos cosas: el producto —de ahi salen el precio y el nombre
+ * que ve la cocina— y de cuantos potes es. Un cartel sin producto no puede
+ * entrar al carrito, y uno sin potes no sabe cuantas veces preguntar los
+ * gustos.
+ */
+export function promoSePuedePedir(promo) {
+  return Boolean(promo?.productoId) && Number(promo?.potes) >= 1
 }
 
 /** Cuantos gustos entran en este envase. */

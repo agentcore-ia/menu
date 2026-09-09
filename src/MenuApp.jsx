@@ -3,6 +3,7 @@ import './App.css'
 import { getBusinessOpenStatus } from '../shared/businessHours.js'
 import {
   configuracionDeHeladeria,
+  promoSePuedePedir,
   saboresAgrupados,
   selloDeTamano,
   topeDeSabores,
@@ -5054,6 +5055,7 @@ function TemplateMenuCollection({
   gelatoSizeOptions = [],
   configHeladeria = null,
   onOpenGelatoBuilder,
+  onAbrirPromo,
   searchQuery = '',
   isSearchActive = false,
   loyaltySettings = null,
@@ -6379,21 +6381,35 @@ function TemplateMenuCollection({
               tiene que decidir: arriba competirian con la eleccion.
 
               El cartel entero es la promo —precio, condicion y letra chica van
-              dibujados adentro—, asi que no se le escribe nada encima. Como no
-              es un boton, no se le pone cursor de mano ni efecto de toque: el
-              cliente arma el pedido con los tamaños de arriba. */}
+              dibujados adentro—, asi que no se le escribe nada encima. La que
+              se puede pedir es un boton de verdad; la que no, una imagen que no
+              finge serlo. */}
           {configHeladeria.promos.length ? (
             <div className="gelato-promos">
-              {configHeladeria.promos.map((promo) => (
-                <img
-                  key={promo.imagen}
-                  className="gelato-promo"
-                  src={promo.imagen}
-                  alt={promo.alt}
-                  width={promo.ancho}
-                  height={promo.alto}
-                />
-              ))}
+              {configHeladeria.promos.map((promo) => {
+                const cartel = (
+                  <img
+                    className="gelato-promo"
+                    src={promo.imagen}
+                    alt={promo.alt}
+                    width={promo.ancho}
+                    height={promo.alto}
+                  />
+                )
+
+                return promoSePuedePedir(promo) ? (
+                  <button
+                    key={promo.imagen}
+                    type="button"
+                    className="gelato-promo-boton"
+                    onClick={() => onAbrirPromo(promo)}
+                  >
+                    {cartel}
+                  </button>
+                ) : (
+                  <span key={promo.imagen} className="gelato-promo-fijo">{cartel}</span>
+                )
+              })}
             </div>
           ) : null}
         </section>
@@ -6701,6 +6717,9 @@ export default function MenuApp() {
   const [gelatoSizeId, setGelatoSizeId] = useState('')
   const [gelatoFlavorFilter, setGelatoFlavorFilter] = useState('Todos')
   const [gelatoSelectedFlavors, setGelatoSelectedFlavors] = useState([])
+  // Promo que se esta armando: de que promo se trata, que pote va y que gustos
+  // se eligieron en los anteriores.
+  const [promoEnCurso, setPromoEnCurso] = useState(null)
   const [mesaId, setMesaId] = useState(() => {
     if (typeof window !== 'undefined') {
       const search = new URLSearchParams(window.location.search)
@@ -7051,11 +7070,22 @@ export default function MenuApp() {
     () => configuracionDeHeladeria(presentation.theme),
     [presentation.theme],
   )
-  const gelatoFlavorLimit = topeDeSabores(selectedGelatoSize, configHeladeria)
-  const { sabores: gelatoFlavorOptions, chips: gelatoFlavorCategories } = useMemo(
+  // Armando una promo mandan sus reglas: cuantos gustos entran en cada pote y,
+  // si la promo los limita, cuales.
+  const gelatoFlavorLimit = promoEnCurso
+    ? promoEnCurso.promo.topePorPote || topeDeSabores(selectedGelatoSize, configHeladeria)
+    : topeDeSabores(selectedGelatoSize, configHeladeria)
+  const { sabores: todosLosSabores, chips: chipsDeTodos } = useMemo(
     () => saboresAgrupados(categories.find((category) => category.soloEleccion)?.items, configHeladeria),
     [categories, configHeladeria],
   )
+  const saboresDeLaPromo = promoEnCurso?.promo.sabores ?? []
+  // Con la promo limitada no se dibujan los chips: son cinco gustos, filtrar
+  // cinco cosas es mas ruido que ayuda.
+  const gelatoFlavorOptions = saboresDeLaPromo.length
+    ? todosLosSabores.filter((sabor) => saboresDeLaPromo.includes(sabor.id))
+    : todosLosSabores
+  const gelatoFlavorCategories = saboresDeLaPromo.length ? [] : chipsDeTodos
   // Si el local borro el grupo que estaba filtrando, se vuelve a "Todos": el
   // filtro viejo dejaria la pantalla vacia sin ningun chip marcado.
   const filtroDeSaboresVigente = gelatoFlavorCategories.includes(gelatoFlavorFilter)
@@ -7065,8 +7095,16 @@ export default function MenuApp() {
     filtroDeSaboresVigente === 'Todos'
       ? gelatoFlavorOptions
       : gelatoFlavorOptions.filter((item) => item.flavorCategory === filtroDeSaboresVigente)
+  // Los productos de las promos NO se ofrecen sueltos. Se piden tocando su
+  // cartel, que es lo unico que sabe de cuantos potes es y como preguntar los
+  // gustos: agregado desde una lista entraria al carrito vacio, un kilo de
+  // catorce mil sin ningun sabor elegido.
+  const idsDePromos = useMemo(
+    () => new Set(configHeladeria.promos.map((promo) => promo.productoId).filter(Boolean)),
+    [configHeladeria],
+  )
   const recommendations = allItems
-    .filter((item) => item.id !== selectedDish?.id)
+    .filter((item) => item.id !== selectedDish?.id && !idsDePromos.has(item.id))
     .slice(0, 4)
   const currencySymbol = menu?.currencySymbol ?? '$'
 
@@ -7166,8 +7204,12 @@ export default function MenuApp() {
         )
       : ''
   // Un sabor no se puede "sumar" al carrito: ofrecerlo como recomendacion es
-  // invitar a algo que despues no se deja hacer.
-  const itemsQueSeVenden = useMemo(() => allItems.filter((item) => !item?.soloEleccion), [allItems])
+  // invitar a algo que despues no se deja hacer. Las promos tampoco: se piden
+  // tocando su cartel, que es lo unico que sabe de cuantos potes son.
+  const itemsQueSeVenden = useMemo(
+    () => allItems.filter((item) => !item?.soloEleccion && !idsDePromos.has(item?.id)),
+    [allItems, idsDePromos],
+  )
   const cartRecommendations = buildCartRecommendations(cartItems, itemsQueSeVenden)
   const cartPairings = buildCartPairingSuggestions(cartItems, itemsQueSeVenden)
   // En el carrito mostramos todos los productos de "Adicionales" y "Bebidas" si
@@ -7366,6 +7408,20 @@ export default function MenuApp() {
           : `${item.name} se elige despues, cuando pedis un formato.`,
       })
       return false
+    }
+
+    // Cinturon: si un producto de promo llega hasta aca desde cualquier lista,
+    // se abre su armador en vez de entrar suelto al carrito.
+    if (!configuration && idsDePromos.has(item?.id)) {
+      const promo = configHeladeria.promos.find((entrada) => entrada.productoId === item.id)
+      if (promo) {
+        if (isCartOpen) {
+          setIsCartOpen(false)
+          setVolverAlCarrito(true)
+        }
+        abrirPromo(promo)
+        return false
+      }
     }
 
     // Formato de heladeria: los sabores se preguntan ACA, que es cuando el
@@ -7568,19 +7624,71 @@ export default function MenuApp() {
     })
   }
 
+  // Abre una promo: se preguntan los gustos POTE POR POTE. Un 4x3 en cuartos
+  // son cuatro potes distintos, y la cocina necesita saber que lleva cada uno;
+  // preguntando todo junto le llegarian ocho gustos sueltos sin saber como
+  // repartirlos.
+  function abrirPromo(promo) {
+    if (orderingBlocked) {
+      showOrderingClosedNotice()
+      return
+    }
+
+    const producto = allItems.find((item) => item.id === promo.productoId)
+    if (!producto) return
+
+    setPromoEnCurso({ promo, producto, pote: 1, elegidosPorPote: [] })
+    setGelatoFormat('kilo')
+    setGelatoStep(3)
+    setGelatoPasoDeEntrada(3)
+    setGelatoFlavorFilter('Todos')
+    setGelatoSelectedFlavors([])
+    setGelatoBuilderOpen(true)
+  }
+
   function handleAddGelatoOrder() {
     if (orderingBlocked) {
       showOrderingClosedNotice()
       return
     }
 
-    if (!selectedGelatoSize || !gelatoSelectedFlavors.length) {
+    if (!gelatoSelectedFlavors.length) {
       return
     }
 
     const selectedFlavorNames = gelatoFlavorOptions
       .filter((item) => gelatoSelectedFlavors.includes(item.id))
       .map((item) => item.name)
+
+    // PROMO: cada vuelta cierra un pote. Recien con el ultimo se agrega UNA
+    // linea al carrito, con el precio de la promo y el detalle de cada pote.
+    if (promoEnCurso) {
+      const elegidosPorPote = [...promoEnCurso.elegidosPorPote, selectedFlavorNames]
+      if (elegidosPorPote.length < promoEnCurso.promo.potes) {
+        setPromoEnCurso({ ...promoEnCurso, pote: promoEnCurso.pote + 1, elegidosPorPote })
+        setGelatoSelectedFlavors([])
+        setGelatoFlavorFilter('Todos')
+        return
+      }
+
+      const detalle = elegidosPorPote.map((sabores, i) => `Pote ${i + 1}: ${sabores.join(', ')}`).join(' | ')
+      handleAddItem({ ...promoEnCurso.producto, categoryLabel: 'Promos' }, 1, {
+        // "SOLO EFECTIVO" viaja en la nota a proposito: el menu cobra con
+        // tarjeta y la promo no, asi que quien atiende tiene que verlo en la
+        // comanda y no enterarse cuando el cliente llega a pagar.
+        summary: `${detalle} | SOLO EFECTIVO`,
+      })
+
+      setPromoEnCurso(null)
+      cerrarArmador()
+      setGelatoStep(1)
+      setGelatoSelectedFlavors([])
+      return
+    }
+
+    if (!selectedGelatoSize) {
+      return
+    }
 
     handleAddItem(
       {
@@ -7613,6 +7721,8 @@ export default function MenuApp() {
 
   function cerrarArmador() {
     setGelatoBuilderOpen(false)
+    // Salir a mitad de una promo no deja medio pedido armado: se descarta.
+    setPromoEnCurso(null)
     if (volverAlCarrito) {
       setVolverAlCarrito(false)
       setIsCartOpen(true)
@@ -8597,6 +8707,7 @@ export default function MenuApp() {
                   gelatoFormats={gelatoFormats}
                   gelatoSizeOptions={gelatoSizeOptions}
                 configHeladeria={configHeladeria}
+                onAbrirPromo={abrirPromo}
                   onOpenGelatoBuilder={handleOpenGelatoBuilder}
                   searchQuery={deferredSearchQuery}
                   isSearchActive={isSearchActive}
@@ -8935,12 +9046,33 @@ export default function MenuApp() {
                 <div className="gelato-builder-section">
                   <div className="gelato-builder-copy">
                     <span className="gelato-builder-icon" aria-hidden="true" />
-                    <h2>Elegi tus sabores</h2>
+                    {/* En una promo de varios potes hay que decir CUAL se esta
+                        eligiendo: si no, el cliente elige, la pantalla se
+                        vacia y parece que se borro lo que puso. */}
+                    <h2>
+                      {promoEnCurso && promoEnCurso.promo.potes > 1
+                        ? `Pote ${promoEnCurso.pote} de ${promoEnCurso.promo.potes}`
+                        : 'Elegi tus sabores'}
+                    </h2>
                     <p>
                       Puedes elegir hasta <strong>{gelatoFlavorLimit}</strong> sabores para{' '}
-                      <strong>{selectedGelatoSize?.name}</strong>.
+                      <strong>{promoEnCurso ? promoEnCurso.producto.name : selectedGelatoSize?.name}</strong>.
                     </p>
                   </div>
+
+                  {/* Lo ya elegido en los potes anteriores queda a la vista:
+                      con cuatro potes seguidos, sin esto no hay forma de
+                      acordarse de lo que se puso en el primero. */}
+                  {promoEnCurso?.elegidosPorPote.length ? (
+                    <ul className="gelato-promo-elegidos">
+                      {promoEnCurso.elegidosPorPote.map((sabores, i) => (
+                        <li key={sabores.join()}>
+                          <strong>Pote {i + 1}</strong>
+                          <span>{sabores.join(', ')}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
 
                   {/* Los grupos los arma el local. Si no armo ninguno o todos
                       los gustos caen en el mismo, no hay nada que filtrar y la
@@ -8990,14 +9122,26 @@ export default function MenuApp() {
 
                   <div className="gelato-builder-footer">
                     <span>{gelatoSelectedFlavors.length} / {gelatoFlavorLimit} sabores elegidos</span>
+                    {/* Con potes por delante el boton no puede decir "agregar
+                        al pedido": todavia no agrega nada, sigue al siguiente.
+                        Y el precio recien se muestra en el ultimo, que es
+                        cuando de verdad se cobra. */}
                     <button
                       type="button"
                       className="primary-action gelato-continue"
                       onClick={handleAddGelatoOrder}
                       disabled={!gelatoSelectedFlavors.length}
                     >
-                      <span>Agregar al pedido</span>
-                      <strong>{selectedGelatoSize?.price ?? ''}</strong>
+                      <span>
+                        {promoEnCurso && promoEnCurso.pote < promoEnCurso.promo.potes
+                          ? `Seguir con el pote ${promoEnCurso.pote + 1}`
+                          : 'Agregar al pedido'}
+                      </span>
+                      <strong>
+                        {promoEnCurso
+                          ? (promoEnCurso.pote < promoEnCurso.promo.potes ? '' : promoEnCurso.producto.price ?? '')
+                          : selectedGelatoSize?.price ?? ''}
+                      </strong>
                     </button>
                   </div>
                 </div>

@@ -17266,6 +17266,28 @@ button:focus-visible {
   flex: 0 0 auto;
 }
 
+/* La promo que se puede pedir es un boton de verdad; la que no, una imagen que
+   no finge serlo. El arte ya trae su flecha, asi que el boton no agrega nada
+   encima: solo el hundido al tocar, que es lo que confirma que respondio. */
+.gelato-promo-boton,
+.gelato-promo-fijo {
+  display: block;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+}
+
+.gelato-promo-boton {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.gelato-promo-boton:active {
+  transform: scale(0.985);
+}
+
 .gelato-promo {
   display: block;
   width: 100%;
@@ -17273,6 +17295,29 @@ button:focus-visible {
      automatico cada uno queda como lo diseñaron; forzando una medida unica se
      deformarian o se les cortaria el precio. */
   height: auto;
+}
+
+/* Lo que ya se eligio en los potes anteriores de una promo. */
+.gelato-promo-elegidos {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  list-style: none;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--theme-primary) 12%, transparent);
+}
+
+.gelato-promo-elegidos li {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr);
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.gelato-promo-elegidos strong {
+  font-weight: 800;
 }
 
 /* La barra de esta plantilla no tiene nada encima que la tape: puede quedarse

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 
 import {
   configuracionDeHeladeria,
+  promoSePuedePedir,
   saboresAgrupados,
   selloDeTamano,
   topeDeSabores,
@@ -181,8 +182,8 @@ test('los carteles de promo se leen con su texto alternativo y sus medidas', () 
     },
   })
   assert.deepEqual(config.promos, [
-    { imagen: 'https://x/promo.png', alt: '2 kilos $33.000', ancho: 1200, alto: 400 },
-    { imagen: '/local/promo.png', alt: '', ancho: undefined, alto: undefined },
+    { imagen: 'https://x/promo.png', alt: '2 kilos $33.000', ancho: 1200, alto: 400, productoId: '', potes: 0, topePorPote: 0, sabores: [] },
+    { imagen: '/local/promo.png', alt: '', ancho: undefined, alto: undefined, productoId: '', potes: 0, topePorPote: 0, sabores: [] },
   ])
 })
 
@@ -204,6 +205,49 @@ test('una promo sin imagen valida no se dibuja', () => {
     heladeria: { promos: [{ alt: 'sin imagen' }, { imagen: 'javascript:alert(1)' }, { imagen: '   ' }, 'texto suelto'] },
   })
   assert.deepEqual(config.promos, [])
+})
+
+test('una promo se puede pedir solo con producto y cantidad de potes', () => {
+  const config = configuracionDeHeladeria({
+    heladeria: {
+      promos: [
+        { imagen: 'https://x/a.png', productoId: 'prod-1', potes: 4, topePorPote: 2 },
+        { imagen: 'https://x/b.png', productoId: 'prod-2' },
+        { imagen: 'https://x/c.png', potes: 2 },
+        { imagen: 'https://x/d.png' },
+      ],
+    },
+  })
+  assert.deepEqual(config.promos.map(promoSePuedePedir), [true, false, false, false])
+})
+
+test('la promo puede limitar los gustos; vacio quiere decir todos', () => {
+  const config = configuracionDeHeladeria({
+    heladeria: {
+      promos: [
+        { imagen: 'https://x/a.png', productoId: 'p', potes: 1, topePorPote: 5, sabores: ['s1', '', 's2'] },
+        { imagen: 'https://x/b.png', productoId: 'p', potes: 2, topePorPote: 5 },
+      ],
+    },
+  })
+  assert.deepEqual(config.promos[0].sabores, ['s1', 's2'])
+  assert.deepEqual(config.promos[1].sabores, [])
+})
+
+test('una cantidad de potes absurda no se acepta', () => {
+  const config = configuracionDeHeladeria({
+    heladeria: {
+      promos: [
+        { imagen: 'https://x/a.png', productoId: 'p', potes: 0 },
+        { imagen: 'https://x/b.png', productoId: 'p', potes: -3 },
+        { imagen: 'https://x/c.png', productoId: 'p', potes: 999, topePorPote: 999 },
+      ],
+    },
+  })
+  assert.equal(promoSePuedePedir(config.promos[0]), false)
+  assert.equal(promoSePuedePedir(config.promos[1]), false)
+  assert.equal(config.promos[2].potes, 12)
+  assert.equal(config.promos[2].topePorPote, 20)
 })
 
 test('sin promos configuradas la lista queda vacia, no rota', () => {
