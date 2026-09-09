@@ -4348,7 +4348,7 @@ function MenuLoadingScreen({ accountId }) {
     return (
       <div className="app-shell">
         <div className="phone-surface menu-loading-screen loading-troka">
-          <div className="troka-loading" role="status" aria-live="polite" aria-label="Cargando la heladeria Troka">
+          <div className="troka-loading" role="status" aria-live="polite" aria-label="Cargando menu de Troka">
             {/* El sello del local es redondo, asi que lo que gira es un arco
                 por afuera: sumarle un segundo circulo adentro seria pelearle
                 al logo. El fondo es el mismo marron del sello, para que el
@@ -4358,7 +4358,7 @@ function MenuLoadingScreen({ accountId }) {
               <img src="/troka/logo.webp" alt="Troka helados" width="420" height="420" />
             </div>
 
-            <p>Cargando la heladería</p>
+            <p>Cargando menú</p>
 
             <div className="troka-loading-progress" aria-hidden="true">
               <span />
