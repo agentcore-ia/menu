@@ -6344,6 +6344,14 @@ function TemplateMenuCollection({
       slugify(category.label).includes('bebida'),
     )
 
+    // En la grilla el nombre va en mayusculas y grande, con la categoria a la
+    // vista, asi que se le saca el prefijo ("Pizza de choclo" -> "DE CHOCLO").
+    // En la lista el nombre se lee como texto corriente y cortado queda mal, asi
+    // que ahi va entero.
+    const enLista = presentation?.cards?.style === 'pizzeria-lista'
+    const tituloDelPlato = (item) =>
+      enLista ? String(item?.name ?? '').trim() : getPizzeriaDishTitle(item)
+
     return (
       <section className="section-block section-block-pizzeria">
         <div className="pizzeria-card-grid">
@@ -6362,7 +6370,7 @@ function TemplateMenuCollection({
 
               <div className="pizzeria-dish-body">
                 <button type="button" className="pizzeria-dish-copy" onClick={() => onOpenDish(item)}>
-                  <h3>{getPizzeriaDishTitle(item)}</h3>
+                  <h3>{tituloDelPlato(item)}</h3>
                   <p>{item.description}</p>
                 </button>
 

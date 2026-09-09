@@ -17759,3 +17759,120 @@ button:focus-visible {
 .pizzeria-card-grid:has(.pizzeria-dish-card-texto) {
   align-items: start;
 }
+
+/* ---------------------------------------------------------------------------
+   Plantilla pizzeria, cards en lista (cards_style: pizzeria-lista).
+
+   Una card por fila y a lo ancho: el texto a la izquierda (nombre, descripcion
+   y precio) y la foto a la derecha, con el boton de agregar pisando su esquina.
+   El producto sin foto usa la misma fila, solo que el texto ocupa todo.
+
+   Va por cards_style para que cada menu elija: el que quedo en grilla no cambia.
+   --------------------------------------------------------------------------- */
+.cards-pizzeria-lista .pizzeria-card-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0.7rem;
+}
+
+.cards-pizzeria-lista .pizzeria-dish-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  overflow: hidden;
+  border-radius: 1rem;
+  box-shadow: var(--custom-card-shadow, 0 1px 3px var(--theme-shadow));
+}
+
+/* La foto va a la derecha aunque en el HTML venga primero. */
+.cards-pizzeria-lista .pizzeria-dish-card:has(.pizzeria-dish-media) {
+  grid-template-columns: minmax(0, 1fr) 9.6rem;
+}
+
+/* La foto lleva proporcion fija: es la que marca el alto de la fila y sin ella
+   quedaba desbocada segun cuanto midiera cada imagen. */
+.cards-pizzeria-lista .pizzeria-dish-media {
+  order: 2;
+  align-self: stretch;
+  aspect-ratio: 1.12 / 1;
+  height: auto;
+  border-radius: 0;
+}
+
+.cards-pizzeria-lista .pizzeria-dish-media .dish-thumb {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+  object-fit: cover;
+}
+
+.cards-pizzeria-lista .pizzeria-dish-body {
+  display: flex;
+  flex-direction: column;
+  order: 1;
+  gap: 0.3rem;
+  padding: 0.95rem 1rem;
+}
+
+/* El texto arranca arriba y el precio va pegado a la descripcion, no estirado
+   hasta el fondo: la altura de la fila la da la foto, no el texto. */
+.cards-pizzeria-lista .pizzeria-dish-body {
+  justify-content: flex-start;
+}
+
+.cards-pizzeria-lista .pizzeria-dish-copy {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.22rem;
+}
+
+/* En esta card el nombre se lee como texto corriente, no como titulo condensado. */
+.cards-pizzeria-lista .pizzeria-dish-copy h3 {
+  margin: 0;
+  font-family: 'Manrope', var(--font-body, sans-serif);
+  font-size: 1.04rem;
+  font-weight: 700;
+  line-height: 1.24;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--custom-card-text, var(--theme-text));
+}
+
+.cards-pizzeria-lista .pizzeria-dish-copy p {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-height: 0;
+  font-size: 0.87rem;
+  line-height: 1.36;
+}
+
+.cards-pizzeria-lista .pizzeria-dish-footer {
+  margin: 0.5rem 0 0;
+  align-items: center;
+}
+
+.cards-pizzeria-lista .pizzeria-dish-footer strong {
+  font-size: 1.04rem;
+  font-weight: 700;
+}
+
+/* El boton se apoya en la esquina de la card, encima de la foto cuando la hay.
+   El aro del color de la card lo despega del fondo. */
+.cards-pizzeria-lista .pizzeria-add-button {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  box-shadow: 0 0 0 3px var(--custom-card-bg, var(--theme-surface));
+}
