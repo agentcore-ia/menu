@@ -13163,10 +13163,11 @@ button:focus-visible {
 }
 
 /* ============================ CARGA: TROKA ============================== */
-/* El sello de Troka es un circulo verde sobre marron. El fondo usa ESE marron
-   para que el logo se apoye sin que se note el recorte, y lo unico que se
-   mueve es un arco por afuera: meterle otro circulo adentro seria pelearle al
-   logo, que ya es un circulo. */
+/* El sello de Troka es un circulo verde sobre marron (#532711, medido del
+   archivo del logo). El fondo va del MISMO marron pero mas oscuro: asi el
+   sello se apoya como una pieza y no como una calcomania pegada encima. Lo
+   unico que se mueve es un arco por afuera: meterle otro circulo adentro seria
+   pelearle al logo, que ya es un circulo. */
 
 .loading-troka {
   min-height: 100svh;
@@ -13175,7 +13176,7 @@ button:focus-visible {
   padding: clamp(1.2rem, 5vw, 2rem);
   background:
     radial-gradient(circle at 50% 38%, rgba(157, 211, 115, 0.16), transparent 46%),
-    linear-gradient(180deg, #2e2018 0%, #150e0a 100%);
+    linear-gradient(180deg, #38190b 0%, #170a04 100%);
 }
 
 .loading-troka::before,
