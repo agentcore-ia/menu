@@ -17925,7 +17925,11 @@ button:focus-visible {
 
 .babson-loading-banda img {
   width: min(78%, 15rem);
+  /* La proporcion del logo reserva el alto antes de que la imagen baje, asi la
+     banda no arranca encogida en la primera visita. */
+  aspect-ratio: 900 / 384;
   height: auto;
+  object-fit: contain;
   animation: babson-loading-latir 1.9s ease-in-out infinite;
 }
 
