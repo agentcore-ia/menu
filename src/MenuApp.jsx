@@ -6385,7 +6385,14 @@ function TemplateMenuCollection({
           {configHeladeria.promos.length ? (
             <div className="gelato-promos">
               {configHeladeria.promos.map((promo) => (
-                <img key={promo.imagen} className="gelato-promo" src={promo.imagen} alt={promo.alt} loading="lazy" />
+                <img
+                  key={promo.imagen}
+                  className="gelato-promo"
+                  src={promo.imagen}
+                  alt={promo.alt}
+                  width={promo.ancho}
+                  height={promo.alto}
+                />
               ))}
             </div>
           ) : null}

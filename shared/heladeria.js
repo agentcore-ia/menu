@@ -88,9 +88,20 @@ export function configuracionDeHeladeria(theme) {
   for (const entrada of Array.isArray(config.promos) ? config.promos : []) {
     const imagen = String(entrada?.imagen ?? '').trim()
     if (!/^https?:\/\/|^\//.test(imagen)) continue
-    // El alt no es decoracion: el cartel dice el precio y la condicion, y quien
-    // usa lector de pantalla no ve nada de eso.
-    promos.push({ imagen, alt: String(entrada?.alt ?? '').trim().slice(0, 160) })
+    // Las medidas se guardan al subir el cartel. Sirven para que el navegador
+    // le reserve el lugar ANTES de bajarlo: sin eso los tres carteles quedan
+    // apilados en cero pixeles, el navegador no los considera visibles y nunca
+    // los baja (paso: en el menu no aparecia ninguno).
+    const ancho = Math.round(Number(entrada?.ancho))
+    const alto = Math.round(Number(entrada?.alto))
+    promos.push({
+      imagen,
+      // El alt no es decoracion: el cartel dice el precio y la condicion, y
+      // quien usa lector de pantalla no ve nada de eso.
+      alt: String(entrada?.alt ?? '').trim().slice(0, 160),
+      ancho: Number.isFinite(ancho) && ancho > 0 ? ancho : undefined,
+      alto: Number.isFinite(alto) && alto > 0 ? alto : undefined,
+    })
   }
 
   return {

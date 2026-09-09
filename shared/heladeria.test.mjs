@@ -171,19 +171,32 @@ test('un grupo repetido no duplica el chip', () => {
   assert.equal(sabores.find((s) => s.id === 's1').flavorCategory, 'Otros')
 })
 
-test('los carteles de promo se leen con su texto alternativo', () => {
+test('los carteles de promo se leen con su texto alternativo y sus medidas', () => {
   const config = configuracionDeHeladeria({
     heladeria: {
       promos: [
-        { imagen: 'https://x/promo.png', alt: '2 kilos $33.000' },
+        { imagen: 'https://x/promo.png', alt: '2 kilos $33.000', ancho: 1200, alto: 400 },
         { imagen: '/local/promo.png' },
       ],
     },
   })
   assert.deepEqual(config.promos, [
-    { imagen: 'https://x/promo.png', alt: '2 kilos $33.000' },
-    { imagen: '/local/promo.png', alt: '' },
+    { imagen: 'https://x/promo.png', alt: '2 kilos $33.000', ancho: 1200, alto: 400 },
+    { imagen: '/local/promo.png', alt: '', ancho: undefined, alto: undefined },
   ])
+})
+
+test('una medida rota no se dibuja: mejor sin medida que con una en cero', () => {
+  // El ancho y el alto terminan en el atributo del <img>. Un cero ahi le
+  // reserva un lugar de cero pixeles y el cartel no se llega a ver.
+  const config = configuracionDeHeladeria({
+    heladeria: {
+      promos: [{ imagen: 'https://x/a.png', ancho: 0, alto: -5 }, { imagen: 'https://x/b.png', ancho: 'mil' }],
+    },
+  })
+  assert.equal(config.promos[0].ancho, undefined)
+  assert.equal(config.promos[0].alto, undefined)
+  assert.equal(config.promos[1].ancho, undefined)
 })
 
 test('una promo sin imagen valida no se dibuja', () => {
