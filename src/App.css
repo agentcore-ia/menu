@@ -17239,6 +17239,20 @@ button:focus-visible {
    texto encima. Tampoco esquinas redondeadas: ya vienen en el arte, con el
    borde transparente. */
 
+/* CON PROMOS LA PANTALLA DEJA DE ESTIRARSE.
+   Sin esto, la lista de tamaños se estira para llenar el alto y los carteles
+   quedan empujados fuera de la pantalla, en un lugar al que el scroll ni
+   siquiera llega: estaban ahi pero no habia forma de verlos. Es lo mismo que
+   pasa cuando aparece la barra del pedido. */
+.template-gelato .content-panel:has(.gelato-promos),
+.template-gelato .section-block:has(.gelato-promos) {
+  flex: 0 0 auto;
+}
+
+.template-gelato .section-block:has(.gelato-promos) .gelato-size-list-entrada {
+  flex: 0 0 auto;
+}
+
 .gelato-promos {
   display: flex;
   flex-direction: column;
