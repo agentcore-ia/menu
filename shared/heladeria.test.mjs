@@ -250,6 +250,15 @@ test('una cantidad de potes absurda no se acepta', () => {
   assert.equal(config.promos[2].topePorPote, 20)
 })
 
+test('el menu sin fotos se pide expresamente', () => {
+  assert.equal(configuracionDeHeladeria({}).sinFotos, false)
+  assert.equal(configuracionDeHeladeria({ heladeria: { sinFotos: true } }).sinFotos, true)
+  // Cualquier otra cosa que no sea true deja las fotos: apagarlas por accidente
+  // le saca al local todo lo que cargo.
+  assert.equal(configuracionDeHeladeria({ heladeria: { sinFotos: 'si' } }).sinFotos, false)
+  assert.equal(configuracionDeHeladeria({ heladeria: { sinFotos: 1 } }).sinFotos, false)
+})
+
 test('sin promos configuradas la lista queda vacia, no rota', () => {
   assert.deepEqual(configuracionDeHeladeria({}).promos, [])
   assert.deepEqual(configuracionDeHeladeria({ heladeria: { promos: 'una' } }).promos, [])

@@ -17233,6 +17233,52 @@ button:focus-visible {
   flex: 0 0 auto;
 }
 
+/* ============================ HELADERIA: SIN FOTOS ====================== */
+/* El local eligio la carta en texto. No alcanza con no dibujar las fotos: las
+   tarjetas estan armadas ALREDEDOR de la foto y sin ella quedan con un hueco
+   del tamaño de la que falta. */
+
+/* El envase pierde la columna de la foto y el nombre pasa a mandar. */
+.sin-fotos .gelato-size-list-entrada .gelato-size-card {
+  grid-template-columns: minmax(0, 1fr) 3rem;
+  padding: 1.1rem 1rem;
+}
+
+/* El gusto deja de ser una tarjeta alta: sin foto, alto fijo es aire vacio.
+   Entran tres por fila en vez de dos, asi cuarenta sabores no son veinte
+   pantallas de scroll. */
+.sin-fotos .gelato-flavor-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.sin-fotos .gelato-flavor-card {
+  min-height: 0;
+  padding: 0.9rem 0.6rem;
+  display: grid;
+  align-content: center;
+  gap: 0.15rem;
+}
+
+/* El "+" deja de ir flotando en la esquina de una tarjeta alta: sin foto no
+   hay lugar y se superponia con el nombre. */
+.sin-fotos .gelato-flavor-plus {
+  position: static;
+  margin: 0 auto 0.2rem;
+}
+
+.sin-fotos .gelato-flavor-card strong {
+  margin-top: 0;
+  font-size: 0.92rem;
+}
+
+/* La categoria ya esta en el filtro de arriba: repetirla en cada tarjeta, sin
+   foto que la separe, es ruido. */
+.sin-fotos .gelato-flavor-card p,
+.sin-fotos .gelato-flavor-card small {
+  display: none;
+}
+
 /* ============================ HELADERIA: PROMOS ========================= */
 /* Carteles abajo de los tamaños. La imagen ES la promo: trae el precio, la
    condicion y la letra chica dibujados, asi que no lleva marco, ni sombra, ni

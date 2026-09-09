@@ -124,6 +124,11 @@ export function configuracionDeHeladeria(theme) {
     topes,
     grupos,
     promos,
+    // Menu sin fotos de producto: hay locales que prefieren la carta en texto,
+    // sea porque no tienen fotos propias o porque no quieren que la foto
+    // prometa algo distinto de lo que sale. No toca la cabecera ni los
+    // carteles de promo: esos no son fotos de producto.
+    sinFotos: config.sinFotos === true,
     destacado: {
       id: destacadoId,
       nombre: destacadoNombre,

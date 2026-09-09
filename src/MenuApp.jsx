@@ -6360,9 +6360,11 @@ function TemplateMenuCollection({
                       {sello}
                     </span>
                   ) : null}
-                  <div className="gelato-size-visual">
-                    <img src={size.image} alt="" aria-hidden="true" />
-                  </div>
+                  {configHeladeria.sinFotos ? null : (
+                    <div className="gelato-size-visual">
+                      <img src={size.image} alt="" aria-hidden="true" />
+                    </div>
+                  )}
                   <div className="gelato-size-copy">
                     <strong>{size.name}</strong>
                     <span>{size.price}</span>
@@ -7758,6 +7760,10 @@ export default function MenuApp() {
   }
 
   function renderMiniCardMedia(item) {
+    // Sin fotos de producto tampoco las miniaturas del carrito: si no, el menu
+    // queda sin fotos salvo justo ahi.
+    if (configHeladeria.sinFotos) return null
+
     if (item.video) {
       const useForcedHostVideoPreview = shouldForceVideoPreviewForBurgerHost(
         accountId,
@@ -8471,7 +8477,12 @@ export default function MenuApp() {
     `layout-${presentation.layout}`,
     `cards-${presentation.cards?.style ?? 'editorial-list'}`,
     `theme-${presentation.theme.id}`,
-  ].join(' ')
+    // Sin fotos de producto las tarjetas cambian de forma: la del envase deja
+    // de reservar la columna de la foto y la del gusto deja de ser alta.
+    configHeladeria.sinFotos ? 'sin-fotos' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   function renderIncludedProductsBlock() {
     if (!detailIncludedGroups.length) {
@@ -9107,11 +9118,13 @@ export default function MenuApp() {
                           {/* flavor.image la resuelve el servidor: respeta la
                               foto propia del local si la cargo, y usa el mismo
                               mapeo por nombre que el resto del menu. */}
-                          <img
-                            className="gelato-flavor-image"
-                            src={flavor.image || getGelatoFlavorAsset(flavor.name)}
-                            alt={flavor.name}
-                          />
+                          {configHeladeria.sinFotos ? null : (
+                            <img
+                              className="gelato-flavor-image"
+                              src={flavor.image || getGelatoFlavorAsset(flavor.name)}
+                              alt={flavor.name}
+                            />
+                          )}
                           <strong>{flavor.name}</strong>
                           <p>{flavor.description}</p>
                           <small>{flavor.flavorCategory}</small>
@@ -9758,7 +9771,7 @@ export default function MenuApp() {
                       {recommendations.map((item) => (
                         <article
                           key={item.id}
-                          className={`mini-card ${item.video || item.hasCustomImage ? '' : 'no-media'}`}
+                          className={`mini-card ${!configHeladeria.sinFotos && (item.video || item.hasCustomImage) ? '' : 'no-media'}`}
                         >
                           {renderMiniCardMedia(item)}
 
@@ -9936,7 +9949,7 @@ export default function MenuApp() {
                         {cartRecommendations.map((item) => (
                           <article
                             key={item.id}
-                            className={`mini-card ${item.video || item.hasCustomImage ? '' : 'no-media'}`}
+                            className={`mini-card ${!configHeladeria.sinFotos && (item.video || item.hasCustomImage) ? '' : 'no-media'}`}
                           >
                             {renderMiniCardMedia(item)}
                             <div className="mini-card-body">
@@ -9972,7 +9985,7 @@ export default function MenuApp() {
                           return (
                             <article
                               key={product.id}
-                              className={`mini-card pairing-mini-card ${product.video || product.hasCustomImage ? '' : 'no-media'} ${isAdded ? 'is-added' : ''}`}
+                              className={`mini-card pairing-mini-card ${!configHeladeria.sinFotos && (product.video || product.hasCustomImage) ? '' : 'no-media'} ${isAdded ? 'is-added' : ''}`}
                             >
                               {renderMiniCardMedia(product)}
                               <div className="mini-card-body">
