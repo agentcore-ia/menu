@@ -3789,12 +3789,26 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
       ? String(presentation.branding?.wordmark || '').trim()
       : ''
 
-    if (!imagenesPropias.length && marca) {
+    // El logo del local manda sobre el nombre escrito: si lo subio, es su marca
+    // dibujada. Sobre la banda oscura va la version clara, cuando existe.
+    const logo = presentation.branding?.logoBanda || presentation.branding?.logo || ''
+
+    if (!imagenesPropias.length && (marca || logo)) {
       return (
         <section className="hero-content hero-content-pizzeria hero-pizzeria-texto">
           <div className="pizzeria-header-texto">
-            <strong>{marca}</strong>
-            {presentation.branding?.subtitle ? <span>{presentation.branding.subtitle}</span> : null}
+            <div className="pizzeria-header-banda">
+              {logo ? (
+                <img className="pizzeria-header-logo" src={logo} alt={marca || 'Logo del local'} />
+              ) : (
+                <>
+                  <strong>{marca}</strong>
+                  {presentation.branding?.subtitle ? (
+                    <span>{presentation.branding.subtitle}</span>
+                  ) : null}
+                </>
+              )}
+            </div>
             <h1>{presentation.hero?.title ?? 'NUESTRO MENÚ'}</h1>
             {presentation.hero?.accent ? <em>{presentation.hero.accent}</em> : null}
           </div>
@@ -6322,6 +6336,14 @@ function TemplateMenuCollection({
     // Esta grilla es el unico listado de la plantilla: no hay "ver mas". Cortar
     // en 4 dejaba el resto de la categoria sin forma de llegar; no se notaba
     // porque los locales que la usaban tenian 3 o 4 productos por categoria.
+    //
+    // El cartel de bebidas es un dibujo fijo con un boton que lleva a esa
+    // categoria: el local que no vende bebidas no lo lleva, porque el boton no
+    // iria a ningun lado.
+    const categoriaDeBebidas = categories.find((category) =>
+      slugify(category.label).includes('bebida'),
+    )
+
     return (
       <section className="section-block section-block-pizzeria">
         <div className="pizzeria-card-grid">
@@ -6360,38 +6382,30 @@ function TemplateMenuCollection({
           ))}
         </div>
 
-        <article className="pizzeria-drinks-banner">
-          <img className="pizzeria-footer-art" src="/pizzeria/footer2.png" alt="" aria-hidden="true" />
-          <button
-            type="button"
-            className="pizzeria-footer-hitbox"
-            onClick={() =>
-              onSelectCategory?.(
-                categories.find((category) => slugify(category.label).includes('bebida'))?.id ??
-                  currentCategory?.id,
-              )
-            }
-            aria-label="Ver bebidas"
-          />
-          <div className="pizzeria-drinks-copy">
-            <strong>¿ALGO PARA TOMAR?</strong>
+        {categoriaDeBebidas ? (
+          <article className="pizzeria-drinks-banner">
+            <img className="pizzeria-footer-art" src="/pizzeria/footer2.png" alt="" aria-hidden="true" />
             <button
               type="button"
-              className="pizzeria-drinks-button"
-              onClick={() =>
-                onSelectCategory?.(
-                  categories.find((category) => slugify(category.label).includes('bebida'))?.id ??
-                    currentCategory?.id,
-                )
-              }
-            >
-              VER BEBIDAS
-              <span className="pizzeria-drinks-icon">
-                <IconDrink />
-              </span>
-            </button>
-          </div>
-        </article>
+              className="pizzeria-footer-hitbox"
+              onClick={() => onSelectCategory?.(categoriaDeBebidas.id)}
+              aria-label="Ver bebidas"
+            />
+            <div className="pizzeria-drinks-copy">
+              <strong>¿ALGO PARA TOMAR?</strong>
+              <button
+                type="button"
+                className="pizzeria-drinks-button"
+                onClick={() => onSelectCategory?.(categoriaDeBebidas.id)}
+              >
+                VER BEBIDAS
+                <span className="pizzeria-drinks-icon">
+                  <IconDrink />
+                </span>
+              </button>
+            </div>
+          </article>
+        ) : null}
       </section>
     )
   }

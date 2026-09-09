@@ -450,7 +450,7 @@
   font-family: 'Bebas Neue', var(--font-display, serif);
   font-size: 2.15rem;
   line-height: 0.96;
-  color: #234525;
+  color: var(--custom-card-title, var(--custom-card-price, var(--theme-primary)));
   text-transform: uppercase;
 }
 
@@ -916,7 +916,7 @@
   font-size: 2.55rem;
   line-height: 0.92;
   letter-spacing: 0.02em;
-  color: #1f4725;
+  color: var(--custom-card-title, var(--custom-card-price, var(--theme-primary)));
   text-transform: uppercase;
 }
 
@@ -17639,12 +17639,12 @@ button:focus-visible {
 }
 
 /* ---------------------------------------------------------------------------
-   Plantilla pizzeria: cabecera con el nombre del local.
+   Plantilla pizzeria: cabecera con la marca del local.
 
    La cabecera original es una sola imagen con el nombre de la pizzeria para la
-   que se dibujo. El local que cargo su propio nombre y no subio una cabecera
-   propia usa esta version, con la misma idea: banda oscura con el nombre,
-   arcada abajo y el titulo sobre el fondo crema.
+   que se dibujo. El local que tiene marca propia (logo o nombre) y no subio una
+   cabecera propia usa esta version, con la misma idea: banda oscura con la
+   marca, arcada abajo y el titulo sobre el fondo claro.
    --------------------------------------------------------------------------- */
 .hero-pizzeria-texto {
   padding: 0;
@@ -17659,11 +17659,18 @@ button:focus-visible {
   background: var(--theme-surface, #fffaf1);
 }
 
-.pizzeria-header-texto > strong {
-  display: block;
+/* La banda: se lleva el color de la marca y la arcada de abajo. */
+.pizzeria-header-banda {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
   width: 100%;
-  padding: 1.5rem 1.1rem 0.3rem;
+  padding: 1.5rem 1.1rem 1.35rem;
   background: var(--theme-primary, #17361f);
+  border-radius: 0 0 50% 50% / 0 0 2.4rem 2.4rem;
+}
+
+.pizzeria-header-banda > strong {
   color: var(--theme-primary-text, #fffaf1);
   font-family: 'Cinzel', var(--font-display, serif);
   font-size: clamp(1.75rem, 8vw, 2.5rem);
@@ -17674,14 +17681,8 @@ button:focus-visible {
   text-wrap: balance;
 }
 
-/* El subtitulo cierra la banda: se lleva la arcada de abajo. */
-.pizzeria-header-texto > span {
-  display: block;
-  width: 100%;
-  padding: 0.2rem 1.1rem 1.35rem;
-  background: var(--theme-primary, #17361f);
+.pizzeria-header-banda > span {
   color: color-mix(in srgb, var(--theme-primary-text, #fffaf1) 74%, transparent);
-  border-radius: 0 0 50% 50% / 0 0 2.4rem 2.4rem;
   font-family: 'Montserrat', var(--font-body, sans-serif);
   font-size: 0.72rem;
   font-weight: 600;
@@ -17690,10 +17691,14 @@ button:focus-visible {
   text-transform: uppercase;
 }
 
-/* Sin subtitulo, la arcada la tiene que hacer el nombre. */
-.pizzeria-header-texto > strong:last-of-type:not(:has(~ span)) {
-  padding-bottom: 1.35rem;
-  border-radius: 0 0 50% 50% / 0 0 2.4rem 2.4rem;
+/* El logo ya trae el nombre dibujado: ocupa el lugar del texto. */
+.pizzeria-header-logo {
+  display: block;
+  width: auto;
+  max-width: min(74%, 22rem);
+  max-height: 5.4rem;
+  height: auto;
+  object-fit: contain;
 }
 
 .pizzeria-header-texto h1 {
@@ -17710,7 +17715,7 @@ button:focus-visible {
 
 .pizzeria-header-texto em {
   margin-top: 0.15rem;
-  color: #b63127;
+  color: var(--theme-accent, #b63127);
   font-family: 'Great Vibes', cursive;
   font-size: clamp(1.15rem, 5.2vw, 1.5rem);
   font-style: normal;
@@ -17720,4 +17725,37 @@ button:focus-visible {
 /* El producto sin descripcion no lleva la linea divisoria: quedaba colgada. */
 .pizzeria-dish-card-texto .pizzeria-dish-copy p:empty {
   display: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Plantilla pizzeria: lo que estaba clavado en los colores de la pizzeria
+   original y no seguia al tema del local.
+   --------------------------------------------------------------------------- */
+
+/* La barra de categorias estaba en crema fijo: con un tema frio desentonaba. */
+.template-pizzeria .pizzeria-category-row {
+  background: var(--custom-card-bg, var(--theme-surface));
+  border-color: var(--custom-card-border, var(--theme-border));
+}
+
+/* El boton "+" se habia quedado con el borde que el navegador le pone solo a
+   los <button>: un anillo gris alrededor del circulo. */
+.template-pizzeria .pizzeria-add-button {
+  border: 0;
+}
+
+/* En la card de solo texto el nombre tiene que arrancar arriba. Los <button>
+   centran su contenido, y como esta columna se estira para emparejar la card de
+   al lado, el nombre quedaba flotando en el medio. */
+.pizzeria-dish-card-texto .pizzeria-dish-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Con cards de solo texto, la grilla deja de estirarlas para emparejar la fila:
+   el producto sin descripcion quedaba con un hueco grande abajo del nombre. Las
+   grillas de puras fotos no cambian, porque ahi todas miden practicamente igual. */
+.pizzeria-card-grid:has(.pizzeria-dish-card-texto) {
+  align-items: start;
 }

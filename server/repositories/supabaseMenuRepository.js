@@ -704,6 +704,12 @@ export class SupabaseMenuRepository {
       branding: {
         wordmark: config.branding_wordmark || undefined,
         subtitle: config.branding_subtitle || undefined,
+        // La pantalla de mesa y la cuenta ya lo esperaban, pero no lo llenaba
+        // nadie: el logo del local viaja en theme_overrides.logo.
+        logo: themeOverrides.logo || undefined,
+        // Version del logo para apoyar sobre la banda oscura de la cabecera: el
+        // logo comun puede ser del mismo color que la banda y desaparecer.
+        logoBanda: themeOverrides.logoBanda || undefined,
         // Sin esto no se puede saber si el nombre lo puso el local o lo hereda
         // del preset: al mezclarse quedan iguales. Hace falta para no mostrarle
         // a un local la marca de otro.
