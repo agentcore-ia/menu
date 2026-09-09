@@ -1137,6 +1137,10 @@ function getLoadingTemplate(accountId) {
     return 'burger'
   }
 
+  if (key.includes('troka')) {
+    return 'troka'
+  }
+
   if (key.includes('heladeria') || key.includes('dolce')) {
     return 'gelato'
   }
@@ -4332,6 +4336,31 @@ function MenuLoadingScreen({ accountId }) {
             </div>
 
             <div className="pampa-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'troka') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-troka">
+          <div className="troka-loading" role="status" aria-live="polite" aria-label="Cargando la heladeria Troka">
+            {/* El sello del local es redondo, asi que lo que gira es un arco
+                por afuera: sumarle un segundo circulo adentro seria pelearle
+                al logo. El fondo es el mismo marron del sello, para que el
+                logo se apoye sin recorte visible. */}
+            <div className="troka-loading-sello">
+              <span className="troka-loading-arco" aria-hidden="true" />
+              <img src="/troka/logo.webp" alt="Troka helados" width="420" height="420" />
+            </div>
+
+            <p>Cargando la heladería</p>
+
+            <div className="troka-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>

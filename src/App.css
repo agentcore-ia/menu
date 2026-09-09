@@ -13162,6 +13162,118 @@ button:focus-visible {
   }
 }
 
+/* ============================ CARGA: TROKA ============================== */
+/* El sello de Troka es un circulo verde sobre marron. El fondo usa ESE marron
+   para que el logo se apoye sin que se note el recorte, y lo unico que se
+   mueve es un arco por afuera: meterle otro circulo adentro seria pelearle al
+   logo, que ya es un circulo. */
+
+.loading-troka {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.2rem, 5vw, 2rem);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(157, 211, 115, 0.16), transparent 46%),
+    linear-gradient(180deg, #2e2018 0%, #150e0a 100%);
+}
+
+.loading-troka::before,
+.loading-troka::after {
+  display: none;
+}
+
+.troka-loading {
+  width: min(100%, 17rem);
+  display: grid;
+  justify-items: center;
+  gap: clamp(1.4rem, 5.5vw, 2rem);
+}
+
+.troka-loading-sello {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(10.5rem, 54vw, 13.5rem);
+  aspect-ratio: 1;
+}
+
+/* El logo ocupa dos tercios y deja aire hasta el arco: pegados, el anillo
+   verde del sello y el arco se leen como una sola cosa borrosa. */
+.troka-loading-sello img {
+  width: 68%;
+  height: auto;
+  /* Respira: el sello sube y baja apenas, como la bocha en la vitrina. */
+  animation: troka-loading-flotar 2.6s ease-in-out infinite;
+}
+
+/* El arco: un anillo al que solo se le pinta un cuarto, girando. */
+.troka-loading-arco {
+  position: absolute;
+  inset: 0;
+  border-radius: 999rem;
+  border: 0.2rem solid transparent;
+  border-top-color: #9dd373;
+  border-right-color: rgba(157, 211, 115, 0.35);
+  animation: troka-loading-girar 1.15s linear infinite;
+}
+
+.troka-loading p {
+  margin: 0;
+  color: #f4efe6;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.troka-loading-progress {
+  width: min(100%, 8.5rem);
+  height: 0.28rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(244, 239, 230, 0.14);
+}
+
+.troka-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: #9dd373;
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@keyframes troka-loading-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes troka-loading-flotar {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-0.35rem);
+  }
+}
+
+/* Con el movimiento apagado el sello se queda quieto y el arco no gira: la
+   pantalla igual se entiende por la barra de abajo. */
+@media (prefers-reduced-motion: reduce) {
+  .troka-loading-sello img,
+  .troka-loading-arco {
+    animation: none;
+  }
+
+  .troka-loading-arco {
+    border-color: rgba(157, 211, 115, 0.35);
+    border-top-color: #9dd373;
+  }
+}
+
 @keyframes pampa-loading-progress {
   0% {
     transform: translateX(-110%);
