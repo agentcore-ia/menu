@@ -266,7 +266,10 @@ function applyMenuCategoryConfig(categories, config) {
       const configured = cfg != null
       const hiddenFromBar = configured ? !cfg.visible : ADDON_CATEGORY_PATTERN.test(key)
       const order = configured ? cfg.order : configList.length + index
-      return { cat: { ...cat, hiddenFromBar }, order, index }
+      // Marca que el orden lo eligio el local. Las plantillas que traen un orden
+      // propio (la pizzeria ordena pizzas/empanadas/bebidas) lo usan para no
+      // pisar lo que se configuro desde el dashboard.
+      return { cat: { ...cat, hiddenFromBar, ordenElegido: true }, order, index }
     })
     .sort((a, b) => a.order - b.order || a.index - b.index)
     .map((entry) => entry.cat)

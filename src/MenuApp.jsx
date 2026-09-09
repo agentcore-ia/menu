@@ -1483,6 +1483,16 @@ function getInitialCategoryId(payload) {
   }
 
   if (templateId === 'pizzeria') {
+    // Entrar siempre por las pizzas tiene sentido en una pizzeria. Si el local
+    // eligio el orden de las categorias, entra por la primera que puso.
+    if (payload.categories.some((category) => category?.ordenElegido)) {
+      return (
+        payload.categories.find((category) => !category?.hiddenFromBar)?.id ??
+        payload.categories[0]?.id ??
+        ''
+      )
+    }
+
     return (
       payload.categories.find((category) => slugify(category.label).includes('pizza'))?.id ??
       payload.categories[0]?.id ??
@@ -3200,6 +3210,13 @@ function shouldShowPizzeriaCategory(category) {
 }
 
 function getPizzeriaOrderedCategories(categories) {
+  // Si el local eligio el orden desde el dashboard, manda ese: viene resuelto
+  // del backend. El orden de abajo es el de una pizzeria (y esconde las
+  // hamburguesas), que en una carta amplia no corresponde.
+  if (categories.some((category) => category?.ordenElegido)) {
+    return categories
+  }
+
   const order = ['pizza', 'empanada', 'promo', 'oferta', 'descuento', 'bebida', 'postre']
 
   return categories.filter(shouldShowPizzeriaCategory).sort((left, right) => {
