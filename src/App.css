@@ -6933,11 +6933,13 @@
   border: 1px solid rgba(68, 93, 57, 0.1);
 }
 
+/* El tinte de la tarjeta sale del color del local, no del rosa de la heladeria
+   para la que se hizo la plantilla. */
 .confirmation-card-gelato {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, #fff8fb 100%);
-  border: 1px solid rgba(255, 123, 173, 0.12);
-  box-shadow: 0 26px 46px rgba(226, 102, 149, 0.18);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, color-mix(in srgb, var(--theme-primary, #ff5a92) 7%, white) 100%);
+  border: 1px solid color-mix(in srgb, var(--theme-primary, #ff5a92) 18%, transparent);
+  box-shadow: 0 26px 46px color-mix(in srgb, var(--theme-text, #2e2018) 16%, transparent);
 }
 
 .confirmation-card-burger {
@@ -7012,6 +7014,63 @@
   text-transform: uppercase;
   position: relative;
   z-index: 1;
+}
+
+/* Lo que se pidio, con el detalle de cada pote. */
+.confirmation-lineas {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 0 1rem;
+  padding: 0.9rem 1rem;
+  list-style: none;
+  border-radius: 1.1rem;
+  background: color-mix(in srgb, var(--theme-primary, #9dd373) 10%, white);
+  border: 1px solid color-mix(in srgb, var(--theme-primary, #9dd373) 18%, transparent);
+  text-align: left;
+}
+
+.confirmation-lineas li {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.confirmation-lineas strong {
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.confirmation-lineas span {
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--theme-muted, rgba(0, 0, 0, 0.6));
+}
+
+/* Confirmacion con el sello del local: fondo del color de la marca y el sello
+   solo. Sin foto de bocha ni banda de otra heladeria. */
+.confirmation-gelato-top-sello {
+  min-height: 0;
+  padding: 1.6rem 1.1rem 1.3rem;
+  gap: 0.9rem;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--theme-primary, #9dd373) 26%, white) 0%,
+    color-mix(in srgb, var(--theme-primary, #9dd373) 8%, white) 100%
+  );
+  border-color: color-mix(in srgb, var(--theme-primary, #9dd373) 30%, transparent);
+}
+
+.confirmation-gelato-logo {
+  width: min(7.5rem, 46%);
+  height: auto;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.16));
+}
+
+.confirmation-gelato-top-sello .confirmation-gelato-pill {
+  margin-top: 0;
 }
 
 .confirmation-gelato-scoop {
@@ -7337,8 +7396,10 @@
 }
 
 .confirmation-card-gelato .confirmation-kicker {
-  background: #fff0f6;
-  color: var(--theme-primary, #ff5a92);
+  background: color-mix(in srgb, var(--theme-primary, #ff5a92) 16%, white);
+  /* El acento y no el primario: el verde claro de una heladeria no se lee como
+     texto sobre blanco, el acento es la version que si. */
+  color: var(--theme-accent, #ff5a92);
 }
 
 .confirmation-card-burger .confirmation-kicker {
@@ -7454,8 +7515,8 @@
 }
 
 .confirmation-card-gelato .confirmation-meta div {
-  background: linear-gradient(180deg, #fff5f9 0%, #fffdfd 100%);
-  border-color: rgba(255, 123, 173, 0.12);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--theme-primary, #ff5a92) 10%, white) 0%, #fffdfd 100%);
+  border-color: color-mix(in srgb, var(--theme-primary, #ff5a92) 18%, transparent);
 }
 
 .confirmation-card-burger .confirmation-meta div {

@@ -124,6 +124,10 @@ export function configuracionDeHeladeria(theme) {
     topes,
     grupos,
     promos,
+    // Sello del local, para las pantallas donde la marca tiene que aparecer
+    // sola (la confirmacion del pedido). La cabecera del menu es una banda
+    // ancha y no sirve ahi.
+    logo: /^https?:\/\/|^\//.test(String(config.logo ?? '').trim()) ? String(config.logo).trim() : '',
     // Menu sin fotos de producto: hay locales que prefieren la carta en texto,
     // sea porque no tienen fotos propias o porque no quieren que la foto
     // prometa algo distinto de lo que sale. No toca la cabecera ni los

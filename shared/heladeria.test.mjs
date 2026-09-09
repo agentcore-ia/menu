@@ -250,6 +250,13 @@ test('una cantidad de potes absurda no se acepta', () => {
   assert.equal(config.promos[2].topePorPote, 20)
 })
 
+test('el sello del local solo se acepta como direccion de imagen', () => {
+  assert.equal(configuracionDeHeladeria({ heladeria: { logo: 'https://x/logo.webp' } }).logo, 'https://x/logo.webp')
+  assert.equal(configuracionDeHeladeria({ heladeria: { logo: '/troka/logo.webp' } }).logo, '/troka/logo.webp')
+  assert.equal(configuracionDeHeladeria({ heladeria: { logo: 'javascript:alert(1)' } }).logo, '')
+  assert.equal(configuracionDeHeladeria({}).logo, '')
+})
+
 test('el menu sin fotos se pide expresamente', () => {
   assert.equal(configuracionDeHeladeria({}).sinFotos, false)
   assert.equal(configuracionDeHeladeria({ heladeria: { sinFotos: true } }).sinFotos, true)

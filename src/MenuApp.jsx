@@ -8398,7 +8398,21 @@ export default function MenuApp() {
         )
       }
 
-      setLastOrder(result)
+      // Que se llevo y como: el pedido que devuelve el servidor no lo trae, y
+      // en una heladeria es justo lo que el cliente quiere revisar —los gustos
+      // que eligio pote por pote—. Se copia ANTES de vaciar el carrito.
+      setLastOrder({
+        ...result,
+        lineas: cart.map((line) => ({
+          nombre: line.name,
+          cantidad: line.quantity,
+          // "Formato: kilo" es como se llama el armador adentro del codigo y
+          // va en la comanda; al cliente no le dice nada, y menos en un cuarto
+          // kilo. Se muestra lo que eligio, no como lo llamamos nosotros.
+          detalle: String(line.notes || '').replace(/^Formato:[^|]*\|\s*/i, ''),
+        })),
+        entrega: isTableOrder ? 'mesa' : orderForm.deliveryType,
+      })
 
       // El pedido salio: recien ahora los datos valen la pena guardarse.
       setDatosGuardados(
@@ -10645,8 +10659,12 @@ export default function MenuApp() {
 
       {/* La tarjeta se cobra ANTES de la confirmacion: el pedido ya esta hecho,
           pero mostrarle "listo" a alguien que todavia no pago es mentirle. */}
+      {/* Las variables del tema VAN en el overlay: se dibuja fuera de la
+          pantalla del menu, asi que sin esto cada var(--theme-*) caia en su
+          valor de reserva —el rosa de la heladeria para la que se hizo la
+          plantilla— y la confirmacion salia de otra marca. */}
       {pagoConTarjeta ? (
-        <div className="confirmation-overlay" role="presentation">
+        <div className="confirmation-overlay" role="presentation" style={getPresentationStyles(presentation, accountId)}>
           <div className={`confirmation-card confirmation-card-${templateId} pago-tarjeta-card`}>
             <h2>Pagá con tu tarjeta</h2>
             <p className="pago-tarjeta-monto">{formatPrice(pagoConTarjeta.total, currencySymbol)}</p>
@@ -10674,13 +10692,22 @@ export default function MenuApp() {
         <div
           className="confirmation-overlay"
           role="presentation"
+          style={getPresentationStyles(presentation, accountId)}
         >
           <div
             className={`confirmation-card confirmation-card-${templateId}`}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="confirmation-hero" aria-hidden="true">
-              {templateId === 'gelato' ? (
+              {templateId === 'gelato' && configHeladeria.logo ? (
+                /* Con el sello del local no hace falta nada mas: la foto de
+                   bocha y la banda de arriba son el arte de la heladeria para
+                   la que se hizo la plantilla, no de este local. */
+                <div className="confirmation-gelato-top confirmation-gelato-top-sello">
+                  <img className="confirmation-gelato-logo" src={configHeladeria.logo} alt="" />
+                  <span className="confirmation-gelato-pill">Pedido enviado</span>
+                </div>
+              ) : templateId === 'gelato' ? (
                 <div className="confirmation-gelato-top">
                   {presentation.theme?.logoImage ? (<img className="confirmation-gelato-brand" src={presentation.theme.logoImage} alt="" />) : null}
                   <span className="confirmation-gelato-pill">Pedido enviado</span>
@@ -10776,6 +10803,22 @@ export default function MenuApp() {
                 </div>
               )}
             </div>
+            {/* Lo que se pidio. En la heladeria el detalle son los gustos de
+                cada pote: es lo que el cliente quiere revisar antes de cerrar
+                la pantalla, y lo unico que no puede volver a mirar despues. */}
+            {templateId === 'gelato' && lastOrder.lineas?.length ? (
+              <ul className="confirmation-lineas">
+                {lastOrder.lineas.map((linea, i) => (
+                  <li key={`${linea.nombre}-${i}`}>
+                    <strong>
+                      {linea.cantidad > 1 ? `${linea.cantidad}x ` : ''}
+                      {linea.nombre}
+                    </strong>
+                    {linea.detalle ? <span>{linea.detalle}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             {lastOrder.loyalty?.enabled ? (
               <div className="confirmation-meta confirmation-meta-loyalty">
                 <div>
@@ -10803,12 +10846,22 @@ export default function MenuApp() {
               <div className="confirmation-step">
                 <span />
                 <div>
-                  <strong>{isTableOrder || templateId === 'kika' || templateId === 'almendra' ? 'En preparación' : 'Envio por WhatsApp'}</strong>
+                  <strong>
+                    {isTableOrder || templateId === 'kika' || templateId === 'almendra'
+                      ? 'En preparación'
+                      : lastOrder.entrega === 'retiro'
+                        ? 'Lo retirás por el local'
+                        : 'Envio por WhatsApp'}
+                  </strong>
                   <small>
                     {isTableOrder
                       ? 'El equipo del local ya recibió tu pedido y lo está preparando.'
                       : templateId === 'kika' || templateId === 'almendra'
                       ? `El equipo de ${templateId === 'almendra' ? 'Almendra' : 'Kika'} lo verá desde el local para prepararlo.`
+                      /* Decirle "envio" a alguien que eligio retirar es
+                         contarle otro pedido. */
+                      : lastOrder.entrega === 'retiro'
+                      ? 'Lo dejamos listo y te avisamos cuando lo podés pasar a buscar.'
                       : lastOrder.customerWhatsapp?.url
                       ? 'Se abrio el chat con el pedido listo para enviar.'
                       : 'Te vamos a contactar para coordinar el pedido.'}
