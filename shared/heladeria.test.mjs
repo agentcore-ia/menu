@@ -171,6 +171,33 @@ test('un grupo repetido no duplica el chip', () => {
   assert.equal(sabores.find((s) => s.id === 's1').flavorCategory, 'Otros')
 })
 
+test('los carteles de promo se leen con su texto alternativo', () => {
+  const config = configuracionDeHeladeria({
+    heladeria: {
+      promos: [
+        { imagen: 'https://x/promo.png', alt: '2 kilos $33.000' },
+        { imagen: '/local/promo.png' },
+      ],
+    },
+  })
+  assert.deepEqual(config.promos, [
+    { imagen: 'https://x/promo.png', alt: '2 kilos $33.000' },
+    { imagen: '/local/promo.png', alt: '' },
+  ])
+})
+
+test('una promo sin imagen valida no se dibuja', () => {
+  const config = configuracionDeHeladeria({
+    heladeria: { promos: [{ alt: 'sin imagen' }, { imagen: 'javascript:alert(1)' }, { imagen: '   ' }, 'texto suelto'] },
+  })
+  assert.deepEqual(config.promos, [])
+})
+
+test('sin promos configuradas la lista queda vacia, no rota', () => {
+  assert.deepEqual(configuracionDeHeladeria({}).promos, [])
+  assert.deepEqual(configuracionDeHeladeria({ heladeria: { promos: 'una' } }).promos, [])
+})
+
 test('sin sabores no hay chips', () => {
   assert.deepEqual(saboresAgrupados([], configuracionDeHeladeria({})).chips, [])
   assert.deepEqual(saboresAgrupados(null, configuracionDeHeladeria({})).chips, [])

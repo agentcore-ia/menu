@@ -82,9 +82,21 @@ export function configuracionDeHeladeria(theme) {
   const destacadoTexto = String(config.destacado?.texto ?? '').trim().slice(0, 24)
   const destacadoNombre = String(theme?.tamanoDestacado ?? '').trim()
 
+  // Los carteles de promo van abajo de los tamaños. Son imagenes con el texto
+  // adentro: el local las arma como quiere y aca no se les escribe nada encima.
+  const promos = []
+  for (const entrada of Array.isArray(config.promos) ? config.promos : []) {
+    const imagen = String(entrada?.imagen ?? '').trim()
+    if (!/^https?:\/\/|^\//.test(imagen)) continue
+    // El alt no es decoracion: el cartel dice el precio y la condicion, y quien
+    // usa lector de pantalla no ve nada de eso.
+    promos.push({ imagen, alt: String(entrada?.alt ?? '').trim().slice(0, 160) })
+  }
+
   return {
     topes,
     grupos,
+    promos,
     destacado: {
       id: destacadoId,
       nombre: destacadoNombre,

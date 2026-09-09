@@ -6374,6 +6374,21 @@ function TemplateMenuCollection({
               )
             })}
           </div>
+
+          {/* PROMOS. Van abajo de los tamaños, que es lo primero que el cliente
+              tiene que decidir: arriba competirian con la eleccion.
+
+              El cartel entero es la promo —precio, condicion y letra chica van
+              dibujados adentro—, asi que no se le escribe nada encima. Como no
+              es un boton, no se le pone cursor de mano ni efecto de toque: el
+              cliente arma el pedido con los tamaños de arriba. */}
+          {configHeladeria.promos.length ? (
+            <div className="gelato-promos">
+              {configHeladeria.promos.map((promo) => (
+                <img key={promo.imagen} className="gelato-promo" src={promo.imagen} alt={promo.alt} loading="lazy" />
+              ))}
+            </div>
+          ) : null}
         </section>
       )
     }

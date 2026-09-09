@@ -17233,6 +17233,31 @@ button:focus-visible {
   flex: 0 0 auto;
 }
 
+/* ============================ HELADERIA: PROMOS ========================= */
+/* Carteles abajo de los tamaños. La imagen ES la promo: trae el precio, la
+   condicion y la letra chica dibujados, asi que no lleva marco, ni sombra, ni
+   texto encima. Tampoco esquinas redondeadas: ya vienen en el arte, con el
+   borde transparente. */
+
+.gelato-promos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 1.4rem;
+  /* No se estira: si sobra alto lo tiene que ocupar la lista de tamaños, que
+     es lo que el cliente vino a tocar. */
+  flex: 0 0 auto;
+}
+
+.gelato-promo {
+  display: block;
+  width: 100%;
+  /* Cada cartel trae su propia proporcion (2.57:1, 2.79:1, 3:1). Con alto
+     automatico cada uno queda como lo diseñaron; forzando una medida unica se
+     deformarian o se les cortaria el precio. */
+  height: auto;
+}
+
 /* La barra de esta plantilla no tiene nada encima que la tape: puede quedarse
    con el z-index de siempre, pero el color lo pone el local. */
 .template-gelato .order-bar-button {
