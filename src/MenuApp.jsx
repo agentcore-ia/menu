@@ -3774,13 +3774,41 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
   }
 
   if (templateId === 'pizzeria') {
+    // La cabecera de esta plantilla es SOLO una imagen, y la que trae el preset
+    // tiene impreso el nombre de la pizzeria para la que se dibujo. El local que
+    // cargo su propio nombre no puede salir con la marca de otro: en ese caso se
+    // arma la cabecera con SU nombre, en el mismo estilo.
+    //
+    // La del preset es un archivo del proyecto ('/pizzeria/…') y la que sube el
+    // local es una URL: solo la segunda cuenta como cabecera propia.
+    const imagenesPropias = getHeroImages(presentation, '').filter(
+      (src) => src && !String(src).startsWith('/'),
+    )
+    // Solo el nombre que cargo el local: el heredado del preset es de otra marca.
+    const marca = presentation.branding?.esPropio
+      ? String(presentation.branding?.wordmark || '').trim()
+      : ''
+
+    if (!imagenesPropias.length && marca) {
+      return (
+        <section className="hero-content hero-content-pizzeria hero-pizzeria-texto">
+          <div className="pizzeria-header-texto">
+            <strong>{marca}</strong>
+            {presentation.branding?.subtitle ? <span>{presentation.branding.subtitle}</span> : null}
+            <h1>{presentation.hero?.title ?? 'NUESTRO MENÚ'}</h1>
+            {presentation.hero?.accent ? <em>{presentation.hero.accent}</em> : null}
+          </div>
+        </section>
+      )
+    }
+
     return (
       <section className="hero-content hero-content-pizzeria">
         <HeroImageSlider
           images={getHeroImages(presentation, '/pizzeria/header.png')}
           video={heroVideo}
           imageClassName="pizzeria-header-image"
-          alt="La Buona Pizzeria. Nuestro menu. Sabor que te hace volver."
+          alt={marca ? `${marca}. ${presentation.hero?.title ?? 'Nuestro menu'}.` : 'Nuestro menu'}
         />
       </section>
     )
@@ -4950,8 +4978,14 @@ function TemplateCategorySelector({
 
   if (templateId === 'pizzeria') {
     const orderedCategories = getPizzeriaOrderedCategories(categories)
+    // La barra se diseño como una pastilla de 4 categorias fijas. Con mas, el
+    // texto se encimaba hasta no leerse: a partir de 5 pasa a deslizarse de
+    // costado, que es como se recorre en el resto de las plantillas.
+    const barraQueSeDesliza =
+      orderedCategories.filter((category) => !category?.hiddenFromBar).length > 4
+
     return (
-      <div className="pizzeria-category-row">
+      <div className={`pizzeria-category-row${barraQueSeDesliza ? ' pizzeria-category-row-desliza' : ''}`}>
         {orderedCategories.filter((category) => !category?.hiddenFromBar).map((category) => {
           const key = slugify(category.label)
           const isActive = category.id === currentCategory?.id
@@ -6285,16 +6319,24 @@ function TemplateMenuCollection({
   }
 
   if (templateId === 'pizzeria') {
-    const highlightedItems = categoryItems.slice(0, 4)
-
+    // Esta grilla es el unico listado de la plantilla: no hay "ver mas". Cortar
+    // en 4 dejaba el resto de la categoria sin forma de llegar; no se notaba
+    // porque los locales que la usaban tenian 3 o 4 productos por categoria.
     return (
       <section className="section-block section-block-pizzeria">
         <div className="pizzeria-card-grid">
-          {highlightedItems.map((item) => (
-            <article key={item.id} className="pizzeria-dish-card">
-              <button type="button" className="pizzeria-dish-media" onClick={() => onOpenDish(item)}>
-                {renderProductMedia(item)}
-              </button>
+          {categoryItems.map((item) => (
+            <article
+              key={item.id}
+              // El producto sin foto propia no lleva el recuadro de la imagen:
+              // vacio quedaba un hueco. La card pasa a ser solo texto.
+              className={`pizzeria-dish-card${hasProductMedia(item) ? '' : ' pizzeria-dish-card-texto'}`}
+            >
+              {hasProductMedia(item) ? (
+                <button type="button" className="pizzeria-dish-media" onClick={() => onOpenDish(item)}>
+                  {renderProductMedia(item)}
+                </button>
+              ) : null}
 
               <div className="pizzeria-dish-body">
                 <button type="button" className="pizzeria-dish-copy" onClick={() => onOpenDish(item)}>

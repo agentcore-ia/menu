@@ -704,6 +704,10 @@ export class SupabaseMenuRepository {
       branding: {
         wordmark: config.branding_wordmark || undefined,
         subtitle: config.branding_subtitle || undefined,
+        // Sin esto no se puede saber si el nombre lo puso el local o lo hereda
+        // del preset: al mezclarse quedan iguales. Hace falta para no mostrarle
+        // a un local la marca de otro.
+        esPropio: Boolean(config.branding_wordmark),
       },
       theme: {
         ...themeOverrides,
