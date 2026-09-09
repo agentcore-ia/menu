@@ -17258,6 +17258,9 @@ button:focus-visible {
   flex-direction: column;
   gap: 0.7rem;
   margin-top: 1.4rem;
+  /* Aire abajo del ultimo cartel: sin esto el scroll termina justo en su borde
+     y quedaban catorce pixeles cortados, con el cartel pegado al filo. */
+  padding-bottom: 1.5rem;
   /* No se estira: si sobra alto lo tiene que ocupar la lista de tamaños, que
      es lo que el cliente vino a tocar. */
   flex: 0 0 auto;
