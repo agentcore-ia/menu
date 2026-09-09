@@ -4865,7 +4865,11 @@
   inset: 0;
   display: grid;
   place-items: center;
-  color: white;
+  /* La tinta la pone el local, no es blanca fija. El verde de Troka es claro:
+     blanco encima da 1.75 de contraste y el tilde no se ve; el marron de la
+     marca da 8.98. */
+  color: var(--theme-primary-text, #fff);
+  font-weight: 900;
 }
 
 .gelato-flavor-ball {
@@ -17374,9 +17378,17 @@ button:focus-visible {
 }
 
 /* El "+" deja de ir flotando en la esquina de una tarjeta alta: sin foto no
-   hay lugar y se superponia con el nombre. */
+   hay lugar y se superponia con el nombre.
+   RELATIVE y no static: el tilde de "elegido" se dibuja con inset 0 sobre este
+   circulo, y con static se colgaba de la tarjeta entera y aparecia cruzado
+   sobre el nombre del sabor. */
 .sin-fotos .gelato-flavor-plus {
-  position: static;
+  position: relative;
+  /* Los desplazamientos son del posicionamiento absoluto de la version con
+     foto. En relative siguen valiendo y corrian el circulo 13 px hacia abajo,
+     encimandolo con el nombre del sabor. */
+  top: auto;
+  right: auto;
   margin: 0 auto 0.2rem;
 }
 
