@@ -7161,14 +7161,11 @@ export default function MenuApp() {
   }, [datosDeTransferencia, menu?.pagos?.mercadoPago])
 
   // El formulario se precarga con lo que eligio la vez anterior. Si esa forma de
-  // pago ya no esta, el desplegable muestra la primera pero el pedido se
-  // mandaria con la vieja: se vuelve a efectivo.
-  useEffect(() => {
-    if (formasDePago.some((forma) => forma.valor === orderForm.paymentMethod)) {
-      return
-    }
-    setOrderForm((actual) => ({ ...actual, paymentMethod: 'cash' }))
-  }, [formasDePago, orderForm.paymentMethod])
+  // pago ya no esta disponible, vale efectivo: se resuelve al dibujar y no con
+  // un efecto, asi no hay un render de mas con el valor viejo puesto.
+  const pagoElegido = formasDePago.some((forma) => forma.valor === orderForm.paymentMethod)
+    ? orderForm.paymentMethod
+    : 'cash'
   const isTableOrder = mesaId != null || templateId === 'kika' || templateId === 'almendra'
   const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled === true
   const rawCategories = menu?.categories ?? emptyCategories
@@ -8526,7 +8523,7 @@ export default function MenuApp() {
     setCheckoutMessage('')
 
     const effectiveDeliveryType = isTableOrder ? 'mesa' : orderForm.deliveryType
-    const effectivePaymentMethod = isTableOrder ? 'mesa' : orderForm.paymentMethod
+    const effectivePaymentMethod = isTableOrder ? 'mesa' : pagoElegido
     const shouldRedirectToMercadoPago = effectivePaymentMethod === 'mercado_pago'
     const whatsappWindow = isTableOrder || shouldRedirectToMercadoPago ? null : window.open('', '_blank')
 
@@ -10449,7 +10446,7 @@ export default function MenuApp() {
                       <label className="checkout-field">
                         <span>Pago</span>
                         <select
-                          value={orderForm.paymentMethod}
+                          value={pagoElegido}
                           onChange={(event) => updateOrderForm('paymentMethod', event.target.value)}
                         >
                           {formasDePago.map((forma) => (
@@ -10461,7 +10458,7 @@ export default function MenuApp() {
                       </label>
                     </div>
 
-                    {orderForm.paymentMethod === 'transferencia' && datosDeTransferencia ? (
+                    {pagoElegido === 'transferencia' && datosDeTransferencia ? (
                       <div className="checkout-transferencia">
                         <span>Transferí a</span>
                         {datosDeTransferencia.alias ? (
