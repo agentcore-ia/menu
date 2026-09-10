@@ -941,6 +941,18 @@ function getAccountFaviconHref(accountId) {
     return '/lo-de-totto/logo.svg'
   }
 
+  // La carpeta se nombra aparte: el slug de la cuenta puede no coincidir con
+  // ella y quedaria apuntando a un archivo que no existe.
+  const conIconoPropio = [
+    ['babson', '/babson/icono.png'],
+    ['troka', '/troka/icono.png'],
+    ['panacea', '/panacea/icono.png'],
+  ].find(([nombre]) => key.includes(nombre))
+
+  if (conIconoPropio) {
+    return conIconoPropio[1]
+  }
+
   return key === 'host' || key.startsWith('host-') ? '/assets/host-favicon.png' : '/favicon.svg'
 }
 
@@ -959,6 +971,16 @@ function getAccountAppleTouchIconHref(accountId) {
 
   if (key.includes('totto')) {
     return '/lo-de-totto/icon-512.png'
+  }
+
+  const conIconoPropio = [
+    ['babson', '/babson/icono.png'],
+    ['troka', '/troka/icono.png'],
+    ['panacea', '/panacea/icono.png'],
+  ].find(([nombre]) => key.includes(nombre))
+
+  if (conIconoPropio) {
+    return conIconoPropio[1]
   }
 
   return '/assets/capta-pwa-icon.png'
