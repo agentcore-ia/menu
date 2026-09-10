@@ -3194,6 +3194,37 @@ function getPizzeriaDishTitle(item) {
     .trim()
 }
 
+// La barra de esta plantilla solo conocia pizzas, empanadas, bebidas y postres;
+// el resto caia en la bandeja generica y una carta amplia quedaba con la misma
+// figura repetida. Se busca de arriba hacia abajo, asi que lo mas especifico va
+// primero.
+const ICONOS_DE_CATEGORIA_PIZZERIA = [
+  [/pizza/, IconPizzaOutline],
+  [/empanada/, IconEmpanada],
+  [/bebida|trago|vino|cerveza/, IconDrink],
+  [/postre|helado/, IconDessert],
+  [/torta|cheesecake|brownie/, IconTorta],
+  // Antes que las minutas: "lomito" tiene adentro "lomo".
+  [/sandwich|lomito|baguette|pebete/, IconKikaSandwich],
+  [/hamburgues|burger/, IconBurger],
+  [/minuta|milanesa|bife|lomo|carne|parrilla|pollo/, IconSteak],
+  [/pasta|noqui|sorrentino|ravioles|tallarines|canelones/, IconPasta],
+  [/papa|fritas/, IconFries],
+  [/ensalada/, IconKikaSalad],
+  [/kids|nino|infantil|menu-chico/, IconDrumstick],
+  // Varios bocados en una tabla: se distingue del bol de ensaladas y pastas.
+  [/tapeo|picada|entrada|compartir|para-picar/, IconGrilla],
+  [/guarnicion|adicional/, IconSideDish],
+]
+
+function getPizzeriaCategoryIcon(label) {
+  const key = slugify(label)
+  if (isPromoCategoryLabel(label)) return IconTicket
+
+  const encontrado = ICONOS_DE_CATEGORIA_PIZZERIA.find(([patron]) => patron.test(key))
+  return encontrado ? encontrado[1] : IconServe
+}
+
 function getPizzeriaCategoryLabel(label) {
   const key = slugify(label)
   if (key.includes('pizza')) return 'Pizzas'
@@ -5057,15 +5088,7 @@ function TemplateCategorySelector({
                 : key.includes('postre')
                   ? 'postres'
                   : 'otros'
-          const Icon = key.includes('pizza')
-            ? IconPizzaOutline
-            : key.includes('empanada')
-              ? IconEmpanada
-              : key.includes('bebida')
-                ? IconDrink
-                : key.includes('postre')
-                  ? IconDessert
-                  : IconServe
+          const Icon = getPizzeriaCategoryIcon(category.label)
 
           return (
             <button
