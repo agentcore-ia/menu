@@ -7144,6 +7144,10 @@ export default function MenuApp() {
   // agregarlo al codigo. Los dos de la lista se mantienen como estaban.
   const hideNeighborhoodField = presentation.theme?.pedirBarrio === false
     || ['lo-de-totto', 'sabor-a-pampa'].includes(slugify(accountId))
+  // El cartel con la ciudad del local es informativo. El que reparte en una sola
+  // ciudad no gana nada mostrandolo y ocupa lugar en el checkout, asi que puede
+  // sacarlo. La ciudad se sigue mandando con el pedido igual.
+  const ocultarCiudadDelLocal = presentation.theme?.mostrarCiudad === false
   const isTableOrder = mesaId != null || templateId === 'kika' || templateId === 'almendra'
   const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled === true
   const rawCategories = menu?.categories ?? emptyCategories
@@ -10446,24 +10450,26 @@ export default function MenuApp() {
                           />
                         </label>
 
-                        <div className="checkout-grid">
-                          {!hideNeighborhoodField ? (
-                            <label className="checkout-field">
-                              <span>Barrio</span>
-                              <input
-                                value={orderForm.neighborhood}
-                                onChange={(event) => updateOrderForm('neighborhood', event.target.value)}
-                                placeholder="Barrio"
-                              />
-                            </label>
-                          ) : null}
-                          {deliveryCity ? (
-                            <div className="checkout-city-note">
-                              <span>Ciudad del local</span>
-                              <strong>{deliveryProvince ? `${deliveryCity}, ${deliveryProvince}` : deliveryCity}</strong>
-                            </div>
-                          ) : null}
-                        </div>
+                        {!hideNeighborhoodField || (deliveryCity && !ocultarCiudadDelLocal) ? (
+                          <div className="checkout-grid">
+                            {!hideNeighborhoodField ? (
+                              <label className="checkout-field">
+                                <span>Barrio</span>
+                                <input
+                                  value={orderForm.neighborhood}
+                                  onChange={(event) => updateOrderForm('neighborhood', event.target.value)}
+                                  placeholder="Barrio"
+                                />
+                              </label>
+                            ) : null}
+                            {deliveryCity && !ocultarCiudadDelLocal ? (
+                              <div className="checkout-city-note">
+                                <span>Ciudad del local</span>
+                                <strong>{deliveryProvince ? `${deliveryCity}, ${deliveryProvince}` : deliveryCity}</strong>
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null}
                         {deliveryZonesEnabled ? (
                           <div className={`delivery-zone-feedback ${deliveryQuote?.allowed ? 'success' : 'error'}`}>
                             <strong>
