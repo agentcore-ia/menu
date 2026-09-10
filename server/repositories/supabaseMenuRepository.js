@@ -287,13 +287,15 @@ export class SupabaseMenuRepository {
       return null
     }
 
-    const [products, presentationConfig, loyalty, stockAvailability, dailyMenu] = await Promise.all([
-      this.fetchProducts(restaurant.id),
-      this.fetchPresentationConfig(restaurant.id),
-      this.fetchLoyaltyProgram(restaurant.id),
-      this.fetchStockAvailability(restaurant.id),
-      this.fetchDailyMenu(restaurant.id),
-    ])
+    const [products, presentationConfig, loyalty, stockAvailability, dailyMenu, mercadoPagoHabilitado] =
+      await Promise.all([
+        this.fetchProducts(restaurant.id),
+        this.fetchPresentationConfig(restaurant.id),
+        this.fetchLoyaltyProgram(restaurant.id),
+        this.fetchStockAvailability(restaurant.id),
+        this.fetchDailyMenu(restaurant.id),
+        this.fetchMercadoPagoHabilitado(restaurant.id),
+      ])
 
     if (presentationConfig?.isDeleted) {
       return null
@@ -381,6 +383,30 @@ export class SupabaseMenuRepository {
       localLocation: businessLocation.coordinates,
       currency: 'USD',
       locale: 'es',
+      // Que puede cobrar este local. El menu ofrecia siempre las tres formas,
+      // estuvieran configuradas o no: el cliente elegia transferencia y no
+      // tenia adonde transferir. El efectivo siempre esta.
+      pagos: {
+        efectivo: true,
+        transferencia: (() => {
+          const alias = String(restaurant.transfer_payment_alias || '').trim()
+          const cvu = String(restaurant.transfer_payment_cvu || '').trim()
+          // Vale tanto la marca del panel como tener los datos cargados: hay
+          // locales que cobran por transferencia con los datos puestos y el
+          // interruptor sin tocar.
+          if (restaurant.transfer_payment_enabled !== true && !alias && !cvu) {
+            return null
+          }
+          return {
+            alias: alias || null,
+            cvu: cvu || null,
+            titular: String(restaurant.transfer_payment_holder || '').trim() || null,
+            banco: String(restaurant.transfer_payment_bank || '').trim() || null,
+            instrucciones: String(restaurant.transfer_payment_instructions || '').trim() || null,
+          }
+        })(),
+        mercadoPago: mercadoPagoHabilitado === true,
+      },
       presentationConfig,
       categories,
       cartAddonItems,
@@ -490,6 +516,23 @@ export class SupabaseMenuRepository {
       }
 
       throw error
+    }
+  }
+
+  // Solo si el local tiene Mercado Pago vinculado se le puede cobrar por ahi:
+  // sin integracion no hay token y el cobro no existe. Se pide UNICAMENTE la
+  // marca de habilitado; el access_token nunca sale del backend.
+  async fetchMercadoPagoHabilitado(restaurantId) {
+    try {
+      const filas = await this.request(
+        `/restaurant_payment_integrations?restaurant_id=eq.${restaurantId}&provider=eq.mercadopago&select=enabled&limit=1`,
+      )
+      return filas[0]?.enabled === true
+    } catch (error) {
+      // Si no se puede leer, se toma como no disponible: es preferible no
+      // ofrecer un pago que despues no se puede completar.
+      console.warn('No se pudo leer la integracion de Mercado Pago:', error?.message)
+      return false
     }
   }
 

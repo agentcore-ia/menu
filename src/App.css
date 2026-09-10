@@ -17994,3 +17994,45 @@ button:focus-visible {
     animation: none;
   }
 }
+
+/* Los datos para transferir, cuando el cliente elige esa forma de pago. Antes
+   no se mostraban en ningun lado: elegia transferencia y no sabia adonde. */
+.checkout-transferencia {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--theme-border);
+  background: color-mix(in srgb, var(--theme-surface) 78%, var(--theme-primary) 8%);
+}
+
+.checkout-transferencia > span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--theme-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.checkout-transferencia strong {
+  font-size: 0.98rem;
+  color: var(--theme-text);
+  /* El alias y el CBU son para copiar: que se puedan seleccionar y que un CBU
+     largo no desborde la tarjeta. */
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+
+.checkout-transferencia em {
+  font-size: 0.85rem;
+  font-style: normal;
+  color: var(--theme-muted);
+}
+
+.checkout-transferencia p {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--theme-muted);
+}

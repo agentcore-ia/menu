@@ -7148,6 +7148,27 @@ export default function MenuApp() {
   // ciudad no gana nada mostrandolo y ocupa lugar en el checkout, asi que puede
   // sacarlo. La ciudad se sigue mandando con el pedido igual.
   const ocultarCiudadDelLocal = presentation.theme?.mostrarCiudad === false
+
+  // Las formas de pago que el local puede cobrar de verdad. Antes las tres
+  // estaban escritas fijas en el desplegable, asi que un local sin transferencia
+  // igual la ofrecia y el cliente se quedaba sin saber adonde pagar.
+  const datosDeTransferencia = menu?.pagos?.transferencia ?? null
+  const formasDePago = useMemo(() => {
+    const formas = [{ valor: 'cash', texto: 'Efectivo' }]
+    if (datosDeTransferencia) formas.push({ valor: 'transferencia', texto: 'Transferencia' })
+    if (menu?.pagos?.mercadoPago) formas.push({ valor: 'mercado_pago', texto: 'Mercado Pago' })
+    return formas
+  }, [datosDeTransferencia, menu?.pagos?.mercadoPago])
+
+  // El formulario se precarga con lo que eligio la vez anterior. Si esa forma de
+  // pago ya no esta, el desplegable muestra la primera pero el pedido se
+  // mandaria con la vieja: se vuelve a efectivo.
+  useEffect(() => {
+    if (formasDePago.some((forma) => forma.valor === orderForm.paymentMethod)) {
+      return
+    }
+    setOrderForm((actual) => ({ ...actual, paymentMethod: 'cash' }))
+  }, [formasDePago, orderForm.paymentMethod])
   const isTableOrder = mesaId != null || templateId === 'kika' || templateId === 'almendra'
   const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled === true
   const rawCategories = menu?.categories ?? emptyCategories
@@ -10431,12 +10452,33 @@ export default function MenuApp() {
                           value={orderForm.paymentMethod}
                           onChange={(event) => updateOrderForm('paymentMethod', event.target.value)}
                         >
-                          <option value="cash">Efectivo</option>
-                          <option value="transferencia">Transferencia</option>
-                          <option value="mercado_pago">Mercado Pago</option>
+                          {formasDePago.map((forma) => (
+                            <option key={forma.valor} value={forma.valor}>
+                              {forma.texto}
+                            </option>
+                          ))}
                         </select>
                       </label>
                     </div>
+
+                    {orderForm.paymentMethod === 'transferencia' && datosDeTransferencia ? (
+                      <div className="checkout-transferencia">
+                        <span>Transferí a</span>
+                        {datosDeTransferencia.alias ? (
+                          <strong>Alias: {datosDeTransferencia.alias}</strong>
+                        ) : null}
+                        {datosDeTransferencia.cvu ? (
+                          <strong>CBU/CVU: {datosDeTransferencia.cvu}</strong>
+                        ) : null}
+                        {datosDeTransferencia.titular ? (
+                          <em>A nombre de {datosDeTransferencia.titular}</em>
+                        ) : null}
+                        {datosDeTransferencia.banco ? <em>{datosDeTransferencia.banco}</em> : null}
+                        {datosDeTransferencia.instrucciones ? (
+                          <p>{datosDeTransferencia.instrucciones}</p>
+                        ) : null}
+                      </div>
+                    ) : null}
 
                     {orderForm.deliveryType === 'delivery' ? (
                       <>
