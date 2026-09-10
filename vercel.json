@@ -74,11 +74,35 @@
       "destination": "/lodetoto.html"
     },
     {
+      "source": "/babson",
+      "destination": "/babson.html"
+    },
+    {
+      "source": "/babson/:path*",
+      "destination": "/babson.html"
+    },
+    {
+      "source": "/troka",
+      "destination": "/troka.html"
+    },
+    {
+      "source": "/troka/:path*",
+      "destination": "/troka.html"
+    },
+    {
+      "source": "/panacea",
+      "destination": "/panacea.html"
+    },
+    {
+      "source": "/panacea/:path*",
+      "destination": "/panacea.html"
+    },
+    {
       "source": "/api/accounts/:accountId/pay-card",
       "destination": "/api/accounts/:accountId/orders?accion=pagar-con-tarjeta"
     },
     {
-      "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto).*)",
+      "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|troka|panacea).*)",
       "destination": "/host.html"
     }
   ]
