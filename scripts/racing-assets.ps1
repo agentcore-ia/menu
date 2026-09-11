@@ -81,6 +81,8 @@ $blanco.Dispose()
 NuevoLienzo 1200 800 $celeste 0.72 "hero.png"
 NuevoLienzo 1200 630 $celeste 0.70 "compartir.png"
 NuevoLienzo  512 512 $celeste 0.82 "icono.png"
+# La portada del menu no sale de aca: es la foto del local, con su degradado.
+# Ver racing-portada.ps1.
 
 $logo.Dispose()
 $attr.Dispose()

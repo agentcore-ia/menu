@@ -3910,7 +3910,15 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
     return (
       <section className="hero-content hero-content-pizzeria">
         <HeroImageSlider
-          images={getHeroImages(presentation, '/pizzeria/header.png')}
+          // Con portada propia se muestra SOLO esa. getHeroImages agrega el
+          // preset como respaldo, y el preset tiene "LA BUONA" impreso: el
+          // slider terminaba alternando la portada del local con la marca de
+          // otra pizzeria.
+          images={
+            imagenesPropias.length
+              ? imagenesPropias
+              : getHeroImages(presentation, '/pizzeria/header.png')
+          }
           video={heroVideo}
           imageClassName="pizzeria-header-image"
           alt={marca ? `${marca}. ${presentation.hero?.title ?? 'Nuestro menu'}.` : 'Nuestro menu'}
