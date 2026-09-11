@@ -947,6 +947,7 @@ function getAccountFaviconHref(accountId) {
     ['babson', '/babson/icono.png'],
     ['troka', '/troka/icono.png'],
     ['panacea', '/panacea/icono.png'],
+    ['racing', '/racing/icono.png'],
   ].find(([nombre]) => key.includes(nombre))
 
   if (conIconoPropio) {
@@ -977,6 +978,7 @@ function getAccountAppleTouchIconHref(accountId) {
     ['babson', '/babson/icono.png'],
     ['troka', '/troka/icono.png'],
     ['panacea', '/panacea/icono.png'],
+    ['racing', '/racing/icono.png'],
   ].find(([nombre]) => key.includes(nombre))
 
   if (conIconoPropio) {
