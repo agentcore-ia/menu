@@ -4200,8 +4200,15 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
     ]
 
     return (
-      <section className="pan-hero">
-        {foto ? <img className="pan-hero-foto" src={foto} alt="" aria-hidden="true" /> : null}
+      <section className={`pan-hero ${heroVideo ? 'con-video' : ''}`}>
+        {/* Con video cargado manda el video, igual que en Kika. La foto queda
+            de poster: se ve mientras el video baja, asi la cabecera no arranca
+            en negro. */}
+        {heroVideo ? (
+          <HeaderVideo className="pan-hero-foto" src={heroVideo} poster={foto} label="" />
+        ) : foto ? (
+          <img className="pan-hero-foto" src={foto} alt="" aria-hidden="true" />
+        ) : null}
         <div className="pan-hero-velo" aria-hidden="true" />
 
         <div className="pan-hero-copy">
