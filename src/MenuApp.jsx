@@ -1485,6 +1485,21 @@ function getHostHeroArtImage(presentation, heroDish) {
   return ''
 }
 
+// Templates que dibujan la marca del local dentro de su propia portada (un
+// logo, una banda, una cabecera hecha a medida). Mientras la portada este a la
+// vista, el lockup generico de arriba seria la marca repetida.
+const TEMPLATES_CON_MARCA_EN_PORTADA = [
+  'gelato',
+  'pizzeria',
+  'burger',
+  'blue-burger',
+  'host',
+  'kika',
+  'almendra',
+  'florian',
+  'sabor-pampa',
+]
+
 function getInitialCategoryId(payload) {
   const templateId = payload?.presentation?.template ?? payload?.presentation?.layout
   const useHostCategorySet = shouldUseHostCategorySet(
@@ -6037,11 +6052,15 @@ function TemplateMenuCollection({
     const comboBannerAlt = isHostLikeAccount(accountId, templateId)
       ? 'Banner promocional Host.'
       : 'El match perfecto. Combo clasico.'
+    // Sin promos, combos ni bebidas no hay adonde mandar al cliente, y el
+    // banner es arte de otra marca ("El match perfecto. Combo clasico.")
+    // anunciando algo que este local no vende. Antes caia en currentCategory,
+    // que ademas es la categoria que ya esta mirando.
     const comboTarget =
       promoTarget ??
       findCombosCategory(categories) ??
       categories.find((category) => slugify(category.label).includes('bebida')) ??
-      currentCategory
+      null
 
     // Recien entrando (sin categoria ni busqueda activa) se arma una seccion
     // por categoria, cada una con su titulo, en vez de un unico grid con
@@ -8835,15 +8854,12 @@ export default function MenuApp() {
               )}
             </div>
 
-            {templateId !== 'gelato' &&
-            templateId !== 'pizzeria' &&
-            templateId !== 'burger' &&
-            templateId !== 'blue-burger' &&
-            templateId !== 'host' &&
-            templateId !== 'kika' &&
-            templateId !== 'almendra' &&
-            templateId !== 'florian' &&
-            templateId !== 'sabor-pampa' ? (
+            {/* Estos templates dibujan su propia marca dentro de la portada,
+                asi que el lockup generico sobraria. Con la portada oculta no
+                hay tal marca: vuelve el lockup, porque si no el menu abre sin
+                decir de quien es. */}
+            {(!TEMPLATES_CON_MARCA_EN_PORTADA.includes(templateId) ||
+            presentation.theme?.ocultarPortada) ? (
               // El logo del local manda sobre el nombre escrito: si lo subio,
               // esa es su marca dibujada, y la hojita generica no la
               // representa. Sin logo queda el lockup de siempre.
