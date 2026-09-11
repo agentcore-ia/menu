@@ -4193,12 +4193,15 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
           ) : (
             <img src={getHeroImage(presentation, heroDish)} alt={heroDish?.name ?? 'Header'} />
           )}
-          <div className="hero-bistro-caption">
-            <strong>{heroPropia
-              ? presentation.branding?.wordmark ?? 'Menu'
-              : heroDish?.name ?? presentation.branding?.wordmark ?? (isDailyHero ? 'Menu del dia' : 'Menu destacado')}</strong>
-            <span>{heroPropia ? '' : heroDish?.price ?? ''}</span>
-          </div>
+          {/* El epigrafe existe para nombrar el plato de la foto. Con imagen
+              propia no hay plato que nombrar, y repetir ahi la marca la deja
+              escrita tres veces en la misma pantalla. */}
+          {heroPropia ? null : (
+            <div className="hero-bistro-caption">
+              <strong>{heroDish?.name ?? presentation.branding?.wordmark ?? (isDailyHero ? 'Menu del dia' : 'Menu destacado')}</strong>
+              <span>{heroDish?.price ?? ''}</span>
+            </div>
+          )}
         </div>
       </section>
     )
