@@ -365,6 +365,10 @@ export class SupabaseMenuRepository {
     return {
       accountId: restaurant.slug,
       accountName: restaurant.name,
+      // Al confirmar, el menu manda al cliente al WhatsApp del local. Para no
+      // abrir una pestaña que no va a ningun lado, necesita saber ANTES de
+      // mandar el pedido si hay numero. Va el dato, no el numero.
+      tieneWhatsappDelLocal: Boolean(String(restaurant.phone || '').replace(/\D/g, '')),
       table_experience_enabled: restaurant.table_experience_enabled === true,
       table_welcome_text: restaurant.table_welcome_text || '',
       qr_background_url: restaurant.qr_background_url || null,

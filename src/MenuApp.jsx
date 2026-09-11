@@ -8603,7 +8603,15 @@ export default function MenuApp() {
     const effectiveDeliveryType = isTableOrder ? 'mesa' : orderForm.deliveryType
     const effectivePaymentMethod = isTableOrder ? 'mesa' : pagoElegido
     const shouldRedirectToMercadoPago = effectivePaymentMethod === 'mercado_pago'
-    const whatsappWindow = isTableOrder || shouldRedirectToMercadoPago ? null : window.open('', '_blank')
+    // La pestaña se abre ANTES del fetch a proposito: abrirla despues, fuera
+    // del clic, la bloquea el navegador. Pero si el local no tiene WhatsApp
+    // cargado no hay adonde mandar al cliente, y lo unico que pasaba era que se
+    // abria una pestaña en blanco y se cerraba sola cuando volvia el pedido.
+    const puedeAbrirWhatsapp = menu?.tieneWhatsappDelLocal === true
+    const whatsappWindow =
+      isTableOrder || shouldRedirectToMercadoPago || !puedeAbrirWhatsapp
+        ? null
+        : window.open('', '_blank')
 
     const payload = {
       customer: {
