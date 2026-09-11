@@ -10005,6 +10005,52 @@ button:focus-visible {
   color: var(--burger-action-text-color) !important;
 }
 
+/* ---------------------------------------------------------------------------
+   Plantilla burger, version clara.
+
+   La plantilla se dibujo oscura: los negros del fondo y el ambar #f5b72e estan
+   escritos en el CSS, no salen de las variables del local. Un local de colores
+   claros quedaba con las barras negras, el carrito ambar y los titulos en
+   crema casi invisibles sobre el fondo claro.
+
+   Todo lo de aca toma el color del tema del local. Se prende con
+   theme_overrides.temaClaro y no toca la version oscura de siempre.
+   --------------------------------------------------------------------------- */
+.template-burger.tema-claro .hero,
+.template-burger.tema-claro .content-panel,
+.detail-phone.template-burger.tema-claro {
+  background: var(--custom-content-background, var(--theme-bg, #ffffff));
+}
+
+.template-burger.tema-claro .hero-topbar .icon-button,
+.template-burger.tema-claro .hero-topbar .cart-button {
+  color: var(--burger-action-color);
+}
+
+.template-burger.tema-claro .hero-topbar .cart-badge {
+  background: var(--burger-action-color);
+  color: var(--burger-action-text-color);
+}
+
+.template-burger.tema-claro .burger-menu-title-row h2,
+.template-burger.tema-claro .burger-section-title {
+  color: var(--burger-copy-color);
+}
+
+.template-burger.tema-claro .burger-bottom-nav {
+  border-color: var(--custom-card-border, var(--theme-border));
+  background: var(--custom-card-bg, var(--theme-surface, #ffffff));
+  box-shadow: 0 -18px 34px var(--theme-shadow, rgba(13, 27, 42, 0.12));
+}
+
+.template-burger.tema-claro .burger-bottom-nav button {
+  color: var(--burger-muted-color);
+}
+
+.template-burger.tema-claro .burger-bottom-nav button.active {
+  color: var(--burger-action-color);
+}
+
 .template-burger .burger-bottom-primary svg {
   fill: currentColor;
   stroke: currentColor;

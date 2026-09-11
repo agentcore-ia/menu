@@ -8736,6 +8736,10 @@ export default function MenuApp() {
     // Sin fotos de producto las tarjetas cambian de forma: la del envase deja
     // de reservar la columna de la foto y la del gusto deja de ser alta.
     configHeladeria.sinFotos ? 'sin-fotos' : '',
+    // Algunas plantillas se dibujaron oscuras y tienen los negros y el acento
+    // escritos en el CSS, fuera del alcance de los colores del local. Este
+    // flag prende la version clara de esa plantilla.
+    presentation.theme?.temaClaro ? 'tema-claro' : '',
   ]
     .filter(Boolean)
     .join(' ')
