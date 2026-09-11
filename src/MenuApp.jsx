@@ -8928,6 +8928,9 @@ export default function MenuApp() {
     // escritos en el CSS, fuera del alcance de los colores del local. Este
     // flag prende la version clara de esa plantilla.
     presentation.theme?.temaClaro ? 'tema-claro' : '',
+    // La cabecera es un video y no una imagen. Cambia como se apoya el panel
+    // de contenido encima: una foto puede traer su union dibujada, un video no.
+    presentation.hero?.video ? 'hero-video' : '',
     // Las cabeceras dibujadas terminan en una forma que apoya contra la barra
     // de categorias. Una foto no: necesita aire abajo para no quedar pegada.
     // "Propia" es la que subio el local (una URL). El preset es un archivo del

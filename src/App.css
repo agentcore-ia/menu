@@ -16551,16 +16551,20 @@ button:focus-visible {
   height: 100%;
 }
 
-.pan-hero.con-video::after {
-  content: '';
-  position: absolute;
-  left: -25%;
-  right: -25%;
-  bottom: -1.2rem;
-  height: 4rem;
-  background: var(--theme-background, #fbf7f1);
-  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-  pointer-events: none;
+/* El degradado se corta al 22% de abajo porque ahi la FOTO ya trae su curva
+   crema y oscurecerla se veria sucio. El video no tiene esa curva: si el
+   degradado se corta igual, queda una banda clara al pie del banner. */
+.pan-hero.con-video .pan-hero-velo {
+  bottom: 0;
+}
+
+/* El panel de contenido se apoya sobre el banner con una sombra hacia ARRIBA.
+   Contra el crema de la foto no se notaba; sobre el video es una franja
+   oscura que corta el banner justo antes de terminar. La curva de union ya la
+   da el borde redondeado del panel, que ademas la pisa: la sombra no aporta
+   nada y encima ensucia. */
+.hero-video .content-panel {
+  box-shadow: none;
 }
 
 /* Oscurece la mitad izquierda para que el texto se lea sobre la foto sin
