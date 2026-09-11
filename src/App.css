@@ -405,6 +405,21 @@
   gap: 1rem;
 }
 
+/* Titulo de cada categoria cuando la carta se muestra entera. */
+.pizzeria-section-title {
+  margin: 0 0 0.75rem;
+  color: var(--custom-card-title, var(--custom-card-text, var(--theme-text)));
+  font-family: var(--font-display, sans-serif);
+  font-size: 1.5rem;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.section-block-pizzeria + .section-block-pizzeria {
+  margin-top: 1.6rem;
+}
+
 .pizzeria-dish-card {
   position: relative;
   overflow: hidden;

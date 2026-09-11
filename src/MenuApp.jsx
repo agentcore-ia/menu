@@ -1530,6 +1530,13 @@ function getInitialCategoryId(payload) {
   }
 
   if (templateId === 'pizzeria') {
+    // Una carta larga no entra en una sola categoria: el cliente aterriza
+    // viendo 6 productos de 45 y media pantalla vacia. Con este flag abre la
+    // carta entera, como ya hace la plantilla de hamburguesas.
+    if (payload?.presentation?.theme?.abrirCartaCompleta) {
+      return ''
+    }
+
     // Entrar siempre por las pizzas tiene sentido en una pizzeria. Si el local
     // eligio el orden de las categorias, entra por la primera que puso.
     if (payload.categories.some((category) => category?.ordenElegido)) {
@@ -6628,10 +6635,24 @@ function TemplateMenuCollection({
     const tituloDelPlato = (item) =>
       enLista ? String(item?.name ?? '').trim() : getPizzeriaDishTitle(item)
 
+    // Sin categoria elegida se arma una seccion por categoria, cada una con su
+    // titulo, en vez de una sola grilla con la primera. Es lo que ya hace la
+    // plantilla de hamburguesas, por el mismo motivo: el cliente aterrizaba
+    // viendo una categoria y el resto de la carta quedaba escondido.
+    const secciones =
+      !currentCategory && !isSearchActive
+        ? categories
+            .filter((category) => !category?.hiddenFromBar && category.items?.length)
+            .map((category) => ({ id: category.id, label: category.label, items: category.items }))
+        : [{ id: currentCategory?.id ?? 'resultados', label: '', items: categoryItems }]
+
     return (
-      <section className="section-block section-block-pizzeria">
+      <>
+        {secciones.map((seccion) => (
+      <section key={seccion.id} className="section-block section-block-pizzeria">
+        {seccion.label ? <h2 className="pizzeria-section-title">{seccion.label}</h2> : null}
         <div className="pizzeria-card-grid">
-          {categoryItems.map((item) => (
+          {seccion.items.map((item) => (
             <article
               key={item.id}
               // El producto sin foto propia no lleva el recuadro de la imagen:
@@ -6665,7 +6686,11 @@ function TemplateMenuCollection({
             </article>
           ))}
         </div>
+      </section>
+        ))}
 
+        {/* El cartel de bebidas cierra la carta: va una sola vez al final, no
+            debajo de cada categoria. */}
         {categoriaDeBebidas ? (
           <article className="pizzeria-drinks-banner">
             <img className="pizzeria-footer-art" src="/pizzeria/footer2.png" alt="" aria-hidden="true" />
@@ -6690,7 +6715,7 @@ function TemplateMenuCollection({
             </div>
           </article>
         ) : null}
-      </section>
+      </>
     )
   }
 
@@ -7427,6 +7452,10 @@ export default function MenuApp() {
     // La panaderia entra mostrando destacados y todas las secciones: con una
     // categoria ya elegida, el cliente aterrizaba viendo solo los panes.
     || templateId === 'panaderia'
+    // Y cualquier local que lo pida: una carta larga no entra en una sola
+    // categoria. Sin esto, aunque no haya categoria elegida se cae igual en la
+    // primera de la lista.
+    || presentation.theme?.abrirCartaCompleta === true
   const currentCategory =
     categories.find((category) => category.id === selectedCategory) ??
     (showsFullMenuByDefault ? null : categories[0] ?? null)
