@@ -1169,6 +1169,10 @@ function getLoadingTemplate(accountId) {
     return 'babson'
   }
 
+  if (key.includes('racing')) {
+    return 'racing'
+  }
+
   if (key.includes('heladeria') || key.includes('dolce')) {
     return 'gelato'
   }
@@ -4539,6 +4543,32 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menú</p>
 
             <div className="babson-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'racing') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-racing">
+          <div className="racing-loading" role="status" aria-live="polite" aria-label="Cargando menu de Racing">
+            {/* El logo va en su version clara: el fondo es el mismo celeste que
+                la mitad del logo, y en la version comun "RACING" desapareceria. */}
+            <img
+              className="racing-loading-logo"
+              src="/racing/logo-claro.png"
+              alt="Racing Resto Bar"
+              width="1774"
+              height="887"
+            />
+
+            <p>Cargando menú</p>
+
+            <div className="racing-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>
@@ -8737,6 +8767,18 @@ export default function MenuApp() {
     templateId === 'sabor-pampa' && shouldShowSaborPampaBulkActions(selectedDish)
   const detailHasHeroMedia = hasProductMedia(selectedDish)
   const socialLinks = getMenuSocialLinks(presentation)
+  // La confirmacion de la plantilla pizzeria venia con "LA BUONA" y los cremas
+  // de la pizzeria para la que se dibujo. El local que tiene marca propia no
+  // puede cerrar su compra con la marca de otro: si la tiene, manda la suya.
+  // El logo va en version clara porque el bloque de arriba se pinta con el
+  // color del local.
+  const marcaConfirmacionNombre = presentation.branding?.esPropio
+    ? String(presentation.branding?.wordmark || '').trim()
+    : ''
+  const marcaConfirmacionLogo =
+    presentation.branding?.logoBanda || presentation.branding?.logo || ''
+  const marcaConfirmacionPropia = Boolean(marcaConfirmacionNombre || marcaConfirmacionLogo)
+
   const appClassName = [
     'menu-app',
     `account-${slugify(accountId)}`,
@@ -9764,7 +9806,9 @@ export default function MenuApp() {
                     <div className="host-detail-copy">
                       <h2>{String(selectedDish.name ?? '').toUpperCase()}</h2>
                       <p className="host-detail-summary">{selectedDish.description}</p>
-                      <p className="host-detail-note">{getDetailNote(selectedDish)}</p>
+                      {presentation.theme?.ocultarNotaDetalle ? null : (
+                        <p className="host-detail-note">{getDetailNote(selectedDish)}</p>
+                      )}
                     </div>
 
                     <div className="host-detail-price-stack">
@@ -10056,7 +10100,13 @@ export default function MenuApp() {
                     <p className="detail-note">Completa los opcionales obligatorios antes de agregar este producto.</p>
                   ) : null}
 
-                  <p className="detail-note">{getDetailNote(selectedDish)}</p>
+                  {/* La nota promete cosas que el local puede no ofrecer
+                      ("tu punto de coccion", "la masa que elegiste"): se arma
+                      adivinando el rubro por el nombre del plato, no por lo que
+                      el producto tiene cargado. */}
+                  {presentation.theme?.ocultarNotaDetalle ? null : (
+                    <p className="detail-note">{getDetailNote(selectedDish)}</p>
+                  )}
 
                   <div className="option-group recommendation-group">
                     <h3>Tambien te puede gustar</h3>
@@ -10968,7 +11018,9 @@ export default function MenuApp() {
           style={getPresentationStyles(presentation, accountId)}
         >
           <div
-            className={`confirmation-card confirmation-card-${templateId}`}
+            className={`confirmation-card confirmation-card-${templateId}${
+              marcaConfirmacionPropia ? ' confirmation-card-marca-propia' : ''
+            }`}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="confirmation-hero" aria-hidden="true">
@@ -10996,11 +11048,22 @@ export default function MenuApp() {
                 </div>
               ) : templateId === 'pizzeria' ? (
                 <div className="confirmation-pizzeria-top">
-                  <span className="confirmation-pizzeria-oven">
-                    <IconPizzaOutline />
-                  </span>
-                  <strong>LA BUONA</strong>
-                  <small>Pedido al horno</small>
+                  {marcaConfirmacionLogo ? (
+                    /* El local tiene su marca: la de la plantilla es de otro. */
+                    <img
+                      className="confirmation-pizzeria-logo"
+                      src={marcaConfirmacionLogo}
+                      alt={marcaConfirmacionNombre || 'Logo del local'}
+                    />
+                  ) : (
+                    <>
+                      <span className="confirmation-pizzeria-oven">
+                        <IconPizzaOutline />
+                      </span>
+                      <strong>{marcaConfirmacionNombre || 'LA BUONA'}</strong>
+                      <small>{marcaConfirmacionNombre ? 'Pedido confirmado' : 'Pedido al horno'}</small>
+                    </>
+                  )}
                 </div>
               ) : templateId === 'sabor-pampa' ? (
                 <div className="confirmation-pampa-top">
@@ -11040,7 +11103,7 @@ export default function MenuApp() {
                 : templateId === 'burger'
                   ? 'Hecho a la parrilla'
                   : templateId === 'pizzeria'
-                    ? 'Directo al horno'
+                    ? (marcaConfirmacionPropia ? 'Pedido enviado' : 'Directo al horno')
                     : templateId === 'sabor-pampa'
                       ? 'Listo para preparar'
                       : templateId === 'kika' || templateId === 'almendra'

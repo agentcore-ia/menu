@@ -7138,6 +7138,78 @@
   border: 1px solid rgba(20, 64, 36, 0.16);
 }
 
+/* ---------------------------------------------------------------------------
+   Confirmacion del local que tiene marca propia.
+
+   La tarjeta de la plantilla pizzeria venia con los cremas y el verde oliva de
+   la pizzeria para la que se dibujo. Un local con su identidad cargada cerraba
+   la compra con los colores de otra marca. Aca la tarjeta toma los suyos.
+   --------------------------------------------------------------------------- */
+.confirmation-card-marca-propia {
+  background: var(--custom-card-bg, var(--theme-surface, #ffffff));
+  color: var(--custom-card-text, var(--theme-text, #16283a));
+  border-color: var(--custom-card-border, var(--theme-border, rgba(0, 0, 0, 0.08)));
+  box-shadow: 0 26px 46px var(--theme-shadow, rgba(13, 27, 42, 0.22));
+}
+
+/* El bloque de arriba es el color del local a fondo lleno, como la banda del
+   menu: es donde el logo claro se apoya. */
+.confirmation-card-marca-propia .confirmation-pizzeria-top {
+  place-content: center;
+  justify-items: center;
+  padding: 1.35rem 1.2rem;
+  background: var(--theme-primary, #163059);
+  border: 0;
+}
+
+.confirmation-card-marca-propia .confirmation-pizzeria-logo {
+  display: block;
+  width: min(70%, 13rem);
+  height: auto;
+  object-fit: contain;
+}
+
+.confirmation-card-marca-propia .confirmation-pizzeria-top strong {
+  margin-top: 0;
+  color: var(--theme-primary-text, #ffffff);
+}
+
+.confirmation-card-marca-propia .confirmation-pizzeria-top small {
+  color: color-mix(in srgb, var(--theme-primary-text, #ffffff) 76%, transparent);
+}
+
+/* La pastilla y los recuadros venian con el ladrillo y el crema del preset.
+   Especificidad de tres clases para ganarle a .confirmation-card-pizzeria. */
+.confirmation-card.confirmation-card-marca-propia .confirmation-kicker {
+  background: color-mix(in srgb, var(--theme-primary) 12%, white);
+  color: var(--custom-card-price, var(--theme-primary));
+}
+
+.confirmation-card.confirmation-card-marca-propia .confirmation-meta div {
+  background: color-mix(in srgb, var(--theme-primary) 6%, white);
+  border-color: var(--custom-card-border, var(--theme-border));
+}
+
+.confirmation-card-marca-propia .confirmation-meta strong {
+  color: var(--custom-card-text, var(--theme-text));
+}
+
+/* El titulo, el texto y el paso activo estaban clavados en el verde oliva y el
+   ladrillo del preset. Van al color del local. */
+.confirmation-card.confirmation-card-marca-propia h3 {
+  color: var(--custom-card-text, var(--theme-text));
+  font-family: var(--font-display, inherit);
+}
+
+.confirmation-card.confirmation-card-marca-propia p {
+  color: color-mix(in srgb, var(--custom-card-text, var(--theme-text)) 78%, transparent);
+}
+
+.confirmation-card.confirmation-card-marca-propia .confirmation-step.active > span {
+  background: var(--theme-primary);
+  box-shadow: 0 10px 18px color-mix(in srgb, var(--theme-primary) 22%, transparent);
+}
+
 .confirmation-pampa-top {
   position: relative;
   overflow: hidden;
@@ -18141,6 +18213,95 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .babson-loading-banda img,
   .babson-loading-progress span {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Pantalla de carga de Racing.
+
+   El menu abre con una portada apaisada sobre blanco, asi que la espera hace
+   lo inverso: el celeste pleno de la marca, con el logo centrado. La barra
+   marca que algo esta pasando; sin ella una pantalla lisa parece colgada.
+   --------------------------------------------------------------------------- */
+.loading-racing {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #0096f7;
+}
+
+/* La carga generica dibuja un marco y un resplandor con los colores de otra
+   plantilla; sobre el celeste liso sobran. */
+.loading-racing::before,
+.loading-racing::after {
+  display: none;
+}
+
+.racing-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.racing-loading-logo {
+  width: min(72%, 17rem);
+  /* La proporcion reserva el alto antes de que baje la imagen, asi no salta. */
+  aspect-ratio: 1774 / 887;
+  height: auto;
+  object-fit: contain;
+  animation: racing-loading-latir 1.9s ease-in-out infinite;
+}
+
+.racing-loading p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  text-transform: uppercase;
+}
+
+.racing-loading-progress {
+  width: min(100%, 8.5rem);
+  height: 0.28rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.racing-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: #ffffff;
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@keyframes racing-loading-latir {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.88;
+    transform: scale(0.975);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .racing-loading-logo,
+  .racing-loading-progress span {
     animation: none;
   }
 }
