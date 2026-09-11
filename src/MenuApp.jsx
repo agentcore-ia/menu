@@ -4211,6 +4211,13 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
         ) : null}
         <div className="pan-hero-velo" aria-hidden="true" />
 
+        {/* La onda que cierra la cabecera. La foto la trae recortada; el video
+            no, asi que va como recurso encima: arriba es transparente (se ve el
+            video) y abajo es el mismo crema del panel, asi empalma sin corte. */}
+        {heroVideo ? (
+          <img className="pan-hero-onda" src="/panacea/asset.png" alt="" aria-hidden="true" />
+        ) : null}
+
         <div className="pan-hero-copy">
           <span className="pan-hero-logo">{presentation.branding?.wordmark || 'PANACEA'}</span>
           <h1>

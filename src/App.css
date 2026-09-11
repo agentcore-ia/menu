@@ -16558,13 +16558,41 @@ button:focus-visible {
   bottom: 0;
 }
 
-/* El panel de contenido se apoya sobre el banner con una sombra hacia ARRIBA.
-   Contra el crema de la foto no se notaba; sobre el video es una franja
-   oscura que corta el banner justo antes de terminar. La curva de union ya la
-   da el borde redondeado del panel, que ademas la pisa: la sombra no aporta
-   nada y encima ensucia. */
+/* La onda que cierra la cabecera sobre el video. Va arriba del degradado para
+   que el crema quede limpio, y debajo del texto. */
+.pan-hero-onda {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: -1px; /* sin esto asoma una linea del video entre la onda y el panel */
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+/* El panel se apoyaba sobre el banner con esquinas redondeadas y una sombra
+   hacia ARRIBA. Eso era la union cuando no habia otra cosa; ahora la hace la
+   onda, y dejarlos suma un segundo corte justo debajo del primero. */
 .hero-video .content-panel {
   box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+}
+
+/* Sin bajada el bloque de texto quedaba corto y los chips subian, dejando un
+   hueco contra la onda. Anclados abajo quedan siempre apoyados sobre ella,
+   haya bajada o no. */
+.pan-hero.con-video .pan-hero-copy {
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-bottom: 3.4rem;
+}
+
+.pan-hero.con-video .pan-hero-chips {
+  margin-top: auto;
 }
 
 /* Oscurece la mitad izquierda para que el texto se lea sobre la foto sin
