@@ -98,11 +98,19 @@
       "destination": "/panacea.html"
     },
     {
+      "source": "/racing",
+      "destination": "/racing.html"
+    },
+    {
+      "source": "/racing/:path*",
+      "destination": "/racing.html"
+    },
+    {
       "source": "/api/accounts/:accountId/pay-card",
       "destination": "/api/accounts/:accountId/orders?accion=pagar-con-tarjeta"
     },
     {
-      "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|troka|panacea).*)",
+      "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|troka|panacea|racing).*)",
       "destination": "/host.html"
     }
   ]

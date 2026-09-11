@@ -30,6 +30,7 @@ export default defineConfig({
         babson: resolve(__dirname, 'babson.html'),
         troka: resolve(__dirname, 'troka.html'),
         panacea: resolve(__dirname, 'panacea.html'),
+        racing: resolve(__dirname, 'racing.html'),
       },
     },
   },
