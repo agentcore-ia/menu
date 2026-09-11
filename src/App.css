@@ -17078,10 +17078,20 @@ button:focus-visible {
   bottom: 8.2rem;
 }
 
+/* El hueco de abajo lo reserva la coleccion y nadie mas. content-panel trae su
+   propio padding inferior para la barra de pedido de las otras plantillas, y
+   aca se sumaba al de la coleccion: 112px + 120px = 232px de blanco despues
+   del ultimo producto. */
+.template-panaderia .content-panel {
+  padding-bottom: 0;
+}
+
 /* Con el carrito vacio abajo solo esta la navegacion: reservarle lugar para
-   dos barras dejaba un hueco al final de la lista. */
+   dos barras dejaba un hueco al final de la lista.
+   La barra mide 70px y se apoya a 13.6px del borde, asi que ocupa ~84px:
+   6.75rem deja el ultimo producto libre con un respiro y nada mas. */
 .template-panaderia .pan-collection {
-  padding-bottom: 7.5rem;
+  padding-bottom: 6.75rem;
 }
 
 /* Con pedido se suma la barra de "Ver mi pedido" y el ultimo producto no puede
