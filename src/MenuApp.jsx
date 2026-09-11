@@ -1173,6 +1173,10 @@ function getLoadingTemplate(accountId) {
     return 'racing'
   }
 
+  if (key.includes('panacea')) {
+    return 'panacea'
+  }
+
   if (key.includes('heladeria') || key.includes('dolce')) {
     return 'gelato'
   }
@@ -4543,6 +4547,38 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menú</p>
 
             <div className="babson-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'panacea') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-panacea">
+          <div className="panacea-loading" role="status" aria-live="polite" aria-label="Cargando menu de Panacea">
+            {/* El sello es el mismo que abre el menu. Su archivo ya trae el
+                crema #fbf7f1 de fondo, el mismo de esta pantalla, asi que
+                apoya sin que se le vea el recuadro. */}
+            <img
+              className="panacea-loading-sello"
+              src="/panacea/icono.png"
+              alt="Panacea"
+              width="512"
+              height="512"
+            />
+
+            <div className="panacea-loading-marca">
+              <strong>Panadería artesanal</strong>
+              <em>de masa madre</em>
+            </div>
+
+            <p>Cargando</p>
+
+            <div className="panacea-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>

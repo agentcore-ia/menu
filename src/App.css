@@ -18379,6 +18379,115 @@ button:focus-visible {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Pantalla de carga de Panacea.
+
+   Las otras esperas van a fondo lleno con el color de la marca. Una panaderia
+   de masa madre no: su menu abre sobre el crema del papel, con el sello
+   naranja y la linea en serif. La espera repite eso mismo.
+   --------------------------------------------------------------------------- */
+.loading-panacea {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #fbf7f1;
+}
+
+/* La carga generica dibuja un marco y un resplandor con los colores de otra
+   plantilla; sobre el crema liso sobran. */
+.loading-panacea::before,
+.loading-panacea::after {
+  display: none;
+}
+
+.panacea-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.panacea-loading-sello {
+  width: min(42%, 9.5rem);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  animation: panacea-loading-latir 2.1s ease-in-out infinite;
+}
+
+.panacea-loading-marca {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.panacea-loading-marca strong {
+  color: #3f2f22;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.panacea-loading-marca em {
+  color: #8b7f70;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.1;
+}
+
+.panacea-loading p {
+  margin: 0;
+  color: #8b7f70;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-transform: uppercase;
+}
+
+.panacea-loading-progress {
+  width: min(100%, 8.5rem);
+  height: 0.26rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(237, 161, 58, 0.22);
+}
+
+.panacea-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: #eda13a;
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@keyframes panacea-loading-latir {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: scale(0.965);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panacea-loading-sello,
+  .panacea-loading-progress span {
+    animation: none;
+  }
+}
+
 /* Los datos para transferir, cuando el cliente elige esa forma de pago. Antes
    no se mostraban en ningun lado: elegia transferencia y no sabia adonde. */
 .checkout-transferencia {
