@@ -17685,6 +17685,68 @@ button:focus-visible {
 }
 
 /* ---------------------------------------------------------------------------
+   Cards de texto EN GRILLA: version compacta.
+
+   El tamano grande de arriba se penso para una carta corta, donde el nombre es
+   lo unico que identifica al plato y hay lugar de sobra. En una carta larga se
+   da vuelta: el nombre a 32px ocupaba tres lineas, la card entera 192px, y en
+   una pantalla de telefono entraban dos productos y medio. Con el nombre a
+   17px entra el doble de carta sin que deje de leerse.
+
+   Va acotado a la grilla: las cards en lista (cards_style pizzeria-lista, las
+   de Babson) son anchas y ahi el tamano original esta bien.
+   --------------------------------------------------------------------------- */
+.cards-pizzeria-grid .pizzeria-dish-card-texto .pizzeria-dish-body {
+  padding: 0.85rem 0.9rem 0.8rem;
+}
+
+.cards-pizzeria-grid .pizzeria-dish-card-texto .pizzeria-dish-copy h3 {
+  font-size: 1.08rem;
+  line-height: 1.14;
+  letter-spacing: 0.012em;
+}
+
+/* Sin descripcion el parrafo igual dibujaba su linea divisoria y su margen:
+   un separador que no separaba nada. */
+.cards-pizzeria-grid .pizzeria-dish-card-texto .pizzeria-dish-copy p:empty {
+  display: none;
+}
+
+.cards-pizzeria-grid .pizzeria-dish-card-texto .pizzeria-dish-copy p {
+  margin-top: 0.34rem;
+  padding-top: 0.34rem;
+  font-size: 0.76rem;
+  line-height: 1.32;
+}
+
+.cards-pizzeria-grid .pizzeria-dish-card-texto .pizzeria-dish-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.cards-pizzeria-grid .pizzeria-dish-card-texto .pizzeria-dish-footer strong {
+  font-size: 1rem;
+  letter-spacing: 0.005em;
+}
+
+/* El boton media 48px dentro de una card de 164 de ancho: pesaba mas que el
+   precio que acompaña. */
+.cards-pizzeria-grid .pizzeria-dish-card-texto .pizzeria-add-button {
+  width: 2.3rem;
+  height: 2.3rem;
+  min-width: 2.3rem;
+  flex: 0 0 auto;
+}
+
+.cards-pizzeria-grid .pizzeria-dish-card-texto .pizzeria-add-button svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* ---------------------------------------------------------------------------
    Plantilla pizzeria: barra de categorias con mas de 4.
 
    La pastilla original reparte 4 columnas iguales. Un menu con 11 categorias

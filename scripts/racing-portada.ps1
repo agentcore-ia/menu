@@ -9,7 +9,10 @@ Add-Type -AssemblyName System.Drawing
 
 $origen  = "C:\Users\matii\Documents\menu\Racing\banner.png"
 $destino = "C:\Users\matii\Documents\Agentcore\menu\public\racing\portada.jpg"
-$ALTO_DEGRADE = 0.42   # porcion de abajo que se funde
+# Porcion de abajo que se funde. Con una portada oscura hace falta bastante
+# para llegar al blanco del menu; con una clara, poco: de mas solo lava la
+# comida que hay en el borde inferior.
+$ALTO_DEGRADE = 0.22
 $PASOS = 160           # tramos del gradiente
 $ANCHO_FINAL = 1400    # alcanza y sobra para el ancho de un telefono
 $CALIDAD = 82
