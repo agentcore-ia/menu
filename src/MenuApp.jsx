@@ -6709,7 +6709,9 @@ function TemplateMenuCollection({
             <article key={item.id} className="bistro-stack-card">
               <button type="button" className="bistro-stack-main" onClick={() => onOpenDish(item)}>
                 <h3>{item.name}</h3>
-                <p>{item.description}</p>
+                {/* Sin descripcion el parrafo vacio igual ocupa una linea y
+                    empuja el nombre por debajo del precio. */}
+                {item.description ? <p>{item.description}</p> : null}
               </button>
               <div className="bistro-stack-side">
                 <strong>{item.price}</strong>

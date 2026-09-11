@@ -4963,9 +4963,12 @@
   margin-top: 0.9rem;
 }
 
+/* El nombre y el precio arrancan en la misma linea. Centrar los dos bloques
+   los desalineaba: el de la derecha (precio + boton) es mas alto que el
+   nombre, asi que el nombre quedaba ~20px por debajo del precio. */
 .bistro-stack-card {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.9rem;
   padding: 1rem;
