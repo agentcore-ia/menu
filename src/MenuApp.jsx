@@ -6682,15 +6682,19 @@ function TemplateMenuCollection({
         </div>
 
         {featuredItem ? (
-          <article className="bistro-feature-card">
-            <button type="button" className="bistro-feature-media" onClick={() => onOpenDish(featuredItem)}>
-              {renderProductMedia(featuredItem)}
-            </button>
+          // Sin foto, el recuadro de la imagen queda como un hueco blanco de
+          // media pantalla arriba del producto: ahi la card es solo texto.
+          <article className={`bistro-feature-card${hasProductMedia(featuredItem) ? '' : ' bistro-feature-card-texto'}`}>
+            {hasProductMedia(featuredItem) ? (
+              <button type="button" className="bistro-feature-media" onClick={() => onOpenDish(featuredItem)}>
+                {renderProductMedia(featuredItem)}
+              </button>
+            ) : null}
             <div className="bistro-feature-body">
               <span className="bistro-feature-badge">DESTACADO</span>
               <button type="button" className="dish-main" onClick={() => onOpenDish(featuredItem)}>
                 <h3>{featuredItem.name}</h3>
-                <p>{featuredItem.description}</p>
+                {featuredItem.description ? <p>{featuredItem.description}</p> : null}
               </button>
               <div className="dish-footer">
                 <strong>{featuredItem.price}</strong>
