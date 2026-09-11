@@ -18390,6 +18390,39 @@ button:focus-visible {
 }
 
 /* ---------------------------------------------------------------------------
+   Favorito marcado.
+
+   El corazon se dibuja como contorno; marcado se rellena. Es la unica señal de
+   que el toque hizo algo, asi que tiene que leerse de un vistazo.
+   --------------------------------------------------------------------------- */
+.floating-button.favorito svg,
+.kika-detail-floating.favorito svg,
+.burger-favorite.favorito svg {
+  fill: #e2465b;
+  stroke: #e2465b;
+}
+
+.floating-button.favorito,
+.kika-detail-floating.favorito,
+.burger-favorite.favorito {
+  animation: favorito-latido 0.32s ease-out;
+}
+
+@keyframes favorito-latido {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-button.favorito,
+  .kika-detail-floating.favorito,
+  .burger-favorite.favorito {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Pantalla de carga de Panacea.
 
    Las otras esperas van a fondo lleno con el color de la marca. Una panaderia

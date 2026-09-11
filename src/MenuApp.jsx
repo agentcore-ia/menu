@@ -2977,6 +2977,31 @@ function getFavoriteProductFromOrders(orders) {
   return [...productTotals.values()].sort((first, second) => second.quantity - first.quantity)[0] ?? null
 }
 
+// Favoritos del cliente. Viven en SU telefono y por cuenta: marcar un pan en
+// la panaderia no tiene por que aparecer en la pizzeria de al lado. No van al
+// servidor porque no hay con que identificar a quien mira el menu: recien se
+// sabe quien es cuando deja el telefono al pedir.
+const CLAVE_FAVORITOS = 'capta:favoritos'
+
+function leerFavoritos(almacen, cuenta) {
+  try {
+    const crudo = almacen?.getItem(`${CLAVE_FAVORITOS}:${cuenta}`)
+    const lista = crudo ? JSON.parse(crudo) : []
+    return Array.isArray(lista) ? lista.filter(Boolean).map(String) : []
+  } catch {
+    return []
+  }
+}
+
+function guardarFavoritos(almacen, cuenta, lista) {
+  try {
+    almacen?.setItem(`${CLAVE_FAVORITOS}:${cuenta}`, JSON.stringify(lista))
+  } catch {
+    // Navegacion privada o almacenamiento bloqueado: los favoritos duran lo
+    // que la visita, que es mejor que romper el menu.
+  }
+}
+
 function openWhatsappOrderChat(url, targetWindow) {
   if (!url) {
     if (targetWindow && !targetWindow.closed) {
@@ -6200,7 +6225,13 @@ function TemplateMenuCollection({
 
       return (
         <article key={item.id} className={`burger-dish-card ${hideEmptyMedia ? 'no-media' : ''}`}>
-          <button type="button" className="burger-favorite" aria-label="Guardar favorito">
+          <button
+            type="button"
+            className={`burger-favorite ${esFavorito(item) ? 'favorito' : ''}`}
+            aria-label={esFavorito(item) ? `Quitar ${item.name} de favoritos` : `Guardar ${item.name} en favoritos`}
+            aria-pressed={esFavorito(item)}
+            onClick={() => alternarFavorito(item)}
+          >
             <IconHeart />
           </button>
 
@@ -7012,6 +7043,7 @@ export default function MenuApp() {
   const [isSocialMenuOpen, setIsSocialMenuOpen] = useState(false)
   // Lo que el cliente cargo la ultima vez que pidio, desde SU telefono.
   const [datosGuardados, setDatosGuardados] = useState(() => leerDatos(almacenDelNavegador()))
+  const [favoritos, setFavoritos] = useState(() => leerFavoritos(almacenDelNavegador(), accountId))
   const [loyaltyPhone, setLoyaltyPhone] = useState(() => datosGuardados?.phone ?? '')
   const [loyaltyStatus, setLoyaltyStatus] = useState('idle')
   const [loyaltyMessage, setLoyaltyMessage] = useState('')
@@ -8080,6 +8112,24 @@ export default function MenuApp() {
       setVolverAlCarrito(false)
       setIsCartOpen(true)
     }
+  }
+
+  function esFavorito(item) {
+    const id = item?.id
+    return Boolean(id) && favoritos.includes(String(id))
+  }
+
+  function alternarFavorito(item) {
+    const id = item?.id
+    if (!id) return
+    setFavoritos((actuales) => {
+      const clave = String(id)
+      const siguiente = actuales.includes(clave)
+        ? actuales.filter((x) => x !== clave)
+        : [...actuales, clave]
+      guardarFavoritos(almacenDelNavegador(), accountId, siguiente)
+      return siguiente
+    })
   }
 
   function renderProductMedia(item) {
@@ -9640,7 +9690,13 @@ export default function MenuApp() {
                     >
                       <IconBack />
                     </button>
-                    <button type="button" className="kika-detail-floating" aria-label="Favorito">
+                    <button
+                      type="button"
+                      className={`kika-detail-floating ${esFavorito(selectedDish) ? 'favorito' : ''}`}
+                      aria-label={esFavorito(selectedDish) ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+                      aria-pressed={esFavorito(selectedDish)}
+                      onClick={() => alternarFavorito(selectedDish)}
+                    >
                       <IconHeart />
                     </button>
                   </div>
@@ -9854,7 +9910,13 @@ export default function MenuApp() {
                         <button type="button" className="floating-button dark" aria-label="Compartir">
                           <IconShare />
                         </button>
-                        <button type="button" className="floating-button dark" aria-label="Favorito">
+                        <button
+                          type="button"
+                          className={`floating-button dark ${esFavorito(selectedDish) ? 'favorito' : ''}`}
+                          aria-label={esFavorito(selectedDish) ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+                          aria-pressed={esFavorito(selectedDish)}
+                          onClick={() => alternarFavorito(selectedDish)}
+                        >
                           <IconHeart />
                         </button>
                       </div>
@@ -9879,7 +9941,13 @@ export default function MenuApp() {
                         <button type="button" className="floating-button dark" aria-label="Compartir">
                           <IconShare />
                         </button>
-                        <button type="button" className="floating-button dark" aria-label="Favorito">
+                        <button
+                          type="button"
+                          className={`floating-button dark ${esFavorito(selectedDish) ? 'favorito' : ''}`}
+                          aria-label={esFavorito(selectedDish) ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+                          aria-pressed={esFavorito(selectedDish)}
+                          onClick={() => alternarFavorito(selectedDish)}
+                        >
                           <IconHeart />
                         </button>
                       </div>
@@ -10010,7 +10078,13 @@ export default function MenuApp() {
                       >
                         <IconBack />
                       </button>
-                      <button type="button" className="floating-button dark" aria-label="Favorito">
+                      <button
+                        type="button"
+                        className={`floating-button dark ${esFavorito(selectedDish) ? 'favorito' : ''}`}
+                        aria-label={esFavorito(selectedDish) ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+                        aria-pressed={esFavorito(selectedDish)}
+                        onClick={() => alternarFavorito(selectedDish)}
+                      >
                         <IconHeart />
                       </button>
                     </div>
@@ -10028,7 +10102,13 @@ export default function MenuApp() {
                       >
                         <IconBack />
                       </button>
-                      <button type="button" className="floating-button dark" aria-label="Favorito">
+                      <button
+                        type="button"
+                        className={`floating-button dark ${esFavorito(selectedDish) ? 'favorito' : ''}`}
+                        aria-label={esFavorito(selectedDish) ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+                        aria-pressed={esFavorito(selectedDish)}
+                        onClick={() => alternarFavorito(selectedDish)}
+                      >
                         <IconHeart />
                       </button>
                     </div>
