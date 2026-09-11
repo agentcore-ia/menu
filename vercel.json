@@ -42,6 +42,46 @@
       "destination": "/lodetoto.html"
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "racing.menu.net.ar"
+        }
+      ],
+      "destination": "/racing.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "babson.menu.net.ar"
+        }
+      ],
+      "destination": "/babson.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "troka.menu.net.ar"
+        }
+      ],
+      "destination": "/troka.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "panacea.menu.net.ar"
+        }
+      ],
+      "destination": "/panacea.html"
+    },
+    {
       "source": "/almendra",
       "destination": "/almendra.html"
     },
