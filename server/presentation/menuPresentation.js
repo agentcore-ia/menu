@@ -438,7 +438,10 @@ const presentationPresets = {
       image: '',
       video: '',
       title: 'Panadería artesanal',
-      accent: 'de masa madre',
+      // Sin bajada por defecto: la que estaba es la de la panaderia para la
+      // que se dibujo la plantilla, y cualquier local que la herede sale con
+      // las palabras de otro. El que quiera bajada la carga en hero_accent.
+      accent: '',
       description: 'Panificados integrales, facturas y pastelería hechos cada día con harinas de verdad.',
       chip1: 'Masa madre',
       chip2: 'Hecho con dedicación',

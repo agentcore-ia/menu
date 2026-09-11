@@ -4215,7 +4215,9 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
           <span className="pan-hero-logo">{presentation.branding?.wordmark || 'PANACEA'}</span>
           <h1>
             {presentation.hero?.title || 'Panadería artesanal'}
-            <em>{presentation.hero?.accent || 'de masa madre'}</em>
+            {/* Sin bajada cargada no se inventa una: el texto de respaldo era
+                el de la panaderia para la que se dibujo la plantilla. */}
+            {presentation.hero?.accent ? <em>{presentation.hero.accent}</em> : null}
           </h1>
           <ul className="pan-hero-chips">
             {chips.map(({ Icon, texto }) => (
@@ -4605,7 +4607,6 @@ function MenuLoadingScreen({ accountId }) {
 
             <div className="panacea-loading-marca">
               <strong>Panadería artesanal</strong>
-              <em>de masa madre</em>
             </div>
 
             <p>Cargando</p>
