@@ -4165,6 +4165,11 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
   }
 
   if (templateId === 'bistro') {
+    // El epigrafe describe la imagen de la cabecera. Si el local cargo la suya
+    // (su logo, una foto de la casa), el plato destacado no la describe: quedaba
+    // el logo de Racing con "Especial Bondiola $16.900" debajo.
+    const heroPropia = Boolean(presentation.hero?.image)
+
     return (
       <section className="hero-content hero-content-bistro">
         <div className="hero-copy hero-copy-bistro">
@@ -4189,8 +4194,10 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
             <img src={getHeroImage(presentation, heroDish)} alt={heroDish?.name ?? 'Header'} />
           )}
           <div className="hero-bistro-caption">
-            <strong>{heroDish?.name ?? presentation.branding?.wordmark ?? (isDailyHero ? 'Menu del dia' : 'Menu destacado')}</strong>
-            <span>{heroDish?.price ?? ''}</span>
+            <strong>{heroPropia
+              ? presentation.branding?.wordmark ?? 'Menu'
+              : heroDish?.name ?? presentation.branding?.wordmark ?? (isDailyHero ? 'Menu del dia' : 'Menu destacado')}</strong>
+            <span>{heroPropia ? '' : heroDish?.price ?? ''}</span>
           </div>
         </div>
       </section>
