@@ -8863,14 +8863,19 @@ export default function MenuApp() {
               )
             ) : null}
 
-            <TemplateHero
-              templateId={templateId}
-              presentation={presentation}
-              textos={textosRubro}
-              heroDish={heroDish}
-              onPrimaryAction={handleNavigateMenu}
-              onCommunityAction={handleOpenCommunity}
-            />
+            {/* Un local que no tiene fotos ni quiere titular no gana nada con
+                la portada: son dos pantallas de scroll antes del primer
+                producto. Con ocultarPortada el menu abre en la carta. */}
+            {presentation.theme?.ocultarPortada ? null : (
+              <TemplateHero
+                templateId={templateId}
+                presentation={presentation}
+                textos={textosRubro}
+                heroDish={heroDish}
+                onPrimaryAction={handleNavigateMenu}
+                onCommunityAction={handleOpenCommunity}
+              />
+            )}
           </header>
 
           <main className="content-panel">
