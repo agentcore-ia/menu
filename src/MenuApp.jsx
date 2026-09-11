@@ -3669,6 +3669,9 @@ function getPresentationStyles(presentation, accountId) {
     '--custom-card-bg': theme.cardBackground || undefined,
     '--custom-card-text': theme.cardText || undefined,
     '--custom-card-muted': theme.cardMuted || undefined,
+    // El nombre del plato. El CSS ya lo esperaba pero nadie lo definia, asi que
+    // caia en el color del precio y el nombre y el precio salian iguales.
+    '--custom-card-title': theme.cardTitle || undefined,
     '--custom-card-price': theme.cardPrice || undefined,
     '--custom-card-border': theme.cardBorder || undefined,
     '--custom-card-radius': theme.cardRadius || undefined,
@@ -8748,6 +8751,14 @@ export default function MenuApp() {
     // escritos en el CSS, fuera del alcance de los colores del local. Este
     // flag prende la version clara de esa plantilla.
     presentation.theme?.temaClaro ? 'tema-claro' : '',
+    // Las cabeceras dibujadas terminan en una forma que apoya contra la barra
+    // de categorias. Una foto no: necesita aire abajo para no quedar pegada.
+    // "Propia" es la que subio el local (una URL). El preset es un archivo del
+    // proyecto ('/pizzeria/header.png') y NO cuenta: con solo mirar si hay
+    // imagen, La Esquina entraba en esta rama y se le despegaba la barra.
+    presentation.hero?.image && !String(presentation.hero.image).startsWith('/')
+      ? 'con-portada'
+      : '',
   ]
     .filter(Boolean)
     .join(' ')

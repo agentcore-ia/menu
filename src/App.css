@@ -17844,6 +17844,17 @@ button:focus-visible {
   justify-content: flex-start;
 }
 
+/* La barra de categorias se monta sobre la cabecera dibujada del preset, que
+   termina en una arcada pensada para eso. Con una foto de portada esa arcada
+   no existe: los chips quedaban apoyados contra el borde de la imagen. Con
+   portada propia, entonces, la barra baja y respira.
+   La especificidad (tres clases) le gana a las cuatro definiciones de
+   .pizzeria-category-row repartidas en los media queries. */
+.template-pizzeria.con-portada .pizzeria-category-row {
+  margin-top: 2rem;
+  margin-bottom: 1.35rem;
+}
+
 /* Las cards de la fila se emparejan y el precio cae al fondo de cada una, asi
    los precios de una fila quedan a la misma altura. Antes la grilla no las
    estiraba (align-items: start) para evitar el hueco abajo del nombre, pero
