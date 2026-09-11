@@ -6968,7 +6968,9 @@ function TemplateMenuCollection({
                 {renderProductMedia(item)}
                 {isPlan ? (
                   <span className="dish-badge plan-badge">{planBadgeLabel}</span>
-                ) : index === 0 ? (
+                ) : item.destacado ? (
+                  /* Antes salia en el primero de cada categoria (o sea el
+                     primero por orden alfabetico): no queria decir nada. */
                   <span className="dish-badge">Mas pedido</span>
                 ) : null}
                 {item.video && presentation.preview?.productMedia === 'image-with-video-chip' ? (
@@ -10130,12 +10132,14 @@ export default function MenuApp() {
                         <IconPlay />
                         Vista previa
                       </span>
-                    ) : (
+                    ) : selectedDish.destacado ? (
+                      /* Sin condicion, esta etiqueta salia en TODOS los
+                         productos: era el "else" de tener video. */
                       <span className="detail-badge">
                         <IconSpark />
                         Mas pedido
                       </span>
-                    )}
+                    ) : null}
                   </div>
 
                   <p className="detail-description">{selectedDish.description}</p>

@@ -628,6 +628,9 @@ export class SupabaseMenuRepository {
           getPizzeriaFallbackImage(this.accountIdForFallback, product, index) ||
           fallbackImages[index % fallbackImages.length],
         hasCustomImage: Boolean(customImage),
+        // Lo elige el local desde el panel. Antes la etiqueta "Mas pedido" se
+        // decidia sola y no representaba nada.
+        destacado: product.destacado === true,
         video: getProductVideo(product),
         imageAnimation: normalizeProductImageAnimation(product.image_animation),
         optionGroups: parseProductOptionGroups(product),
