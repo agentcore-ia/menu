@@ -17844,11 +17844,15 @@ button:focus-visible {
   justify-content: flex-start;
 }
 
-/* Con cards de solo texto, la grilla deja de estirarlas para emparejar la fila:
-   el producto sin descripcion quedaba con un hueco grande abajo del nombre. Las
-   grillas de puras fotos no cambian, porque ahi todas miden practicamente igual. */
+/* Las cards de la fila se emparejan y el precio cae al fondo de cada una, asi
+   los precios de una fila quedan a la misma altura. Antes la grilla no las
+   estiraba (align-items: start) para evitar el hueco abajo del nombre, pero
+   eso dejaba la fila despareja: con un nombre de una linea al lado de uno de
+   dos, cada precio quedaba a distinta altura y las cards cortaban en distinto
+   punto. El hueco, con los precios alineados, se lee como aire; el desnivel
+   se lee como error. */
 .pizzeria-card-grid:has(.pizzeria-dish-card-texto) {
-  align-items: start;
+  align-items: stretch;
 }
 
 /* ---------------------------------------------------------------------------
