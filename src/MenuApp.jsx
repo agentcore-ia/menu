@@ -8837,15 +8837,27 @@ export default function MenuApp() {
             templateId !== 'almendra' &&
             templateId !== 'florian' &&
             templateId !== 'sabor-pampa' ? (
-              <div className="brand hero-brand">
-                <span className="brand-mark">
-                  <IconLeafMark />
-                </span>
-                <span className="brand-name">{presentation.branding?.wordmark ?? menu?.accountName}</span>
-                <span className="brand-subtitle">
-                  {presentation.branding?.subtitle ?? 'DIGITAL MENU'}
-                </span>
-              </div>
+              // El logo del local manda sobre el nombre escrito: si lo subio,
+              // esa es su marca dibujada, y la hojita generica no la
+              // representa. Sin logo queda el lockup de siempre.
+              presentation.branding?.logo ? (
+                <div className="brand hero-brand hero-brand-logo">
+                  <img
+                    src={presentation.branding.logo}
+                    alt={presentation.branding?.wordmark ?? menu?.accountName ?? 'Logo del local'}
+                  />
+                </div>
+              ) : (
+                <div className="brand hero-brand">
+                  <span className="brand-mark">
+                    <IconLeafMark />
+                  </span>
+                  <span className="brand-name">{presentation.branding?.wordmark ?? menu?.accountName}</span>
+                  <span className="brand-subtitle">
+                    {presentation.branding?.subtitle ?? 'DIGITAL MENU'}
+                  </span>
+                </div>
+              )
             ) : null}
 
             <TemplateHero

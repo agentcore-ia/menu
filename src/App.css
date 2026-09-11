@@ -1510,6 +1510,17 @@
   margin-top: 0.35rem;
 }
 
+/* Con logo propio el lockup es la imagen sola. El alto la deja pareja con el
+   nombre escrito que reemplaza, sin importar el tamano del archivo. */
+.hero-brand-logo img {
+  display: block;
+  width: auto;
+  max-width: min(72%, 320px);
+  height: auto;
+  max-height: 3.2rem;
+  object-fit: contain;
+}
+
 .brand-mark {
   display: grid;
   place-items: center;
