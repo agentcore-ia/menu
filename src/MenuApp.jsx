@@ -5293,6 +5293,13 @@ function TemplateMenuCollection({
   onAbrirPromo,
   searchQuery = '',
   isSearchActive = false,
+  // `searchQuery` llega diferido (para no filtrar en cada tecla); el campo se
+  // controla con el valor inmediato o se veria escribir con retraso.
+  searchValue = '',
+  onSearchQueryChange,
+  isSearchOpen = false,
+  onOpenSearch,
+  onCloseSearch,
   loyaltySettings = null,
   pointsName = 'puntos',
   orderCount = 0,
@@ -5349,6 +5356,27 @@ function TemplateMenuCollection({
 
     return (
       <section className={`pan-collection ${orderCount > 0 ? 'con-pedido' : ''}`}>
+        {isSearchOpen || searchValue ? (
+          <form className="pan-busqueda" role="search" onSubmit={(e) => e.preventDefault()}>
+            <IconSearch />
+            <input
+              type="search"
+              autoFocus
+              value={searchValue}
+              onChange={(event) => onSearchQueryChange?.(event.target.value)}
+              placeholder="Buscar en la panadería"
+              aria-label="Buscar productos"
+            />
+            <button type="button" onClick={onCloseSearch} aria-label="Cerrar búsqueda">
+              <span aria-hidden="true">×</span>
+            </button>
+          </form>
+        ) : null}
+
+        {isSearchActive && !categoryItems.length ? (
+          <p className="pan-busqueda-vacia">No encontramos nada con “{searchQuery}”.</p>
+        ) : null}
+
         {destacados.length ? (
           <>
             <div className="pan-section-head">
@@ -5396,7 +5424,11 @@ function TemplateMenuCollection({
           <button type="button" className="active" onClick={onNavigateHome}>
             <IconHome /><span>Inicio</span>
           </button>
-          <button type="button" onClick={onNavigateHome}>
+          <button
+            type="button"
+            className={isSearchOpen || searchValue ? 'active' : ''}
+            onClick={onOpenSearch}
+          >
             <IconSearch /><span>Buscar</span>
           </button>
           <button
@@ -9065,6 +9097,14 @@ export default function MenuApp() {
                   onOpenGelatoBuilder={handleOpenGelatoBuilder}
                   searchQuery={deferredSearchQuery}
                   isSearchActive={isSearchActive}
+                  searchValue={searchQuery}
+                  onSearchQueryChange={setSearchQuery}
+                  isSearchOpen={isSearchOpen}
+                  onOpenSearch={() => setIsSearchOpen(true)}
+                  onCloseSearch={() => {
+                    setIsSearchOpen(false)
+                    setSearchQuery('')
+                  }}
                   loyaltySettings={loyaltySettings}
                   pointsName={pointsName}
                   orderCount={orderCount}

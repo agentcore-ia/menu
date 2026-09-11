@@ -16920,7 +16920,80 @@ button:focus-visible {
   cursor: pointer;
 }
 
-.pan-bottom-nav button svg { width: 1.35rem; height: 1.35rem; }
+/* Los iconos estan dibujados como contorno (un circulo y una linea para la
+   lupa). Sin esto se rendereaban rellenos y en negro: la lupa salia como un
+   disco solido —el mango, al ser una linea, no tiene area que rellenar— y
+   ninguno tomaba el color de la barra. */
+.pan-bottom-nav button svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pan-busqueda {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1.1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(120, 94, 66, 0.16);
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(74, 55, 40, 0.08);
+}
+
+.pan-busqueda svg {
+  flex: 0 0 auto;
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: var(--theme-primary, #eda13a);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.pan-busqueda input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+.pan-busqueda input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.pan-busqueda > button {
+  flex: 0 0 auto;
+  width: 1.7rem;
+  height: 1.7rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(120, 94, 66, 0.1);
+  color: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pan-busqueda-vacia {
+  margin: 0 0 1.2rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: rgba(120, 94, 66, 0.06);
+  color: #6d5c4a;
+  font-size: 0.9rem;
+}
 
 .pan-bottom-nav button.active,
 .pan-bottom-nav button.has-order {
