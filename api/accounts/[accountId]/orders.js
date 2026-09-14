@@ -1,8 +1,18 @@
 import { getServerConfig } from '../../../server/config.js'
 import { pagarConTarjeta } from '../../../server/pagarConTarjeta.js'
+import { estadoDelPago } from '../../../server/estadoDelPago.js'
 import { createOrderRepository } from '../../../server/repositories/orderRepository.js'
 
 export default async function handler(req, res) {
+  // ¿El pedido ya esta pago? Lo pregunta el menu cuando el cliente vuelve de
+  // Mercado Pago. Entra por esta funcion con un rewrite (vercel.json), igual que
+  // la tarjeta: sumar un archivo mas es pasarse del limite de funciones. Va
+  // ANTES del filtro de POST porque es una consulta (GET).
+  if (req.query?.accion === 'estado-del-pago') {
+    await estadoDelPago(req, res)
+    return
+  }
+
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
     res.status(405).json({

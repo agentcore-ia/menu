@@ -287,7 +287,7 @@ export class SupabaseMenuRepository {
       return null
     }
 
-    const [products, presentationConfig, loyalty, stockAvailability, dailyMenu, mercadoPagoHabilitado] =
+    const [products, presentationConfig, loyalty, stockAvailability, dailyMenu, mercadoPagoHabilitado, tarjetaHabilitada] =
       await Promise.all([
         this.fetchProducts(restaurant.id),
         this.fetchPresentationConfig(restaurant.id),
@@ -295,6 +295,7 @@ export class SupabaseMenuRepository {
         this.fetchStockAvailability(restaurant.id),
         this.fetchDailyMenu(restaurant.id),
         this.fetchMercadoPagoHabilitado(restaurant.id),
+        this.fetchTarjetaHabilitada(restaurant.id),
       ])
 
     if (presentationConfig?.isDeleted) {
@@ -410,6 +411,9 @@ export class SupabaseMenuRepository {
           }
         })(),
         mercadoPago: mercadoPagoHabilitado === true,
+        // Tarjeta cobrada dentro del menu: solo con la cuenta vinculada, que es
+        // la que trae la public key para tokenizarla.
+        tarjeta: tarjetaHabilitada === true,
       },
       presentationConfig,
       categories,
@@ -552,6 +556,20 @@ export class SupabaseMenuRepository {
       // Si no se puede leer, se toma como no disponible: es preferible no
       // ofrecer un pago que despues no se puede completar.
       console.warn('No se pudo leer la integracion de Mercado Pago:', error?.message)
+      return false
+    }
+  }
+
+  // Tarjeta cobrada DENTRO del menu: hace falta la cuenta vinculada y su public
+  // key, que es con la que el navegador tokeniza la tarjeta. Se pide solo la
+  // marca de estado: los tokens nunca salen del backend.
+  async fetchTarjetaHabilitada(restaurantId) {
+    try {
+      const filas = await this.request(
+        `/mp_vinculos?restaurant_id=eq.${restaurantId}&estado=eq.vinculado&public_key=not.is.null&select=estado&limit=1`,
+      )
+      return Array.isArray(filas) && filas.length > 0
+    } catch {
       return false
     }
   }

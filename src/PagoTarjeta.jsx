@@ -212,6 +212,15 @@ export default function PagoTarjeta({
       {estado === 'cobrando' ? <p className="pago-tarjeta-cargando">Procesando el pago…</p> : null}
 
       <div id="pago-tarjeta-brick" ref={contenedor} />
+
+      {/* Siempre una salida. Antes, con la tarjeta rechazada o el formulario
+          sin cargar, el cliente quedaba encerrado en esta pantalla. El pedido
+          queda esperando el pago: no se confirma por cerrar. */}
+      {estado !== 'cobrando' ? (
+        <button type="button" className="pago-tarjeta-secundario" onClick={onCerrar}>
+          Pagar más tarde
+        </button>
+      ) : null}
     </div>
   )
 }

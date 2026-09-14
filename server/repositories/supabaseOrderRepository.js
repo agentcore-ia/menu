@@ -158,6 +158,13 @@ export class SupabaseOrderRepository {
       })
     })()
 
+    // Con Mercado Pago (link o tarjeta en el menu) el pedido ESPERA EL PAGO: se
+    // crea invisible para el local y pasa a "nuevo" recien cuando el pago se
+    // aprueba (dashboard: lib/server/pedidoPagado.ts). Antes nacia "nuevo" y se
+    // imprimia y avisaba aunque el cliente no pagara nunca. Las mesas no pagan
+    // por aca: siguen como siempre.
+    const esperaPago = payload.paymentMethod === 'mercado_pago' && !payload.mesa_id
+
     const [pedido] = await this.request('/pedidos', {
       method: 'POST',
       headers: {
@@ -168,7 +175,7 @@ export class SupabaseOrderRepository {
           restaurant_id: restaurant.id,
           cliente_id: customer.id,
           conversacion_id: conversation.id,
-          status: 'new',
+          status: esperaPago ? 'pendiente_pago' : 'new',
           delivery_type: payload.deliveryType,
           payment_method: payload.paymentMethod,
           address: payload.customer.address || null,
@@ -242,7 +249,24 @@ export class SupabaseOrderRepository {
     const mercadoPagoPreference = await this.createMercadoPagoPreferenceForOrder({
       pedido,
       paymentMethod: payload.paymentMethod,
+      // Despues de pagar, el cliente vuelve al MENU (antes volvia al panel del
+      // local). El dashboard valida que sea un dominio nuestro.
+      returnUrl: payload.returnUrl,
     })
+
+    // Sin link de pago el cliente no tiene como pagar: si el pedido quedara
+    // esperando el pago se perderia en silencio. Entra como siempre y el local
+    // coordina el cobro, que es lo que ya le dice la pantalla al cliente.
+    if (esperaPago && !mercadoPagoPreference?.paymentLink) {
+      await this.request(`/pedidos?id=eq.${pedido.id}&status=eq.pendiente_pago`, {
+        method: 'PATCH',
+        headers: {
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify({ status: 'new' }),
+      }).catch(() => null)
+      pedido.status = 'new'
+    }
 
     const redemptionResult = await this.commitRewardRedemptions({
       preview: redemptionPreview,
@@ -330,7 +354,11 @@ export class SupabaseOrderRepository {
     // Aviso del pedido al WhatsApp del dueno (locales sin computadora). El
     // dashboard decide si corresponde segun su configuracion; nunca puede
     // romper la creacion del pedido.
-    void this.notifyOwnerOnDashboard(restaurant.id, pedido.id)
+    // Si espera el pago, el dueño se entera cuando se aprueba (el dashboard lo
+    // avisa al confirmar el pedido pagado).
+    if (pedido.status !== 'pendiente_pago') {
+      void this.notifyOwnerOnDashboard(restaurant.id, pedido.id)
+    }
 
     return {
       id: pedido.id,
@@ -1140,7 +1168,7 @@ export class SupabaseOrderRepository {
     }
   }
 
-  async createMercadoPagoPreferenceForOrder({ pedido, paymentMethod }) {
+  async createMercadoPagoPreferenceForOrder({ pedido, paymentMethod, returnUrl }) {
     if (paymentMethod !== 'mercado_pago') {
       return null
     }
@@ -1163,6 +1191,8 @@ export class SupabaseOrderRepository {
         },
         body: JSON.stringify({
           orderId: pedido.id,
+          // El dashboard la valida contra dominios propios antes de usarla.
+          returnUrl: typeof returnUrl === 'string' && returnUrl ? returnUrl : undefined,
         }),
       })
       const text = await response.text()

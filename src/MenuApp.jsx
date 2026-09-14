@@ -7080,6 +7080,58 @@ export default function MenuApp() {
   // del menu. Solo se arma si el local tiene la cuenta vinculada.
   const [pagoConTarjeta, setPagoConTarjeta] = useState(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
+  // Pedido con Mercado Pago que TODAVIA NO SE PAGO: no se le dice "confirmado"
+  // a alguien que no pago. { orderId, orderNumber, link, verificando }
+  const [esperandoPago, setEsperandoPago] = useState(null)
+
+  // VOLVIO DE MERCADO PAGO. La direccion de vuelta trae ?pedido=<id> (y
+  // payment_id). Se pregunta si ese pedido ya esta pago: si esta, la
+  // confirmacion completa (guardada antes de irse); si no, "falta el pago" con
+  // la opcion de pagar o revisar. Consultar tambien lo hace entrar al local si
+  // el pago ya se acredito, sin esperar el aviso de Mercado Pago.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const pedido = params.get('pedido')
+    if (!pedido || !/^[0-9a-f-]{36}$/i.test(pedido)) return
+    const pagoId = params.get('payment_id') || params.get('collection_id') || ''
+    // Se limpia la direccion: recargar la pagina no tiene que volver a preguntar.
+    window.history.replaceState(null, '', window.location.pathname)
+
+    let guardado = null
+    try {
+      guardado = JSON.parse(window.sessionStorage.getItem('capta:pedido-en-pago') || 'null')
+    } catch {
+      guardado = null
+    }
+    const delMismoPedido = guardado && guardado.id === pedido ? guardado : null
+
+    void (async () => {
+      try {
+        const qs = new URLSearchParams({ pedido })
+        if (pagoId) qs.set('payment_id', pagoId)
+        const respuesta = await fetch(`/api/accounts/${encodeURIComponent(accountId)}/pago?${qs.toString()}`)
+        const data = await respuesta.json().catch(() => null)
+        if (respuesta.ok && data?.pagado) {
+          try {
+            window.sessionStorage.removeItem('capta:pedido-en-pago')
+          } catch {
+            // nada que limpiar
+          }
+          setLastOrder(delMismoPedido || { id: pedido, orderNumber: data.orderNumber ?? null, total: 0 })
+          setShowConfirmation(true)
+        } else {
+          setEsperandoPago({
+            orderId: pedido,
+            orderNumber: data?.orderNumber ?? delMismoPedido?.orderNumber ?? null,
+            link: delMismoPedido?.paymentLink || null,
+          })
+        }
+      } catch {
+        setEsperandoPago({ orderId: pedido, orderNumber: delMismoPedido?.orderNumber ?? null, link: delMismoPedido?.paymentLink || null })
+      }
+    })()
+  }, [accountId])
   const [isLoyaltyOpen, setIsLoyaltyOpen] = useState(false)
   const [isCommunityOpen, setIsCommunityOpen] = useState(false)
   const [isSocialMenuOpen, setIsSocialMenuOpen] = useState(false)
@@ -7377,8 +7429,12 @@ export default function MenuApp() {
     const formas = [{ valor: 'cash', texto: 'Efectivo' }]
     if (datosDeTransferencia) formas.push({ valor: 'transferencia', texto: 'Transferencia' })
     if (menu?.pagos?.mercadoPago) formas.push({ valor: 'mercado_pago', texto: 'Mercado Pago' })
+    // Dos puertas al mismo cobro: "Mercado Pago" lleva a la app o al checkout, y
+    // "Tarjeta" se cobra aca mismo. La tarjeta solo si el local vinculo su
+    // cuenta, que es la que trae la public key para tokenizarla.
+    if (menu?.pagos?.tarjeta) formas.push({ valor: 'tarjeta', texto: 'Tarjeta de crédito o débito' })
     return formas
-  }, [datosDeTransferencia, menu?.pagos?.mercadoPago])
+  }, [datosDeTransferencia, menu?.pagos?.mercadoPago, menu?.pagos?.tarjeta])
 
   // El formulario se precarga con lo que eligio la vez anterior. Si esa forma de
   // pago ya no esta disponible, vale efectivo: se resuelve al dibujar y no con
@@ -8765,7 +8821,11 @@ export default function MenuApp() {
     setCheckoutMessage('')
 
     const effectiveDeliveryType = isTableOrder ? 'mesa' : orderForm.deliveryType
-    const effectivePaymentMethod = isTableOrder ? 'mesa' : pagoElegido
+    // "Tarjeta" es el mismo cobro de Mercado Pago, cobrado aca en vez de en la
+    // app: para el pedido, el recargo y el reparto es "mercado_pago". Lo unico
+    // que cambia es la pantalla que ve el cliente despues de enviarlo.
+    const quiereTarjeta = !isTableOrder && pagoElegido === 'tarjeta'
+    const effectivePaymentMethod = isTableOrder ? 'mesa' : quiereTarjeta ? 'mercado_pago' : pagoElegido
     const shouldRedirectToMercadoPago = effectivePaymentMethod === 'mercado_pago'
     // La pestaña se abre ANTES del fetch a proposito: abrirla despues, fuera
     // del clic, la bloquea el navegador. Pero si el local no tiene WhatsApp
@@ -8787,6 +8847,9 @@ export default function MenuApp() {
       },
       deliveryType: effectiveDeliveryType,
       paymentMethod: effectivePaymentMethod,
+      // Despues de pagar en Mercado Pago el cliente vuelve a ESTA pagina (el
+      // servidor le agrega el pedido). Antes volvia al panel del local.
+      returnUrl: shouldRedirectToMercadoPago ? `${window.location.origin}${window.location.pathname}` : undefined,
       notes: isTableOrder ? '' : orderForm.notes.trim(),
       deliveryQuote: confirmedDeliveryQuote,
       mesa_id: mesaId,
@@ -8827,7 +8890,7 @@ export default function MenuApp() {
       // Que se llevo y como: el pedido que devuelve el servidor no lo trae, y
       // en una heladeria es justo lo que el cliente quiere revisar —los gustos
       // que eligio pote por pote—. Se copia ANTES de vaciar el carrito.
-      setLastOrder({
+      const pedidoParaConfirmar = {
         ...result,
         lineas: cart.map((line) => ({
           nombre: line.name,
@@ -8838,7 +8901,18 @@ export default function MenuApp() {
           detalle: String(line.notes || '').replace(/^Formato:[^|]*\|\s*/i, ''),
         })),
         entrega: isTableOrder ? 'mesa' : orderForm.deliveryType,
-      })
+      }
+      setLastOrder(pedidoParaConfirmar)
+      // Con Mercado Pago el cliente se va del menu a pagar, y al volver la pagina
+      // arranca de cero. Se guarda para mostrarle la confirmacion completa
+      // (total, gustos, puntos) cuando el pago se acredita.
+      if (shouldRedirectToMercadoPago) {
+        try {
+          window.sessionStorage.setItem('capta:pedido-en-pago', JSON.stringify(pedidoParaConfirmar))
+        } catch {
+          // sin almacenamiento: al volver se confirma igual, con menos detalle
+        }
+      }
 
       // El pedido salio: recien ahora los datos valen la pena guardarse.
       setDatosGuardados(
@@ -8857,13 +8931,19 @@ export default function MenuApp() {
       setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
       setCart([])
       setRewardRedemptions([])
-      const vaAPagarConTarjeta = Boolean(shouldRedirectToMercadoPago && result.paymentPublicKey)
+      // Tarjeta: se cobra en el menu. Si no vino la public key (el local perdio
+      // la cuenta vinculada), va al link de Mercado Pago como siempre.
+      const vaAPagarConTarjeta = Boolean(quiereTarjeta && result.paymentPublicKey)
+      // Con Mercado Pago el pedido todavia NO esta confirmado: espera el pago.
+      // Si no se pudo generar el link, el servidor ya lo dejo entrar como siempre.
+      const quedaEsperandoPago = shouldRedirectToMercadoPago && result.status === 'pendiente_pago'
       if (vaAPagarConTarjeta) {
-        // Se cobra en el menu. El link de Mercado Pago sigue vivo por si la
-        // tarjeta no entra: nunca se deja al cliente sin forma de pagar.
+        // El link de Mercado Pago sigue vivo por si la tarjeta no entra: nunca
+        // se deja al cliente sin forma de pagar.
         setPagoConTarjeta({
           publicKey: result.paymentPublicKey,
           orderId: result.id || null,
+          orderNumber: result.orderNumber ?? null,
           total: Number(result.total) || orderTotal,
           email: result.customer?.email || '',
           link: result.paymentLink || '',
@@ -8892,7 +8972,9 @@ export default function MenuApp() {
       // Con la tarjeta esperando, la confirmacion todavia no: decirle "listo"
       // a alguien que no pago es mentirle, y ademas quedaba montada DETRAS del
       // formulario, lista para aparecer si lo cerraba.
-      if (!vaAPagarConTarjeta) setShowConfirmation(true)
+      // Con Mercado Pago (tarjeta o link) la confirmacion recien va con el pago
+      // aprobado.
+      if (!vaAPagarConTarjeta && !quedaEsperandoPago) setShowConfirmation(true)
     } catch (error) {
       if (whatsappWindow && !whatsappWindow.closed) {
         whatsappWindow.close()
@@ -11217,11 +11299,84 @@ export default function MenuApp() {
                 setPagoConTarjeta(null)
                 setShowConfirmation(true)
               }}
+              // Cerrar sin pagar NO confirma: antes mostraba "pedido confirmado"
+              // a alguien que no habia pagado. El pedido sigue esperando el pago
+              // y el local todavia no lo ve.
               onCerrar={() => {
+                setEsperandoPago({
+                  orderId: pagoConTarjeta.orderId,
+                  orderNumber: pagoConTarjeta.orderNumber ?? lastOrder?.orderNumber ?? null,
+                  link: pagoConTarjeta.link || null,
+                })
                 setPagoConTarjeta(null)
-                setShowConfirmation(true)
               }}
             />
+          </div>
+        </div>
+      ) : null}
+
+      {/* FALTA EL PAGO. No es una confirmacion: el local todavia no ve el
+          pedido. Se ofrece pagar, o revisar si ya pago, sin perder el pedido. */}
+      {esperandoPago && !pagoConTarjeta && !showConfirmation ? (
+        <div className="confirmation-overlay" role="presentation" style={getPresentationStyles(presentation, accountId)}>
+          <div className={`confirmation-card confirmation-card-${templateId} pago-tarjeta-card`}>
+            <h2>Falta el pago</h2>
+            <p>
+              {esperandoPago.orderNumber ? `Tu pedido #${esperandoPago.orderNumber}` : 'Tu pedido'} queda
+              esperando el pago. El local lo recibe apenas se acredita.
+            </p>
+            <div className="pago-tarjeta">
+              {esperandoPago.link ? (
+                <a className="pago-tarjeta-accion" href={esperandoPago.link}>Pagar con Mercado Pago</a>
+              ) : null}
+              <button
+                type="button"
+                className="pago-tarjeta-accion"
+                disabled={Boolean(esperandoPago.verificando)}
+                onClick={async () => {
+                  const actual = esperandoPago
+                  setEsperandoPago({ ...actual, verificando: true, aviso: '' })
+                  try {
+                    const respuesta = await fetch(
+                      `/api/accounts/${encodeURIComponent(accountId)}/pago?pedido=${encodeURIComponent(actual.orderId)}`,
+                    )
+                    const data = await respuesta.json().catch(() => null)
+                    if (respuesta.ok && data?.pagado) {
+                      let guardado = null
+                      try {
+                        guardado = JSON.parse(window.sessionStorage.getItem('capta:pedido-en-pago') || 'null')
+                        window.sessionStorage.removeItem('capta:pedido-en-pago')
+                      } catch {
+                        guardado = null
+                      }
+                      setEsperandoPago(null)
+                      setLastOrder((anterior) =>
+                        anterior?.id === actual.orderId
+                          ? anterior
+                          : guardado?.id === actual.orderId
+                            ? guardado
+                            : { id: actual.orderId, orderNumber: data.orderNumber ?? actual.orderNumber, total: 0 },
+                      )
+                      setShowConfirmation(true)
+                    } else {
+                      setEsperandoPago({
+                        ...actual,
+                        verificando: false,
+                        aviso: 'Todavía no se acreditó. Si ya pagaste, puede tardar unos minutos.',
+                      })
+                    }
+                  } catch {
+                    setEsperandoPago({ ...actual, verificando: false, aviso: 'No pudimos revisar el pago. Probá de nuevo.' })
+                  }
+                }}
+              >
+                {esperandoPago.verificando ? 'Revisando…' : 'Ya pagué, revisar'}
+              </button>
+              {esperandoPago.aviso ? <p className="pago-tarjeta-cargando">{esperandoPago.aviso}</p> : null}
+              <button type="button" className="pago-tarjeta-secundario" onClick={() => setEsperandoPago(null)}>
+                Volver al menú
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
