@@ -8949,6 +8949,18 @@ export default function MenuApp() {
           link: result.paymentLink || '',
         })
       } else if (shouldRedirectToMercadoPago) {
+        // Queda a la vista un boton para pagar ANTES de intentar ir solo. En
+        // Android la redireccion automatica (llega despues del fetch, sin el
+        // toque del cliente) muchas veces no abre la app de Mercado Pago: la
+        // pagina se quedaba en el menu con el carrito vacio y el pedido
+        // esperando un pago que el cliente no tenia como hacer. Un toque en el
+        // boton si abre la app.
+        setEsperandoPago({
+          orderId: result.id || null,
+          orderNumber: result.orderNumber ?? null,
+          link: result.paymentLink,
+          recienHecho: true,
+        })
         window.location.assign(result.paymentLink)
       } else if (!isTableOrder) {
         openWhatsappOrderChat(result.customerWhatsapp?.url, whatsappWindow)
@@ -11320,10 +11332,11 @@ export default function MenuApp() {
       {esperandoPago && !pagoConTarjeta && !showConfirmation ? (
         <div className="confirmation-overlay" role="presentation" style={getPresentationStyles(presentation, accountId)}>
           <div className={`confirmation-card confirmation-card-${templateId} pago-tarjeta-card`}>
-            <h2>Falta el pago</h2>
+            <h2>{esperandoPago.recienHecho ? 'Pagá tu pedido' : 'Falta el pago'}</h2>
             <p>
-              {esperandoPago.orderNumber ? `Tu pedido #${esperandoPago.orderNumber}` : 'Tu pedido'} queda
-              esperando el pago. El local lo recibe apenas se acredita.
+              {esperandoPago.recienHecho
+                ? `${esperandoPago.orderNumber ? `Tu pedido #${esperandoPago.orderNumber}` : 'Tu pedido'} se confirma cuando pagás. Si Mercado Pago no se abrió solo, tocá el botón.`
+                : `${esperandoPago.orderNumber ? `Tu pedido #${esperandoPago.orderNumber}` : 'Tu pedido'} queda esperando el pago. El local lo recibe apenas se acredita.`}
             </p>
             <div className="pago-tarjeta">
               {esperandoPago.link ? (
