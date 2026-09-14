@@ -18671,3 +18671,13 @@ button:focus-visible {
   line-height: 1.4;
   color: var(--theme-muted);
 }
+
+/* Aviso de promo solo en efectivo: misma tarjeta que la transferencia, con el
+   color del local en el borde para que se lea antes de confirmar. */
+.checkout-transferencia.checkout-solo-efectivo {
+  border-color: color-mix(in srgb, var(--theme-primary) 55%, var(--theme-border));
+}
+
+.checkout-transferencia.checkout-solo-efectivo strong {
+  user-select: auto;
+}

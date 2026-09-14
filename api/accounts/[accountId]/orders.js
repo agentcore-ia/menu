@@ -83,6 +83,16 @@ export default async function handler(req, res) {
       return
     }
 
+    // Promo solo en efectivo con otra forma de pago: el cliente tiene que ver
+    // el porque, no un "no se pudo crear el pedido".
+    if (error?.code === 'CASH_ONLY_ITEMS') {
+      res.status(error.statusCode ?? 422).json({
+        error: 'CASH_ONLY_ITEMS',
+        message: error.message,
+      })
+      return
+    }
+
     if (error?.code === 'RESTAURANT_CLOSED') {
       res.status(error.statusCode ?? 409).json({
         error: 'RESTAURANT_CLOSED',

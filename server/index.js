@@ -249,6 +249,14 @@ app.post('/api/accounts/:accountId/orders', async (req, res) => {
       return
     }
 
+    if (error?.code === 'CASH_ONLY_ITEMS') {
+      res.status(error.statusCode ?? 422).json({
+        error: 'CASH_ONLY_ITEMS',
+        message: error.message,
+      })
+      return
+    }
+
     if (error?.code === 'RESTAURANT_CLOSED') {
       res.status(error.statusCode ?? 409).json({
         error: 'RESTAURANT_CLOSED',

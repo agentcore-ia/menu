@@ -49,6 +49,10 @@ export class SupabaseOrderRepository {
       throw error
     }
 
+    // Antes de tocar la base: un pedido rechazado por pagar una promo de
+    // efectivo con otra cosa no tiene que dejar cliente ni conversacion.
+    await this.validateCashOnlyItems(Array.isArray(payload.items) ? payload.items : [], payload)
+
     const loyaltySettings = await this.fetchLoyaltySettings(restaurant.id)
     const customer = await this.upsertCustomer(restaurant, payload.customer)
     const conversation = await this.ensureWhatsappConversation(restaurant, customer)
@@ -818,6 +822,45 @@ export class SupabaseOrderRepository {
 
       throw error
     }
+  }
+
+  // Promos "solo efectivo" (lo dice la descripcion del producto, que es lo que
+  // carga el local). El menu ya no ofrece otra forma de pago con una de estas
+  // en el carrito, pero el pedido puede llegar desde una pantalla vieja: se
+  // frena aca, antes de crear nada. En Troka se pago una con Mercado Pago.
+  async validateCashOnlyItems(orderProducts, payload) {
+    if (payload.mesa_id || !payload.paymentMethod || payload.paymentMethod === 'cash') return
+
+    const soloEfectivo = /solo\s+(en\s+)?efectivo/i
+    const porNota = orderProducts.filter((item) => soloEfectivo.test(String(item?.notes || '')))
+
+    const ids = [
+      ...new Set(
+        orderProducts
+          .map((item) => String(item?.productId || ''))
+          .filter((id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)),
+      ),
+    ]
+    let porProducto = []
+    if (ids.length) {
+      const rows = await this.request(`/products?id=in.(${ids.join(',')})&select=id,name,description`)
+      const marcados = new Set(
+        (rows || [])
+          .filter((row) => soloEfectivo.test(String(row.description || '')) || soloEfectivo.test(String(row.name || '')))
+          .map((row) => row.id),
+      )
+      porProducto = orderProducts.filter((item) => marcados.has(item?.productId))
+    }
+
+    const nombres = [...new Set([...porNota, ...porProducto].map((item) => item?.name).filter(Boolean))]
+    if (!nombres.length) return
+
+    const error = new Error(
+      `${nombres.join(', ')} ${nombres.length > 1 ? 'se pagan' : 'se paga'} solo en efectivo. Elegí pagar en efectivo para hacer el pedido.`,
+    )
+    error.code = 'CASH_ONLY_ITEMS'
+    error.statusCode = 422
+    throw error
   }
 
   async fetchProductsMapByIds(productIds) {

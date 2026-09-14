@@ -1196,6 +1196,11 @@ function getLoadingTemplate(accountId) {
   return 'default'
 }
 
+/** "Solo efectivo" / "solo en efectivo" en la descripcion, el nombre o la nota. */
+function esSoloEfectivo(texto) {
+  return /solo\s+(en\s+)?efectivo/i.test(String(texto || ''))
+}
+
 function slugify(value) {
   return value
     .normalize('NFD')
@@ -7425,8 +7430,37 @@ export default function MenuApp() {
   // estaban escritas fijas en el desplegable, asi que un local sin transferencia
   // igual la ofrecia y el cliente se quedaba sin saber adonde pagar.
   const datosDeTransferencia = menu?.pagos?.transferencia ?? null
+
+  // PROMOS SOLO EN EFECTIVO. Lo dice la descripcion del producto ("Solo
+  // efectivo"), que es lo que ya carga el local. Antes solo iba escrito en la
+  // nota y el cliente podia elegir Mercado Pago igual: en Troka se pago una
+  // promo de efectivo con MP. Con una de estas en el carrito, el pago queda en
+  // efectivo. Se lee de menu.categories y no de allItems, que se arma mas abajo.
+  const idsSoloEfectivo = useMemo(() => {
+    const ids = new Set()
+    for (const categoria of menu?.categories ?? []) {
+      for (const producto of categoria?.items ?? []) {
+        if (esSoloEfectivo(producto?.description) || esSoloEfectivo(producto?.name)) ids.add(producto.id)
+      }
+    }
+    return ids
+  }, [menu?.categories])
+  const nombresSoloEfectivo = useMemo(
+    () => [
+      ...new Set(
+        cart
+          .filter((linea) => idsSoloEfectivo.has(linea.productId) || idsSoloEfectivo.has(linea.id) || esSoloEfectivo(linea.notes))
+          .map((linea) => linea.name)
+          .filter(Boolean),
+      ),
+    ],
+    [cart, idsSoloEfectivo],
+  )
+  const soloEfectivo = nombresSoloEfectivo.length > 0
+
   const formasDePago = useMemo(() => {
     const formas = [{ valor: 'cash', texto: 'Efectivo' }]
+    if (soloEfectivo) return formas
     if (datosDeTransferencia) formas.push({ valor: 'transferencia', texto: 'Transferencia' })
     if (menu?.pagos?.mercadoPago) formas.push({ valor: 'mercado_pago', texto: 'Mercado Pago' })
     // Dos puertas al mismo cobro: "Mercado Pago" lleva a la app o al checkout, y
@@ -7434,7 +7468,7 @@ export default function MenuApp() {
     // cuenta, que es la que trae la public key para tokenizarla.
     if (menu?.pagos?.tarjeta) formas.push({ valor: 'tarjeta', texto: 'Tarjeta de crédito o débito' })
     return formas
-  }, [datosDeTransferencia, menu?.pagos?.mercadoPago, menu?.pagos?.tarjeta])
+  }, [datosDeTransferencia, menu?.pagos?.mercadoPago, menu?.pagos?.tarjeta, soloEfectivo])
 
   // El formulario se precarga con lo que eligio la vez anterior. Si esa forma de
   // pago ya no esta disponible, vale efectivo: se resuelve al dibujar y no con
@@ -10890,6 +10924,16 @@ export default function MenuApp() {
                         </select>
                       </label>
                     </div>
+
+                    {soloEfectivo ? (
+                      <div className="checkout-transferencia checkout-solo-efectivo" role="note">
+                        <span>Solo efectivo</span>
+                        <strong>
+                          {nombresSoloEfectivo.join(', ')} {nombresSoloEfectivo.length > 1 ? 'se pagan' : 'se paga'} solo en efectivo.
+                        </strong>
+                        <p>Por eso este pedido se paga en efectivo. Si querés pagar de otra forma, sacá la promo del carrito.</p>
+                      </div>
+                    ) : null}
 
                     {pagoElegido === 'transferencia' && datosDeTransferencia ? (
                       <div className="checkout-transferencia">
