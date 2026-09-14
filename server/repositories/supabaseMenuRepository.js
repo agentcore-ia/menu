@@ -523,15 +523,31 @@ export class SupabaseMenuRepository {
     }
   }
 
-  // Solo si el local tiene Mercado Pago vinculado se le puede cobrar por ahi:
-  // sin integracion no hay token y el cobro no existe. Se pide UNICAMENTE la
-  // marca de habilitado; el access_token nunca sale del backend.
+  // Se le puede cobrar con Mercado Pago por DOS caminos, y alcanza con uno (es
+  // la misma regla que `comoCobrar` en el dashboard, que es el que cobra):
+  //   * la integracion con el token que el local pego a mano, habilitada, o
+  //   * la cuenta del local VINCULADA a Capta desde "Copiar link para el local".
+  //
+  // Antes solo se miraba la primera. Un local que vinculaba su cuenta quedaba
+  // "vinculado" en el panel, el dashboard ya podia cobrarle, y su menu igual
+  // nunca ofrecia Mercado Pago.
+  //
+  // Se piden UNICAMENTE las marcas (enabled, estado): los tokens nunca salen
+  // del backend.
   async fetchMercadoPagoHabilitado(restaurantId) {
     try {
-      const filas = await this.request(
-        `/restaurant_payment_integrations?restaurant_id=eq.${restaurantId}&provider=eq.mercadopago&select=enabled&limit=1`,
-      )
-      return filas[0]?.enabled === true
+      const [integracion, vinculo] = await Promise.all([
+        this.request(
+          `/restaurant_payment_integrations?restaurant_id=eq.${restaurantId}&provider=eq.mercadopago&select=enabled&limit=1`,
+        ),
+        // Si esta consulta falla, se sigue con la integracion manual: un problema
+        // con los vinculos no puede apagarle Mercado Pago a un local que lo tiene
+        // cargado a mano.
+        this.request(
+          `/mp_vinculos?restaurant_id=eq.${restaurantId}&estado=eq.vinculado&select=estado&limit=1`,
+        ).catch(() => []),
+      ])
+      return integracion[0]?.enabled === true || (Array.isArray(vinculo) && vinculo.length > 0)
     } catch (error) {
       // Si no se puede leer, se toma como no disponible: es preferible no
       // ofrecer un pago que despues no se puede completar.
