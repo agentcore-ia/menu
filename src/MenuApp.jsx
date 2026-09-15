@@ -5396,6 +5396,10 @@ function TemplateMenuCollection({
   pointsName = 'puntos',
   orderCount = 0,
   currencySymbol = '$',
+  // Los favoritos viven en MenuApp. La card de burger los usaba sin recibirlos
+  // y toda la plantilla quedaba en blanco (ReferenceError al dibujar).
+  esFavorito = () => false,
+  alternarFavorito = () => {},
 }) {
   const [dailyMenuFilter, setDailyMenuFilter] = useState('all')
   const [activeFeaturedIndex, setActiveFeaturedIndex] = useState(0)
@@ -9376,6 +9380,8 @@ export default function MenuApp() {
                   pointsName={pointsName}
                   orderCount={orderCount}
                   currencySymbol={currencySymbol}
+                  esFavorito={esFavorito}
+                  alternarFavorito={alternarFavorito}
                 />
               </>
             ) : null}
