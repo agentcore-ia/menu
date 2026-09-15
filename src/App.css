@@ -7181,11 +7181,19 @@
   border: 0;
 }
 
-.confirmation-card-marca-propia .confirmation-pizzeria-logo {
+.confirmation-card-marca-propia .confirmation-pizzeria-logo,
+.confirmation-card-marca-propia .confirmation-burger-logo {
   display: block;
   width: min(70%, 13rem);
   height: auto;
   object-fit: contain;
+}
+
+/* Burger con marca propia: el logo del local va centrado sobre la banda
+   oscura de la plantilla, en lugar de la llama y "BRASA". */
+.confirmation-card-marca-propia .confirmation-burger-top:has(.confirmation-burger-logo) {
+  place-content: center;
+  justify-items: center;
 }
 
 .confirmation-card-marca-propia .confirmation-pizzeria-top strong {

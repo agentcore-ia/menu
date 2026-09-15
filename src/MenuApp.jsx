@@ -3982,7 +3982,11 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
           images={getBurgerHeroImages(presentation, heroDish?.image ?? '/dishes/hero-clean-cut.png')}
           video={heroVideo}
           imageClassName="burger-header-image"
-          alt="Grill House Burger Co. Hechas para gustar."
+          alt={
+            presentation.branding?.esPropio && presentation.branding?.wordmark
+              ? `${String(presentation.branding.wordmark).trim()}. Nuestro menu.`
+              : 'Grill House Burger Co. Hechas para gustar.'
+          }
         />
       </section>
     )
@@ -11467,11 +11471,22 @@ export default function MenuApp() {
                 </div>
               ) : templateId === 'burger' ? (
                 <div className="confirmation-burger-top">
-                  <span className="confirmation-burger-flame">
-                    <IconFlame />
-                  </span>
-                  <strong>BRASA</strong>
-                  <small>Pedido al fuego</small>
+                  {marcaConfirmacionLogo ? (
+                    /* El local tiene su marca: "BRASA" es la de la plantilla. */
+                    <img
+                      className="confirmation-burger-logo"
+                      src={marcaConfirmacionLogo}
+                      alt={marcaConfirmacionNombre || 'Logo del local'}
+                    />
+                  ) : (
+                    <>
+                      <span className="confirmation-burger-flame">
+                        <IconFlame />
+                      </span>
+                      <strong>{marcaConfirmacionNombre || 'BRASA'}</strong>
+                      <small>{marcaConfirmacionNombre ? 'Pedido confirmado' : 'Pedido al fuego'}</small>
+                    </>
+                  )}
                 </div>
               ) : templateId === 'pizzeria' ? (
                 <div className="confirmation-pizzeria-top">
@@ -11528,7 +11543,7 @@ export default function MenuApp() {
               {templateId === 'gelato'
                 ? 'Listo para preparar'
                 : templateId === 'burger'
-                  ? 'Hecho a la parrilla'
+                  ? (marcaConfirmacionPropia ? 'Pedido enviado' : 'Hecho a la parrilla')
                   : templateId === 'pizzeria'
                     ? (marcaConfirmacionPropia ? 'Pedido enviado' : 'Directo al horno')
                     : templateId === 'sabor-pampa'
