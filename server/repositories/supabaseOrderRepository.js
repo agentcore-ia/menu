@@ -36,6 +36,19 @@ export class SupabaseOrderRepository {
       throw error
     }
 
+    // El local puede tener Mercado Pago conectado y no querer cobrar por ahi en
+    // el menu (Racing: solo efectivo y transferencia). El menu ya no ofrece esas
+    // opciones, pero la regla va aca: un pedido armado a mano no la saltea.
+    if (
+      restaurant.horarios?._settings?.menuSinMercadoPago === true &&
+      ['mercado_pago', 'tarjeta'].includes(payload.paymentMethod)
+    ) {
+      const error = new Error('Este local no cobra por Mercado Pago. Elegí efectivo o transferencia.')
+      error.code = 'PAYMENT_METHOD_NOT_AVAILABLE'
+      error.statusCode = 422
+      throw error
+    }
+
     const orderingStatus = getBusinessOpenStatus(restaurant.horarios)
 
     if (orderingStatus.configured && !orderingStatus.isOpen) {

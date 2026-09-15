@@ -410,10 +410,14 @@ export class SupabaseMenuRepository {
             instrucciones: String(restaurant.transfer_payment_instructions || '').trim() || null,
           }
         })(),
-        mercadoPago: mercadoPagoHabilitado === true,
+        // Un local puede tener Mercado Pago conectado (para verificar las
+        // transferencias que le entran) y aun asi no querer cobrar por Mercado
+        // Pago en el menu: horarios._settings.menuSinMercadoPago. Apaga las dos
+        // puertas, Mercado Pago y tarjeta, que son el mismo cobro.
+        mercadoPago: mercadoPagoHabilitado === true && restaurant.horarios?._settings?.menuSinMercadoPago !== true,
         // Tarjeta cobrada dentro del menu: solo con la cuenta vinculada, que es
         // la que trae la public key para tokenizarla.
-        tarjeta: tarjetaHabilitada === true,
+        tarjeta: tarjetaHabilitada === true && restaurant.horarios?._settings?.menuSinMercadoPago !== true,
       },
       presentationConfig,
       categories,
