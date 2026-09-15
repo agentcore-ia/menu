@@ -1,6 +1,8 @@
 const DEFAULT_COUNTRY = 'Argentina'
 const EARTH_RADIUS_KM = 6371
 
+import { direccionDeGoogle, direccionDeNominatim, puntoValido } from '../shared/ubicacionCliente.js'
+
 export function normalizeDeliveryZones(value) {
   if (!Array.isArray(value)) return []
 
@@ -218,6 +220,58 @@ export async function geocodeDeliveryCandidates({ address, neighborhood, city, p
 export async function geocodeDeliveryAddress(input) {
   const [candidate] = await geocodeDeliveryCandidates({ ...input, limit: 1 })
   return candidate ?? null
+}
+
+/**
+ * La direccion aproximada de un punto: lo que se le muestra al cliente cuando
+ * marca su puerta en el mapa del menu. Google si hay clave, OpenStreetMap si
+ * no. Nunca tira: sin direccion, el punto igual sirve.
+ */
+export async function reverseGeocodeDelivery(coordinates) {
+  const punto = puntoValido(coordinates)
+  if (!punto) return null
+
+  const googleApiKey = process.env.GOOGLE_MAPS_API_KEY
+  if (googleApiKey) {
+    try {
+      const googleUrl = new URL('https://maps.googleapis.com/maps/api/geocode/json')
+      googleUrl.searchParams.set('latlng', `${punto.lat},${punto.lng}`)
+      googleUrl.searchParams.set('language', 'es')
+      googleUrl.searchParams.set('key', googleApiKey)
+      const response = await fetch(googleUrl, { headers: { Accept: 'application/json' } })
+      if (response.ok) {
+        const data = await response.json()
+        if (data.status === 'OK' && Array.isArray(data.results) && data.results.length) {
+          // El primero a veces es la manzana o el barrio: se prefiere uno con calle.
+          const conCalle = data.results.find((r) => direccionDeGoogle(r).direccion) || data.results[0]
+          return { ...punto, ...direccionDeGoogle(conCalle), engine: 'google' }
+        }
+      }
+    } catch (err) {
+      console.warn('menu: Google reverse geocoding failed, falling back to Nominatim', err)
+    }
+  }
+
+  try {
+    const url = new URL('https://nominatim.openstreetmap.org/reverse')
+    url.searchParams.set('format', 'jsonv2')
+    url.searchParams.set('lat', String(punto.lat))
+    url.searchParams.set('lon', String(punto.lng))
+    url.searchParams.set('zoom', '18')
+    url.searchParams.set('addressdetails', '1')
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'capta-menu-delivery-zones/1.0',
+        Accept: 'application/json',
+        'Accept-Language': 'es',
+      },
+    })
+    if (!response.ok) return { ...punto, direccion: '', etiqueta: '', engine: 'nominatim' }
+    const data = await response.json()
+    return { ...punto, ...direccionDeNominatim(data), engine: 'nominatim' }
+  } catch {
+    return { ...punto, direccion: '', etiqueta: '', engine: 'ninguno' }
+  }
 }
 
 function buildQuoteForCoordinates({ coordinates, settings }) {

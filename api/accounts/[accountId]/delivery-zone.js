@@ -1,4 +1,4 @@
-import { resolveDeliveryQuote } from '../../../server/deliveryZones.js'
+import { resolveDeliveryQuote, reverseGeocodeDelivery } from '../../../server/deliveryZones.js'
 import { getServerConfig } from '../../../server/config.js'
 import { createMenuRepository } from '../../../server/repositories/menuRepository.js'
 
@@ -11,6 +11,26 @@ export default async function handler(req, res) {
       error: 'METHOD_NOT_ALLOWED',
       message: 'Solo se permite GET.',
     })
+    return
+  }
+
+  // ?reverse=1&lat=&lng= : la direccion aproximada del punto que el cliente
+  // marco en el mapa del checkout. Va en esta funcion y no en una nueva: el
+  // plan de Vercel ya usa las 12.
+  if (req.query.reverse === '1') {
+    try {
+      const resultado = await reverseGeocodeDelivery({ lat: req.query.lat, lng: req.query.lng })
+      if (!resultado) {
+        res.status(400).json({ error: 'INVALID_POINT', message: 'Ese punto no es valido.' })
+        return
+      }
+      res.status(200).json(resultado)
+    } catch (error) {
+      res.status(500).json({
+        error: 'REVERSE_FAILED',
+        message: error instanceof Error ? error.message : 'No se pudo buscar la direccion.',
+      })
+    }
     return
   }
 

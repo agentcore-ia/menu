@@ -150,6 +150,19 @@ app.get('/api/accounts/:accountId/manifest.webmanifest', async (req, res) => {
 app.get('/api/accounts/:accountId/delivery-zone', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store, max-age=0')
 
+  // Igual que api/accounts/[accountId]/delivery-zone.js: la direccion
+  // aproximada del punto que el cliente marco en el mapa.
+  if (req.query.reverse === '1') {
+    const { reverseGeocodeDelivery } = await import('./deliveryZones.js')
+    const resultado = await reverseGeocodeDelivery({ lat: req.query.lat, lng: req.query.lng })
+    if (!resultado) {
+      res.status(400).json({ error: 'INVALID_POINT', message: 'Ese punto no es valido.' })
+      return
+    }
+    res.json(resultado)
+    return
+  }
+
   try {
     const menu = await repository.getMenuByAccountId(req.params.accountId)
 

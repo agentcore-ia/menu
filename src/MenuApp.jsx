@@ -20,6 +20,7 @@ import {
 } from '../shared/datosDelCliente.js'
 
 import PagoTarjeta from './PagoTarjeta.jsx'
+import UbicacionEnMapa from './UbicacionEnMapa.jsx'
 import QRLanding from './QRLanding.jsx'
 import QRBill from './QRBill.jsx'
 import QRFeedback from './QRFeedback.jsx'
@@ -7312,6 +7313,12 @@ export default function MenuApp() {
     // Si ya pidio antes desde este telefono, el formulario arranca completo.
     return prellenarFormulario(base, datosGuardados, { esMesa })
   })
+  // La puerta que el cliente marco en el mapa ("Detectar mi ubicacion"). Manda
+  // sobre la direccion escrita para calcular el envio y viaja en el pedido.
+  const [ubicacionElegida, setUbicacionElegida] = useState(null)
+  /** El mapa abierto, y si tiene que arrancar detectando la ubicacion. */
+  const [mapaUbicacion, setMapaUbicacion] = useState(null)
+  const cerrarMapaUbicacion = useCallback(() => setMapaUbicacion(null), [])
 
   useEffect(() => {
     setDocumentFavicon(getAccountFaviconHref(accountId))
@@ -7779,7 +7786,8 @@ export default function MenuApp() {
       return null
     }
 
-    if (address.length < 4) {
+    // Con el punto marcado en el mapa no hace falta la direccion para cotizar.
+    if (address.length < 4 && !(form.coordinates?.lat && form.coordinates?.lng)) {
       return {
         enabled: true,
         allowed: false,
@@ -7825,7 +7833,9 @@ export default function MenuApp() {
       // Si la direccion es la misma que confirmo la ultima vez, ya sabemos en
       // que punto del mapa cae: el envio sale con el precio puesto, sin
       // pedirle otra vez que la elija de la lista.
-      coordinates: coordenadasGuardadas(
+      // El punto marcado en el mapa manda: es la puerta, no una interpretacion
+      // de lo escrito.
+      coordinates: ubicacionElegida || coordenadasGuardadas(
         datosGuardados,
         { address: orderForm.address, neighborhood: orderForm.neighborhood },
         deliveryCity,
@@ -7841,7 +7851,7 @@ export default function MenuApp() {
         return
       }
 
-      if (address.length < 4) {
+      if (address.length < 4 && !quoteForm.coordinates) {
         if (!cancelled) {
           setDeliveryQuote({
             enabled: true,
@@ -7883,6 +7893,8 @@ export default function MenuApp() {
     accountId,
     datosGuardados,
     deliveryZonesEnabled,
+    // Mover o quitar el pin cambia el punto: el envio se vuelve a calcular.
+    ubicacionElegida,
     orderForm.address,
     orderForm.deliveryType,
     orderForm.neighborhood,
@@ -8522,6 +8534,52 @@ export default function MenuApp() {
     }))
   }
 
+  async function handleConfirmarUbicacion(punto) {
+    setMapaUbicacion(null)
+    const ubicacion = {
+      lat: punto.lat,
+      lng: punto.lng,
+      label: punto.label || punto.direccion || '',
+      precision: punto.precision ?? null,
+      fuente: punto.fuente === 'gps' ? 'gps' : 'mapa',
+    }
+    setUbicacionElegida(ubicacion)
+
+    // Si todavia no escribio la direccion, se completa con la del mapa. La
+    // puede corregir: piso, depto, "casa del fondo".
+    const direccion = orderForm.address.trim() || String(punto.direccion || '').trim()
+    if (direccion !== orderForm.address) {
+      setOrderForm((current) => ({ ...current, address: direccion }))
+    }
+
+    if (!deliveryZonesEnabled) return
+    setDeliveryQuoteStatus('checking')
+    try {
+      const quote = await requestDeliveryQuote({
+        ...orderForm,
+        address: direccion,
+        city: deliveryCity,
+        coordinates: ubicacion,
+      })
+      setDeliveryQuote(quote)
+      setDeliveryQuoteStatus(quote?.allowed ? 'ready' : 'error')
+    } catch (error) {
+      setDeliveryQuote({
+        enabled: true,
+        allowed: false,
+        fee: 0,
+        message: error instanceof Error ? error.message : 'No pudimos calcular el envio.',
+      })
+      setDeliveryQuoteStatus('error')
+    }
+  }
+
+  function handleQuitarUbicacion() {
+    setUbicacionElegida(null)
+    setDeliveryQuote(null)
+    setDeliveryQuoteStatus('idle')
+  }
+
   async function handleSelectDeliveryCandidate(candidate) {
     if (!candidate?.coordinates) return
 
@@ -8834,6 +8892,7 @@ export default function MenuApp() {
           confirmedDeliveryQuote = await requestDeliveryQuote({
             ...orderForm,
             city: deliveryCity,
+            coordinates: ubicacionElegida,
           })
           setDeliveryQuote(confirmedDeliveryQuote)
           setDeliveryQuoteStatus(confirmedDeliveryQuote?.allowed ? 'ready' : 'error')
@@ -8899,6 +8958,9 @@ export default function MenuApp() {
       returnUrl: shouldRedirectToMercadoPago ? `${window.location.origin}${window.location.pathname}` : undefined,
       notes: isTableOrder ? '' : orderForm.notes.trim(),
       deliveryQuote: confirmedDeliveryQuote,
+      // La puerta marcada en el mapa, aunque el local no use zonas de envio:
+      // el pedido la guarda y el repartidor va directo.
+      ubicacion: !isTableOrder && effectiveDeliveryType === 'delivery' ? ubicacionElegida : null,
       mesa_id: mesaId,
       items: cartItems.map((item) => ({
         productId: item.productId || null,
@@ -8969,7 +9031,7 @@ export default function MenuApp() {
           {
             esMesa: isTableOrder,
             ciudad: deliveryCity,
-            coordenadas: confirmedDeliveryQuote?.coordinates,
+            coordenadas: ubicacionElegida || confirmedDeliveryQuote?.coordinates,
           },
         ),
       )
@@ -10980,6 +11042,42 @@ export default function MenuApp() {
                             required={orderForm.deliveryType === 'delivery'}
                           />
                         </label>
+
+                        {/* Como en las apps de delivery: detecta la ubicacion y
+                            el cliente acomoda el pin en su puerta. */}
+                        <div className="checkout-ubicacion">
+                          <button
+                            type="button"
+                            className="checkout-ubicacion-boton"
+                            onClick={() => setMapaUbicacion({ detectar: !ubicacionElegida })}
+                          >
+                            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.2">
+                              <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" strokeLinejoin="round" />
+                              <circle cx="12" cy="9.5" r="2.5" />
+                            </svg>
+                            {ubicacionElegida ? 'Ajustar en el mapa' : 'Detectar mi ubicación'}
+                          </button>
+                          {ubicacionElegida ? (
+                            <span className="checkout-ubicacion-estado ok">
+                              Ubicación marcada en el mapa ·{' '}
+                              <button type="button" className="checkout-ubicacion-quitar" onClick={handleQuitarUbicacion}>
+                                Quitar
+                              </button>
+                            </span>
+                          ) : (
+                            <span className="checkout-ubicacion-estado">Marcá tu puerta en el mapa y el repartidor llega directo.</span>
+                          )}
+                        </div>
+                        {mapaUbicacion ? (
+                          <UbicacionEnMapa
+                            accountId={accountId}
+                            inicial={ubicacionElegida}
+                            centroLocal={menu?.localLocation}
+                            detectarAlAbrir={mapaUbicacion.detectar}
+                            onConfirmar={handleConfirmarUbicacion}
+                            onCerrar={cerrarMapaUbicacion}
+                          />
+                        ) : null}
 
                         {!hideNeighborhoodField || (deliveryCity && !ocultarCiudadDelLocal) ? (
                           <div className="checkout-grid">

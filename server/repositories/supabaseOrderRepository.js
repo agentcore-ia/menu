@@ -169,6 +169,25 @@ export class SupabaseOrderRepository {
     // por aca: siguen como siempre.
     const esperaPago = payload.paymentMethod === 'mercado_pago' && !payload.mesa_id
 
+    // Donde marco el cliente la entrega en el mapa del menu o, si no lo marco,
+    // el punto de la direccion que confirmo de la lista. Va a las columnas del
+    // pedido: con eso el repartidor de Capta llega a la puerta sin volver a
+    // buscar la direccion escrita (que en Chivilcoy muchas veces no se
+    // encuentra: "Calle 88 n 275 derecha").
+    const puntoDelCliente = (valor) => {
+      if (!valor || typeof valor !== 'object' || valor.lat === null || valor.lat === undefined || valor.lat === '') return null
+      const lat = Number(valor.lat)
+      const lng = Number(valor.lng)
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+      if (Math.abs(lat) > 90 || Math.abs(lng) > 180 || (lat === 0 && lng === 0)) return null
+      return { lat, lng }
+    }
+    const ubicacionCliente =
+      payload.deliveryType === 'delivery' && !payload.mesa_id
+        ? puntoDelCliente(payload.ubicacion) ?? puntoDelCliente(deliveryQuote?.coordinates)
+        : null
+    const precisionCliente = Number(payload.ubicacion?.precision)
+
     const [pedido] = await this.request('/pedidos', {
       method: 'POST',
       headers: {
@@ -183,6 +202,8 @@ export class SupabaseOrderRepository {
           delivery_type: payload.deliveryType,
           payment_method: payload.paymentMethod,
           address: payload.customer.address || null,
+          delivery_lat: ubicacionCliente?.lat ?? null,
+          delivery_lng: ubicacionCliente?.lng ?? null,
           subtotal,
           delivery_fee: deliveryFee,
           discount_amount: discountAmount,
@@ -205,6 +226,22 @@ export class SupabaseOrderRepository {
             items: orderProducts,
             redemptions: redemptionPreview?.allRedemptions ?? redemptionPreview?.lineItems ?? [],
             deliveryQuote,
+            ...(ubicacionCliente
+              ? {
+                  ubicacionCliente: {
+                    ...ubicacionCliente,
+                    precision:
+                      payload.ubicacion?.precision !== null &&
+                      payload.ubicacion?.precision !== undefined &&
+                      Number.isFinite(precisionCliente)
+                        ? Math.round(precisionCliente)
+                        : null,
+                    fuente: payload.ubicacion
+                      ? payload.ubicacion.fuente === 'gps' ? 'gps' : 'mapa'
+                      : 'direccion',
+                  },
+                }
+              : {}),
             ...(surchargeAmount > 0
               ? { surcharge: { percent: surchargePercent, amount: surchargeAmount, method: payload.paymentMethod } }
               : {}),

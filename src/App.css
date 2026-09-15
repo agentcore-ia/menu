@@ -6201,6 +6201,240 @@
   opacity: 0.72;
 }
 
+/* "Detectar mi ubicacion" en el checkout: el cliente marca su puerta en el
+   mapa (UbicacionEnMapa.jsx). Sigue los colores de cada plantilla. */
+.checkout-ubicacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.checkout-ubicacion-boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.62rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--theme-primary, #1d4ed8) 38%, transparent);
+  background: color-mix(in srgb, var(--theme-primary, #1d4ed8) 10%, var(--theme-surface, #ffffff));
+  color: var(--theme-primary, #1d4ed8);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.checkout-ubicacion-boton:hover {
+  background: color-mix(in srgb, var(--theme-primary, #1d4ed8) 16%, var(--theme-surface, #ffffff));
+}
+
+.checkout-ubicacion-estado {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--theme-muted, #6b7280);
+}
+
+.checkout-ubicacion-estado.ok {
+  color: #15803d;
+  font-weight: 800;
+}
+
+.checkout-ubicacion-quitar {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.mapa-ubicacion-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 15, 15, 0.5);
+}
+
+.mapa-ubicacion {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(34rem, 100%);
+  height: min(46rem, calc(100dvh - 2rem));
+  overflow: hidden;
+  border-radius: 1.4rem;
+  background: var(--theme-surface, #ffffff);
+  color: var(--theme-text, #1b1b18);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.mapa-ubicacion-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem 0.85rem;
+}
+
+.mapa-ubicacion-cabecera div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.mapa-ubicacion-cabecera strong {
+  font-size: 1.08rem;
+  font-weight: 900;
+}
+
+.mapa-ubicacion-cabecera span {
+  font-size: 0.82rem;
+  color: var(--theme-muted, #6b7280);
+}
+
+.mapa-ubicacion-cerrar {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-text, #1b1b18) 8%, transparent);
+  color: inherit;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mapa-ubicacion-lienzo {
+  position: relative;
+  isolation: isolate;
+  min-height: 0;
+}
+
+.mapa-ubicacion-mapa {
+  position: absolute;
+  inset: 0;
+}
+
+/* El pin queda fijo en el centro: el cliente mueve el mapa, no el pin. La
+   punta cae justo en el centro del mapa, que es el punto que se guarda. */
+.mapa-ubicacion-pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1100;
+  transform: translate(-50%, -100%);
+  color: var(--theme-primary, #1d4ed8);
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+}
+
+.mapa-ubicacion-sombra {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1099;
+  width: 0.7rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.mapa-ubicacion-gps {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 1100;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #1b1b18;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+.mapa-ubicacion-gps:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.mapa-ubicacion-pie {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.9rem 1.1rem 1.1rem;
+  border-top: 1px solid var(--theme-border, rgba(0, 0, 0, 0.08));
+}
+
+.mapa-ubicacion-aviso {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--theme-muted, #6b7280);
+}
+
+.mapa-ubicacion-direccion {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.mapa-ubicacion-direccion span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--theme-muted, #6b7280);
+}
+
+.mapa-ubicacion-direccion strong {
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.mapa-ubicacion-confirmar {
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border: 0;
+  border-radius: 1rem;
+  background: var(--theme-primary, #1d4ed8);
+  color: var(--theme-primary-text, #ffffff);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.mapa-ubicacion-confirmar:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* En el celular el mapa ocupa toda la pantalla, como en las apps de delivery. */
+@media (max-width: 640px) {
+  .mapa-ubicacion-fondo {
+    padding: 0;
+  }
+
+  .mapa-ubicacion {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+  }
+}
+
 .cart-panel {
   margin-top: 1.45rem;
 }
