@@ -3382,12 +3382,15 @@ function getBurgerCategoryIcon(label) {
   return IconServe
 }
 
-function getBurgerDishParts(item) {
+function getBurgerDishParts(item, { marcaPropia = false } = {}) {
   const name = String(item?.name ?? '').replace(/^hamburguesa\s+/i, '').trim()
   const words = name.split(/\s+/).filter(Boolean)
 
   if (words.length <= 1) {
-    return [name || 'Brasa', 'Clasica']
+    // "Clasica" completa el nombre de una hamburgueseria ("Brasa Clasica").
+    // En un local con marca propia es un apellido inventado: una pizza
+    // "Anchoas" salia "Anchoas Clasica".
+    return [name || 'Brasa', marcaPropia ? '' : 'Clasica']
   }
 
   return [words.slice(0, -1).join(' '), words.at(-1)]
@@ -6250,7 +6253,9 @@ function TemplateMenuCollection({
       : [{ id: currentCategory?.id ?? 'resultados', label: currentCategory?.label ?? '', items: categoryItems }]
 
     function renderBurgerCard(item) {
-      const [title, accent] = getBurgerDishParts(item)
+      const [title, accent] = getBurgerDishParts(item, {
+        marcaPropia: Boolean(presentation?.branding?.esPropio),
+      })
       const hasActualMedia = Boolean(item.video || item.hasCustomImage)
       // Sin foto/video real, la caja de media quedaba vacia (el fallback de
       // renderProductMedia no dibuja nada, solo el <button> hueco). Antes
@@ -6285,7 +6290,7 @@ function TemplateMenuCollection({
             <button type="button" className="burger-dish-copy" onClick={() => onOpenDish(item)}>
               <h3>
                 <span>{title}</span>
-                <strong>{accent}</strong>
+                {accent ? <strong>{accent}</strong> : null}
               </h3>
               <p>{item.description}</p>
             </button>
