@@ -18914,6 +18914,16 @@ button:focus-visible {
   color: var(--theme-muted);
 }
 
+/* El monto a transferir va arriba y grande, separado de los datos de la cuenta. */
+.checkout-transferencia strong.checkout-transferencia-total {
+  margin-bottom: 0.45rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px dashed var(--theme-border);
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: var(--theme-primary);
+}
+
 /* Aviso de promo solo en efectivo: misma tarjeta que la transferencia, con el
    color del local en el borde para que se lea antes de confirmar. */
 .checkout-transferencia.checkout-solo-efectivo {

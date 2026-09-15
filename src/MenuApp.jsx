@@ -11014,6 +11014,13 @@ export default function MenuApp() {
 
                     {pagoElegido === 'transferencia' && datosDeTransferencia ? (
                       <div className="checkout-transferencia">
+                        {/* Lo primero que busca el que va a transferir: cuanto.
+                            Es el mismo total del pedido, con envio y recargo. */}
+                        <span>Total a transferir</span>
+                        <strong className="checkout-transferencia-total">{formatPrice(orderTotal, currencySymbol)}</strong>
+                        {orderForm.deliveryType === 'delivery' && deliveryZonesEnabled && deliveryQuoteStatus !== 'ready' ? (
+                          <p>El envío se suma cuando termine de calcularse. Transferí el total final.</p>
+                        ) : null}
                         <span>Transferí a</span>
                         {datosDeTransferencia.alias ? (
                           <strong>Alias: {datosDeTransferencia.alias}</strong>
