@@ -805,6 +805,8 @@ export class SupabaseMenuRepository {
         // del preset: al mezclarse quedan iguales. Hace falta para no mostrarle
         // a un local la marca de otro.
         esPropio: Boolean(config.branding_wordmark),
+        // Lo mismo con el subtitulo: el del preset burger es "BURGER CO.".
+        subtituloPropio: Boolean(config.branding_subtitle),
       },
       theme: {
         ...themeOverrides,

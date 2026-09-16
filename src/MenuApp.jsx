@@ -1154,6 +1154,13 @@ function getLoadingTemplate(accountId) {
     return 'sabor-pampa'
   }
 
+  // Locales con marca propia que usan la plantilla burger: la pantalla de
+  // carga "BRASA" es de otra marca. Aca todavia no se sabe si la marca es
+  // propia (la presentacion no llego), por eso va por slug.
+  if (key.includes('craft')) {
+    return 'default'
+  }
+
   if (
     key.includes('burger') ||
     key.includes('burguer') ||
@@ -3980,6 +3987,38 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
   }
 
   if (templateId === 'burger') {
+    // Igual que la pizzeria: la cabecera del preset (/burger/header.png) tiene
+    // "GRILL HOUSE" dibujado. Un local con nombre propio y sin portada subida
+    // lleva una cabecera armada con SU nombre (o su logo).
+    const portadasPropias = getBurgerHeroImages(presentation, '').filter(
+      (src) => src && !String(src).startsWith('/'),
+    )
+    const marcaBurger = presentation.branding?.esPropio
+      ? String(presentation.branding?.wordmark || '').trim()
+      : ''
+    const logoBurger = presentation.branding?.esPropio
+      ? presentation.branding?.logoBanda || presentation.branding?.logo || ''
+      : ''
+
+    if (!portadasPropias.length && (marcaBurger || logoBurger)) {
+      return (
+        <section className="hero-content hero-content-burger hero-burger-texto">
+          <div className="burger-header-texto">
+            {logoBurger ? (
+              <img className="burger-header-logo" src={logoBurger} alt={marcaBurger || 'Logo del local'} />
+            ) : (
+              <strong>{marcaBurger}</strong>
+            )}
+            {/* Solo el subtitulo que cargo el local: el del preset es de otra
+                marca. El titulo "Nuestro menu" ya lo pone la plantilla abajo. */}
+            {presentation.branding?.subtituloPropio && presentation.branding?.subtitle ? (
+              <span>{presentation.branding.subtitle}</span>
+            ) : null}
+          </div>
+        </section>
+      )
+    }
+
     return (
       <section className="hero-content hero-content-burger">
         <HeroImageSlider
@@ -6229,8 +6268,11 @@ function TemplateMenuCollection({
     // banner es arte de otra marca ("El match perfecto. Combo clasico.")
     // anunciando algo que este local no vende. Antes caia en currentCategory,
     // que ademas es la categoria que ya esta mirando.
-    const comboTarget =
-      promoTarget ??
+    // Con marca propia tampoco: el banner muestra un combo con Coca-Cola de
+    // otra marca, aunque el local tenga bebidas.
+    const comboTarget = presentation?.branding?.esPropio
+      ? null
+      : promoTarget ??
       findCombosCategory(categories) ??
       categories.find((category) => slugify(category.label).includes('bebida')) ??
       null

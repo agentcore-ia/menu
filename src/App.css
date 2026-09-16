@@ -18379,6 +18379,55 @@ button:focus-visible {
   line-height: 1.2;
 }
 
+/* Cabecera de texto de la plantilla burger, para el local con nombre propio
+   y sin portada subida (la del preset dice "GRILL HOUSE"). */
+.hero-burger-texto {
+  padding: 0;
+}
+
+.burger-header-texto {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  /* A los costados deja lugar al carrito, que va flotando arriba. */
+  padding: 3.4rem 3.2rem 2rem;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--theme-primary, #f5b72e) 26%, transparent), transparent 62%),
+    var(--theme-bg, #020404);
+  border-bottom: 3px solid var(--theme-primary, #f5b72e);
+}
+
+.burger-header-texto > strong {
+  color: var(--theme-primary, #f5b72e);
+  font-family: 'Bebas Neue', var(--font-display, serif);
+  font-size: clamp(3rem, 15vw, 5rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.burger-header-texto > span {
+  color: var(--theme-text, #f8f3e8);
+  font-family: 'Montserrat', var(--font-body, sans-serif);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.45em;
+  text-indent: 0.45em;
+  text-transform: uppercase;
+}
+
+.burger-header-logo {
+  display: block;
+  width: auto;
+  max-width: min(70%, 20rem);
+  max-height: 6rem;
+  height: auto;
+  object-fit: contain;
+}
+
 /* El producto sin descripcion no lleva la linea divisoria: quedaba colgada. */
 .pizzeria-dish-card-texto .pizzeria-dish-copy p:empty {
   display: none;
