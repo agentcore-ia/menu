@@ -16757,8 +16757,56 @@ button:focus-visible {
 
 /* Se pide sacar la tira de beneficios (Pedi facil / Elaboracion diaria
    / Ingredientes / Hecho con amor). */
-.account-lo-de-totto .pampa-feature-strip {
+.account-lo-de-totto .pampa-feature-strip,
+.account-craft-burguer .pampa-feature-strip {
   display: none;
+}
+
+/* Local con esta plantilla y sin logo: el nombre escrito en el lugar del
+   logo (el de la plantilla es el de Sabor a Pampa). */
+.pampa-brand-lockup.pampa-brand-texto {
+  width: auto;
+  max-width: 90%;
+  aspect-ratio: auto;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.pampa-brand-texto strong {
+  color: var(--theme-primary, #f4b739);
+  font: 700 clamp(2.4rem, 12vw, 3.6rem) / 0.95 var(--font-display);
+  letter-spacing: -0.01em;
+  text-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.5);
+}
+
+.pampa-brand-texto span {
+  color: var(--theme-text, #f7efe2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+/* Craft Burguer todavia no tiene banner: sin el recuadro punteado que
+   marca "aca va la foto", y el hero con su alto natural. */
+.account-craft-burguer .pampa-hero-placeholder::before {
+  display: none;
+}
+
+/* Mismo alto que el banner de Lo de Toto, con el nombre al centro. */
+.account-craft-burguer .hero-sabor-pampa {
+  height: auto;
+  aspect-ratio: 1635 / 904;
+  border-radius: 0;
+}
+
+.account-craft-burguer .pampa-hero-copy {
+  display: none;
+}
+
+.account-craft-burguer .pampa-brand-lockup.pampa-brand-texto {
+  /* Debajo de los botones del menu y del carrito (~70px). */
+  margin-top: clamp(4.6rem, 21vw, 6rem);
 }
 
 /* ==========================================================================

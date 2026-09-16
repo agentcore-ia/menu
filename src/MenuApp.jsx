@@ -4202,12 +4202,26 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
           />
         </div>
 
-        <div className="pampa-brand-lockup">
-          <img
-            src={presentation.theme?.logoImage || '/sabor-a-pampa/logo.png'}
-            alt={presentation.branding?.wordmark ?? 'Sabor a Pampa'}
-          />
-        </div>
+        {/* Otro local con esta plantilla y sin logo propio (Craft Burguer) no
+            puede salir con el logo de Sabor a Pampa: va su nombre escrito. */}
+        {!presentation.theme?.logoImage &&
+        presentation.branding?.esPropio &&
+        presentation.branding?.wordmark &&
+        !/pampa/i.test(presentation.branding.wordmark) ? (
+          <div className="pampa-brand-lockup pampa-brand-texto">
+            <strong>{presentation.branding.wordmark}</strong>
+            {presentation.branding?.subtituloPropio && presentation.branding?.subtitle ? (
+              <span>{presentation.branding.subtitle}</span>
+            ) : null}
+          </div>
+        ) : (
+          <div className="pampa-brand-lockup">
+            <img
+              src={presentation.theme?.logoImage || '/sabor-a-pampa/logo.png'}
+              alt={presentation.branding?.wordmark ?? 'Sabor a Pampa'}
+            />
+          </div>
+        )}
 
         <div className="pampa-hero-copy">
           <h1>{presentation.hero?.title ?? 'CASERO, GOURMET'}</h1>
