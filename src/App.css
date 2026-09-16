@@ -16793,11 +16793,20 @@ button:focus-visible {
   display: none;
 }
 
-/* Mismo alto que el banner de Lo de Toto, con el nombre al centro. */
+/* Como Lo de Toto: el banner (1672x941, con la marca ya en la foto) entra
+   completo y limpio, sin el velo oscuro de la plantilla. */
 .account-craft-burguer .hero-sabor-pampa {
   height: auto;
-  aspect-ratio: 1635 / 904;
+  aspect-ratio: 1672 / 941;
   border-radius: 0;
+}
+
+.account-craft-burguer .pampa-hero-media::after {
+  display: none;
+}
+
+.account-craft-burguer .pampa-hero-media .hero-image-slider {
+  height: 100%;
 }
 
 .account-craft-burguer .pampa-hero-copy {

@@ -4203,17 +4203,20 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
         </div>
 
         {/* Otro local con esta plantilla y sin logo propio (Craft Burguer) no
-            puede salir con el logo de Sabor a Pampa: va su nombre escrito. */}
+            puede salir con el logo de Sabor a Pampa: con banner propio (que ya
+            trae la marca) no va nada encima; sin banner, su nombre escrito. */}
         {!presentation.theme?.logoImage &&
         presentation.branding?.esPropio &&
         presentation.branding?.wordmark &&
         !/pampa/i.test(presentation.branding.wordmark) ? (
+          standaloneHeroImages.length ? null : (
           <div className="pampa-brand-lockup pampa-brand-texto">
             <strong>{presentation.branding.wordmark}</strong>
             {presentation.branding?.subtituloPropio && presentation.branding?.subtitle ? (
               <span>{presentation.branding.subtitle}</span>
             ) : null}
           </div>
+          )
         ) : (
           <div className="pampa-brand-lockup">
             <img
