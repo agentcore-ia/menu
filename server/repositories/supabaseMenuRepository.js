@@ -820,6 +820,12 @@ export class SupabaseMenuRepository {
         title: config.hero_title || undefined,
         accent: config.hero_accent || undefined,
         description: config.hero_description || undefined,
+        // Los tres sellos de la cabecera de panaderia. Sin esto son los de la
+        // panaderia para la que se dibujo la plantilla ("Masa madre"), y un
+        // local que no hace eso sale diciendo que si.
+        chip1: themeOverrides.heroChips?.[0] || undefined,
+        chip2: themeOverrides.heroChips?.[1] || undefined,
+        chip3: themeOverrides.heroChips?.[2] || undefined,
       },
       cards: {
         style: config.cards_style || undefined,

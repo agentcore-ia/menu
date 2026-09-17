@@ -16844,6 +16844,20 @@ button:focus-visible {
   object-fit: cover;
 }
 
+/* El alto de la cabecera lo da la FOTO. El local que todavia no subio ninguna
+   quedaba con la cabecera en 0 y el nombre tapado: sin foto va un fondo de
+   horno y el alto que necesita el texto. */
+.pan-hero:not(:has(.pan-hero-foto)) {
+  min-height: 17rem;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(237, 161, 58, 0.5), transparent 46%),
+    linear-gradient(160deg, #3a2a1c 0%, #241a12 62%, #1a120c 100%);
+}
+
+.pan-hero:not(:has(.pan-hero-foto)) .pan-hero-copy {
+  position: relative;
+}
+
 /* ---------------------------------------------------------------------------
    Cabecera con video.
 
