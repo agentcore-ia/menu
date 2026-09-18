@@ -19058,23 +19058,9 @@ button:focus-visible {
   user-select: auto;
 }
 
-/* Boutique Cian: el banner (1536x1024) ya trae el logo del local arriba a la
-   izquierda, justo donde la plantilla pone su circulo y el titulo. Va la foto
-   entera y limpia; los chips pasan a una franja debajo. */
-.account-boutique-cian .pan-hero-velo,
-.account-boutique-cian .pan-hero-logo,
-.account-boutique-cian .pan-hero-copy h1 {
-  display: none;
-}
-
+/* Boutique Cian: el banner (1536x1024) ya trae el logo del local. Va la
+   foto entera y limpia, sin el texto ni los chips de la plantilla. */
+.account-boutique-cian .pan-hero:has(.pan-hero-foto) .pan-hero-velo,
 .account-boutique-cian .pan-hero:has(.pan-hero-foto) .pan-hero-copy {
-  position: static;
-  padding: 0.85rem 1.1rem;
-  background: #2a2420;
-}
-
-.account-boutique-cian .pan-hero-chips {
-  margin: 0;
-  justify-content: space-between;
-  gap: 0.6rem;
+  display: none;
 }
