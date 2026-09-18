@@ -3712,6 +3712,9 @@ function getPresentationStyles(presentation, accountId) {
     '--font-display': `"${theme.displayFont}", serif`,
     '--font-body': `"${theme.bodyFont}", sans-serif`,
     '--custom-hero-background': theme.heroBackground || undefined,
+    // Color de los iconos sobre la cabecera (los sellos de panaderia): con una
+    // marca gris sobre fondo oscuro, el color de la marca no se ve.
+    '--custom-hero-accent': theme.heroAccent || undefined,
     '--custom-hero-radius': theme.heroRadius || undefined,
     '--custom-hero-min-height': theme.heroMinHeight || undefined,
     '--custom-header-object-fit': theme.headerObjectFit || undefined,
