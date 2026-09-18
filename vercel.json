@@ -146,6 +146,30 @@
       "destination": "/racing.html"
     },
     {
+      "source": "/bruderpizza",
+      "destination": "/bruderpizza.html"
+    },
+    {
+      "source": "/bruderpizza/:path*",
+      "destination": "/bruderpizza.html"
+    },
+    {
+      "source": "/craft-burguer",
+      "destination": "/craft-burguer.html"
+    },
+    {
+      "source": "/craft-burguer/:path*",
+      "destination": "/craft-burguer.html"
+    },
+    {
+      "source": "/boutique-cian",
+      "destination": "/boutique-cian.html"
+    },
+    {
+      "source": "/boutique-cian/:path*",
+      "destination": "/boutique-cian.html"
+    },
+    {
       "source": "/api/accounts/:accountId/pay-card",
       "destination": "/api/accounts/:accountId/orders?accion=pagar-con-tarjeta"
     },
@@ -154,7 +178,7 @@
       "destination": "/api/accounts/:accountId/orders?accion=estado-del-pago"
     },
     {
-      "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|troka|panacea|racing).*)",
+      "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian).*)",
       "destination": "/host.html"
     }
   ]
