@@ -1197,6 +1197,10 @@ function getLoadingTemplate(accountId) {
     return 'panacea'
   }
 
+  if (key.includes('cian')) {
+    return 'cian'
+  }
+
   if (key.includes('heladeria') || key.includes('dolce')) {
     return 'gelato'
   }
@@ -4712,6 +4716,35 @@ function MenuLoadingScreen({ accountId }) {
             <div className="panacea-loading-progress" aria-hidden="true">
               <span />
             </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'cian') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-cian">
+          <div className="cian-loading" role="status" aria-live="polite" aria-label="Cargando menu de Boutique Cian">
+            {/* El sello sale del banner del local: viene sobre el fondo oscuro
+                de la panaderia, y el CSS le desvanece los bordes contra el
+                mismo oscuro de esta pantalla. */}
+            <img
+              className="cian-loading-sello"
+              src="/boutique-cian/icono.png"
+              alt="Boutique Cian"
+              width="256"
+              height="256"
+            />
+
+            <p className="cian-loading-marca">Panadería y pastelería</p>
+
+            <div className="cian-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+
+            <p className="cian-loading-nota">Recién horneado, todos los días</p>
           </div>
         </div>
       </div>

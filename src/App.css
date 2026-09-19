@@ -19064,3 +19064,96 @@ button:focus-visible {
 .account-boutique-cian .pan-hero:has(.pan-hero-foto) .pan-hero-copy {
   display: none;
 }
+
+/* ---------------------------------------------------------------------------
+   BOUTIQUE CIAN - pantalla de carga
+
+   El menu abre con la foto del mostrador, oscura y calida. La espera repite ese
+   mismo oscuro con el sello del local encendido en el medio y la linea en el
+   caramelo de las facturas.
+   --------------------------------------------------------------------------- */
+.loading-cian {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: radial-gradient(circle at 50% 38%, #2d241c 0%, #1c1815 58%, #131010 100%);
+}
+
+/* El marco y el resplandor de la carga generica son de otra plantilla. */
+.loading-cian::before,
+.loading-cian::after {
+  display: none;
+}
+
+.cian-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.35rem;
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.cian-loading-sello {
+  width: min(52%, 11.5rem);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  /* El recorte es cuadrado y trae el fondo de la foto: el degradado lo apaga
+     hacia los bordes para que apoye sobre el oscuro sin recuadro. */
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 52%, transparent 72%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 52%, transparent 72%);
+  animation: cian-loading-latir 2.4s ease-in-out infinite;
+}
+
+.cian-loading-marca {
+  margin: -0.4rem 0 0;
+  color: #f3e7d7;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.cian-loading-progress {
+  width: min(100%, 8.5rem);
+  height: 0.22rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(201, 139, 69, 0.24);
+}
+
+.cian-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #b06a2c, #e3a55f);
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+.cian-loading-nota {
+  margin: 0;
+  color: rgba(243, 231, 215, 0.62);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
+  text-transform: uppercase;
+}
+
+@keyframes cian-loading-latir {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.82;
+    transform: scale(0.97);
+  }
+}
