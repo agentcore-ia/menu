@@ -6,6 +6,7 @@ import {
 import { getBusinessOpenStatus } from '../../shared/businessHours.js'
 import { rubroDelMenu } from '../../shared/rubros.js'
 import { formaDelCatalogo } from '../../shared/formaDelCatalogo.js'
+import { productoDisponibleHoy } from '../../shared/diasDisponibles.js'
 import { normalizeBusinessLocation } from '../deliveryZones.js'
 
 /**
@@ -310,9 +311,22 @@ export class SupabaseMenuRepository {
     const hiddenIds = Array.isArray(restaurant?.horarios?._settings?.hiddenProducts)
       ? new Set(restaurant.horarios._settings.hiddenProducts.map(String))
       : null
-    const visibleProducts = hiddenIds && hiddenIds.size
-      ? products.filter((product) => !hiddenIds.has(String(product.id)))
-      : products
+    // Productos que solo se venden algunos dias ("De lunes a jueves" en la
+    // descripcion): fuera de esos dias no aparecen, y su cartel de promo
+    // tampoco (shared/diasDisponibles.js). El pedido igual lo frena el servidor.
+    const fueraDeDia = new Set(
+      products.filter((product) => !productoDisponibleHoy(product)).map((product) => String(product.id)),
+    )
+    const promosHeladeria = presentationConfig?.theme?.heladeria?.promos
+    if (fueraDeDia.size && Array.isArray(promosHeladeria)) {
+      presentationConfig.theme.heladeria = {
+        ...presentationConfig.theme.heladeria,
+        promos: promosHeladeria.filter((promo) => !fueraDeDia.has(String(promo?.productoId || ''))),
+      }
+    }
+    const visibleProducts = products.filter(
+      (product) => !fueraDeDia.has(String(product.id)) && !(hiddenIds && hiddenIds.has(String(product.id))),
+    )
     const productById = new Map(visibleProducts.map((product) => [product.id, product]))
     const allRegularCategories = this.groupProductsByCategory(
       visibleProducts,

@@ -7,6 +7,7 @@ import {
 } from './loyaltyUtils.js'
 import { getBusinessOpenStatus } from '../../shared/businessHours.js'
 import { resolveDeliveryQuote } from '../deliveryZones.js'
+import { describirDias, diaDeHoyEnArgentina, diasDelTexto } from '../../shared/diasDisponibles.js'
 
 export class SupabaseOrderRepository {
   constructor(config) {
@@ -65,6 +66,7 @@ export class SupabaseOrderRepository {
     // Antes de tocar la base: un pedido rechazado por pagar una promo de
     // efectivo con otra cosa no tiene que dejar cliente ni conversacion.
     await this.validateCashOnlyItems(Array.isArray(payload.items) ? payload.items : [], payload)
+    await this.validateDayRestrictedItems(Array.isArray(payload.items) ? payload.items : [])
 
     const loyaltySettings = await this.fetchLoyaltySettings(restaurant.id)
     const customer = await this.upsertCustomer(restaurant, payload.customer)
@@ -909,6 +911,32 @@ export class SupabaseOrderRepository {
       `${nombres.join(', ')} ${nombres.length > 1 ? 'se pagan' : 'se paga'} solo en efectivo. Elegí pagar en efectivo para hacer el pedido.`,
     )
     error.code = 'CASH_ONLY_ITEMS'
+    error.statusCode = 422
+    throw error
+  }
+
+  // Productos que solo se venden algunos dias ("De lunes a jueves" en la
+  // descripcion). El menu ya no los muestra fuera de dia; esto frena el pedido
+  // de una pestaña que quedo abierta desde el jueves o uno armado a mano.
+  async validateDayRestrictedItems(orderProducts) {
+    const ids = [
+      ...new Set(
+        orderProducts
+          .map((item) => String(item?.productId || ''))
+          .filter((id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)),
+      ),
+    ]
+    if (!ids.length) return
+    const rows = await this.request(`/products?id=in.(${ids.join(',')})&select=id,name,description`)
+    const hoy = diaDeHoyEnArgentina()
+    const fuera = (rows || [])
+      .map((row) => ({ row, dias: diasDelTexto(`${row.name || ''} ${row.description || ''}`) }))
+      .filter(({ dias }) => dias && !dias.has(hoy))
+    if (!fuera.length) return
+
+    const detalle = fuera.map(({ row, dias }) => `${row.name} es solo ${describirDias(dias)}`).join('. ')
+    const error = new Error(`${detalle}. Sacalo del carrito para hacer el pedido.`)
+    error.code = 'ITEM_NOT_AVAILABLE_TODAY'
     error.statusCode = 422
     throw error
   }
