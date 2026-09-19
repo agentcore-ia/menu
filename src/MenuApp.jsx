@@ -920,6 +920,12 @@ function normalizeAccountAlias(accountId) {
     return 'lo-de-totto'
   }
 
+  // cian-boutique.menu.net.ar: el local lo pidio al reves de su slug
+  // (boutique-cian).
+  if (key === 'cian-boutique') {
+    return 'boutique-cian'
+  }
+
   return accountId
 }
 
@@ -949,6 +955,9 @@ function getAccountFaviconHref(accountId) {
     ['troka', '/troka/icono.png'],
     ['panacea', '/panacea/icono.png'],
     ['racing', '/racing/icono.png'],
+    ['cian', '/boutique-cian/icono.png'],
+    ['craft', '/craft-burguer/icono.png'],
+    ['bruderpizza', '/bruderpizza/icono.png'],
   ].find(([nombre]) => key.includes(nombre))
 
   if (conIconoPropio) {
@@ -980,6 +989,9 @@ function getAccountAppleTouchIconHref(accountId) {
     ['troka', '/troka/icono.png'],
     ['panacea', '/panacea/icono.png'],
     ['racing', '/racing/icono.png'],
+    ['cian', '/boutique-cian/icono.png'],
+    ['craft', '/craft-burguer/icono.png'],
+    ['bruderpizza', '/bruderpizza/icono.png'],
   ].find(([nombre]) => key.includes(nombre))
 
   if (conIconoPropio) {

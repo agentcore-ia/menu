@@ -82,6 +82,16 @@
       "destination": "/panacea.html"
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "cian-boutique.menu.net.ar"
+        }
+      ],
+      "destination": "/boutique-cian.html"
+    },
+    {
       "source": "/almendra",
       "destination": "/almendra.html"
     },
