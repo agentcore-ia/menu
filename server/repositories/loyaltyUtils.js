@@ -1,3 +1,5 @@
+import { normalizarCelular } from '../../shared/celular.js'
+
 export const defaultLoyaltySettings = {
   enabled: false,
   pointsName: 'puntos',
@@ -7,51 +9,10 @@ export const defaultLoyaltySettings = {
   allowRedemption: true,
 }
 
+// La misma que valida el checkout (shared/celular.js): si cada lado normalizara
+// a su manera, un celular aceptado en el menu podria guardarse distinto.
 export function normalizePhone(value) {
-  const digits = String(value ?? '').replace(/\D/g, '')
-
-  if (!digits) {
-    return ''
-  }
-
-  return normalizeArgentinaWhatsappPhone(digits)
-}
-
-function normalizeArgentinaWhatsappPhone(value) {
-  let digits = value.replace(/^00/, '')
-
-  if (digits.startsWith('549')) {
-    return `549${removeArgentinaMobilePrefix(digits.slice(3))}`
-  }
-
-  if (digits.startsWith('54')) {
-    const national = digits.slice(2).replace(/^0+/, '')
-    return `549${removeArgentinaMobilePrefix(national.replace(/^9/, ''))}`
-  }
-
-  digits = digits.replace(/^0+/, '')
-
-  if (digits.startsWith('15') && digits.length >= 10) {
-    return `54911${digits.slice(2)}`
-  }
-
-  return `549${removeArgentinaMobilePrefix(digits)}`
-}
-
-function removeArgentinaMobilePrefix(value) {
-  if (value.startsWith('11') && value.slice(2, 4) === '15') {
-    return `11${value.slice(4)}`
-  }
-
-  if (value.length >= 12 && value.slice(3, 5) === '15') {
-    return `${value.slice(0, 3)}${value.slice(5)}`
-  }
-
-  if (value.length >= 13 && value.slice(4, 6) === '15') {
-    return `${value.slice(0, 4)}${value.slice(6)}`
-  }
-
-  return value
+  return normalizarCelular(value)
 }
 
 export function parseInteger(value, fallback = 0) {

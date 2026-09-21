@@ -1,4 +1,5 @@
 import { getServerConfig } from '../../../server/config.js'
+import { celularValido, MENSAJE_CELULAR_INVALIDO } from '../../../shared/celular.js'
 import { pagarConTarjeta } from '../../../server/pagarConTarjeta.js'
 import { estadoDelPago } from '../../../server/estadoDelPago.js'
 import { createOrderRepository } from '../../../server/repositories/orderRepository.js'
@@ -33,10 +34,18 @@ export default async function handler(req, res) {
   try {
     const payload = req.body ?? {}
 
-    if (!payload.customer?.name || !isValidCustomerPhone(payload.customer?.phone)) {
+    if (!payload.customer?.name) {
       res.status(400).json({
         error: 'CUSTOMER_REQUIRED',
-        message: 'Nombre y celular son obligatorios para enviar el pedido.',
+        message: 'El nombre es obligatorio para enviar el pedido.',
+      })
+      return
+    }
+
+    if (!isValidCustomerPhone(payload.customer?.phone)) {
+      res.status(400).json({
+        error: 'CUSTOMER_PHONE_REQUIRED',
+        message: MENSAJE_CELULAR_INVALIDO,
       })
       return
     }
@@ -118,8 +127,10 @@ export default async function handler(req, res) {
   }
 }
 
+// Un celular argentino completo, con caracteristica (shared/celular.js). Con
+// "8 numeros cualesquiera" entraban pedidos a los que no se podia llamar.
 function isValidCustomerPhone(value) {
-  return String(value ?? '').replace(/\D/g, '').length >= 8
+  return celularValido(value)
 }
 
 function isValidOrderItem(item) {

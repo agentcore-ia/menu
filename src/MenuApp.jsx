@@ -9,6 +9,7 @@ import {
   topeDeSabores,
 } from '../shared/heladeria.js'
 import { textosDelMenu } from '../shared/rubros.js'
+import { celularValido, MENSAJE_CELULAR_INVALIDO } from '../shared/celular.js'
 import {
   almacenDelNavegador,
   coordenadasGuardadas,
@@ -9022,11 +9023,13 @@ export default function MenuApp() {
     }
 
     const rawPhone = (orderForm.phone || loyaltyPhone).trim()
-    const phoneDigits = rawPhone.replace(/\D/g, '')
 
-    if (phoneDigits.length < 8) {
+    // Obligatorio en todos los menus, y completo: con la caracteristica. Antes
+    // alcanzaban 8 numeros cualesquiera y quedaban pedidos a los que no se
+    // podia llamar (shared/celular.js; el servidor aplica la misma regla).
+    if (!celularValido(rawPhone)) {
       setCheckoutStatus('error')
-      setCheckoutMessage('Ingresa un celular valido para confirmar el pedido.')
+      setCheckoutMessage(MENSAJE_CELULAR_INVALIDO)
       return
     }
 
@@ -11070,12 +11073,13 @@ export default function MenuApp() {
                 </label>
 
                 <label className="checkout-field">
-                  <span>Celular</span>
+                  <span>Celular (con característica)</span>
                   <input
                     value={orderForm.phone}
                     onChange={(event) => updateOrderForm('phone', event.target.value)}
-                    placeholder="549..."
+                    placeholder="Ej: 2346 15 587122"
                     inputMode="tel"
+                    autoComplete="tel"
                     required
                   />
                 </label>

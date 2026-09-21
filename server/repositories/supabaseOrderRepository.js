@@ -8,6 +8,7 @@ import {
 import { getBusinessOpenStatus } from '../../shared/businessHours.js'
 import { resolveDeliveryQuote } from '../deliveryZones.js'
 import { describirDias, diaDeHoyEnArgentina, diasDelTexto } from '../../shared/diasDisponibles.js'
+import { celularValido, MENSAJE_CELULAR_INVALIDO } from '../../shared/celular.js'
 
 export class SupabaseOrderRepository {
   constructor(config) {
@@ -60,6 +61,17 @@ export class SupabaseOrderRepository {
       error.code = 'RESTAURANT_CLOSED'
       error.statusCode = 409
       error.ordering = orderingStatus
+      throw error
+    }
+
+    // El celular es obligatorio en TODOS los menus (shared/celular.js). El
+    // checkout ya lo pide, pero la regla va aca: un pedido armado a mano o de
+    // una pestaña vieja entraba con "menu-sin-telefono" y nadie podia avisarle
+    // al cliente ni el repartidor llamarlo.
+    if (!celularValido(payload.customer?.phone)) {
+      const error = new Error(MENSAJE_CELULAR_INVALIDO)
+      error.code = 'PHONE_REQUIRED'
+      error.statusCode = 422
       throw error
     }
 

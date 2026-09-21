@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { celularValido, MENSAJE_CELULAR_INVALIDO } from '../shared/celular.js'
 import express from 'express'
 import { getServerConfig } from './config.js'
 import { createMenuRepository } from './repositories/menuRepository.js'
@@ -217,7 +218,7 @@ app.post('/api/accounts/:accountId/orders', async (req, res) => {
     if (!isValidCustomerPhone(payload.customer?.phone)) {
       res.status(400).json({
         error: 'CUSTOMER_PHONE_REQUIRED',
-        message: 'Nombre y celular son obligatorios para enviar el pedido.',
+        message: MENSAJE_CELULAR_INVALIDO,
       })
       return
     }
@@ -561,8 +562,10 @@ app.listen(config.port, () => {
   console.log(`capta menu API listening on http://127.0.0.1:${config.port}`)
 })
 
+// Un celular argentino completo, con caracteristica (shared/celular.js). Con
+// "8 numeros cualesquiera" entraban pedidos a los que no se podia llamar.
 function isValidCustomerPhone(value) {
-  return String(value ?? '').replace(/\D/g, '').length >= 8
+  return celularValido(value)
 }
 
 function isValidOrderItem(item) {
