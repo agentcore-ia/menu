@@ -11077,7 +11077,7 @@ export default function MenuApp() {
                   <input
                     value={orderForm.phone}
                     onChange={(event) => updateOrderForm('phone', event.target.value)}
-                    placeholder="Ej: 2346 15 587122"
+                    placeholder="Ej: 2346 587122"
                     inputMode="tel"
                     autoComplete="tel"
                     required

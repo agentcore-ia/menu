@@ -54,4 +54,4 @@ export function celularValido(valor) {
 }
 
 export const MENSAJE_CELULAR_INVALIDO =
-  'Poné tu celular con la característica, por ejemplo 2346 15 587122. Lo necesitamos para avisarte de tu pedido.'
+  'Poné tu celular con la característica, por ejemplo 2346 587122. Lo necesitamos para avisarte de tu pedido.'
