@@ -289,6 +289,14 @@ app.post('/api/accounts/:accountId/orders', async (req, res) => {
       return
     }
 
+    // Las demas reglas del pedido (celular, envio, productos fuera de dia)
+    // vienen con su codigo y un mensaje para el cliente: son un 4xx, no una
+    // falla del servidor.
+    if (error?.code && error.statusCode >= 400 && error.statusCode < 500) {
+      res.status(error.statusCode).json({ error: error.code, message: error.message })
+      return
+    }
+
     res.status(500).json({
       error: 'ORDER_CREATE_FAILED',
       message: error instanceof Error ? error.message : 'No se pudo crear el pedido.',

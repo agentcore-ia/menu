@@ -123,6 +123,23 @@ export class SupabaseOrderRepository {
 
     const deliveryFee = shouldChargeDelivery ? Number(deliveryQuote?.fee ?? restaurant.delivery_fee ?? 0) : 0
 
+    // Con Capta Delivery el envio es la plata del viaje: en $0 el repartidor no
+    // cobra y Capta no factura. Paso cuando un local tenia las zonas apagadas:
+    // el menu usaba su "envio fijo", que estaba en $0, y el pedido salia
+    // gratis. La base tiene la misma regla (pedidos_envio_capta_obligatorio).
+    if (
+      shouldChargeDelivery &&
+      restaurant.horarios?._settings?.deliveryCapta === true &&
+      !(deliveryFee > 0)
+    ) {
+      const error = new Error(
+        'No pudimos calcular el envío a esa dirección. Revisala o elegí retirar en el local.',
+      )
+      error.code = 'DELIVERY_FEE_REQUIRED'
+      error.statusCode = 422
+      throw error
+    }
+
     // Recargo por metodo de pago (dashboard > Ajustes > horarios._settings.
     // paymentSurcharge = { methods: ['transferencia','mercado_pago'], percent }),
     // mismo mecanismo que agentTestPhones/orderTakingPaused. Se calcula server-side
