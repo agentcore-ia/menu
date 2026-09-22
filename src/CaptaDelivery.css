@@ -213,6 +213,20 @@ body {
   background: linear-gradient(110deg, #ffeadd 0%, #ffe0cc 55%, #ffb27a 100%);
 }
 
+/* La version con la imagen hecha: la foto ES el banner, no lleva nada encima. */
+.cd-banner-imagen {
+  padding: 0;
+  background: none;
+  display: block;
+}
+
+.cd-banner-imagen img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 22px;
+}
+
 .cd-banner-kicker {
   margin: 0 0 6px;
   font-size: 11px;

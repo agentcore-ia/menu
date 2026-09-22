@@ -325,6 +325,51 @@ function MisDatos({ onCerrar }) {
   )
 }
 
+/**
+ * El banner de arriba de todo.
+ *
+ * Hay una imagen hecha por ciudad (public/capta/banner-<ciudad>.png|webp) con
+ * el nombre de la ciudad impreso. La ciudad que no tiene la suya muestra el
+ * banner dibujado, que arma el nombre solo: asi no puede pasar que a alguien de
+ * otra ciudad le diga "CHIVILCOY".
+ *
+ * Para sumar una ciudad alcanza con dejar el archivo con su nombre.
+ */
+function Banner({ ciudad }) {
+  const clave = ciudadPareja(ciudad).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+  const [sinImagen, setSinImagen] = useState(false)
+
+  if (clave && !sinImagen) {
+    return (
+      <section className="cd-banner cd-banner-imagen">
+        <picture>
+          <source srcSet={`/capta/banner-${clave}.webp`} type="image/webp" />
+          <img
+            src={`/capta/banner-${clave}.png`}
+            alt={`Capta Delivery en ${ciudad}: tus sabores favoritos, mas cerca`}
+            onError={() => setSinImagen(true)}
+          />
+        </picture>
+      </section>
+    )
+  }
+
+  return (
+    <section className="cd-banner">
+      <div>
+        <p className="cd-banner-kicker">{(ciudad || 'Tu ciudad').toUpperCase()}</p>
+        <h1>
+          Tus sabores favoritos,
+          <br />
+          <em>más cerca</em>
+        </h1>
+        <p className="cd-banner-texto">Apoyá lo de tu ciudad, pedí por Capta.</p>
+      </div>
+      <LogoCapta tamano={104} className="cd-banner-logo" />
+    </section>
+  )
+}
+
 function BarraInferior({ vista, onVista, favoritos }) {
   const items = [
     { id: 'inicio', icono: 'home', texto: 'Inicio' },
@@ -484,18 +529,7 @@ export default function CaptaDeliveryApp() {
 
       <main className="cd-contenido">
         {vista === 'inicio' && !busqueda && categoria === 'todos' ? (
-          <section className="cd-banner">
-            <div>
-              <p className="cd-banner-kicker">{(ciudad || 'Tu ciudad').toUpperCase()}</p>
-              <h1>
-                Tus sabores favoritos,
-                <br />
-                <em>más cerca</em>
-              </h1>
-              <p className="cd-banner-texto">Apoyá lo de tu ciudad, pedí por Capta.</p>
-            </div>
-            <LogoCapta tamano={104} className="cd-banner-logo" />
-          </section>
+          <Banner key={ciudad} ciudad={ciudad} />
         ) : null}
 
         {cargando ? (
