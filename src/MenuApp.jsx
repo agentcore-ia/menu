@@ -516,6 +516,46 @@ function IconFries() {
   )
 }
 
+// Un pancho: el pan en diagonal con la salchicha adentro. Sin la mostaza no se
+// distingue de una pastilla, asi que el zigzag no es adorno.
+function IconPancho() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <g transform="rotate(-38 12 12)">
+        <rect x="2.4" y="8.6" width="19.2" height="6.8" rx="3.4" />
+        <rect x="5.2" y="10.3" width="13.6" height="3.4" rx="1.7" />
+        <path d="M7.6 12.6l1.5-1.2 1.5 1.2 1.5-1.2 1.5 1.2 1.5-1.2" />
+      </g>
+    </svg>
+  )
+}
+
+// El menu de los chicos: un osito. Es lo que se lee de un toque en el tamano
+// de la barra, mas que un plato chico.
+function IconKids() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="6.9" cy="7.8" r="2.4" />
+      <circle cx="17.1" cy="7.8" r="2.4" />
+      <circle cx="12" cy="13.2" r="5.8" />
+      <path d="M10.1 12.2h.01M13.9 12.2h.01" />
+      <path d="M10.2 15.1a2.7 2.7 0 0 0 3.6 0" />
+    </svg>
+  )
+}
+
+// Tapeo, picada o tabla: la tabla con su mango y algo arriba para compartir.
+function IconTapeo() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M2.8 14.4h14.4a2.5 2.5 0 0 1 0 5H2.8z" />
+      <path d="M19.7 16.9h1.5" />
+      <circle cx="6.6" cy="10.6" r="1.9" />
+      <path d="M12.2 12.5l2.3-4.2 2.3 4.2z" />
+    </svg>
+  )
+}
+
 function IconSearch() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1637,6 +1677,9 @@ function getCategoryIcon(label) {
   if (key.includes('combo')) return IconBurger
   if (key.includes('entrada') || key.includes('papas')) return IconFries
   if (key.includes('hamburgues') || key.includes('burger')) return IconBurger
+  if (key.includes('pancho') || key.includes('hot-dog') || key.includes('hotdog') || key.includes('dog') || key.includes('salchich')) return IconPancho
+  if (key.includes('kids') || key.includes('ninos') || key.includes('infantil') || key.includes('peque')) return IconKids
+  if (key.includes('tapeo') || key.includes('tapas') || key.includes('picada') || key.includes('tabla') || key.includes('compartir')) return IconTapeo
   return IconServe
 }
 
@@ -3550,6 +3593,19 @@ function getSaborPampaCategoryMeta(label) {
 
   if (key.includes('hamburgues') || key.includes('burger')) {
     return { label, icon: IconBurger, tone: 'burger' }
+  }
+
+  // "Craft Dog", "Panchos", "Hot dogs": todos lo mismo.
+  if (key.includes('pancho') || key.includes('hot-dog') || key.includes('hotdog') || key.includes('dog') || key.includes('salchich')) {
+    return { label, icon: IconPancho, tone: 'pancho' }
+  }
+
+  if (key.includes('kids') || key.includes('ninos') || key.includes('infantil') || key.includes('peque')) {
+    return { label, icon: IconKids, tone: 'kids' }
+  }
+
+  if (key.includes('tapeo') || key.includes('tapas') || key.includes('picada') || key.includes('tabla') || key.includes('compartir')) {
+    return { label, icon: IconTapeo, tone: 'tapeo' }
   }
 
   if (key.includes('empanada')) {
