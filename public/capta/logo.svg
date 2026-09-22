@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Capta Delivery">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff7a1a"/>
+      <stop offset="1" stop-color="#f4511e"/>
+    </linearGradient>
+    <clipPath id="marco">
+      <rect width="120" height="120" rx="28"/>
+    </clipPath>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#fondo)"/>
+  <g clip-path="url(#marco)">
+    <!-- cara -->
+    <path d="M22 120 C22 82 40 62 64 62 C88 62 104 82 104 120 Z" fill="#ffb300"/>
+    <path d="M47 92 q5 -6 10 0" stroke="#1c1917" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <path d="M73 92 q5 -6 10 0" stroke="#1c1917" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <path d="M58 101 q7 6 14 0" stroke="#1c1917" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <!-- casco -->
+    <path d="M30 74 C30 42 46 26 66 26 C88 26 102 44 102 72 L102 78 L30 78 Z" fill="#ffffff"/>
+    <rect x="28" y="72" width="76" height="9" rx="4.5" fill="#f3f0ea"/>
+    <!-- C del casco -->
+    <path d="M78 43 A15 15 0 1 0 78 63" stroke="#f4511e" stroke-width="7" fill="none" stroke-linecap="round"/>
+  </g>
+  <!-- lineas de velocidad -->
+  <path d="M10 44 H24 M6 54 H22 M12 64 H24" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+</svg>

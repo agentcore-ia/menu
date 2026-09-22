@@ -19,5 +19,14 @@ export function createMenuRepository(config) {
       const menu = await repository.getMenuByAccountId(accountId)
       return menu ? enrichMenu(menu) : null
     },
+
+    // La vitrina de Capta Delivery. Solo la sabe armar Supabase: con datos de
+    // prueba (mock/sql) la pantalla queda vacia en vez de romperse.
+    async listarVitrinaCapta() {
+      if (typeof repository.listarVitrinaCapta !== 'function') {
+        return { locales: [], ciudades: [] }
+      }
+      return repository.listarVitrinaCapta()
+    },
   }
 }

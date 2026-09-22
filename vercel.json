@@ -6,6 +6,26 @@
       "has": [
         {
           "type": "host",
+          "value": "pedi.menu.net.ar"
+        }
+      ],
+      "destination": "/pedi.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "pedidos.menu.net.ar"
+        }
+      ],
+      "destination": "/pedi.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "saborapampa.menu.net.ar"
         }
       ],
@@ -188,7 +208,15 @@
       "destination": "/api/accounts/:accountId/orders?accion=estado-del-pago"
     },
     {
-      "source": "/:account((?!api|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian).*)",
+      "source": "/pedi",
+      "destination": "/pedi.html"
+    },
+    {
+      "source": "/pedi/:path*",
+      "destination": "/pedi.html"
+    },
+    {
+      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian).*)",
       "destination": "/host.html"
     }
   ]

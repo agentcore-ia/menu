@@ -98,6 +98,22 @@ app.get('/api/health', (_req, res) => {
   })
 })
 
+// La vitrina de Capta Delivery: los locales que reparten con Capta. Publica y
+// sin datos de nadie (server/repositories -> listarVitrinaCapta).
+app.get('/api/delivery/locales', async (_req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300')
+
+  try {
+    res.json(await repository.listarVitrinaCapta())
+  } catch (error) {
+    res.status(500).json({
+      error: 'VITRINA_LOAD_FAILED',
+      message: 'No se pudo cargar la lista de locales.',
+      detail: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
 app.get('/api/accounts/:accountId/menu', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store, max-age=0')
 

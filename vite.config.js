@@ -11,6 +11,14 @@ export default defineConfig({
       configureServer(server) {
         server.middlewares.use((request, _response, next) => {
           const pathname = request.url?.split('?')[0] ?? '/'
+          const consulta = request.url?.includes('?') ? request.url.slice(request.url.indexOf('?')) : ''
+          // La vitrina de Capta Delivery tiene su propio html: sin esto, en
+          // desarrollo /pedi caia en el menu generico (host.html).
+          if (pathname === '/pedi' || pathname.startsWith('/pedi/')) {
+            request.url = `/pedi.html${consulta}`
+            next()
+            return
+          }
           if (!pathname.startsWith('/api/') && !pathname.startsWith('/@') && !pathname.includes('.')) {
             request.url = `/host.html${request.url?.includes('?') ? request.url.slice(request.url.indexOf('?')) : ''}`
           }
@@ -23,6 +31,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'host.html'),
+        pedi: resolve(__dirname, 'pedi.html'),
         almendra: resolve(__dirname, 'almendra.html'),
         kika: resolve(__dirname, 'kika.html'),
         saborapampa: resolve(__dirname, 'saborapampa.html'),

@@ -19157,3 +19157,44 @@ button:focus-visible {
     transform: scale(0.97);
   }
 }
+
+/* El boton para volver a la vitrina de Capta Delivery (src/VolverAVitrina.jsx).
+   Solo se ve si el cliente entro al menu desde /pedi. Va abajo a la izquierda
+   para no taparle el carrito, que en todos los menus esta a la derecha. */
+.volver-a-vitrina {
+  position: fixed;
+  left: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px 9px 10px;
+  border-radius: 999px;
+  background: rgba(28, 25, 23, 0.88);
+  color: #fff;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+}
+
+.volver-a-vitrina:hover {
+  background: #1c1917;
+}
+
+/* Varias plantillas tienen su propia barra fija abajo (la de categorias de
+   burger/host, o la barra del pedido). El boton se corre para arriba para no
+   taparlas. */
+body:has(.burger-bottom-nav),
+body:has(.host-bottom-nav),
+body:has(.blue-burger-bottom-nav),
+body:has(.detail-order-bar) {
+  --volver-a-vitrina-abajo: 6.6rem;
+}
+
+.volver-a-vitrina {
+  bottom: calc(var(--volver-a-vitrina-abajo, 12px) + env(safe-area-inset-bottom));
+}

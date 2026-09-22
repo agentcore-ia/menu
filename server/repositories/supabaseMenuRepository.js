@@ -7,7 +7,16 @@ import { getBusinessOpenStatus } from '../../shared/businessHours.js'
 import { rubroDelMenu } from '../../shared/rubros.js'
 import { formaDelCatalogo } from '../../shared/formaDelCatalogo.js'
 import { productoDisponibleHoy } from '../../shared/diasDisponibles.js'
-import { normalizeBusinessLocation } from '../deliveryZones.js'
+import { normalizeBusinessLocation, normalizeDeliveryZones } from '../deliveryZones.js'
+import {
+  ajustesDelLocal,
+  categoriaDeVitrina,
+  envioDesde,
+  localVisibleEnVitrina,
+  nombreDeCategoria,
+  tiempoDeEntrega,
+} from '../../shared/vitrinaCapta.js'
+import { imagenesDeVitrina } from '../vitrinaImagenes.js'
 
 /**
  * Marca las categorias que solo se ELIGEN (los sabores de una heladeria) y las
@@ -454,6 +463,91 @@ export class SupabaseMenuRepository {
           }
         : ordering,
     }
+  }
+
+  /**
+   * Los locales que reparten con Capta, para la vitrina de Capta Delivery.
+   *
+   * Es una pantalla publica y abierta: sale SOLO lo que hace falta para elegir
+   * un local (nombre, ciudad, foto, si esta abierto, cuanto tarda y desde
+   * cuanto sale el envio). Nada de telefonos, mails, tokens ni ajustes.
+   *
+   * Quien se muestra lo decide el servidor (shared/vitrinaCapta.js): si un
+   * local no entra en esta lista, no hay forma de que aparezca en la pantalla.
+   */
+  async listarVitrinaCapta() {
+    const restaurantes = await this.request(
+      '/restaurants?select=id,name,slug,city,business_type,horarios,hace_delivery,tiempo_entrega&limit=500',
+    )
+    const candidatos = restaurantes.filter((r) => ajustesDelLocal(r.horarios).deliveryCapta === true)
+
+    if (!candidatos.length) {
+      return { locales: [], ciudades: [] }
+    }
+
+    const enLista = `in.(${candidatos.map((r) => `"${r.id}"`).join(',')})`
+    const [presentaciones, productos] = await Promise.all([
+      this.request(
+        `/restaurant_menu_presentations?restaurant_id=${enLista}&select=restaurant_id,layout,theme_id,hero_image_url,branding_wordmark,theme_overrides`,
+      ).catch(() => []),
+      // Alcanza con saber si tiene algo cargado: un local con el menu vacio no
+      // se muestra, porque el cliente entraria a una pantalla sin nada.
+      this.request(`/products?restaurant_id=${enLista}&available=eq.true&select=restaurant_id`).catch(() => []),
+    ])
+
+    const presentacionPorId = new Map(
+      (Array.isArray(presentaciones) ? presentaciones : []).map((fila) => [fila.restaurant_id, fila]),
+    )
+    const conMenu = new Set((Array.isArray(productos) ? productos : []).map((fila) => fila.restaurant_id))
+
+    const locales = candidatos
+      .filter((r) => localVisibleEnVitrina(r, { conMenu: conMenu.has(r.id) }))
+      // Un menu borrado sigue existiendo en la base: no se muestra.
+      .filter((r) => presentacionPorId.get(r.id)?.theme_id !== DELETED_MENU_THEME_ID)
+      .map((r) => {
+        const ajustes = ajustesDelLocal(r.horarios)
+        const presentacion = presentacionPorId.get(r.id) ?? {}
+        const estado = getBusinessOpenStatus(r.horarios)
+        // "No toma pedidos por ahora" es lo mismo que cerrado para el cliente.
+        const pausado = ajustes.orderTakingPaused === true
+        const categoria = categoriaDeVitrina({
+          captaCategoria: ajustes.captaCategoria,
+          rubro: ajustes.rubro,
+          businessType: r.business_type,
+          plantilla: presentacion.layout,
+        })
+        const imagenes = imagenesDeVitrina(r.slug, { ajustes, presentacion })
+
+        return {
+          slug: r.slug,
+          nombre: r.name,
+          ciudad: r.city || '',
+          categoria,
+          categoriaNombre: nombreDeCategoria(categoria),
+          abierto: pausado ? false : estado.isOpen !== false,
+          pausado,
+          horarioDeHoy: estado.scheduleText || '',
+          proximaApertura: estado.nextOpenText || '',
+          tiempo: tiempoDeEntrega(r.tiempo_entrega),
+          envioDesde: envioDesde(normalizeDeliveryZones(ajustes.deliveryZones)),
+          portada: imagenes.portada,
+          logo: imagenes.logo,
+          color: imagenes.color,
+        }
+      })
+      // Primero los que estan abiertos: es lo que el cliente puede pedir ahora.
+      .sort((a, b) => Number(b.abierto) - Number(a.abierto) || a.nombre.localeCompare(b.nombre))
+
+    const porCiudad = new Map()
+    for (const local of locales) {
+      if (!local.ciudad) continue
+      porCiudad.set(local.ciudad, (porCiudad.get(local.ciudad) ?? 0) + 1)
+    }
+    const ciudades = [...porCiudad.entries()]
+      .map(([nombre, locales]) => ({ nombre, locales }))
+      .sort((a, b) => b.locales - a.locales || a.nombre.localeCompare(b.nombre))
+
+    return { locales, ciudades }
   }
 
   async fetchRestaurant(accountId) {
