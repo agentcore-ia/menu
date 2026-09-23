@@ -1234,6 +1234,10 @@ function getLoadingTemplate(accountId) {
     return 'troka'
   }
 
+  if (key.includes('chicha')) {
+    return 'chicha'
+  }
+
   if (key.includes('babson')) {
     return 'babson'
   }
@@ -4812,6 +4816,30 @@ function MenuLoadingScreen({ accountId }) {
             </div>
 
             <p className="cian-loading-nota">Recién horneado, todos los días</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'chicha') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-chicha">
+          <div className="chicha-loading" role="status" aria-live="polite" aria-label="Cargando menu de Chicha Pizza">
+            {/* El sello de la marca sale del banner del local, recortado en
+                redondo: es lo que la gente reconoce de ellos. El aro que gira
+                va por afuera para no pelearle al sello. */}
+            <div className="chicha-loading-sello">
+              <span className="chicha-loading-arco" aria-hidden="true" />
+              <img src="/chicha/sello.png" alt="Pizzería Chicha" width="420" height="420" />
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="chicha-loading-progress" aria-hidden="true">
+              <span />
+            </div>
           </div>
         </div>
       </div>

@@ -19187,6 +19187,104 @@ button:focus-visible {
   }
 }
 
+/* La pantalla de carga de Chicha Pizza (loadingTemplate 'chicha').
+   El mismo negro del menu, el sello de la marca y el dorado de la plantilla:
+   la espera y el menu tienen que parecer la misma pieza. */
+.loading-chicha {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: radial-gradient(circle at 50% 38%, #1c1207 0%, #0b0806 58%, #030505 100%);
+}
+
+/* El marco y el resplandor de la carga generica son de otra plantilla. */
+.loading-chicha::before,
+.loading-chicha::after {
+  display: none;
+}
+
+.chicha-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.chicha-loading-sello {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(58%, 13rem);
+  aspect-ratio: 1;
+}
+
+.chicha-loading-sello img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0.8rem 1.6rem rgba(0, 0, 0, 0.55));
+  animation: chicha-loading-latir 2.6s ease-in-out infinite;
+}
+
+.chicha-loading-arco {
+  position: absolute;
+  inset: -0.85rem;
+  border: 0.14rem solid transparent;
+  border-top-color: #f4b739;
+  border-right-color: rgba(244, 183, 57, 0.3);
+  border-radius: 50%;
+  animation: chicha-loading-girar 1.2s linear infinite;
+}
+
+.chicha-loading p {
+  margin: 0;
+  color: rgba(247, 239, 226, 0.72);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  text-transform: uppercase;
+}
+
+.chicha-loading-progress {
+  width: min(100%, 9rem);
+  height: 0.22rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(244, 183, 57, 0.2);
+}
+
+.chicha-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1f7a3d, #f4f0e6 50%, #c8402e);
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@keyframes chicha-loading-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes chicha-loading-latir {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.97);
+  }
+}
+
 /* La pantalla de carga de Craft Burguer (loadingTemplate 'craft').
    Mismo negro y mismo dorado que su menu: la espera y el menu tienen que
    parecer la misma pieza. */
