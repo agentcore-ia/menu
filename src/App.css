@@ -16818,9 +16818,9 @@ button:focus-visible {
   margin-top: clamp(4.6rem, 21vw, 6rem);
 }
 
-/* Chicha Pizza: misma plantilla que Craft (editorial + negro y dorado), pero
-   su banner NO trae la marca adentro, asi que el nombre va escrito encima y el
-   velo oscuro se queda (sin el, el dorado se pierde sobre la foto clara). */
+/* Chicha Pizza: misma plantilla que Craft (editorial + negro y dorado). Su
+   banner (1600x600) ya trae el logo adentro, asi que entra completo y limpio:
+   sin la tira de beneficios, sin texto encima y sin el velo oscuro. */
 .account-chicha .pampa-feature-strip,
 .account-chicha .pampa-hero-copy {
   display: none;
@@ -16831,18 +16831,20 @@ button:focus-visible {
 }
 
 .account-chicha .hero-sabor-pampa {
+  /* El banner viene con una banda negra arriba (la agrega la imagen, no el
+     CSS): ahi caen los botones del menu y del carrito, y el arte con el logo
+     queda libre abajo. */
   height: auto;
-  aspect-ratio: 1600 / 1066;
+  aspect-ratio: 1600 / 900;
   border-radius: 0;
+}
+
+.account-chicha .pampa-hero-media::after {
+  display: none;
 }
 
 .account-chicha .pampa-hero-media .hero-image-slider {
   height: 100%;
-}
-
-.account-chicha .pampa-brand-lockup.pampa-brand-texto {
-  /* Debajo de los botones del menu y del carrito (~70px). */
-  margin-top: clamp(4.6rem, 21vw, 6rem);
 }
 
 /* ==========================================================================
