@@ -16831,11 +16831,11 @@ button:focus-visible {
 }
 
 .account-chicha .hero-sabor-pampa {
-  /* El banner viene con una banda negra arriba (la agrega la imagen, no el
-     CSS): ahi caen los botones del menu y del carrito, y el arte con el logo
-     queda libre abajo. */
+  /* El banner (1536x1024) ya trae el logo, y arriba al medio: los botones del
+     menu y del carrito van en las esquinas, asi que no lo tapan. Entra
+     completo, sin recortes. */
   height: auto;
-  aspect-ratio: 1600 / 900;
+  aspect-ratio: 1536 / 1024;
   border-radius: 0;
 }
 
