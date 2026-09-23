@@ -967,6 +967,12 @@ function normalizeAccountAlias(accountId) {
     return 'boutique-cian'
   }
 
+  // craftburguer.menu.net.ar: un subdominio no puede llevar guion en el medio
+  // sin que se lo escriban, y el slug de la cuenta si lo tiene.
+  if (key === 'craftburguer') {
+    return 'craft-burguer'
+  }
+
   return accountId
 }
 

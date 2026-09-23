@@ -112,6 +112,16 @@
       "destination": "/boutique-cian.html"
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "craftburguer.menu.net.ar"
+        }
+      ],
+      "destination": "/craft-burguer.html"
+    },
+    {
       "source": "/almendra",
       "destination": "/almendra.html"
     },
