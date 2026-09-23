@@ -19158,6 +19158,130 @@ button:focus-visible {
   }
 }
 
+/* La pantalla de carga de Craft Burguer (loadingTemplate 'craft').
+   Mismo negro y mismo dorado que su menu: la espera y el menu tienen que
+   parecer la misma pieza. */
+.loading-craft {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: radial-gradient(circle at 50% 34%, #1b1409 0%, #0b0a07 56%, #030505 100%);
+}
+
+/* El marco y el resplandor de la carga generica son de otra plantilla. */
+.loading-craft::before,
+.loading-craft::after {
+  display: none;
+}
+
+.craft-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.35rem;
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.craft-loading-sello {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(40%, 9rem);
+  aspect-ratio: 1;
+  border: 0.06rem solid rgba(244, 183, 57, 0.24);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 42%, rgba(244, 183, 57, 0.16), rgba(244, 183, 57, 0.03) 72%);
+}
+
+/* El aro que gira va POR AFUERA del sello: adentro le pelearia a la hamburguesa. */
+.craft-loading-arco {
+  position: absolute;
+  inset: -0.5rem;
+  border: 0.13rem solid transparent;
+  border-top-color: #f4b739;
+  border-right-color: rgba(244, 183, 57, 0.34);
+  border-radius: 50%;
+  animation: craft-loading-girar 1.15s linear infinite;
+}
+
+.craft-loading-icono {
+  display: grid;
+  place-items: center;
+  width: 46%;
+  color: #f4b739;
+}
+
+.craft-loading-icono svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.craft-loading-marca {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.craft-loading-marca strong {
+  color: #f7efe2;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.65rem, 7.2vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.craft-loading-marca span {
+  color: #f4b739;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  text-transform: uppercase;
+}
+
+.craft-loading p {
+  margin: 0;
+  color: rgba(247, 239, 226, 0.7);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+  text-transform: uppercase;
+}
+
+.craft-loading-progress {
+  width: min(100%, 9rem);
+  height: 0.22rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(244, 183, 57, 0.2);
+}
+
+.craft-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #e0a329, #f4b739);
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@keyframes craft-loading-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* El boton para volver a la vitrina de Capta Delivery (src/VolverAVitrina.jsx).
    Solo se ve si el cliente entro al menu desde /pedi. Va abajo a la izquierda
    para no taparle el carrito, que en todos los menus esta a la derecha. */

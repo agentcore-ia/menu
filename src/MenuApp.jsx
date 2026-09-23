@@ -1211,7 +1211,7 @@ function getLoadingTemplate(accountId) {
   // carga "BRASA" es de otra marca. Aca todavia no se sabe si la marca es
   // propia (la presentacion no llego), por eso va por slug.
   if (key.includes('craft')) {
-    return 'default'
+    return 'craft'
   }
 
   if (
@@ -4802,6 +4802,38 @@ function MenuLoadingScreen({ accountId }) {
             </div>
 
             <p className="cian-loading-nota">Recién horneado, todos los días</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'craft') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-craft">
+          <div className="craft-loading" role="status" aria-live="polite" aria-label="Cargando menu de Craft Burguer">
+            {/* El unico archivo de marca que hay es la foto del cartel del
+                local, que sobre negro se ve como un recuadro gris. Asi que la
+                marca se escribe, con la misma tipografia y el mismo dorado del
+                menu, y lo que se mueve es el aro del sello. */}
+            <div className="craft-loading-sello" aria-hidden="true">
+              <span className="craft-loading-arco" />
+              <span className="craft-loading-icono">
+                <IconBurger />
+              </span>
+            </div>
+
+            <div className="craft-loading-marca">
+              <strong>CRAFT BURGER</strong>
+              <span>&amp; coffee</span>
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="craft-loading-progress" aria-hidden="true">
+              <span />
+            </div>
           </div>
         </div>
       </div>
