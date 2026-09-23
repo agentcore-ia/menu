@@ -8,7 +8,8 @@ import {
 import { getBusinessOpenStatus } from '../../shared/businessHours.js'
 import { resolveDeliveryQuote } from '../deliveryZones.js'
 import { describirDias, diaDeHoyEnArgentina, diasDelTexto } from '../../shared/diasDisponibles.js'
-import { celularValido, MENSAJE_CELULAR_INVALIDO } from '../../shared/celular.js'
+import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../../shared/celular.js'
+import { canjeElegido, configDePuntos } from '../../shared/puntosCapta.js'
 
 export class SupabaseOrderRepository {
   constructor(config) {
@@ -154,7 +155,18 @@ export class SupabaseOrderRepository {
         : 0
     const surchargeAmount =
       surchargePercent > 0 ? Math.round(((discountedSubtotal + deliveryFee) * surchargePercent) / 100) : 0
-    const total = discountedSubtotal + deliveryFee + surchargeAmount
+
+    // Los puntos de Capta Delivery. Lo que el cliente pidio usar se valida
+    // ACA de nuevo contra su saldo real: el navegador solo propone.
+    const canjeCapta = await this.canjearPuntosDeCapta({
+      telefono: payload.customer?.phone,
+      pesosPedidos: payload.puntosCapta,
+      comida: discountedSubtotal,
+      envio: deliveryFee,
+      desdeVitrina: payload.desdeVitrina === true,
+    })
+
+    const total = Math.max(0, discountedSubtotal + deliveryFee + surchargeAmount - canjeCapta.pesos)
 
     let resolvedTableId = null;
     let resolvedTableName = null;
@@ -250,6 +262,12 @@ export class SupabaseOrderRepository {
           delivery_lng: ubicacionCliente?.lng ?? null,
           subtotal,
           delivery_fee: deliveryFee,
+          // Entro desde la app de Capta Delivery: es lo que decide si el
+          // pedido suma puntos (lib/server/puntosCapta.ts del dashboard).
+          desde_vitrina: payload.desdeVitrina === true,
+          // Lo que se descontó con puntos de Capta. Va aparte de
+          // discount_amount, que es el descuento del LOCAL.
+          descuento_puntos_capta: canjeCapta.pesos,
           discount_amount: discountAmount,
           discount_percent: redemptionPreview?.discountPercent ?? null,
           discount_label: redemptionPreview?.discountLabel ?? null,
@@ -329,6 +347,12 @@ export class SupabaseOrderRepository {
         },
       }).catch(() => null)
       throw error
+    }
+
+    // Recien aca se le descuentan los puntos: el pedido ya existe con sus
+    // items. Si algo hubiera fallado antes, el cliente no perdio nada.
+    if (canjeCapta.pesos > 0) {
+      await this.anotarCanjeDePuntos({ pedido, canje: canjeCapta })
     }
 
     const mercadoPagoPreference = await this.createMercadoPagoPreferenceForOrder({
@@ -1378,6 +1402,139 @@ export class SupabaseOrderRepository {
         last_message_at: new Date().toISOString(),
       }),
     })
+  }
+
+  /**
+   * La cuenta de puntos de Capta de un cliente, por su celular.
+   *
+   * Devuelve siempre algo: un cliente que nunca pidio tiene cero puntos, no es
+   * un error. Si el programa esta apagado o la tabla no esta, tambien cero.
+   */
+  async puntosDeCapta(telefonoCrudo) {
+    const telefono = normalizarCelular(telefonoCrudo)
+    if (!/^549\d{10}$/.test(telefono)) return null
+
+    try {
+      const [configFilas, cuentas] = await Promise.all([
+        this.request('/capta_puntos_config?id=eq.true&select=*&limit=1'),
+        this.request(`/capta_puntos_cuentas?telefono=eq.${telefono}&select=id,puntos,nombre&limit=1`),
+      ])
+      const config = configDePuntos(configFilas?.[0] ?? null)
+      const cuenta = cuentas?.[0] ?? null
+      return {
+        telefono,
+        config,
+        cuentaId: cuenta?.id ?? null,
+        puntos: Number(cuenta?.puntos) || 0,
+      }
+    } catch (error) {
+      // Los puntos son un extra: si no se pueden leer, el pedido sigue.
+      console.warn('No se pudieron leer los puntos de Capta:', error?.message)
+      return null
+    }
+  }
+
+  /**
+   * Lo que se le muestra al cliente en la app: cuantos puntos tiene, cuanto
+   * valen y de donde salieron.
+   */
+  async resumenDePuntos(cuenta) {
+    if (!cuenta) return null
+    const config = cuenta.config
+    const pesos = Math.max(0, Math.floor(cuenta.puntos)) * config.valorDelPunto
+
+    let movimientos = []
+    if (cuenta.cuentaId) {
+      try {
+        movimientos = await this.request(
+          `/capta_puntos_movimientos?cuenta_id=eq.${cuenta.cuentaId}&select=tipo,puntos,pesos,detalle,creado_at&order=creado_at.desc&limit=15`,
+        )
+      } catch {
+        movimientos = []
+      }
+    }
+
+    return {
+      telefono: cuenta.telefono,
+      puntos: cuenta.puntos,
+      pesos,
+      config: {
+        activo: config.activo,
+        pesosPorPunto: config.pesosPorPunto,
+        valorDelPunto: config.valorDelPunto,
+        minimoParaCanjear: config.minimoParaCanjear,
+        topePorPedido: config.topePorPedido,
+      },
+      movimientos: Array.isArray(movimientos) ? movimientos : [],
+    }
+  }
+
+  /**
+   * Cuanto puede descontar de verdad este cliente en este pedido.
+   *
+   * Lo que manda el navegador es una propuesta: aca se vuelve a mirar el saldo
+   * real y los topes. Solo cuenta si el pedido entro DESDE la app de Capta.
+   */
+  async canjearPuntosDeCapta({ telefono, pesosPedidos, comida, envio, desdeVitrina }) {
+    const vacio = { pesos: 0, puntos: 0, cuentaId: null }
+    if (!desdeVitrina) return vacio
+    if (!(Number(pesosPedidos) > 0)) return vacio
+
+    const cuenta = await this.puntosDeCapta(telefono)
+    if (!cuenta || !cuenta.config.activo || cuenta.puntos <= 0) return vacio
+
+    const canje = canjeElegido(
+      { puntos: cuenta.puntos, comida, envio },
+      pesosPedidos,
+      cuenta.config,
+    )
+    if (canje.pesos <= 0) return vacio
+    return { ...canje, cuentaId: cuenta.cuentaId, telefono: cuenta.telefono, saldoPrevio: cuenta.puntos }
+  }
+
+  /** Descuenta los puntos usados y lo deja anotado en el historial del cliente. */
+  async anotarCanjeDePuntos({ pedido, canje }) {
+    if (!canje?.cuentaId || !(canje.pesos > 0)) return
+
+    try {
+      // Se vuelve a leer el saldo por si entraron dos pedidos juntos: el que
+      // llega segundo usa lo que quedo.
+      const filas = await this.request(`/capta_puntos_cuentas?id=eq.${canje.cuentaId}&select=puntos,canjeados_total&limit=1`)
+      const actual = Number(filas?.[0]?.puntos) || 0
+      const usados = Math.min(canje.puntos, actual)
+      if (usados <= 0) return
+
+      const saldo = actual - usados
+      await this.request('/capta_puntos_movimientos', {
+        method: 'POST',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify([
+          {
+            cuenta_id: canje.cuentaId,
+            pedido_id: pedido.id,
+            tipo: 'canje',
+            puntos: -usados,
+            saldo_despues: saldo,
+            pesos: canje.pesos,
+            detalle: `Descuento en el pedido${pedido.order_number ? ` #${pedido.order_number}` : ''}`,
+          },
+        ]),
+      })
+      await this.request(`/capta_puntos_cuentas?id=eq.${canje.cuentaId}`, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({
+          puntos: saldo,
+          canjeados_total: (Number(filas?.[0]?.canjeados_total) || 0) + usados,
+          ultimo_movimiento_at: new Date().toISOString(),
+          actualizada_at: new Date().toISOString(),
+        }),
+      })
+    } catch (error) {
+      // El pedido ya esta hecho con el descuento puesto: no se rompe el pedido
+      // por no poder anotar los puntos, pero queda el aviso.
+      console.error('No se pudo anotar el canje de puntos de Capta:', error?.message)
+    }
   }
 
   async request(path, options = {}) {

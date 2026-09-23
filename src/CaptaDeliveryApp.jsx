@@ -12,10 +12,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CATEGORIAS, ciudadPareja, localCoincideCon } from '../shared/vitrinaCapta.js'
 import { almacenDelNavegador, leerDatos, olvidarDatos } from '../shared/datosDelCliente.js'
+import { celularValido, normalizarCelular } from '../shared/celular.js'
 import './CaptaDelivery.css'
 
 const CLAVE_CIUDAD = 'capta-vitrina-ciudad'
 const CLAVE_FAVORITOS = 'capta-vitrina-favoritos'
+const CLAVE_CELULAR = 'capta-vitrina-celular'
 
 /** El mismo muñeco del casco que usa el panel (public/capta/logo.svg), dibujado aca para que aparezca sin esperar una descarga. */
 function LogoCapta({ tamano = 44, className = '' }) {
@@ -370,11 +372,128 @@ function Banner({ ciudad }) {
   )
 }
 
+/**
+ * Los puntos de Capta Delivery del cliente.
+ *
+ * Se entra con el celular, que es lo unico que identifica a un cliente en todo
+ * el sistema: no hay cuenta ni contrasena. El numero queda guardado en ESTE
+ * telefono para no tener que escribirlo cada vez.
+ */
+function MisPuntos({ onCerrar }) {
+  const [celular, setCelular] = useState(() => {
+    const guardado = leerPreferencia(CLAVE_CELULAR, '')
+    if (typeof guardado === 'string' && guardado) return guardado
+    // Si ya hizo un pedido desde este telefono, el numero ya lo tenemos.
+    const datos = leerDatos(almacenDelNavegador())
+    return datos?.phone ? String(datos.phone) : ''
+  })
+  const [consultado, setConsultado] = useState(null)
+  const [cargando, setCargando] = useState(false)
+  const [error, setError] = useState('')
+
+  const buscar = async (numero) => {
+    if (!celularValido(numero)) {
+      setError('Poné tu celular con la característica, como lo escribís en el pedido.')
+      return
+    }
+    setCargando(true)
+    setError('')
+    try {
+      const telefono = normalizarCelular(numero)
+      const respuesta = await fetch(`/api/delivery/puntos?telefono=${encodeURIComponent(telefono)}`)
+      if (!respuesta.ok) throw new Error('no anduvo')
+      const datos = await respuesta.json()
+      setConsultado(datos)
+      guardarPreferencia(CLAVE_CELULAR, numero)
+    } catch {
+      setError('No pudimos consultar tus puntos. Probá de nuevo en un rato.')
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  const config = consultado?.config ?? null
+  const activo = config?.activo === true
+
+  return (
+    <Hoja titulo="Mis puntos" onCerrar={onCerrar}>
+      <form
+        className="cd-puntos-form"
+        onSubmit={(evento) => {
+          evento.preventDefault()
+          void buscar(celular)
+        }}
+      >
+        <label>
+          <span>Tu celular</span>
+          <input
+            type="tel"
+            inputMode="tel"
+            value={celular}
+            onChange={(evento) => setCelular(evento.target.value)}
+            placeholder="Ej: 2346 587122"
+          />
+        </label>
+        <button type="submit" disabled={cargando}>
+          {cargando ? 'Buscando…' : 'Ver mis puntos'}
+        </button>
+      </form>
+
+      {error ? <p className="cd-puntos-error">{error}</p> : null}
+
+      {consultado ? (
+        activo ? (
+          <>
+            <div className="cd-puntos-saldo">
+              <span>Tenés</span>
+              <strong>{consultado.puntos}</strong>
+              <small>
+                {consultado.puntos === 1 ? 'punto' : 'puntos'} · {pesos(consultado.pesos)} para usar
+              </small>
+            </div>
+
+            <p className="cd-puntos-como">
+              Juntás 1 punto por cada {pesos(config.pesosPorPunto)} de comida en los pedidos que
+              hacés desde acá. Los usás como descuento en cualquier local de la lista, desde{' '}
+              {config.minimoParaCanjear} puntos y hasta {pesos(config.topePorPedido)} por pedido.
+              El descuento lo pone Capta: el negocio cobra lo mismo.
+            </p>
+
+            {consultado.movimientos?.length ? (
+              <ul className="cd-puntos-movimientos">
+                {consultado.movimientos.map((m, i) => (
+                  <li key={`${m.creado_at}-${i}`}>
+                    <div>
+                      <strong>{m.tipo === 'canje' ? 'Usaste puntos' : m.tipo === 'gana' ? 'Sumaste' : 'Ajuste'}</strong>
+                      <small>{m.detalle || ''}</small>
+                    </div>
+                    <span className={m.puntos < 0 ? 'cd-puntos-resta' : 'cd-puntos-suma'}>
+                      {m.puntos > 0 ? '+' : ''}
+                      {m.puntos}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="cd-puntos-vacio">
+                Todavía no tenés movimientos. Hacé tu primer pedido desde la app y empezás a sumar.
+              </p>
+            )}
+          </>
+        ) : (
+          <p className="cd-puntos-vacio">Los puntos de Capta todavía no están habilitados.</p>
+        )
+      ) : null}
+    </Hoja>
+  )
+}
+
 function BarraInferior({ vista, onVista, favoritos }) {
   const items = [
     { id: 'inicio', icono: 'home', texto: 'Inicio' },
     { id: 'categorias', icono: 'grid_view', texto: 'Categorías' },
     { id: 'favoritos', icono: 'favorite', texto: 'Favoritos', globo: favoritos || 0 },
+    { id: 'puntos', icono: 'stars', texto: 'Puntos' },
     { id: 'datos', icono: 'person', texto: 'Mis datos' },
   ]
 
@@ -624,8 +743,8 @@ export default function CaptaDeliveryApp() {
         vista={vista}
         favoritos={favoritos.length}
         onVista={(siguiente) => {
-          if (siguiente === 'datos') {
-            setVista('datos')
+          if (siguiente === 'datos' || siguiente === 'puntos') {
+            setVista(siguiente)
             return
           }
           setVista(siguiente)
@@ -658,6 +777,8 @@ export default function CaptaDeliveryApp() {
           </ul>
         </Hoja>
       ) : null}
+
+      {vista === 'puntos' ? <MisPuntos onCerrar={() => setVista('inicio')} /> : null}
 
       {vista === 'datos' ? <MisDatos onCerrar={() => setVista('inicio')} /> : null}
     </div>

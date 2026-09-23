@@ -1,5 +1,6 @@
 import { getServerConfig } from '../../../server/config.js'
 import { createMenuRepository } from '../../../server/repositories/menuRepository.js'
+import { createOrderRepository } from '../../../server/repositories/orderRepository.js'
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0')
@@ -15,6 +16,29 @@ export default async function handler(req, res) {
 
   const config = getServerConfig()
   const repository = createMenuRepository(config)
+
+  // Los puntos de Capta Delivery de un cliente (por su celular). Entra por
+  // aca por lo mismo que la vitrina: el tope de funciones de Vercel.
+  if (req.query.accion === 'puntos') {
+    res.setHeader('Cache-Control', 'no-store, max-age=0')
+    try {
+      const orderRepository = createOrderRepository(config)
+      const cuenta = await orderRepository.puntosDeCapta?.(req.query.telefono)
+      if (!cuenta) {
+        res.status(200).json({ puntos: 0, pesos: 0, config: null, movimientos: [] })
+        return
+      }
+      const datos = await orderRepository.resumenDePuntos?.(cuenta)
+      res.status(200).json(datos ?? { puntos: cuenta.puntos, pesos: 0, config: cuenta.config, movimientos: [] })
+    } catch (error) {
+      res.status(500).json({
+        error: 'PUNTOS_LOAD_FAILED',
+        message: 'No se pudieron cargar los puntos.',
+        detail: error instanceof Error ? error.message : 'Unknown error',
+      })
+    }
+    return
+  }
 
   // La vitrina de Capta Delivery (/api/delivery/locales) entra por ESTA misma
   // funcion: vercel.json la reescribe hasta aca con accion=vitrina. No tiene

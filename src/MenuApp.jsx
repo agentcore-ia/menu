@@ -9,7 +9,9 @@ import {
   topeDeSabores,
 } from '../shared/heladeria.js'
 import { textosDelMenu } from '../shared/rubros.js'
-import { celularValido, MENSAJE_CELULAR_INVALIDO } from '../shared/celular.js'
+import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../shared/celular.js'
+import { canjePosible, porQueNoEntraTodo } from '../shared/puntosCapta.js'
+import { vinoDeLaVitrina } from './vitrinaDelCliente.js'
 import {
   almacenDelNavegador,
   coordenadasGuardadas,
@@ -7924,7 +7926,53 @@ export default function MenuApp() {
     paymentSurchargePercent > 0
       ? Math.round(((cartTotal + selectedDeliveryFee) * paymentSurchargePercent) / 100)
       : 0
-  const orderTotal = cartTotal + selectedDeliveryFee + paymentSurchargeAmount
+  // ---------------------------------------- puntos de Capta Delivery
+  //
+  // Solo existen si el cliente entro desde la app (menu.net.ar/pedi): son de
+  // Capta, no del local, y el descuento lo pone Capta.
+  const [puntosTraidos, setPuntosTraidos] = useState(null)
+  const [usarPuntosCapta, setUsarPuntosCapta] = useState(false)
+  const desdeLaVitrina = useMemo(() => vinoDeLaVitrina(), [])
+  const celularDelPedido = celularValido(orderForm.phone) ? normalizarCelular(orderForm.phone) : ''
+
+  useEffect(() => {
+    if (!desdeLaVitrina || !celularDelPedido) return undefined
+
+    let vivo = true
+    fetch(`/api/delivery/puntos?telefono=${encodeURIComponent(celularDelPedido)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((datos) => {
+        if (vivo && datos?.config?.activo) setPuntosTraidos(datos)
+      })
+      .catch(() => {
+        // Los puntos son un extra: si no se pueden leer, el pedido sigue igual.
+      })
+
+    return () => {
+      vivo = false
+    }
+  }, [desdeLaVitrina, celularDelPedido])
+
+  // Lo que vino es de UN celular: si el cliente lo corrige, lo anterior deja de
+  // valer sin tener que limpiarlo a mano.
+  const puntosCapta = puntosTraidos && puntosTraidos.telefono === celularDelPedido ? puntosTraidos : null
+
+  // Cuanto puede usar en ESTE pedido: lo miran las dos puntas con la misma
+  // cuenta (shared/puntosCapta.js) para que no le ofrezcamos algo que el
+  // servidor despues le rechaza.
+  const canjeCapta = useMemo(() => {
+    if (!puntosCapta || !hasOrderItems) return { pesos: 0, puntos: 0, motivo: '' }
+    return canjePosible(
+      { puntos: puntosCapta.puntos, comida: cartTotal, envio: selectedDeliveryFee },
+      puntosCapta.config,
+    )
+  }, [puntosCapta, hasOrderItems, cartTotal, selectedDeliveryFee])
+
+  const descuentoCapta = usarPuntosCapta ? canjeCapta.pesos : 0
+  const orderTotal = Math.max(
+    0,
+    cartTotal + selectedDeliveryFee + paymentSurchargeAmount - descuentoCapta,
+  )
   const orderTotalLabel = orderTotal > 0
     ? formatPrice(orderTotal, currencySymbol)
     : redemptionCount > 0
@@ -9177,6 +9225,11 @@ export default function MenuApp() {
         rewardId: item.rewardId,
         quantity: item.quantity,
       })),
+      // Vino desde la app de Capta Delivery: de esto dependen los puntos.
+      desdeVitrina: desdeLaVitrina,
+      // Lo que quiere usar de sus puntos, en pesos. El servidor lo vuelve a
+      // validar contra su saldo real.
+      puntosCapta: descuentoCapta,
     }
 
     try {
@@ -11140,6 +11193,9 @@ export default function MenuApp() {
                         {formatPrice(paymentSurchargeAmount, currencySymbol)}
                       </small>
                     ) : null}
+                    {descuentoCapta > 0 ? (
+                      <small>Puntos Capta: -{formatPrice(descuentoCapta, currencySymbol)}</small>
+                    ) : null}
                     {loyaltyEarnPreviewText ? <small>{loyaltyEarnPreviewText}</small> : null}
                   </div>
                   <strong>{formatPrice(orderTotal, currencySymbol)}</strong>
@@ -11177,6 +11233,45 @@ export default function MenuApp() {
                     required
                   />
                 </label>
+
+                {/* Los puntos de Capta Delivery. Aparecen solo si el cliente
+                    entro desde la app y tiene algo para usar. */}
+                {puntosCapta && puntosCapta.puntos > 0 ? (
+                  <div className={`capta-puntos-checkout${canjeCapta.pesos > 0 ? '' : ' capta-puntos-checkout-sin-canje'}`}>
+                    <div className="capta-puntos-checkout-cabecera">
+                      <span className="capta-puntos-checkout-marca">Puntos Capta</span>
+                      <strong>
+                        {puntosCapta.puntos} {puntosCapta.puntos === 1 ? 'punto' : 'puntos'}
+                        <small> · {formatPrice(puntosCapta.pesos, currencySymbol)}</small>
+                      </strong>
+                    </div>
+
+                    {canjeCapta.pesos > 0 ? (
+                      <>
+                        <label className="capta-puntos-checkout-usar">
+                          <input
+                            type="checkbox"
+                            checked={usarPuntosCapta}
+                            onChange={(event) => setUsarPuntosCapta(event.target.checked)}
+                          />
+                          <span>
+                            Usar {formatPrice(canjeCapta.pesos, currencySymbol)} en este pedido
+                          </span>
+                        </label>
+                        {porQueNoEntraTodo(canjeCapta.motivo, puntosCapta.config) ? (
+                          <p className="capta-puntos-checkout-nota">
+                            {porQueNoEntraTodo(canjeCapta.motivo, puntosCapta.config)}
+                          </p>
+                        ) : null}
+                      </>
+                    ) : (
+                      <p className="capta-puntos-checkout-nota">
+                        {porQueNoEntraTodo(canjeCapta.motivo, puntosCapta.config) ||
+                          'En este pedido no se pueden usar.'}
+                      </p>
+                    )}
+                  </div>
+                ) : null}
 
                 {!isTableOrder ? (
                   <>

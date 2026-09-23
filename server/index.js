@@ -98,6 +98,27 @@ app.get('/api/health', (_req, res) => {
   })
 })
 
+// Los puntos de Capta Delivery de un cliente, por su celular.
+app.get('/api/delivery/puntos', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, max-age=0')
+
+  try {
+    const cuenta = await orderRepository.puntosDeCapta?.(req.query.telefono)
+    if (!cuenta) {
+      res.json({ puntos: 0, pesos: 0, config: null, movimientos: [] })
+      return
+    }
+    const datos = await orderRepository.resumenDePuntos?.(cuenta)
+    res.json(datos ?? { puntos: cuenta.puntos, pesos: 0, config: cuenta.config, movimientos: [] })
+  } catch (error) {
+    res.status(500).json({
+      error: 'PUNTOS_LOAD_FAILED',
+      message: 'No se pudieron cargar los puntos.',
+      detail: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
 // La vitrina de Capta Delivery: los locales que reparten con Capta. Publica y
 // sin datos de nadie (server/repositories -> listarVitrinaCapta).
 app.get('/api/delivery/locales', async (_req, res) => {

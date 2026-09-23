@@ -214,6 +214,10 @@
       "destination": "/api/accounts/capta/menu?accion=vitrina"
     },
     {
+      "source": "/api/delivery/puntos",
+      "destination": "/api/accounts/capta/menu?accion=puntos"
+    },
+    {
       "source": "/api/accounts/:accountId/pay-card",
       "destination": "/api/accounts/:accountId/orders?accion=pagar-con-tarjeta"
     },

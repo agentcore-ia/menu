@@ -19282,6 +19282,71 @@ button:focus-visible {
   }
 }
 
+/* Los puntos de Capta Delivery en el checkout (src/MenuApp.jsx).
+   Se ve adentro del menu de CADA local, asi que no usa los colores del local:
+   usa el naranja de Capta, que es de quien son los puntos. */
+.capta-puntos-checkout {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid rgba(244, 81, 30, 0.35);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(255, 237, 213, 0.9), rgba(255, 247, 237, 0.95));
+  color: #7c2d12;
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+.capta-puntos-checkout-sin-canje {
+  opacity: 0.85;
+}
+
+.capta-puntos-checkout-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.capta-puntos-checkout-marca {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #c2410c;
+}
+
+.capta-puntos-checkout-cabecera strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.capta-puntos-checkout-cabecera small {
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+.capta-puntos-checkout-usar {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.capta-puntos-checkout-usar input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: #f4511e;
+}
+
+.capta-puntos-checkout-nota {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
 /* El boton para volver a la vitrina de Capta Delivery (src/VolverAVitrina.jsx).
    Solo se ve si el cliente entro al menu desde /pedi. Va abajo a la izquierda
    para no taparle el carrito, que en todos los menus esta a la derecha. */

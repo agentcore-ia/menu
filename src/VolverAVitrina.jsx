@@ -10,21 +10,7 @@
 // menu limpia la direccion (replaceState) al volver de un pago.
 
 import { useState } from 'react'
-
-const CLAVE = 'capta-vino-de-la-vitrina'
-
-function vinoDeLaVitrina() {
-  try {
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('vitrina') === '1') {
-      window.sessionStorage?.setItem(CLAVE, '1')
-      return true
-    }
-    return window.sessionStorage?.getItem(CLAVE) === '1'
-  } catch {
-    return false
-  }
-}
+import { vinoDeLaVitrina } from './vitrinaDelCliente.js'
 
 export default function VolverAVitrina() {
   // Se mira una sola vez, al montar: el cliente no deja de venir de la vitrina
