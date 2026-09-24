@@ -1007,6 +1007,7 @@ function getAccountFaviconHref(accountId) {
     ['cian', '/boutique-cian/icono.png'],
     ['craft', '/craft-burguer/icono.png'],
     ['bruderpizza', '/bruderpizza/icono.png'],
+    ['chicha', '/chicha/icono.png'],
   ].find(([nombre]) => key.includes(nombre))
 
   if (conIconoPropio) {
@@ -1041,6 +1042,7 @@ function getAccountAppleTouchIconHref(accountId) {
     ['cian', '/boutique-cian/icono.png'],
     ['craft', '/craft-burguer/icono.png'],
     ['bruderpizza', '/bruderpizza/icono.png'],
+    ['chicha', '/chicha/icono.png'],
   ].find(([nombre]) => key.includes(nombre))
 
   if (conIconoPropio) {

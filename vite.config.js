@@ -43,6 +43,7 @@ export default defineConfig({
         boutiquecian: resolve(__dirname, 'boutique-cian.html'),
         craftburguer: resolve(__dirname, 'craft-burguer.html'),
         bruderpizza: resolve(__dirname, 'bruderpizza.html'),
+        chicha: resolve(__dirname, 'chicha.html'),
       },
     },
   },

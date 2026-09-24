@@ -122,6 +122,16 @@
       "destination": "/craft-burguer.html"
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "chicha.menu.net.ar"
+        }
+      ],
+      "destination": "/chicha.html"
+    },
+    {
       "source": "/almendra",
       "destination": "/almendra.html"
     },
@@ -234,7 +244,15 @@
       "destination": "/pedi.html"
     },
     {
-      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian).*)",
+      "source": "/chicha",
+      "destination": "/chicha.html"
+    },
+    {
+      "source": "/chicha/:path*",
+      "destination": "/chicha.html"
+    },
+    {
+      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha).*)",
       "destination": "/host.html"
     }
   ]
