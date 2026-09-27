@@ -19077,6 +19077,96 @@ button:focus-visible {
   color: var(--theme-primary);
 }
 
+/* LOS DATOS PARA TRANSFERIR, EN LA CONFIRMACION. El pedido ya entro pero la
+   plata no: esta tarjeta es lo ultimo que el cliente tiene que hacer, asi que
+   se ve como un pendiente y no como un dato mas. */
+.confirmation-transferencia {
+  display: grid;
+  gap: 0.3rem;
+  width: 100%;
+  margin: 0.25rem 0 0.35rem;
+  padding: 0.9rem 1rem;
+  text-align: left;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 45%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-surface) 80%, var(--theme-primary) 10%);
+}
+
+.confirmation-transferencia > span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--theme-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.confirmation-transferencia strong {
+  font-size: 0.98rem;
+  color: var(--theme-text);
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+
+.confirmation-transferencia em {
+  font-size: 0.85rem;
+  font-style: normal;
+  color: var(--theme-muted);
+}
+
+.confirmation-transferencia p {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--theme-muted);
+}
+
+.confirmation-transferencia strong.confirmation-transferencia-total {
+  margin-bottom: 0.45rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px dashed var(--theme-border);
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: var(--theme-primary);
+}
+
+/* El alias se copia de un toque: nadie quiere tipearlo en el home banking. */
+.confirmation-transferencia strong.confirmation-transferencia-dato {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.confirmation-transferencia strong.confirmation-transferencia-dato button {
+  flex-shrink: 0;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--theme-border);
+  border-radius: 0.6rem;
+  background: var(--theme-surface);
+  color: var(--theme-text);
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+  user-select: none;
+}
+
+.confirmation-transferencia .confirmation-transferencia-paso {
+  margin-top: 0.5rem;
+  color: var(--theme-text);
+}
+
+.confirmation-transferencia .confirmation-transferencia-paso strong {
+  user-select: auto;
+}
+
+/* El logo del local en la confirmacion de la plantilla heredada. */
+.confirmation-pampa-logo {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 /* Aviso de promo solo en efectivo: misma tarjeta que la transferencia, con el
    color del local en el borde para que se lea antes de confirmar. */
 .checkout-transferencia.checkout-solo-efectivo {

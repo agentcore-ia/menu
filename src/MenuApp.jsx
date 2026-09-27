@@ -7387,6 +7387,22 @@ export default function MenuApp() {
       }
     })()
   }, [accountId])
+  // El dato de transferencia que se acaba de copiar, para decir "Copiado".
+  const [datoCopiado, setDatoCopiado] = useState('')
+  const copiarDatoDeTransferencia = (valor) => {
+    const texto = String(valor || '')
+    if (!texto) return
+    // Sin portapapeles (http, navegador viejo) el dato igual se puede
+    // seleccionar a mano: no se muestra un error por algo que no es un error.
+    try {
+      navigator.clipboard?.writeText(texto)
+      setDatoCopiado(texto)
+      window.setTimeout(() => setDatoCopiado(''), 2000)
+    } catch {
+      /* se copia a mano */
+    }
+  }
+
   const [isLoyaltyOpen, setIsLoyaltyOpen] = useState(false)
   const [isCommunityOpen, setIsCommunityOpen] = useState(false)
   const [isSocialMenuOpen, setIsSocialMenuOpen] = useState(false)
@@ -9299,6 +9315,9 @@ export default function MenuApp() {
           detalle: String(line.notes || '').replace(/^Formato:[^|]*\|\s*/i, ''),
         })),
         entrega: isTableOrder ? 'mesa' : orderForm.deliveryType,
+        // Como eligio pagar. La confirmacion lo necesita para mostrarle los
+        // datos de la transferencia: al cerrar el carrito ya no los tiene.
+        pago: effectivePaymentMethod,
       }
       setLastOrder(pedidoParaConfirmar)
       // Con Mercado Pago el cliente se va del menu a pagar, y al volver la pagina
@@ -11957,12 +11976,23 @@ export default function MenuApp() {
                 </div>
               ) : templateId === 'sabor-pampa' ? (
                 <div className="confirmation-pampa-top">
-                  <span className="confirmation-pampa-seal">
-                    <IconEmpanada />
-                  </span>
+                  {/* El local que tiene marca propia ve la SUYA. Esta plantilla
+                      la heredan otros negocios (Chicha), y les decia "sabor a
+                      pampa" al confirmar el pedido. */}
+                  {marcaConfirmacionLogo ? (
+                    <img
+                      className="confirmation-pampa-logo"
+                      src={marcaConfirmacionLogo}
+                      alt={marcaConfirmacionNombre || 'Logo del local'}
+                    />
+                  ) : (
+                    <span className="confirmation-pampa-seal">
+                      <IconEmpanada />
+                    </span>
+                  )}
                   <div>
-                    <strong>sabor a pampa</strong>
-                    <small>Pedido casero confirmado</small>
+                    <strong>{marcaConfirmacionNombre || 'sabor a pampa'}</strong>
+                    <small>{marcaConfirmacionNombre ? 'Pedido confirmado' : 'Pedido casero confirmado'}</small>
                   </div>
                 </div>
               ) : templateId === 'kika' || templateId === 'almendra' ? (
@@ -12007,7 +12037,9 @@ export default function MenuApp() {
             </h3>
             <p>
               {templateId === 'sabor-pampa'
-                ? 'Ya recibimos tu pedido. Lo preparamos con el sabor de casa y te contactamos para coordinarlo.'
+                ? (marcaConfirmacionPropia
+                    ? 'Ya recibimos tu pedido. Lo preparamos y te contactamos para coordinarlo.'
+                    : 'Ya recibimos tu pedido. Lo preparamos con el sabor de casa y te contactamos para coordinarlo.')
                 : templateId === 'kika' || templateId === 'almendra'
                   ? 'Gracias. Tu pedido ya quedó registrado para prepararlo en el local.'
                 : 'Ya recibimos tu pedido y vamos a seguir informandote por WhatsApp.'}
@@ -12095,13 +12127,51 @@ export default function MenuApp() {
                 </div>
               </div>
             </div>
+            {/* PAGA POR TRANSFERENCIA. El pedido quedo hecho pero la plata no
+                esta: aca van el monto, adonde transferir y el paso que falta,
+                que es mandar el comprobante. En el carrito ya lo vio, pero al
+                confirmar el carrito se cierra y se lo lleva puesto. */}
+            {lastOrder.pago === 'transferencia' && datosDeTransferencia ? (
+              <div className="confirmation-transferencia">
+                <span>Falta transferir</span>
+                <strong className="confirmation-transferencia-total">
+                  {formatPrice(lastOrder.total ?? 0, currencySymbol)}
+                </strong>
+                <span>Transferí a</span>
+                {datosDeTransferencia.alias ? (
+                  <strong className="confirmation-transferencia-dato">
+                    Alias: {datosDeTransferencia.alias}
+                    <button type="button" onClick={() => copiarDatoDeTransferencia(datosDeTransferencia.alias)}>
+                      {datoCopiado === datosDeTransferencia.alias ? 'Copiado' : 'Copiar'}
+                    </button>
+                  </strong>
+                ) : null}
+                {datosDeTransferencia.cvu ? (
+                  <strong className="confirmation-transferencia-dato">
+                    CBU/CVU: {datosDeTransferencia.cvu}
+                    <button type="button" onClick={() => copiarDatoDeTransferencia(datosDeTransferencia.cvu)}>
+                      {datoCopiado === datosDeTransferencia.cvu ? 'Copiado' : 'Copiar'}
+                    </button>
+                  </strong>
+                ) : null}
+                {datosDeTransferencia.titular ? <em>A nombre de {datosDeTransferencia.titular}</em> : null}
+                {datosDeTransferencia.banco ? <em>{datosDeTransferencia.banco}</em> : null}
+                {datosDeTransferencia.instrucciones ? <p>{datosDeTransferencia.instrucciones}</p> : null}
+                <p className="confirmation-transferencia-paso">
+                  Cuando transfieras, <strong>mandanos el comprobante por WhatsApp</strong> así confirmamos tu pedido.
+                </p>
+              </div>
+            ) : null}
+
             {templateId !== 'kika' && templateId !== 'almendra' && lastOrder.customerWhatsapp?.url ? (
               <button
                 type="button"
                 className="confirmation-button confirmation-button-secondary"
                 onClick={() => openWhatsappOrderChat(lastOrder.customerWhatsapp.url)}
               >
-                Abrir WhatsApp otra vez
+                {lastOrder.pago === 'transferencia' && datosDeTransferencia
+                  ? 'Mandar el comprobante por WhatsApp'
+                  : 'Abrir WhatsApp otra vez'}
               </button>
             ) : null}
             <button
