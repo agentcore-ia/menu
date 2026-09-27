@@ -7345,6 +7345,20 @@
   border-color: color-mix(in srgb, var(--theme-primary, #9dd373) 30%, transparent);
 }
 
+/* La heladeria que no cargo sello pero tiene nombre propio: su nombre, con el
+   mismo aire que el sello. */
+.confirmation-gelato-wordmark {
+  position: relative;
+  z-index: 1;
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--theme-text, #2f3d35);
+  text-align: center;
+  line-height: 1.1;
+}
+
 .confirmation-gelato-logo {
   width: min(7.5rem, 46%);
   height: auto;

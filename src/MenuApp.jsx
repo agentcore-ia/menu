@@ -7373,7 +7373,17 @@ export default function MenuApp() {
           } catch {
             // nada que limpiar
           }
-          setLastOrder(delMismoPedido || { id: pedido, orderNumber: data.orderNumber ?? null, total: 0 })
+          // El total sale de lo guardado antes de irse a pagar; si el
+          // navegador lo perdio (otra pestaña, otro celular, datos
+          // borrados), del que devuelve el servidor. Poner 0 hacia que la
+          // confirmacion dijera "Total $0" despues de haber pagado.
+          setLastOrder(
+            delMismoPedido || {
+              id: pedido,
+              orderNumber: data.orderNumber ?? null,
+              total: Number(data.total) || 0,
+            },
+          )
           setShowConfirmation(true)
         } else {
           setEsperandoPago({
@@ -11928,6 +11938,18 @@ export default function MenuApp() {
                    la que se hizo la plantilla, no de este local. */
                 <div className="confirmation-gelato-top confirmation-gelato-top-sello">
                   <img className="confirmation-gelato-logo" src={configHeladeria.logo} alt="" />
+                  <span className="confirmation-gelato-pill">Pedido enviado</span>
+                </div>
+              ) : templateId === 'gelato' && marcaConfirmacionPropia ? (
+                /* La heladeria tiene SU marca: va esa. La foto de la bocha y
+                   la banda de arriba son el arte de la heladeria para la que
+                   se dibujo la plantilla, no de este local (Troka). */
+                <div className="confirmation-gelato-top confirmation-gelato-top-sello">
+                  {marcaConfirmacionLogo ? (
+                    <img className="confirmation-gelato-logo" src={marcaConfirmacionLogo} alt="" />
+                  ) : (
+                    <strong className="confirmation-gelato-wordmark">{marcaConfirmacionNombre}</strong>
+                  )}
                   <span className="confirmation-gelato-pill">Pedido enviado</span>
                 </div>
               ) : templateId === 'gelato' ? (

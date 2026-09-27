@@ -57,6 +57,9 @@ export async function estadoDelPago(req, res) {
       pagado: data?.pagado === true,
       orderNumber: data?.orderNumber ?? null,
       status: data?.status ?? null,
+      // Para la pantalla de confirmacion: el cliente que vuelve de pagar en
+      // otra pestaña no trae el pedido guardado y veia "Total $0".
+      total: Number(data?.total) || 0,
     })
   } catch {
     res.status(502).json({ message: 'No pudimos consultar el pago. Probá de nuevo en un momento.' })
