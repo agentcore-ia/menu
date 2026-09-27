@@ -12157,8 +12157,15 @@ export default function MenuApp() {
                 {datosDeTransferencia.titular ? <em>A nombre de {datosDeTransferencia.titular}</em> : null}
                 {datosDeTransferencia.banco ? <em>{datosDeTransferencia.banco}</em> : null}
                 {datosDeTransferencia.instrucciones ? <p>{datosDeTransferencia.instrucciones}</p> : null}
+                {/* El local sin WhatsApp cargado no tiene adonde recibir el
+                    comprobante: no se le promete al cliente un chat que no
+                    existe (restaurants.phone, en Ajustes > Perfil). */}
                 <p className="confirmation-transferencia-paso">
-                  Cuando transfieras, <strong>mandanos el comprobante por WhatsApp</strong> así confirmamos tu pedido.
+                  {lastOrder.customerWhatsapp?.url ? (
+                    <>Cuando transfieras, <strong>mandanos el comprobante por WhatsApp</strong> así confirmamos tu pedido.</>
+                  ) : (
+                    <>Cuando transfieras, <strong>guardá el comprobante</strong>: te lo vamos a pedir para confirmar el pedido.</>
+                  )}
                 </p>
               </div>
             ) : null}
