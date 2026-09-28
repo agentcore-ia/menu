@@ -228,6 +228,10 @@
       "destination": "/api/accounts/capta/menu?accion=puntos"
     },
     {
+      "source": "/api/delivery/mandados",
+      "destination": "/api/accounts/capta/orders?accion=mandados"
+    },
+    {
       "source": "/api/accounts/:accountId/pay-card",
       "destination": "/api/accounts/:accountId/orders?accion=pagar-con-tarjeta"
     },

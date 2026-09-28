@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CATEGORIAS, ciudadPareja, localCoincideCon } from '../shared/vitrinaCapta.js'
 import { almacenDelNavegador, leerDatos, olvidarDatos } from '../shared/datosDelCliente.js'
 import { celularValido, normalizarCelular } from '../shared/celular.js'
+import { EntradaMandados, FormularioMandado } from './MandadoCapta.jsx'
 import './CaptaDelivery.css'
 
 const CLAVE_CIUDAD = 'capta-vitrina-ciudad'
@@ -142,6 +143,30 @@ function useVitrina() {
   }, [])
 
   return { ...estado, recargar }
+}
+
+/**
+ * Las ciudades donde Capta hace mandados (las prende Capta desde su panel).
+ * Va aparte de la lista de locales: si falla, la vitrina se ve igual, sin la
+ * entrada de mandados.
+ */
+function useMandados() {
+  const [ciudades, setCiudades] = useState([])
+
+  useEffect(() => {
+    let vivo = true
+    fetch('/api/delivery/mandados?accion=ciudades')
+      .then((respuesta) => (respuesta.ok ? respuesta.json() : null))
+      .then((datos) => {
+        if (vivo && Array.isArray(datos?.ciudades)) setCiudades(datos.ciudades)
+      })
+      .catch(() => {})
+    return () => {
+      vivo = false
+    }
+  }, [])
+
+  return ciudades
 }
 
 /**
@@ -518,7 +543,8 @@ function BarraInferior({ vista, onVista, favoritos }) {
 }
 
 export default function CaptaDeliveryApp() {
-  const { cargando, error, locales, ciudades, recargar } = useVitrina()
+  const { cargando, error, locales, ciudades: ciudadesConLocales, recargar } = useVitrina()
+  const mandados = useMandados()
   const [ciudadElegida, setCiudadElegida] = useState(() => leerPreferencia(CLAVE_CIUDAD, ''))
   const [categoriaElegida, setCategoriaElegida] = useState('todos')
   const [busqueda, setBusqueda] = useState('')
@@ -528,6 +554,16 @@ export default function CaptaDeliveryApp() {
   })
   const [vista, setVista] = useState('inicio')
   const [eligiendoCiudad, setEligiendoCiudad] = useState(false)
+  const [pidiendoMandado, setPidiendoMandado] = useState(false)
+
+  // Las ciudades para elegir: las que tienen locales y, al final, las que por
+  // ahora solo tienen mandados.
+  const ciudades = useMemo(() => {
+    const soloMandados = mandados
+      .filter((m) => !ciudadesConLocales.some((c) => ciudadPareja(c.nombre) === ciudadPareja(m.ciudad)))
+      .map((m) => ({ nombre: m.ciudad, locales: 0 }))
+    return [...ciudadesConLocales, ...soloMandados]
+  }, [ciudadesConLocales, mandados])
 
   // La ciudad que se esta mirando: la que eligio la vez pasada, si todavia
   // tiene locales, y si no la que mas tiene. Se calcula en vez de corregirse
@@ -553,6 +589,12 @@ export default function CaptaDeliveryApp() {
       return siguientes
     })
   }
+
+  // Los mandados de la ciudad que se esta mirando, si Capta los hace ahi.
+  const mandadoDeLaCiudad = useMemo(
+    () => mandados.find((m) => ciudadPareja(m.ciudad) === ciudadPareja(ciudad)) ?? null,
+    [mandados, ciudad],
+  )
 
   const deLaCiudad = useMemo(() => {
     if (!ciudad) return locales
@@ -649,6 +691,10 @@ export default function CaptaDeliveryApp() {
       <main className="cd-contenido">
         {vista === 'inicio' && !busqueda && categoria === 'todos' ? (
           <Banner key={ciudad} ciudad={ciudad} />
+        ) : null}
+
+        {vista === 'inicio' && !busqueda && categoria === 'todos' && mandadoDeLaCiudad ? (
+          <EntradaMandados mandado={mandadoDeLaCiudad} onAbrir={() => setPidiendoMandado(true)} />
         ) : null}
 
         {cargando ? (
@@ -770,11 +816,17 @@ export default function CaptaDeliveryApp() {
                   onClick={() => elegirCiudad(c.nombre)}
                 >
                   <span>{c.nombre}</span>
-                  <small>{c.locales} local{c.locales === 1 ? '' : 'es'}</small>
+                  <small>{c.locales ? `${c.locales} local${c.locales === 1 ? '' : 'es'}` : 'Mandados'}</small>
                 </button>
               </li>
             ))}
           </ul>
+        </Hoja>
+      ) : null}
+
+      {pidiendoMandado && mandadoDeLaCiudad ? (
+        <Hoja titulo="Pedí un mandado" onCerrar={() => setPidiendoMandado(false)}>
+          <FormularioMandado mandado={mandadoDeLaCiudad} />
         </Hoja>
       ) : null}
 

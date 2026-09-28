@@ -2,6 +2,7 @@ import { getServerConfig } from '../../../server/config.js'
 import { celularValido, MENSAJE_CELULAR_INVALIDO } from '../../../shared/celular.js'
 import { pagarConTarjeta } from '../../../server/pagarConTarjeta.js'
 import { estadoDelPago } from '../../../server/estadoDelPago.js'
+import { mandados } from '../../../server/mandados.js'
 import { createOrderRepository } from '../../../server/repositories/orderRepository.js'
 
 export default async function handler(req, res) {
@@ -11,6 +12,14 @@ export default async function handler(req, res) {
   // ANTES del filtro de POST porque es una consulta (GET).
   if (req.query?.accion === 'estado-del-pago') {
     await estadoDelPago(req, res)
+    return
+  }
+
+  // Los mandados de Capta Delivery (/api/delivery/mandados). Entran por esta
+  // funcion con un rewrite por el mismo tope de funciones de Vercel. Van antes
+  // del filtro de POST porque tambien tienen consultas (GET).
+  if (req.query?.accion === 'mandados') {
+    await mandados(req, res)
     return
   }
 
