@@ -18,7 +18,11 @@ export default async function handler(req, res) {
   // Los mandados de Capta Delivery (/api/delivery/mandados). Entran por esta
   // funcion con un rewrite por el mismo tope de funciones de Vercel. Van antes
   // del filtro de POST porque tambien tienen consultas (GET).
-  if (req.query?.accion === 'mandados') {
+  //
+  // El rewrite marca la ruta con `ruta`, NO con `accion`: el manejador lee
+  // `accion` para saber que hacer (ciudades, cotizar). Con el mismo parametro
+  // el rewrite pisaba el del cliente y todo terminaba en "Accion desconocida".
+  if (req.query?.ruta === 'mandados') {
     await mandados(req, res)
     return
   }

@@ -229,7 +229,7 @@
     },
     {
       "source": "/api/delivery/mandados",
-      "destination": "/api/accounts/capta/orders?accion=mandados"
+      "destination": "/api/accounts/capta/orders?ruta=mandados"
     },
     {
       "source": "/api/accounts/:accountId/pay-card",
