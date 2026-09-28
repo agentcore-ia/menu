@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CATEGORIAS, ciudadPareja, localCoincideCon } from '../shared/vitrinaCapta.js'
 import { almacenDelNavegador, leerDatos, olvidarDatos } from '../shared/datosDelCliente.js'
 import { celularValido, normalizarCelular } from '../shared/celular.js'
+import { EntradaMandados, FormularioMandado } from './MandadoCapta.jsx'
 import './CaptaDelivery.css'
 
 const CLAVE_CIUDAD = 'capta-vitrina-ciudad'
@@ -99,7 +100,7 @@ function guardarPreferencia(clave, valor) {
 }
 
 function useVitrina() {
-  const [estado, setEstado] = useState({ cargando: true, error: '', locales: [], ciudades: [] })
+  const [estado, setEstado] = useState({ cargando: true, error: '', locales: [], ciudades: [], mandados: [] })
   // Sube de a uno cuando el cliente toca "Reintentar": es lo que vuelve a
   // disparar la carga sin tener que tocar el estado dentro del efecto.
   const [intento, setIntento] = useState(0)
@@ -119,6 +120,7 @@ function useVitrina() {
           error: '',
           locales: Array.isArray(datos?.locales) ? datos.locales : [],
           ciudades: Array.isArray(datos?.ciudades) ? datos.ciudades : [],
+          mandados: Array.isArray(datos?.mandados) ? datos.mandados : [],
         })
       })
       .catch(() => {
@@ -128,6 +130,7 @@ function useVitrina() {
           error: 'No pudimos cargar los locales. Fijate la conexión y volvé a intentar.',
           locales: [],
           ciudades: [],
+          mandados: [],
         })
       })
 
@@ -518,7 +521,7 @@ function BarraInferior({ vista, onVista, favoritos }) {
 }
 
 export default function CaptaDeliveryApp() {
-  const { cargando, error, locales, ciudades, recargar } = useVitrina()
+  const { cargando, error, locales, ciudades, mandados, recargar } = useVitrina()
   const [ciudadElegida, setCiudadElegida] = useState(() => leerPreferencia(CLAVE_CIUDAD, ''))
   const [categoriaElegida, setCategoriaElegida] = useState('todos')
   const [busqueda, setBusqueda] = useState('')
@@ -528,6 +531,7 @@ export default function CaptaDeliveryApp() {
   })
   const [vista, setVista] = useState('inicio')
   const [eligiendoCiudad, setEligiendoCiudad] = useState(false)
+  const [pidiendoMandado, setPidiendoMandado] = useState(false)
 
   // La ciudad que se esta mirando: la que eligio la vez pasada, si todavia
   // tiene locales, y si no la que mas tiene. Se calcula en vez de corregirse
@@ -553,6 +557,12 @@ export default function CaptaDeliveryApp() {
       return siguientes
     })
   }
+
+  // Los mandados de la ciudad que se esta mirando, si Capta los hace ahi.
+  const mandadoDeLaCiudad = useMemo(
+    () => mandados.find((m) => ciudadPareja(m.ciudad) === ciudadPareja(ciudad)) ?? null,
+    [mandados, ciudad],
+  )
 
   const deLaCiudad = useMemo(() => {
     if (!ciudad) return locales
@@ -649,6 +659,10 @@ export default function CaptaDeliveryApp() {
       <main className="cd-contenido">
         {vista === 'inicio' && !busqueda && categoria === 'todos' ? (
           <Banner key={ciudad} ciudad={ciudad} />
+        ) : null}
+
+        {vista === 'inicio' && !busqueda && categoria === 'todos' && mandadoDeLaCiudad ? (
+          <EntradaMandados mandado={mandadoDeLaCiudad} onAbrir={() => setPidiendoMandado(true)} />
         ) : null}
 
         {cargando ? (
@@ -770,11 +784,17 @@ export default function CaptaDeliveryApp() {
                   onClick={() => elegirCiudad(c.nombre)}
                 >
                   <span>{c.nombre}</span>
-                  <small>{c.locales} local{c.locales === 1 ? '' : 'es'}</small>
+                  <small>{c.locales ? `${c.locales} local${c.locales === 1 ? '' : 'es'}` : 'Mandados'}</small>
                 </button>
               </li>
             ))}
           </ul>
+        </Hoja>
+      ) : null}
+
+      {pidiendoMandado && mandadoDeLaCiudad ? (
+        <Hoja titulo="Pedí un mandado" onCerrar={() => setPidiendoMandado(false)}>
+          <FormularioMandado mandado={mandadoDeLaCiudad} ciudad={ciudad} />
         </Hoja>
       ) : null}
 

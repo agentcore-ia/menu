@@ -94,3 +94,8 @@ test('la busqueda no distingue acentos ni mayusculas', () => {
   assert.equal(localCoincideCon(local, ''), true)
   assert.equal(ciudadPareja(' Chivilcoy '), 'chivilcoy')
 })
+
+test('el local de mandados no sale como un comercio mas', () => {
+  const mandados = { horarios: { _settings: { deliveryCapta: true, captaMandados: true } } }
+  assert.equal(localVisibleEnVitrina(mandados, { conMenu: true }), false)
+})

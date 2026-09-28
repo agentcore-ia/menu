@@ -17,6 +17,7 @@ import {
   tiempoDeEntrega,
 } from '../../shared/vitrinaCapta.js'
 import { imagenesDeVitrina } from '../vitrinaImagenes.js'
+import { esLocalDeMandados, topeDeCompra } from '../../shared/mandados.js'
 import { datosDeTransferencia } from '../../shared/transferencia.js'
 
 /**
@@ -468,8 +469,25 @@ export class SupabaseMenuRepository {
     )
     const candidatos = restaurantes.filter((r) => ajustesDelLocal(r.horarios).deliveryCapta === true)
 
+    // El local de mandados de cada ciudad no es un comercio: no sale en la
+    // lista, sale como la entrada "Mandados" de su ciudad (shared/mandados.js).
+    const mandados = candidatos
+      .filter((r) => esLocalDeMandados(r.horarios) && ajustesDelLocal(r.horarios).captaVitrina !== false)
+      .map((r) => {
+        const estado = getBusinessOpenStatus(r.horarios)
+        const pausado = ajustesDelLocal(r.horarios).orderTakingPaused === true
+        return {
+          slug: r.slug,
+          ciudad: r.city || '',
+          abierto: pausado ? false : estado.isOpen !== false,
+          proximaApertura: estado.nextOpenText || '',
+          tope: topeDeCompra(r.horarios),
+          envioDesde: envioDesde(normalizeDeliveryZones(ajustesDelLocal(r.horarios).deliveryZones)),
+        }
+      })
+
     if (!candidatos.length) {
-      return { locales: [], ciudades: [] }
+      return { locales: [], ciudades: [], mandados }
     }
 
     const enLista = `in.(${candidatos.map((r) => `"${r.id}"`).join(',')})`
@@ -534,7 +552,12 @@ export class SupabaseMenuRepository {
       .map(([nombre, locales]) => ({ nombre, locales }))
       .sort((a, b) => b.locales - a.locales || a.nombre.localeCompare(b.nombre))
 
-    return { locales, ciudades }
+    // Una ciudad que solo tiene mandados tambien se puede elegir.
+    for (const m of mandados) {
+      if (m.ciudad && !ciudades.some((c) => c.nombre === m.ciudad)) ciudades.push({ nombre: m.ciudad, locales: 0 })
+    }
+
+    return { locales, ciudades, mandados }
   }
 
   async fetchRestaurant(accountId) {

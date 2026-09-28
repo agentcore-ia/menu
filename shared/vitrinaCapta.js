@@ -108,6 +108,8 @@ export function localVisibleEnVitrina(restaurant, { conMenu = true } = {}) {
   const ajustes = ajustesDelLocal(restaurant?.horarios)
   if (ajustes.deliveryCapta !== true) return false
   if (ajustes.captaVitrina === false) return false
+  // El local de mandados no vende nada: tiene su propia entrada en la vitrina.
+  if (ajustes.captaMandados === true) return false
   // Ojo: NO se mira restaurants.hace_delivery. Ese campo es el delivery PROPIO
   // del local (Racing lo tiene apagado y reparte con Capta igual): quien
   // reparte aca es Capta, y eso ya lo dice deliveryCapta.
