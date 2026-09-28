@@ -355,10 +355,19 @@ export class SupabaseMenuRepository {
     // los dias: si le quedaron platos cargados de una prueba, no tienen por que
     // aparecerle al cliente como "menu del dia".
     const usaMenuDelDia = rubroDelMenu(restaurant.horarios, restaurant.business_type).menuDelDia
+    // El plato del dia que se armo con un producto existente trae SUS datos:
+    // opcionales/adicionales, foto, video. Se buscan aunque ese producto no se
+    // vea en la carta (apagado, oculto del menu digital o fuera de dia): es lo
+    // normal ocultarlo para que no aparezca dos veces, y asi el plato del dia
+    // perdia sus opcionales. Si se puede pedir lo decide el plato del dia, no
+    // el producto.
+    const productosDelDia = usaMenuDelDia
+      ? await this.productosVinculadosAlDia(restaurant.id, dailyMenu, productById)
+      : productById
     const dailyMenuCategory = usaMenuDelDia
       ? this.mapDailyMenuCategory(
         dailyMenu,
-        productById,
+        productosDelDia,
         stockByProductId,
         Boolean(restaurant.stock_strict_mode),
         // El horario en que se puede pedir (Babson: menu diario nocturno).
@@ -786,6 +795,31 @@ export class SupabaseMenuRepository {
     })
 
     return marcarCategoriasDeEleccion([...groups.values()])
+  }
+
+  // Los productos vinculados a los platos del dia que no estan en la carta
+  // visible, sumados a los que si. Una sola consulta, y solo si falta alguno.
+  async productosVinculadosAlDia(restaurantId, dailyMenu, productById) {
+    const items = Array.isArray(dailyMenu?.items) ? dailyMenu.items : []
+    const faltan = [
+      ...new Set(
+        items
+          .map((item) => String(item?.product_id || ''))
+          .filter((id) => /^[0-9a-f-]{36}$/i.test(id) && !productById.has(id)),
+      ),
+    ]
+    if (!faltan.length) return productById
+    try {
+      const filas = await this.request(
+        `/products?restaurant_id=eq.${restaurantId}&id=in.(${faltan.join(',')})&select=*`,
+      )
+      const juntos = new Map(productById)
+      for (const fila of filas || []) juntos.set(fila.id, fila)
+      return juntos
+    } catch {
+      // Sin esos datos el plato del dia se muestra igual, como antes.
+      return productById
+    }
   }
 
   mapDailyMenuCategory(dailyMenu, productById = new Map(), stockByProductId = new Map(), stockStrictMode = false, horario = null, nombre = null) {
