@@ -18,7 +18,7 @@ import {
 } from '../../shared/vitrinaCapta.js'
 import { imagenesDeVitrina } from '../vitrinaImagenes.js'
 import { datosDeTransferencia } from '../../shared/transferencia.js'
-import { leerHorarioMenuDelDia, menuDelDiaDisponible, textoHorarioMenuDelDia } from '../../shared/horarioMenuDelDia.js'
+import { leerHorarioMenuDelDia, menuDelDiaDisponible, nombreMenuDelDia, textoHorarioMenuDelDia } from '../../shared/horarioMenuDelDia.js'
 
 /**
  * Marca las categorias que solo se ELIGEN (los sabores de una heladeria) y las
@@ -363,6 +363,8 @@ export class SupabaseMenuRepository {
         Boolean(restaurant.stock_strict_mode),
         // El horario en que se puede pedir (Babson: menu diario nocturno).
         leerHorarioMenuDelDia(restaurant.horarios),
+        // Y el nombre con el que lo ve el cliente ("Menú nocturno").
+        nombreMenuDelDia(restaurant.horarios),
       )
       : null
     // Todas las categorias siguen en el payload (secciones/productos intactos);
@@ -786,7 +788,10 @@ export class SupabaseMenuRepository {
     return marcarCategoriasDeEleccion([...groups.values()])
   }
 
-  mapDailyMenuCategory(dailyMenu, productById = new Map(), stockByProductId = new Map(), stockStrictMode = false, horario = null) {
+  mapDailyMenuCategory(dailyMenu, productById = new Map(), stockByProductId = new Map(), stockStrictMode = false, horario = null, nombre = null) {
+    // El nombre que ve el cliente. La categoria se sigue reconociendo por su
+    // id ("menu-del-dia") y por esMenuDelDia, no por este texto.
+    const etiqueta = nombre || DAILY_MENU_LABEL
     const dailyItems = Array.isArray(dailyMenu?.items) ? dailyMenu.items : []
     // Fuera de su horario el menu del dia se sigue VIENDO (el cliente sabe que
     // existe y a que hora se pide) pero no se puede agregar al carrito. El
@@ -827,8 +832,9 @@ export class SupabaseMenuRepository {
           // Conservar la sub-categoria del item (Menu gourmet/saludable/especial)
           // para que el sub-filtro del menu del dia funcione; si no tiene, cae a
           // "Menu del dia". La categoria contenedora sigue siendo "Menu del dia".
-          badge: item.category || DAILY_MENU_LABEL,
-          categoryLabel: item.category || DAILY_MENU_LABEL,
+          badge: item.category || etiqueta,
+          categoryLabel: item.category || etiqueta,
+          nombreMenuDelDia: etiqueta,
           dietary: [],
           isDailyMenu: true,
           dailyMenuDate: dailyMenu?.date || null,
@@ -856,7 +862,10 @@ export class SupabaseMenuRepository {
 
     return {
       id: 'menu-del-dia',
-      label: DAILY_MENU_LABEL,
+      label: etiqueta,
+      // Se reconoce por esto y por el id, no por el texto: el local puede
+      // llamarlo "Menú nocturno".
+      esMenuDelDia: true,
       items,
     }
   }

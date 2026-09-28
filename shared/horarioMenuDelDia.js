@@ -61,6 +61,15 @@ export function menuDelDiaDisponible(horario, ahora = new Date()) {
     : ahoraMin >= desde || ahoraMin < hasta
 }
 
+/**
+ * El nombre con el que el cliente ve el menu del dia ("Menú nocturno"), o null
+ * si el local no lo cambio. Vive en _settings.menuDelDiaNombre.
+ */
+export function nombreMenuDelDia(horarios) {
+  const n = String(horarios?._settings?.menuDelDiaNombre ?? '').replace(/\s+/g, ' ').trim()
+  return n ? n.slice(0, 40) : null
+}
+
 /** "de 20:00 a 23:30", para mostrarle al cliente. */
 export function textoHorarioMenuDelDia(horario) {
   if (!horario) return ''

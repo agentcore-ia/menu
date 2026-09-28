@@ -1299,6 +1299,12 @@ function isDailyMenuCategoryLabel(label) {
   return key === 'menu-del-dia' || key === 'menu-diario' || key.includes('plato-del-dia') || key.includes('menu-gourmet') || key.includes('menu-saludable') || key.includes('menu-especial')
 }
 
+// La categoria del menu del dia. Se reconoce por su id o su marca, no solo
+// por el texto: el local puede llamarla "Menú nocturno" (_settings.menuDelDiaNombre).
+function isDailyMenuCategory(category) {
+  return Boolean(category?.id === 'menu-del-dia' || category?.esMenuDelDia || isDailyMenuCategoryLabel(category?.label))
+}
+
 function isDailyMenuItem(item) {
   return Boolean(
     item?.isDailyMenu ||
@@ -3719,7 +3725,7 @@ function getSaborPampaBadgeText(item, index, categoryLabel) {
   const categoryKey = slugify(categoryLabel ?? '')
 
   if (isDailyMenuCategoryLabel(categoryLabel)) return categoryLabel
-  if (isDailyMenuItem({ ...item, categoryLabel })) return 'Menu del dia'
+  if (isDailyMenuItem({ ...item, categoryLabel })) return item?.nombreMenuDelDia || 'Menu del dia'
   if (isPromoCategoryLabel(categoryLabel) || itemKey.includes('promo')) return 'Promo'
   if (index === 0) return 'Recomendado'
   if (itemKey.includes('combo')) return 'Combo'
@@ -4441,7 +4447,7 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
               escrita tres veces en la misma pantalla. */}
           {heroPropia ? null : (
             <div className="hero-bistro-caption">
-              <strong>{heroDish?.name ?? presentation.branding?.wordmark ?? (isDailyHero ? 'Menu del dia' : 'Menu destacado')}</strong>
+              <strong>{heroDish?.name ?? presentation.branding?.wordmark ?? (isDailyHero ? (heroDish?.nombreMenuDelDia || 'Menu del dia') : 'Menu destacado')}</strong>
               <span>{heroDish?.price ?? ''}</span>
             </div>
           )}
@@ -6195,7 +6201,7 @@ function TemplateMenuCollection({
         ...item,
         categoryLabel: item.categoryLabel ?? category.label,
       }))
-    const dailyMenuCategories = orderedCategories.filter((category) => isDailyMenuCategoryLabel(category.label))
+    const dailyMenuCategories = orderedCategories.filter((category) => isDailyMenuCategory(category))
     let dailyMenuItems = dailyMenuCategories.flatMap(cat => getItemsWithCategoryLabel(cat))
     const hasAnyDailyMenuItems = dailyMenuItems.length > 0
     
@@ -6213,7 +6219,7 @@ function TemplateMenuCollection({
         ...category,
         items: getItemsWithCategoryLabel(category),
       }))
-      .filter((category) => category.items.length && (!hasAnyDailyMenuItems || !isDailyMenuCategoryLabel(category.label)))
+      .filter((category) => category.items.length && (!hasAnyDailyMenuItems || !isDailyMenuCategory(category)))
     const homeItems = homeCategorySections.flatMap((category) => category.items)
     const highlightedItems = isSearchActive
       ? categoryItems
@@ -6228,7 +6234,7 @@ function TemplateMenuCollection({
       (item, index, list) => list.findIndex((entry) => entry.id === item.id) === index,
     )
     const featuredItems = hasAnyDailyMenuItems ? uniqueDailyMenuItems : uniqueHighlightedItems.slice(0, 4)
-    const featuredTitle = hasAnyDailyMenuItems ? 'Menu del dia' : 'Destacados'
+    const featuredTitle = hasAnyDailyMenuItems ? (dailyMenuCategories[0]?.label || 'Menu del dia') : 'Destacados'
     const listItems = isSearchActive ? categoryItems : selectedCategoryItems
 
     const renderPampaProductCards = (items, { showRibbon = true } = {}) => (

@@ -3,6 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   leerHorarioMenuDelDia,
+  nombreMenuDelDia,
   menuDelDiaDisponible,
   minutosEnArgentina,
   textoHorarioMenuDelDia,
@@ -65,4 +66,12 @@ test('la hora se mide en Argentina, no en la del servidor', () => {
 test('el texto para el cliente', () => {
   assert.equal(textoHorarioMenuDelDia(nocturno), 'de 20:00 a 23:30')
   assert.equal(textoHorarioMenuDelDia(null), '')
+})
+
+test('el nombre que ve el cliente', () => {
+  assert.equal(nombreMenuDelDia({ _settings: { menuDelDiaNombre: '  Menú   nocturno ' } }), 'Menú nocturno')
+  assert.equal(nombreMenuDelDia({ _settings: {} }), null, 'sin nombre queda el de siempre')
+  assert.equal(nombreMenuDelDia({ _settings: { menuDelDiaNombre: '   ' } }), null)
+  assert.equal(nombreMenuDelDia(null), null)
+  assert.equal(nombreMenuDelDia({ _settings: { menuDelDiaNombre: 'x'.repeat(80) } }).length, 40)
 })
