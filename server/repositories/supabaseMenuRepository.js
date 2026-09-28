@@ -18,6 +18,7 @@ import {
 } from '../../shared/vitrinaCapta.js'
 import { imagenesDeVitrina } from '../vitrinaImagenes.js'
 import { datosDeTransferencia } from '../../shared/transferencia.js'
+import { leerHorarioMenuDelDia, menuDelDiaDisponible, textoHorarioMenuDelDia } from '../../shared/horarioMenuDelDia.js'
 
 /**
  * Marca las categorias que solo se ELIGEN (los sabores de una heladeria) y las
@@ -360,6 +361,8 @@ export class SupabaseMenuRepository {
         productById,
         stockByProductId,
         Boolean(restaurant.stock_strict_mode),
+        // El horario en que se puede pedir (Babson: menu diario nocturno).
+        leerHorarioMenuDelDia(restaurant.horarios),
       )
       : null
     // Todas las categorias siguen en el payload (secciones/productos intactos);
@@ -783,8 +786,13 @@ export class SupabaseMenuRepository {
     return marcarCategoriasDeEleccion([...groups.values()])
   }
 
-  mapDailyMenuCategory(dailyMenu, productById = new Map(), stockByProductId = new Map(), stockStrictMode = false) {
+  mapDailyMenuCategory(dailyMenu, productById = new Map(), stockByProductId = new Map(), stockStrictMode = false, horario = null) {
     const dailyItems = Array.isArray(dailyMenu?.items) ? dailyMenu.items : []
+    // Fuera de su horario el menu del dia se sigue VIENDO (el cliente sabe que
+    // existe y a que hora se pide) pero no se puede agregar al carrito. El
+    // servidor de pedidos aplica la misma regla (shared/horarioMenuDelDia.js).
+    const enHorario = menuDelDiaDisponible(horario)
+    const fueraDeHorario = enHorario ? null : textoHorarioMenuDelDia(horario)
     const items = dailyItems
       .filter((item) => item?.available !== false)
       .map((item, index) => {
@@ -824,7 +832,9 @@ export class SupabaseMenuRepository {
           dietary: [],
           isDailyMenu: true,
           dailyMenuDate: dailyMenu?.date || null,
-          availableForOrder,
+          availableForOrder: availableForOrder && enHorario,
+          /** "de 20:00 a 23:30" si ahora no se puede pedir por el horario. */
+          fueraDeHorario,
           maxQuantity:
             stockLimit != null
               ? Math.max(0, stockLimit)

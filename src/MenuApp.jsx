@@ -8317,6 +8317,12 @@ export default function MenuApp() {
       0,
     )
 
+    // El menu del dia fuera de su horario no esta "sin stock": se pide mas tarde.
+    if (item.fueraDeHorario) {
+      setOrderingNotice(`${item.name} es del menú del día: se pide ${item.fueraDeHorario}.`)
+      return false
+    }
+
     if (item.availableForOrder === false || (maxQuantity !== null && currentQuantity + quantity > maxQuantity)) {
       setOrderingNotice(
         maxQuantity === 0
@@ -9435,6 +9441,9 @@ export default function MenuApp() {
   const detailSelectionsValid = selectedDish
     ? areSelectionsValid(detailSelectableGroups, selectedOptions)
     : true
+  // Lo que dice el boton cuando no se puede agregar: el menu del dia fuera de
+  // su horario no esta agotado, se pide mas tarde (shared/horarioMenuDelDia.js).
+  const detailBlockedLabel = selectedDish?.fueraDeHorario ? `Se pide ${selectedDish.fueraDeHorario}` : 'Sin stock'
   const detailStockBlocked = Boolean(
     selectedDish &&
       (selectedDish.availableForOrder === false ||
@@ -10230,7 +10239,7 @@ export default function MenuApp() {
                   orderingBlocked
                     ? 'Pedidos cerrados'
                     : detailStockBlocked
-                      ? 'Sin stock'
+                      ? detailBlockedLabel
                       : weeklyPlanIsEmpty
                         ? 'Elegi al menos una vianda'
                         : detailSelectionsValid
@@ -10409,7 +10418,7 @@ export default function MenuApp() {
                       setSelectedDish(null)
                     }}
                   >
-                    <span>{orderingBlocked ? 'Pedidos cerrados' : detailStockBlocked ? 'Sin stock' : 'Agregar al pedido'}</span>
+                    <span>{orderingBlocked ? 'Pedidos cerrados' : detailStockBlocked ? detailBlockedLabel : 'Agregar al pedido'}</span>
                     <strong>
                       {formatPrice(
                         ((selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal) *
@@ -10824,7 +10833,7 @@ export default function MenuApp() {
                       setSelectedDish(null)
                     }}
                   >
-                    <span>{orderingBlocked ? 'Pedidos cerrados' : detailStockBlocked ? 'Sin stock' : 'Agregar al pedido'}</span>
+                    <span>{orderingBlocked ? 'Pedidos cerrados' : detailStockBlocked ? detailBlockedLabel : 'Agregar al pedido'}</span>
                     <strong>
                       {formatPrice(
                         ((selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + detailExtraTotal) *
@@ -10923,7 +10932,7 @@ export default function MenuApp() {
                   }}
                 >
                   <IconCart />
-                  <span>{orderingBlocked ? 'Pedidos cerrados' : detailStockBlocked ? 'Sin stock' : 'Agregar al carrito'}</span>
+                  <span>{orderingBlocked ? 'Pedidos cerrados' : detailStockBlocked ? detailBlockedLabel : 'Agregar al carrito'}</span>
                 </button>
               </footer>
             ) : null}

@@ -11,6 +11,7 @@ import { describirDias, diaDeHoyEnArgentina, diasDelTexto } from '../../shared/d
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../../shared/celular.js'
 import { canjeElegido, configDePuntos } from '../../shared/puntosCapta.js'
 import { aceptaTransferencia } from '../../shared/transferencia.js'
+import { leerHorarioMenuDelDia, menuDelDiaDisponible, textoHorarioMenuDelDia } from '../../shared/horarioMenuDelDia.js'
 
 export class SupabaseOrderRepository {
   constructor(config) {
@@ -91,6 +92,7 @@ export class SupabaseOrderRepository {
     // efectivo con otra cosa no tiene que dejar cliente ni conversacion.
     await this.validateCashOnlyItems(Array.isArray(payload.items) ? payload.items : [], payload)
     await this.validateDayRestrictedItems(Array.isArray(payload.items) ? payload.items : [])
+    await this.validateDailyMenuHorario(restaurant, Array.isArray(payload.items) ? payload.items : [])
 
     const loyaltySettings = await this.fetchLoyaltySettings(restaurant.id)
     const customer = await this.upsertCustomer(restaurant, payload.customer)
@@ -976,6 +978,47 @@ export class SupabaseOrderRepository {
       `${nombres.join(', ')} ${nombres.length > 1 ? 'se pagan' : 'se paga'} solo en efectivo. Elegí pagar en efectivo para hacer el pedido.`,
     )
     error.code = 'CASH_ONLY_ITEMS'
+    error.statusCode = 422
+    throw error
+  }
+
+  // El menu del dia fuera de su horario (Babson: menu diario nocturno, que no
+  // se pide al mediodia). El menu ya no deja agregarlo; esto frena el pedido de
+  // una pestaña abierta desde antes o uno armado a mano. Sin horario cargado no
+  // hace nada, ni siquiera consulta la base.
+  async validateDailyMenuHorario(restaurant, orderProducts) {
+    const horario = leerHorarioMenuDelDia(restaurant?.horarios)
+    if (!horario || menuDelDiaDisponible(horario)) return
+    if (!orderProducts.length) return
+
+    let items
+    try {
+      const data = await this.rpc('get_restaurant_daily_menu_context', {
+        p_restaurant_id: restaurant.id,
+        p_service_date: new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit',
+        }).format(new Date()),
+      })
+      items = Array.isArray(data?.items) ? data.items : []
+    } catch {
+      // Sin poder leer el menu del dia no se sabe que es del menu del dia: no
+      // se frena un pedido comun por un problema de lectura.
+      return
+    }
+    if (!items.length) return
+
+    const normalizar = (t) => String(t || '').trim().toLowerCase()
+    const ids = new Set(items.map((i) => String(i?.product_id || '')).filter(Boolean))
+    const nombres = new Set(items.map((i) => normalizar(i?.name)).filter(Boolean))
+    const delMenuDelDia = orderProducts.filter((p) =>
+      (p?.productId && ids.has(String(p.productId))) || nombres.has(normalizar(p?.name)),
+    )
+    if (!delMenuDelDia.length) return
+
+    const error = new Error(
+      `El menú del día se pide ${textoHorarioMenuDelDia(horario)}. Sacá ${delMenuDelDia.map((p) => p.name).join(', ')} del carrito para hacer el pedido.`,
+    )
+    error.code = 'DAILY_MENU_OUT_OF_HOURS'
     error.statusCode = 422
     throw error
   }
