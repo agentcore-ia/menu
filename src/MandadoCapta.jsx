@@ -1,10 +1,10 @@
 // Los mandados de Capta Delivery en la vitrina: "comprame algo" o "llevá este
 // paquete", como los Favores de Rappi.
 //
-// Del lado del servidor un mandado es un pedido del local de mandados de la
-// ciudad (shared/mandados.js): se cotiza el envio con SU zona y se crea con la
-// misma ruta de pedidos que usan los menus. Esta pantalla no decide plata: el
-// servidor rearma el renglon, la forma de pago y las notas.
+// Los mandados son de Capta, no de un local: los cotiza, crea y despacha el
+// dashboard, con las zonas de Capta de la ciudad. Esta pantalla habla con
+// /api/delivery/mandados (server/mandados.js), que busca la direccion y le
+// pasa todo al dashboard. No decide plata: el precio lo pone el servidor.
 
 import { useState } from 'react'
 import { TIPOS_MANDADO, normalizarMandado } from '../shared/mandados.js'
@@ -42,9 +42,8 @@ export function EntradaMandados({ mandado, onAbrir }) {
       <span className="cd-mandados-textos">
         <strong>Mandados</strong>
         <small>
-          {mandado.abierto
-            ? 'Te compramos lo que necesites o llevamos tu paquete'
-            : mandado.proximaApertura || 'Ahora no estamos tomando mandados'}
+          Te compramos lo que necesites o llevamos tu paquete
+          {mandado.envioDesde ? ` · envío desde ${pesos(mandado.envioDesde)}` : ''}
         </small>
       </span>
       <Icono nombre="chevron_right" />
@@ -52,24 +51,28 @@ export function EntradaMandados({ mandado, onAbrir }) {
   )
 }
 
-/** Cotiza el envio con la zona del local de mandados, igual que el menu. */
-async function cotizar(slug, { direccion, barrio, ciudad, punto }) {
-  const params = new URLSearchParams({ address: direccion, neighborhood: barrio, city: ciudad })
+/**
+ * Cotiza el envio con las zonas de Capta de la ciudad. Sin punto, busca la
+ * direccion cerca del centro de la ciudad y devuelve las opciones con su precio.
+ */
+async function cotizar(mandado, { direccion, barrio, punto }) {
+  const params = new URLSearchParams({ accion: 'cotizar', address: direccion, neighborhood: barrio, city: mandado.ciudad })
   if (punto) {
     params.set('lat', String(punto.lat))
     params.set('lng', String(punto.lng))
-    params.set('confirmed', 'true')
     if (punto.label) params.set('label', String(punto.label))
+  } else if (mandado.centro) {
+    params.set('olat', String(mandado.centro.lat))
+    params.set('olng', String(mandado.centro.lng))
   }
-  const respuesta = await fetch(`/api/accounts/${encodeURIComponent(slug)}/delivery-zone?${params}`, {
-    cache: 'no-store',
-  })
+  const respuesta = await fetch(`/api/delivery/mandados?${params}`, { cache: 'no-store' })
   const datos = await respuesta.json().catch(() => null)
   if (!respuesta.ok) throw new Error(datos?.message || 'No pudimos calcular el envío a esa dirección.')
   return datos
 }
 
-export function FormularioMandado({ mandado, ciudad }) {
+export function FormularioMandado({ mandado }) {
+  const ciudad = mandado.ciudad
   const [guardados] = useState(() => leerDatos(almacenDelNavegador()))
   const [tipo, setTipo] = useState('compra')
   const [que, setQue] = useState('')
@@ -106,7 +109,7 @@ export function FormularioMandado({ mandado, ciudad }) {
     setCotizando(true)
     try {
       const guardado = punto || coordenadasGuardadas(guardados, { address: direccion, neighborhood: barrio }, ciudad)
-      const datos = await cotizar(mandado.slug, { direccion: direccion.trim(), barrio: barrio.trim(), ciudad, punto: guardado })
+      const datos = await cotizar(mandado, { direccion: direccion.trim(), barrio: barrio.trim(), punto: guardado })
       setEnvio(datos)
     } catch (e) {
       setEnvio(null)
@@ -116,9 +119,9 @@ export function FormularioMandado({ mandado, ciudad }) {
     }
   }
 
-  // Sin precio no sale: con Capta el envio es la plata del viaje (el servidor
-  // tiene la misma regla).
-  const envioListo = envio?.allowed === true && Number(envio.fee) > 0 ? envio : null
+  // Sin precio y sin punto no sale: el envio lo cobra Capta por la zona de ESE
+  // punto (el servidor tiene la misma regla).
+  const envioListo = envio?.allowed === true && Number(envio.fee) > 0 && envio.coordinates ? envio : null
 
   const enviar = async (evento) => {
     evento.preventDefault()
@@ -147,26 +150,20 @@ export function FormularioMandado({ mandado, ciudad }) {
 
     setEnviando(true)
     try {
-      const respuesta = await fetch(`/api/accounts/${encodeURIComponent(mandado.slug)}/orders`, {
+      const respuesta = await fetch('/api/delivery/mandados', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          customer: {
-            name: nombre.trim(),
-            phone: normalizarCelular(celular),
-            address: direccion.trim(),
-            neighborhood: barrio.trim(),
-            city: ciudad,
+          ciudad,
+          cliente: {
+            nombre: nombre.trim(),
+            telefono: normalizarCelular(celular),
+            direccion: direccion.trim(),
+            barrio: barrio.trim(),
           },
-          // El servidor rearma el renglon; este solo pasa el control de "hay
-          // algo en el pedido" de la ruta.
-          items: [{ name: 'Mandado', quantity: 1, unitPrice: 0 }],
-          deliveryType: 'delivery',
-          paymentMethod: 'cash',
-          ...(envioListo.coordinates ? { deliveryQuote: { coordinates: envioListo.coordinates } } : {}),
           mandado: revisado.mandado,
-          notes: nota.trim(),
-          desdeVitrina: true,
+          punto: envioListo.coordinates,
+          notas: nota.trim(),
         }),
       })
       const datos = await respuesta.json().catch(() => null)
@@ -175,9 +172,9 @@ export function FormularioMandado({ mandado, ciudad }) {
       guardarDatos(
         almacenDelNavegador(),
         { name: nombre, phone: celular, address: direccion, neighborhood: barrio, deliveryType: 'delivery' },
-        { ciudad, coordenadas: envioListo.coordinates || null },
+        { ciudad, coordenadas: envioListo.coordinates },
       )
-      setListo({ numero: datos?.orderNumber, total: datos?.total ?? envioListo.fee, mandado: revisado.mandado })
+      setListo({ numero: datos?.numero, total: datos?.envio || envioListo.fee, mandado: revisado.mandado })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No pudimos mandar el pedido.')
     } finally {
@@ -204,16 +201,8 @@ export function FormularioMandado({ mandado, ciudad }) {
     )
   }
 
-  if (!mandado.abierto) {
-    return (
-      <p className="cd-hoja-texto">
-        Ahora no estamos tomando mandados. {mandado.proximaApertura || 'Probá más tarde.'}
-      </p>
-    )
-  }
-
   return (
-    <form className="cd-mandado-form" onSubmit={enviar}>
+    <form className="cd-mandado-form" onSubmit={enviar} noValidate>
       <div className="cd-mandado-tipos" role="radiogroup" aria-label="Qué necesitás">
         {TIPOS_MANDADO.map((t) => (
           <button

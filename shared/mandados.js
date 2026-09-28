@@ -2,22 +2,11 @@
 // menu ("comprame un cargador en el kiosco", "llevale estas llaves a mi vieja")
 // y un repartidor de Capta lo hace. Como los "Favores" de Rappi.
 //
-// Como se arma: en cada ciudad hay UN local de Capta marcado como "de mandados"
-// (restaurants.horarios._settings.captaMandados = true). Cada mandado es un
-// pedido de ese local, asi entra al despacho, a la app del repartidor, al
-// seguimiento y a la caja igual que cualquier envio. Ese local no sale en la
-// vitrina como un comercio mas: tiene su propia entrada.
-//
-// La plata:
-//   - El pedido vale SOLO el envio (por zona, como cualquier envio de Capta).
-//   - En una compra el repartidor ADELANTA la plata (hasta el tope que puso el
-//     cliente) y al entregar cobra el ticket aparte. Esa plata es suya: no se
-//     rinde, por eso no entra en el total del pedido.
-//   - Por ahora solo efectivo: con transferencia no hay a quien devolverle lo
-//     que adelanto el repartidor.
-//
-// Este archivo no tiene pantalla ni base: lo usan la creacion del pedido (que
-// es la que manda) y el formulario de la vitrina.
+// Los mandados son de CAPTA, no de un local: los valida, cobra y despacha el
+// dashboard (lib/mandadoCapta.ts y lib/server/mandadosCapta.ts). Esta copia de
+// la validacion es solo para que el formulario de la vitrina avise antes de
+// mandar; la que manda es la del dashboard. Si se cambia una regla, va en los
+// dos lados.
 //
 //   node --test shared/mandados.test.mjs
 
@@ -26,7 +15,7 @@ export const TIPOS_MANDADO = [
   { id: 'paquete', label: 'Llevar un paquete', detalle: 'Lo retiramos y lo entregamos' },
 ]
 
-/** Lo maximo que adelanta un repartidor si el local de mandados no dice otra cosa. */
+/** Lo maximo que adelanta un repartidor si la ciudad no dice otra cosa. */
 export const TOPE_COMPRA_POR_DEFECTO = 30000
 
 const LARGO_QUE = 500
@@ -34,23 +23,6 @@ const LARGO_DONDE = 200
 const LARGO_CONTACTO = 120
 
 const texto = (v) => String(v ?? '').replace(/\s+/g, ' ').trim()
-
-function ajustes(horarios) {
-  return horarios && typeof horarios === 'object' && !Array.isArray(horarios)
-    ? horarios._settings ?? {}
-    : {}
-}
-
-/** Si el local es el que toma los mandados de su ciudad. */
-export function esLocalDeMandados(horarios) {
-  return ajustes(horarios).captaMandados === true
-}
-
-/** Hasta cuanto puede pedir el cliente que le adelanten en una compra. */
-export function topeDeCompra(horarios) {
-  const tope = Number(ajustes(horarios).mandadoTopeCompra)
-  return Number.isFinite(tope) && tope > 0 ? Math.round(tope) : TOPE_COMPRA_POR_DEFECTO
-}
 
 function pesos(valor) {
   return `$${Math.round(Number(valor) || 0).toLocaleString('es-AR')}`
@@ -104,40 +76,4 @@ export function normalizarMandado(entrada, { tope = TOPE_COMPRA_POR_DEFECTO } = 
       pagaEn: entrada.pagaEn === 'retiro' ? 'retiro' : 'entrega',
     },
   }
-}
-
-/** El renglon del pedido: lo que se ve en Pedidos, en el despacho y en la app. */
-export function nombreDelItem(mandado) {
-  return mandado?.tipo === 'compra' ? `Mandado: comprar ${mandado.que}` : `Mandado: llevar ${mandado?.que ?? ''}`.trim()
-}
-
-/**
- * Las notas del pedido. Viajan al envio (envios_capta.notas) y son lo que lee
- * el repartidor en su app aunque la pantalla no sepa nada de mandados.
- */
-export function notasDelMandado(mandado) {
-  if (!mandado) return ''
-  if (mandado.tipo === 'compra') {
-    return [
-      'MANDADO - COMPRA',
-      `Comprar: ${mandado.que}`,
-      `Dónde: ${mandado.donde || 'donde convenga'}`,
-      `Adelantás hasta ${pesos(mandado.tope)}. Al entregar cobrás el ticket de la compra + el envío.`,
-    ].join('\n')
-  }
-  return [
-    'MANDADO - PAQUETE',
-    `Retirar en: ${mandado.donde}${mandado.contacto ? ` (${mandado.contacto})` : ''}`,
-    `Qué es: ${mandado.que}`,
-    `El envío se cobra al ${mandado.pagaEn === 'retiro' ? 'retirar' : 'entregar'}.`,
-  ].join('\n')
-}
-
-/** Lo que se le dice al cliente en la confirmacion: como y cuando paga. */
-export function avisoAlCliente(mandado) {
-  if (!mandado) return ''
-  if (mandado.tipo === 'compra') {
-    return `Mandado: ${mandado.que}. Pagás al recibir, en efectivo: lo que salga la compra (hasta ${pesos(mandado.tope)}) + el envío.`
-  }
-  return `Mandado: ${mandado.que}, desde ${mandado.donde}. El envío se paga en efectivo al ${mandado.pagaEn === 'retiro' ? 'retirar' : 'entregar'}.`
 }

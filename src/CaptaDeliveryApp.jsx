@@ -100,7 +100,7 @@ function guardarPreferencia(clave, valor) {
 }
 
 function useVitrina() {
-  const [estado, setEstado] = useState({ cargando: true, error: '', locales: [], ciudades: [], mandados: [] })
+  const [estado, setEstado] = useState({ cargando: true, error: '', locales: [], ciudades: [] })
   // Sube de a uno cuando el cliente toca "Reintentar": es lo que vuelve a
   // disparar la carga sin tener que tocar el estado dentro del efecto.
   const [intento, setIntento] = useState(0)
@@ -120,7 +120,6 @@ function useVitrina() {
           error: '',
           locales: Array.isArray(datos?.locales) ? datos.locales : [],
           ciudades: Array.isArray(datos?.ciudades) ? datos.ciudades : [],
-          mandados: Array.isArray(datos?.mandados) ? datos.mandados : [],
         })
       })
       .catch(() => {
@@ -130,7 +129,6 @@ function useVitrina() {
           error: 'No pudimos cargar los locales. Fijate la conexión y volvé a intentar.',
           locales: [],
           ciudades: [],
-          mandados: [],
         })
       })
 
@@ -145,6 +143,30 @@ function useVitrina() {
   }, [])
 
   return { ...estado, recargar }
+}
+
+/**
+ * Las ciudades donde Capta hace mandados (las prende Capta desde su panel).
+ * Va aparte de la lista de locales: si falla, la vitrina se ve igual, sin la
+ * entrada de mandados.
+ */
+function useMandados() {
+  const [ciudades, setCiudades] = useState([])
+
+  useEffect(() => {
+    let vivo = true
+    fetch('/api/delivery/mandados?accion=ciudades')
+      .then((respuesta) => (respuesta.ok ? respuesta.json() : null))
+      .then((datos) => {
+        if (vivo && Array.isArray(datos?.ciudades)) setCiudades(datos.ciudades)
+      })
+      .catch(() => {})
+    return () => {
+      vivo = false
+    }
+  }, [])
+
+  return ciudades
 }
 
 /**
@@ -521,7 +543,8 @@ function BarraInferior({ vista, onVista, favoritos }) {
 }
 
 export default function CaptaDeliveryApp() {
-  const { cargando, error, locales, ciudades, mandados, recargar } = useVitrina()
+  const { cargando, error, locales, ciudades: ciudadesConLocales, recargar } = useVitrina()
+  const mandados = useMandados()
   const [ciudadElegida, setCiudadElegida] = useState(() => leerPreferencia(CLAVE_CIUDAD, ''))
   const [categoriaElegida, setCategoriaElegida] = useState('todos')
   const [busqueda, setBusqueda] = useState('')
@@ -532,6 +555,15 @@ export default function CaptaDeliveryApp() {
   const [vista, setVista] = useState('inicio')
   const [eligiendoCiudad, setEligiendoCiudad] = useState(false)
   const [pidiendoMandado, setPidiendoMandado] = useState(false)
+
+  // Las ciudades para elegir: las que tienen locales y, al final, las que por
+  // ahora solo tienen mandados.
+  const ciudades = useMemo(() => {
+    const soloMandados = mandados
+      .filter((m) => !ciudadesConLocales.some((c) => ciudadPareja(c.nombre) === ciudadPareja(m.ciudad)))
+      .map((m) => ({ nombre: m.ciudad, locales: 0 }))
+    return [...ciudadesConLocales, ...soloMandados]
+  }, [ciudadesConLocales, mandados])
 
   // La ciudad que se esta mirando: la que eligio la vez pasada, si todavia
   // tiene locales, y si no la que mas tiene. Se calcula en vez de corregirse
@@ -794,7 +826,7 @@ export default function CaptaDeliveryApp() {
 
       {pidiendoMandado && mandadoDeLaCiudad ? (
         <Hoja titulo="Pedí un mandado" onCerrar={() => setPidiendoMandado(false)}>
-          <FormularioMandado mandado={mandadoDeLaCiudad} ciudad={ciudad} />
+          <FormularioMandado mandado={mandadoDeLaCiudad} />
         </Hoja>
       ) : null}
 

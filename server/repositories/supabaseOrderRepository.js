@@ -11,34 +11,18 @@ import { describirDias, diaDeHoyEnArgentina, diasDelTexto } from '../../shared/d
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../../shared/celular.js'
 import { canjeElegido, configDePuntos } from '../../shared/puntosCapta.js'
 import { aceptaTransferencia } from '../../shared/transferencia.js'
-import {
-  avisoAlCliente,
-  esLocalDeMandados,
-  nombreDelItem,
-  normalizarMandado,
-  notasDelMandado,
-  topeDeCompra,
-} from '../../shared/mandados.js'
 
 export class SupabaseOrderRepository {
   constructor(config) {
     this.config = config
   }
 
-  async createOrder(accountId, pedidoDelCliente) {
+  async createOrder(accountId, payload) {
     const restaurant = await this.fetchRestaurant(accountId)
 
     if (!restaurant) {
       return null
     }
-
-    // Un mandado de Capta Delivery es un pedido del local de mandados de la
-    // ciudad (shared/mandados.js). Lo que mando el navegador se rearma aca:
-    // el renglon, la forma de pago y las notas los decide el servidor.
-    const mandado = esLocalDeMandados(restaurant.horarios)
-      ? this.mandadoDelPedido(restaurant, pedidoDelCliente)
-      : null
-    const payload = mandado ? this.pedidoDeMandado(pedidoDelCliente, mandado) : pedidoDelCliente
 
     if (restaurant.horarios?._settings?.orderTakingPaused === true) {
       const error = new Error(
@@ -190,7 +174,7 @@ export class SupabaseOrderRepository {
       pesosPedidos: payload.puntosCapta,
       comida: discountedSubtotal,
       envio: deliveryFee,
-      desdeVitrina: payload.desdeVitrina === true && !mandado,
+      desdeVitrina: payload.desdeVitrina === true,
     })
 
     const total = Math.max(0, discountedSubtotal + deliveryFee + surchargeAmount - canjeCapta.pesos)
@@ -281,11 +265,7 @@ export class SupabaseOrderRepository {
           restaurant_id: restaurant.id,
           cliente_id: customer.id,
           conversacion_id: conversation.id,
-          // El mandado no pasa por ninguna cocina: nace LISTO y el barrido
-          // del dashboard (despacharListosSinEnvio) se lo pasa a los
-          // repartidores de Capta.
-          status: mandado ? 'ready' : esperaPago ? 'pendiente_pago' : 'new',
-          ...(mandado ? { listo_at: new Date().toISOString() } : {}),
+          status: esperaPago ? 'pendiente_pago' : 'new',
           delivery_type: payload.deliveryType,
           payment_method: payload.paymentMethod,
           address: payload.customer.address || null,
@@ -313,8 +293,7 @@ export class SupabaseOrderRepository {
           table_id: resolvedTableId,
           transcription: {
             ...(esTelefonoPrueba ? { test: true } : {}),
-            channel: mandado ? 'capta_mandado' : payload.mesa_id ? 'qr_mesa' : 'menu_digital',
-            ...(mandado ? { mandado } : {}),
+            channel: payload.mesa_id ? 'qr_mesa' : 'menu_digital',
             mesa_name: resolvedTableName || null,
             customer: payload.customer,
             items: orderProducts,
@@ -445,7 +424,7 @@ export class SupabaseOrderRepository {
           deliveryType: payload.deliveryType,
           paymentMethod: payload.paymentMethod,
           address: payload.customer.address,
-          notes: mandado ? avisoAlCliente(mandado) : payload.notes,
+          notes: payload.notes,
           loyalty: loyaltyEarn,
           paymentLink: mercadoPagoPreference?.paymentLink,
         })
@@ -1508,41 +1487,6 @@ export class SupabaseOrderRepository {
    * Lo que manda el navegador es una propuesta: aca se vuelve a mirar el saldo
    * real y los topes. Solo cuenta si el pedido entro DESDE la app de Capta.
    */
-  /** El mandado validado, o un 422 con el mensaje para el cliente. */
-  mandadoDelPedido(restaurant, payload) {
-    const r = normalizarMandado(payload?.mandado, { tope: topeDeCompra(restaurant.horarios) })
-    if (!r.ok) {
-      const error = new Error(r.mensaje)
-      error.code = 'MANDADO_INVALIDO'
-      error.statusCode = 422
-      throw error
-    }
-    return r.mandado
-  }
-
-  /**
-   * El pedido que sale de un mandado.
-   *
-   * Vale solo el envio: el renglon va en $0 y lo que compre el repartidor se
-   * cobra aparte con el ticket. Siempre en efectivo y a domicilio. Sin canjes
-   * del local ni puntos: no hay comida sobre la que descontar.
-   */
-  pedidoDeMandado(payload, mandado) {
-    const notaDelCliente = String(payload?.notes ?? '').trim()
-    return {
-      ...payload,
-      items: [{ productId: null, name: nombreDelItem(mandado), quantity: 1, unitPrice: 0, notes: null }],
-      redemptions: [],
-      puntosCapta: 0,
-      paymentMethod: 'cash',
-      deliveryType: 'delivery',
-      mesa_id: null,
-      notes: [notasDelMandado(mandado), notaDelCliente ? `Nota del cliente: ${notaDelCliente}` : '']
-        .filter(Boolean)
-        .join('\n'),
-    }
-  }
-
   async canjearPuntosDeCapta({ telefono, pesosPedidos, comida, envio, desdeVitrina }) {
     const vacio = { pesos: 0, puntos: 0, cuentaId: null }
     if (!desdeVitrina) return vacio
