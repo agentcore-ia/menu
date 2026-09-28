@@ -17,6 +17,7 @@ import {
   tiempoDeEntrega,
 } from '../../shared/vitrinaCapta.js'
 import { imagenesDeVitrina } from '../vitrinaImagenes.js'
+import { datosDeTransferencia } from '../../shared/transferencia.js'
 
 /**
  * Marca las categorias que solo se ELIGEN (los sabores de una heladeria) y las
@@ -416,23 +417,9 @@ export class SupabaseMenuRepository {
       // tenia adonde transferir. El efectivo siempre esta.
       pagos: {
         efectivo: true,
-        transferencia: (() => {
-          const alias = String(restaurant.transfer_payment_alias || '').trim()
-          const cvu = String(restaurant.transfer_payment_cvu || '').trim()
-          // Vale tanto la marca del panel como tener los datos cargados: hay
-          // locales que cobran por transferencia con los datos puestos y el
-          // interruptor sin tocar.
-          if (restaurant.transfer_payment_enabled !== true && !alias && !cvu) {
-            return null
-          }
-          return {
-            alias: alias || null,
-            cvu: cvu || null,
-            titular: String(restaurant.transfer_payment_holder || '').trim() || null,
-            banco: String(restaurant.transfer_payment_bank || '').trim() || null,
-            instrucciones: String(restaurant.transfer_payment_instructions || '').trim() || null,
-          }
-        })(),
+        // La decide el interruptor de Ajustes, no tener un alias cargado
+        // (shared/transferencia.js): apagarla y dejar los datos es lo normal.
+        transferencia: datosDeTransferencia(restaurant),
         // Un local puede tener Mercado Pago conectado (para verificar las
         // transferencias que le entran) y aun asi no querer cobrar por Mercado
         // Pago en el menu: horarios._settings.menuSinMercadoPago. Apaga las dos

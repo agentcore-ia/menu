@@ -10,6 +10,7 @@ import { resolveDeliveryQuote } from '../deliveryZones.js'
 import { describirDias, diaDeHoyEnArgentina, diasDelTexto } from '../../shared/diasDisponibles.js'
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../../shared/celular.js'
 import { canjeElegido, configDePuntos } from '../../shared/puntosCapta.js'
+import { aceptaTransferencia } from '../../shared/transferencia.js'
 
 export class SupabaseOrderRepository {
   constructor(config) {
@@ -36,6 +37,16 @@ export class SupabaseOrderRepository {
         paused: true,
         message: error.message,
       }
+      throw error
+    }
+
+    // Transferencia solo si el local la tiene prendida en Ajustes. El menu ya no
+    // la ofrece si esta apagada, pero la regla va aca: una pestaña abierta de
+    // antes o un pedido armado a mano no la saltea (shared/transferencia.js).
+    if (payload.paymentMethod === 'transferencia' && !aceptaTransferencia(restaurant)) {
+      const error = new Error('Este local no está cobrando por transferencia. Elegí otra forma de pago.')
+      error.code = 'PAYMENT_METHOD_NOT_AVAILABLE'
+      error.statusCode = 422
       throw error
     }
 
@@ -537,7 +548,8 @@ export class SupabaseOrderRepository {
 
   async fetchRestaurant(accountId) {
     const slug = slugify(accountId)
-    const select = 'id,slug,name,phone,delivery_fee,city,horarios,plan_code,stock_strict_mode'
+    const select = 'id,slug,name,phone,delivery_fee,city,horarios,plan_code,stock_strict_mode,' +
+      'transfer_payment_enabled,transfer_payment_alias,transfer_payment_cvu'
     const exactRows = await this.request(
       `/restaurants?slug=eq.${encodeURIComponent(slug)}&select=${select}&limit=1`,
     )
