@@ -762,7 +762,7 @@ function LineaDeEstado({ local }) {
   )
 }
 
-/** La tarjeta grande de "Cerca de ti" (y de las listas). */
+/** La tarjeta de un comercio en las grillas. */
 function TarjetaCerca({ local, esFavorito, onFavorito, enLista = false }) {
   const url = `/${encodeURIComponent(local.slug)}?vitrina=1`
   return (
@@ -966,8 +966,8 @@ export default function CaptaDeliveryApp() {
     return locales.filter((local) => ciudadPareja(local.ciudad) === ciudadPareja(ciudad))
   }, [locales, ciudad])
 
-  // "Cerca de ti": primero lo que se puede pedir ya, despues lo que se puede
-  // programar, al final lo cerrado.
+  // Los comercios de la ciudad: primero lo que se puede pedir ya, despues lo
+  // que se puede programar, al final lo cerrado.
   const cercaDeTi = useMemo(
     () =>
       [...deLaCiudad].sort(
@@ -1115,16 +1115,16 @@ export default function CaptaDeliveryApp() {
 
             <Categorias onElegir={abrirGrupo} onVerTodas={() => setHoja('categorias')} />
 
-            <section className="cd-seccion" aria-label="Cerca de ti">
+            {/* Todos los comercios de la ciudad, abajo de las categorias: primero
+                los abiertos y despues "Abren más tarde". */}
+            <section className="cd-seccion" aria-label="Comercios">
               <div className="cd-seccion-cabeza">
-                <h2>Cerca de ti</h2>
-                <button type="button" onClick={() => irA('todos')}>
-                  Ver todos <Icono nombre="chevron_right" />
-                </button>
+                <h2>{ciudad ? `Comercios en ${ciudad}` : 'Comercios'}</h2>
+                {!cargando ? <span className="cd-cuenta">{cercaDeTi.length}</span> : null}
               </div>
               {cargando ? (
-                <div className="cd-fila-cerca">
-                  {[0, 1, 2].map((i) => (
+                <div className="cd-grilla-cerca">
+                  {[0, 1, 2, 3].map((i) => (
                     <div key={i} className="cd-cerca cd-esqueleto" aria-hidden="true">
                       <div className="cd-cerca-foto" />
                       <div className="cd-cerca-cuerpo">
@@ -1135,16 +1135,7 @@ export default function CaptaDeliveryApp() {
                   ))}
                 </div>
               ) : cercaDeTi.length ? (
-                <div className="cd-fila-cerca">
-                  {cercaDeTi.map((local) => (
-                    <TarjetaCerca
-                      key={local.slug}
-                      local={local}
-                      esFavorito={favoritos.includes(local.slug)}
-                      onFavorito={alternarFavorito}
-                    />
-                  ))}
-                </div>
+                <ListaDeLocales locales={cercaDeTi} favoritos={favoritos} onFavorito={alternarFavorito} />
               ) : !error ? (
                 <p className="cd-hoja-texto">Por ahora no hay locales en {ciudad || 'esta ciudad'}.</p>
               ) : null}

@@ -2067,3 +2067,83 @@ body {
   border-radius: 18px;
   box-shadow: 0 8px 18px rgba(242, 88, 27, 0.25);
 }
+
+/* ---------- barras mas chicas (pedido del 1/10: "estan muy grandes") ---------- */
+:root {
+  --cd-barra: 62px;
+}
+
+.cd-cabecera {
+  padding: 12px 0 10px;
+}
+
+.cd-marca {
+  gap: 9px;
+}
+
+.cd-marca-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  box-shadow: 0 5px 12px rgba(242, 88, 27, 0.25);
+}
+
+.cd-marca strong {
+  font-size: 22px;
+}
+
+.cd-marca em {
+  font-size: 18px;
+}
+
+.cd-ciudad > .cd-icono:first-child {
+  font-size: 22px;
+}
+
+.cd-ciudad strong {
+  font-size: 15.5px;
+  gap: 3px;
+}
+
+.cd-ciudad strong .cd-icono {
+  font-size: 18px;
+}
+
+.cd-ciudad small {
+  font-size: 11.5px;
+}
+
+.cd-buscador {
+  height: 46px;
+  padding: 0 14px;
+  gap: 10px;
+  border-radius: 16px;
+}
+
+.cd-buscador svg {
+  width: 20px;
+  height: 20px;
+}
+
+.cd-buscador input {
+  font-size: 15px;
+}
+
+.cd-carrusel-hero {
+  margin-top: 12px;
+}
+
+.cd-barra-inferior {
+  padding: 5px 4px calc(5px + env(safe-area-inset-bottom));
+}
+
+.cd-barra-inferior button {
+  gap: 1px;
+  padding: 3px 0;
+  font-size: 11.5px;
+}
+
+.cd-barra-inferior svg {
+  width: 22px;
+  height: 22px;
+}
