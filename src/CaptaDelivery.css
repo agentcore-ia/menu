@@ -1181,3 +1181,41 @@ body {
     border-radius: 999px;
   }
 }
+
+/* mandados: el que esta en curso, los atajos y el boton de seguir */
+.cd-mandado-en-curso {
+  border-color: var(--cd-naranja);
+  background: #fff7ed;
+  text-decoration: none;
+}
+
+.cd-mandado-atajos {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0 -2px;
+  padding: 2px;
+  scrollbar-width: none;
+}
+
+.cd-mandado-atajos::-webkit-scrollbar {
+  display: none;
+}
+
+.cd-mandado-atajos .cd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 13px;
+}
+
+.cd-mandado-atajos .cd-icono {
+  font-size: 18px;
+}
+
+.cd-mandado-seguir {
+  display: grid;
+  place-items: center;
+  margin-top: 6px;
+  text-decoration: none;
+}

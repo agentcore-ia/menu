@@ -150,7 +150,11 @@ async function crear(req, res) {
       notas: b.notas,
     },
   })
-  res.status(201).json({ numero: datos?.numero ?? null, envio: datos?.envio ?? 0 })
+  // El link para seguir el mandado (lo arma el dashboard con un token al azar).
+  const seguimiento = /^https:\/\/[a-z0-9.-]+\/seguimiento\/mandado\/[a-f0-9]{16,64}$/i.test(String(datos?.seguimiento || ''))
+    ? datos.seguimiento
+    : null
+  res.status(201).json({ numero: datos?.numero ?? null, envio: datos?.envio ?? 0, seguimiento })
 }
 
 export async function mandados(req, res) {

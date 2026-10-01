@@ -24,6 +24,49 @@ function pesos(valor) {
   }).format(Number(valor) || 0)
 }
 
+// El ultimo mandado pedido desde este navegador, para volver a seguirlo desde
+// la vitrina (como el "pedido en curso" de Rappi). Vence solo: despues de 12 h
+// ya se entrego o se cancelo, y el seguimiento sigue llegando por WhatsApp.
+const CLAVE_EN_CURSO = 'capta-mandado-en-curso'
+const HORAS_EN_CURSO = 12
+
+function guardarEnCurso(dato) {
+  try {
+    window.localStorage.setItem(CLAVE_EN_CURSO, JSON.stringify({ ...dato, at: Date.now() }))
+  } catch {
+    // sin almacenamiento (modo privado): queda el WhatsApp
+  }
+}
+
+function leerEnCurso(ciudad) {
+  try {
+    const dato = JSON.parse(window.localStorage.getItem(CLAVE_EN_CURSO) || 'null')
+    if (!dato?.seguimiento || Date.now() - Number(dato.at) > HORAS_EN_CURSO * 3600 * 1000) return null
+    if (ciudad && dato.ciudad && String(dato.ciudad).toLowerCase() !== String(ciudad).toLowerCase()) return null
+    return dato
+  } catch {
+    return null
+  }
+}
+
+// Atajos para arrancar rapido, como los Favores de Rappi: en una compra dicen
+// DONDE; en un paquete, QUE se lleva.
+const ATAJOS = {
+  compra: [
+    ['medication', 'Farmacia', 'La farmacia más cercana'],
+    ['storefront', 'Kiosco', 'El kiosco más cercano'],
+    ['shopping_cart', 'Súper', 'El supermercado más cercano'],
+    ['bakery_dining', 'Panadería', 'La panadería más cercana'],
+    ['hardware', 'Ferretería', 'La ferretería más cercana'],
+  ],
+  paquete: [
+    ['key', 'Llaves', 'Unas llaves'],
+    ['description', 'Documentos', 'Unos papeles en un sobre'],
+    ['redeem', 'Un regalo', 'Un regalo'],
+    ['checkroom', 'Ropa', 'Una bolsa con ropa'],
+  ],
+}
+
 function Icono({ nombre }) {
   return (
     <span className="material-symbols-outlined cd-icono" aria-hidden="true">
@@ -34,7 +77,21 @@ function Icono({ nombre }) {
 
 /** La tarjeta de la vitrina que abre el formulario. */
 export function EntradaMandados({ mandado, onAbrir }) {
+  const [enCurso] = useState(() => leerEnCurso(mandado.ciudad))
   return (
+    <>
+    {enCurso ? (
+      <a className="cd-mandados-entrada cd-mandado-en-curso" href={enCurso.seguimiento} target="_blank" rel="noopener noreferrer">
+        <span className="cd-mandados-icono">
+          <Icono nombre="route" />
+        </span>
+        <span className="cd-mandados-textos">
+          <strong>Tu mandado{enCurso.numero ? ` #${enCurso.numero}` : ''}</strong>
+          <small>Tocá para ver en qué va</small>
+        </span>
+        <Icono nombre="chevron_right" />
+      </a>
+    ) : null}
     <button type="button" className="cd-mandados-entrada" onClick={onAbrir}>
       <span className="cd-mandados-icono">
         <Icono nombre="directions_bike" />
@@ -48,6 +105,7 @@ export function EntradaMandados({ mandado, onAbrir }) {
       </span>
       <Icono nombre="chevron_right" />
     </button>
+    </>
   )
 }
 
@@ -174,7 +232,9 @@ export function FormularioMandado({ mandado }) {
         { name: nombre, phone: celular, address: direccion, neighborhood: barrio, deliveryType: 'delivery' },
         { ciudad, coordenadas: envioListo.coordinates },
       )
-      setListo({ numero: datos?.numero, total: datos?.envio || envioListo.fee, mandado: revisado.mandado })
+      const seguimiento = typeof datos?.seguimiento === 'string' ? datos.seguimiento : null
+      if (seguimiento) guardarEnCurso({ numero: datos?.numero ?? null, seguimiento, ciudad })
+      setListo({ numero: datos?.numero, total: datos?.envio || envioListo.fee, mandado: revisado.mandado, seguimiento })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No pudimos mandar el pedido.')
     } finally {
@@ -197,6 +257,11 @@ export function FormularioMandado({ mandado }) {
             ? `Al recibir pagás en efectivo el envío (${pesos(listo.total)}) + lo que salga la compra, con el ticket.`
             : `El envío (${pesos(listo.total)}) se paga en efectivo al ${listo.mandado.pagaEn === 'retiro' ? 'retirar' : 'entregar'}.`}
         </p>
+        {listo.seguimiento ? (
+          <a className="cd-mandado-enviar cd-mandado-seguir" href={listo.seguimiento} target="_blank" rel="noopener noreferrer">
+            Seguir mi mandado
+          </a>
+        ) : null}
       </div>
     )
   }
@@ -218,6 +283,22 @@ export function FormularioMandado({ mandado }) {
             <small>{t.detalle}</small>
           </button>
         ))}
+      </div>
+
+      <div className="cd-mandado-atajos" aria-label="Atajos">
+        {ATAJOS[tipo].map(([icono, texto, valor]) => {
+          const elegido = tipo === 'compra' ? donde === valor : que === valor
+          return (
+            <button
+              key={texto}
+              type="button"
+              className={elegido ? 'cd-chip cd-chip-activo' : 'cd-chip'}
+              onClick={() => (tipo === 'compra' ? setDonde(valor) : setQue(valor))}
+            >
+              <Icono nombre={icono} /> {texto}
+            </button>
+          )
+        })}
       </div>
 
       <label>
