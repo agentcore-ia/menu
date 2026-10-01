@@ -19618,3 +19618,26 @@ body:has(.detail-order-bar) {
 .volver-a-vitrina {
   bottom: calc(var(--volver-a-vitrina-abajo, 12px) + env(safe-area-inset-bottom));
 }
+
+/* Pedir para mas tarde (shared/pedidoProgramado.js) */
+.checkout-programar {
+  padding: 0.8rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 35%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-primary) 8%, transparent);
+}
+
+.checkout-programar small {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--theme-muted);
+  font-size: 0.8rem;
+}
+
+.confirmation-programado {
+  margin: 0.6rem 0 0;
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--theme-primary) 12%, transparent);
+  font-size: 0.92rem;
+}

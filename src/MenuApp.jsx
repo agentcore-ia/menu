@@ -12,6 +12,8 @@ import { textosDelMenu } from '../shared/rubros.js'
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../shared/celular.js'
 import { canjePosible, porQueNoEntraTodo } from '../shared/puntosCapta.js'
 import { vinoDeLaVitrina } from './vitrinaDelCliente.js'
+import { turnosParaProgramar } from '../shared/pedidoProgramado.js'
+import { guardarUltimoPedido, rearmarCarrito, ultimoPedidoDe } from '../shared/volverAPedir.js'
 import {
   almacenDelNavegador,
   coordenadasGuardadas,
@@ -7337,6 +7339,20 @@ export default function MenuApp() {
   const [deliveryQuote, setDeliveryQuote] = useState(null)
   const [deliveryQuoteStatus, setDeliveryQuoteStatus] = useState('idle')
   const [lastOrder, setLastOrder] = useState(null)
+  // "Pedir para más tarde": el horario que eligio el cliente con el local
+  // cerrado (shared/pedidoProgramado.js). Vacio = todavia no eligio.
+  const [programadoPara, setProgramadoPara] = useState('')
+  // "Volver a pedir" desde la vitrina (?repetir=1): se arma el carrito una sola
+  // vez, cuando el menu ya cargo, y se avisa que se saco.
+  const [quiereRepetir] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('repetir') === '1'
+    } catch {
+      return false
+    }
+  })
+  const repetidoRef = useRef(false)
+  const [avisoRepetir, setAvisoRepetir] = useState(null)
   // El pedido que quedo esperando que el cliente pase la tarjeta, sin salir
   // del menu. Solo se arma si el local tiene la cuenta vinculada.
   const [pagoConTarjeta, setPagoConTarjeta] = useState(null)
@@ -8090,7 +8106,60 @@ export default function MenuApp() {
         nextOpenText: '',
         scheduleText: '',
       }
-  const orderingBlocked = Boolean(orderingStatus.configured && !orderingStatus.isOpen)
+  // Cerrado, pero el local toma pedidos programados: se puede armar el pedido
+  // y dejarlo para una hora en que este abierto. El servidor vuelve a validar.
+  const programadosDelLocal = menu?.programados ?? null
+  const cerradoAhora = Boolean(orderingStatus.configured && !orderingStatus.isOpen)
+  const turnosProgramables = useMemo(() => {
+    if (!cerradoAhora || !programadosDelLocal || !menu?.businessHours || isTableOrder) return []
+    return turnosParaProgramar(menu.businessHours, new Date(currentTime), { anticipo: programadosDelLocal.anticipo })
+  }, [cerradoAhora, programadosDelLocal, menu?.businessHours, isTableOrder, currentTime])
+  const puedeProgramar = turnosProgramables.length > 0
+  // Si el horario elegido se paso (la pagina quedo abierta), hay que elegir otro.
+  const turnoElegido = turnosProgramables.some((t) => t.iso === programadoPara) ? programadoPara : ''
+  const orderingBlocked = Boolean(cerradoAhora && !puedeProgramar)
+
+  // Volver a pedir: el carrito sale del ultimo pedido guardado en este
+  // telefono, con los precios y el stock de HOY (shared/volverAPedir.js).
+  useEffect(() => {
+    if (!quiereRepetir || repetidoRef.current || status !== 'ready' || !allItems.length) return undefined
+    // Se arma apenas termina de dibujarse el menu (no en medio del dibujado).
+    const espera = window.setTimeout(() => {
+      if (repetidoRef.current) return
+      repetidoRef.current = true
+      try {
+        const url = new URL(window.location.href)
+        url.searchParams.delete('repetir')
+        window.history.replaceState(null, '', url.toString())
+      } catch {
+        // la direccion queda como estaba: no importa
+      }
+      const guardado = ultimoPedidoDe(almacenDelNavegador(), accountId)
+      if (!guardado) return
+      const { lineas, faltan } = rearmarCarrito(guardado, allItems, (item) => item.unitPrice ?? toNumericPrice(item.price))
+      if (lineas.length) {
+        setCart(
+          lineas.map(({ item, cantidad, unitPrice, notes }) => ({
+            lineId: `${item.id}::${notes || 'default'}`,
+            id: item.id,
+            productId: item.productId || (item.isDailyMenu ? null : item.id),
+            name: item.name,
+            price: formatPrice(unitPrice, currencySymbol),
+            unitPrice,
+            quantity: cantidad,
+            maxQuantity: typeof item.maxQuantity === 'number' ? item.maxQuantity : null,
+            availableForOrder: item.availableForOrder,
+            notes,
+            image: item.image,
+            categoryLabel: item.categoryLabel ?? '',
+          })),
+        )
+        setIsCartOpen(true)
+      }
+      setAvisoRepetir({ cargados: lineas.length, faltan })
+    }, 0)
+    return () => window.clearTimeout(espera)
+  }, [quiereRepetir, status, allItems, accountId, currencySymbol])
   const orderingClosedMessage = getOrderingClosedMessage(orderingStatus)
 
   const requestDeliveryQuote = useCallback(async (form) => {
@@ -9182,6 +9251,12 @@ export default function MenuApp() {
       return
     }
 
+    if (puedeProgramar && !turnoElegido) {
+      setCheckoutStatus('error')
+      setCheckoutMessage('El local está cerrado: elegí para cuándo querés el pedido.')
+      return
+    }
+
     if (!hasOrderItems) {
       setCheckoutMessage('Agrega productos o canjes antes de enviar el pedido.')
       return
@@ -9297,6 +9372,8 @@ export default function MenuApp() {
       })),
       // Vino desde la app de Capta Delivery: de esto dependen los puntos.
       desdeVitrina: desdeLaVitrina,
+      // Pedido para mas tarde (local cerrado). El servidor lo valida.
+      programadoPara: puedeProgramar ? turnoElegido : undefined,
       // Lo que quiere usar de sus puntos, en pesos. El servidor lo vuelve a
       // validar contra su saldo real.
       puntosCapta: descuentoCapta,
@@ -9340,8 +9417,28 @@ export default function MenuApp() {
         // Como eligio pagar. La confirmacion lo necesita para mostrarle los
         // datos de la transferencia: al cerrar el carrito ya no los tiene.
         pago: effectivePaymentMethod,
+        programado: result.programado || null,
       }
       setLastOrder(pedidoParaConfirmar)
+      setProgramadoPara('')
+      // Para "Volver a pedir" desde la vitrina de Capta: queda en este telefono.
+      if (!isTableOrder) {
+        guardarUltimoPedido(almacenDelNavegador(), {
+          slug: accountId,
+          nombre: menu?.accountName || '',
+          lineas: cart.map((line) => {
+            const item = allItems.find((i) => String(i.id) === String(line.id))
+            return {
+              id: line.id,
+              nombre: line.name,
+              cantidad: line.quantity,
+              unitPrice: line.unitPrice,
+              base: item ? (item.unitPrice ?? toNumericPrice(item.price)) : line.unitPrice,
+              notes: line.notes || '',
+            }
+          }),
+        })
+      }
       // Con Mercado Pago el cliente se va del menu a pagar, y al volver la pagina
       // arranca de cero. Se guarda para mostrarle la confirmacion completa
       // (total, gustos, puntos) cuando el pago se acredita.
@@ -9679,6 +9776,16 @@ export default function MenuApp() {
               <section className="state-panel">
                 <p>{errorMessage}</p>
                 <span>Revisa la cuenta o intenta nuevamente.</span>
+              </section>
+            ) : null}
+
+            {status === 'ready' && puedeProgramar ? (
+              <section className="closed-order-banner closed-order-banner-programar" role="status" aria-live="polite">
+                <div>
+                  <strong>Estamos cerrados ahora</strong>
+                  <p>Armá tu pedido igual y programalo: lo preparamos para la hora que elijas.</p>
+                </div>
+                <span>{orderingStatus.nextOpenText || 'Programalo para más tarde'}</span>
               </section>
             ) : null}
 
@@ -10969,6 +11076,17 @@ export default function MenuApp() {
                 </div>
               </div>
 
+              {avisoRepetir ? (
+                <p className={`checkout-message ${avisoRepetir.cargados ? 'success' : 'error'}`}>
+                  {avisoRepetir.cargados
+                    ? 'Cargamos tu pedido anterior con los precios de hoy. Revisalo antes de confirmar.'
+                    : 'No pudimos cargar tu pedido anterior: esos productos ya no están disponibles.'}
+                  {avisoRepetir.cargados && avisoRepetir.faltan.length
+                    ? ` No están disponibles: ${avisoRepetir.faltan.join(', ')}.`
+                    : ''}
+                </p>
+              ) : null}
+
               <div className="checkout-summary">
                 {hasOrderItems ? (
                   <>
@@ -11137,6 +11255,9 @@ export default function MenuApp() {
                   {orderingBlocked ? (
                     <p className="checkout-message error">{orderingClosedMessage}</p>
                   ) : null}
+                  {puedeProgramar ? (
+                    <p className="checkout-message">El local está cerrado: en el siguiente paso elegís para cuándo lo querés.</p>
+                  ) : null}
 
                   <button
                     type="button"
@@ -11279,6 +11400,25 @@ export default function MenuApp() {
               ) : null}
 
               <form className="checkout-form" onSubmit={handleSubmitOrder}>
+                {puedeProgramar ? (
+                  <label className="checkout-field checkout-programar">
+                    <span>¿Para cuándo? El local está cerrado ahora</span>
+                    <select
+                      value={turnoElegido}
+                      onChange={(event) => setProgramadoPara(event.target.value)}
+                      required
+                    >
+                      <option value="">Elegí un horario</option>
+                      {turnosProgramables.map((turno) => (
+                        <option key={turno.iso} value={turno.iso}>
+                          {turno.texto.charAt(0).toUpperCase() + turno.texto.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                    <small>Lo preparamos para esa hora. Te avisamos por WhatsApp.</small>
+                  </label>
+                ) : null}
+
                 {hayDatosGuardados(datosGuardados) ? (
                   <p className="checkout-datos-guardados">
                     <span>Completamos tus datos del último pedido.</span>
@@ -12081,6 +12221,11 @@ export default function MenuApp() {
                   ? 'Gracias. Tu pedido ya quedó registrado para prepararlo en el local.'
                 : 'Ya recibimos tu pedido y vamos a seguir informandote por WhatsApp.'}
             </p>
+            {lastOrder.programado?.texto ? (
+              <p className="confirmation-programado">
+                Programado para <strong>{lastOrder.programado.texto}</strong>. El local lo prepara para esa hora.
+              </p>
+            ) : null}
             <div className="confirmation-meta">
               <div>
                 <span>Total</span>

@@ -14,8 +14,28 @@ import {
   envioDesde,
   localVisibleEnVitrina,
   nombreDeCategoria,
-  tiempoDeEntrega,
+  promoVigente,
+  tiempoParaVitrina,
 } from '../../shared/vitrinaCapta.js'
+import { aceptaProgramados, anticipoDelLocal, turnosParaProgramar } from '../../shared/pedidoProgramado.js'
+
+/**
+ * Cuanto tarda cada local de verdad (lo mide el dashboard con las entregas de
+ * Capta). Si no contesta rapido, la vitrina sale igual con el tiempo que cargo
+ * cada local: esto no puede trabar la pantalla.
+ */
+async function tiemposMedidos(dashboardUrl) {
+  const base = String(dashboardUrl || '').replace(/\/+$/, '')
+  if (!base) return {}
+  try {
+    const respuesta = await fetch(`${base}/api/public/tiempos-entrega`, { signal: AbortSignal.timeout(2500) })
+    if (!respuesta.ok) return {}
+    const datos = await respuesta.json()
+    return datos?.tiempos && typeof datos.tiempos === 'object' ? datos.tiempos : {}
+  } catch {
+    return {}
+  }
+}
 import { imagenesDeVitrina } from '../vitrinaImagenes.js'
 import { datosDeTransferencia } from '../../shared/transferencia.js'
 import { leerHorarioMenuDelDia, menuDelDiaDisponible, nombreMenuDelDia, textoHorarioMenuDelDia } from '../../shared/horarioMenuDelDia.js'
@@ -450,6 +470,13 @@ export class SupabaseMenuRepository {
       dailyMenu: usaMenuDelDia ? dailyMenu : null,
       loyalty,
       businessHours: restaurant.horarios ?? null,
+      // "Pedir para más tarde" con el local cerrado (shared/pedidoProgramado.js):
+      // el menu arma los horarios con businessHours y este anticipo. El servidor
+      // vuelve a validar el que llega.
+      // Pausado ("no toma pedidos por ahora") tampoco toma programados.
+      programados: aceptaProgramados(restaurant.horarios) && !orderTakingPaused
+        ? { anticipo: anticipoDelLocal(restaurant.tiempo_entrega) }
+        : null,
       // Que tipo de negocio es. De aca salen las palabras de la pantalla: un
       // kiosco no tiene "menu" ni "platos". El armado del pedido no cambia.
       rubro: rubroDelMenu(restaurant.horarios, restaurant.business_type).id,
@@ -487,13 +514,14 @@ export class SupabaseMenuRepository {
     }
 
     const enLista = `in.(${candidatos.map((r) => `"${r.id}"`).join(',')})`
-    const [presentaciones, productos] = await Promise.all([
+    const [presentaciones, productos, medidos] = await Promise.all([
       this.request(
         `/restaurant_menu_presentations?restaurant_id=${enLista}&select=restaurant_id,layout,theme_id,hero_image_url,branding_wordmark,theme_overrides`,
       ).catch(() => []),
       // Alcanza con saber si tiene algo cargado: un local con el menu vacio no
       // se muestra, porque el cliente entraria a una pantalla sin nada.
       this.request(`/products?restaurant_id=${enLista}&available=eq.true&select=restaurant_id`).catch(() => []),
+      tiemposMedidos(this.config.dashboardUrl),
     ])
 
     const presentacionPorId = new Map(
@@ -518,6 +546,14 @@ export class SupabaseMenuRepository {
           plantilla: presentacion.layout,
         })
         const imagenes = imagenesDeVitrina(r.slug, { ajustes, presentacion })
+        const tiempo = tiempoParaVitrina(medidos?.[r.id], r.tiempo_entrega)
+        // Cerrado pero toma pedidos programados: la tarjeta invita a dejarlo
+        // para mas tarde en vez de decir solo "Cerrado".
+        const programable =
+          !pausado &&
+          estado.isOpen === false &&
+          aceptaProgramados(r.horarios) &&
+          turnosParaProgramar(r.horarios, new Date(), { anticipo: anticipoDelLocal(r.tiempo_entrega) }).length > 0
 
         return {
           slug: r.slug,
@@ -529,7 +565,12 @@ export class SupabaseMenuRepository {
           pausado,
           horarioDeHoy: estado.scheduleText || '',
           proximaApertura: estado.nextOpenText || '',
-          tiempo: tiempoDeEntrega(r.tiempo_entrega),
+          tiempo: tiempo.texto,
+          // El tiempo sale de las entregas reales, no de lo que dice el local.
+          tiempoMedido: tiempo.medido,
+          programable,
+          // El cartel de "Promos de hoy" (lo carga Capta desde su panel).
+          promo: promoVigente(ajustes.captaPromo),
           envioDesde: envioDesde(normalizeDeliveryZones(ajustes.deliveryZones)),
           portada: imagenes.portada,
           logo: imagenes.logo,

@@ -12,6 +12,7 @@ import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../.
 import { canjeElegido, configDePuntos } from '../../shared/puntosCapta.js'
 import { aceptaTransferencia } from '../../shared/transferencia.js'
 import { leerHorarioMenuDelDia, menuDelDiaDisponible, textoHorarioMenuDelDia } from '../../shared/horarioMenuDelDia.js'
+import { aceptaProgramados, anticipoDelLocal, validarProgramado } from '../../shared/pedidoProgramado.js'
 
 export class SupabaseOrderRepository {
   constructor(config) {
@@ -66,7 +67,30 @@ export class SupabaseOrderRepository {
 
     const orderingStatus = getBusinessOpenStatus(restaurant.horarios)
 
-    if (orderingStatus.configured && !orderingStatus.isOpen) {
+    // "Pedir para más tarde" (shared/pedidoProgramado.js). La hora que manda la
+    // pantalla se vuelve a validar contra los horarios del local: solo pasa un
+    // turno que este local ofrece de verdad. Las mesas no programan.
+    let programado = null
+    if (payload.programadoPara && !payload.mesa_id) {
+      if (!aceptaProgramados(restaurant.horarios)) {
+        const error = new Error('Este local no toma pedidos programados.')
+        error.code = 'SCHEDULING_NOT_AVAILABLE'
+        error.statusCode = 422
+        throw error
+      }
+      const r = validarProgramado(restaurant.horarios, payload.programadoPara, new Date(), {
+        anticipo: anticipoDelLocal(restaurant.tiempo_entrega),
+      })
+      if (!r.ok) {
+        const error = new Error(r.mensaje)
+        error.code = 'SCHEDULE_NOT_AVAILABLE'
+        error.statusCode = 422
+        throw error
+      }
+      programado = r
+    }
+
+    if (orderingStatus.configured && !orderingStatus.isOpen && !programado) {
       const error = new Error(
         orderingStatus.message ||
           'El local esta cerrado ahora. Los pedidos se habilitan en horario de atencion.',
@@ -286,7 +310,16 @@ export class SupabaseOrderRepository {
           discount_label: redemptionPreview?.discountLabel ?? null,
           discount_source: discountAmount > 0 ? 'loyalty' : null,
           total,
-          notes: resolvedTableName ? `Pedido de ${resolvedTableName}` : (payload.notes || null),
+          // El programado va primero y en mayusculas: es lo que la cocina
+          // tiene que leer en la comanda.
+          notes: resolvedTableName
+            ? `Pedido de ${resolvedTableName}`
+            : [programado ? `PROGRAMADO PARA ${programado.texto.toUpperCase()}` : null, payload.notes || null]
+                .filter(Boolean)
+                .join(' · ') || null,
+          // Programado: entra al local en su hora (el panel no muestra, no
+          // suena ni imprime un created_at futuro hasta que llega).
+          ...(programado ? { created_at: programado.creadoEn } : {}),
           customer_name: esTelefonoPrueba
             ? `PRUEBA - ${customer.name || payload.customer.name || 'Cliente'}`
             : (customer.name || payload.customer.name || null),
@@ -295,6 +328,14 @@ export class SupabaseOrderRepository {
           table_id: resolvedTableId,
           transcription: {
             ...(esTelefonoPrueba ? { test: true } : {}),
+            // scheduledFor (el dia) es lo que el panel ya marca "Programado";
+            // programadoPara agrega la hora.
+            ...(programado
+              ? {
+                  programadoPara: programado.programadoPara,
+                  scheduledFor: new Date(Date.parse(programado.programadoPara) - 3 * 3600 * 1000).toISOString().slice(0, 10),
+                }
+              : {}),
             channel: payload.mesa_id ? 'qr_mesa' : 'menu_digital',
             mesa_name: resolvedTableName || null,
             customer: payload.customer,
@@ -429,6 +470,7 @@ export class SupabaseOrderRepository {
           notes: payload.notes,
           loyalty: loyaltyEarn,
           paymentLink: mercadoPagoPreference?.paymentLink,
+          programado: programado?.texto || null,
         })
       : ''
 
@@ -487,6 +529,8 @@ export class SupabaseOrderRepository {
       orderNumber: pedido.order_number,
       status: pedido.status,
       total,
+      // Para la confirmacion: "Programado para hoy a las 21:00".
+      programado: programado ? { para: programado.programadoPara, texto: programado.texto } : null,
       customer: {
         id: customer.id,
         name: customer.name,
@@ -1129,6 +1173,7 @@ export class SupabaseOrderRepository {
     notes,
     loyalty,
     paymentLink,
+    programado = null,
   }) {
     const isMenuOnlyPlan = restaurant.plan_code === 'menu'
     const lines = items.map((item) => {
@@ -1152,6 +1197,7 @@ export class SupabaseOrderRepository {
 
     return [
       `Hola ${customer.name || 'cliente'}, recibimos tu pedido #${orderNumber} en ${restaurant.name}.`,
+      programado ? `Lo programaste para ${programado}: el local lo empieza a preparar a tiempo.` : null,
       '',
       'Detalle:',
       ...lines,

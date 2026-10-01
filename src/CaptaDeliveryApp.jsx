@@ -14,6 +14,7 @@ import { CATEGORIAS, ciudadPareja, localCoincideCon } from '../shared/vitrinaCap
 import { almacenDelNavegador, leerDatos, olvidarDatos } from '../shared/datosDelCliente.js'
 import { celularValido, normalizarCelular } from '../shared/celular.js'
 import { EntradaMandados, FormularioMandado } from './MandadoCapta.jsx'
+import { leerUltimosPedidos, resumenDelPedido } from '../shared/volverAPedir.js'
 import './CaptaDelivery.css'
 
 const CLAVE_CIUDAD = 'capta-vitrina-ciudad'
@@ -230,8 +231,11 @@ function TarjetaLocal({ local, esFavorito, onFavorito }) {
       <a className="cd-tarjeta-foto" href={url} aria-label={`Ver el menú de ${local.nombre}`}>
         <Portada local={local} />
         <LogoLocal local={local} />
+        {local.promo ? <span className="cd-promo-cinta">{local.promo}</span> : null}
         {local.abierto ? null : (
-          <span className="cd-cartel-cerrado">{local.pausado ? 'No toma pedidos' : 'Cerrado'}</span>
+          <span className={`cd-cartel-cerrado ${local.programable ? 'cd-cartel-programar' : ''}`}>
+            {local.pausado ? 'No toma pedidos' : local.programable ? 'Cerrado · podés programar' : 'Cerrado'}
+          </span>
         )}
       </a>
       <button
@@ -262,7 +266,7 @@ function TarjetaLocal({ local, esFavorito, onFavorito }) {
             )}
           </p>
           <a className="cd-boton-menu" href={url}>
-            Ver menú
+            {!local.abierto && local.programable ? 'Programar' : 'Ver menú'}
           </a>
         </div>
         {local.envioDesde ? (
@@ -270,6 +274,88 @@ function TarjetaLocal({ local, esFavorito, onFavorito }) {
         ) : null}
       </div>
     </article>
+  )
+}
+
+/** El logo chico de las tiras horizontales (no va encima de una foto). */
+function MiniLogo({ local }) {
+  const [fallo, setFallo] = useState(false)
+  const inicial = String(local.nombre || '?').trim().charAt(0).toUpperCase()
+  return (
+    <span className="cd-mini-logo" style={{ background: local.logo && !fallo ? '#fff' : local.color || '#f97316' }}>
+      {local.logo && !fallo ? <img src={local.logo} alt="" loading="lazy" onError={() => setFallo(true)} /> : inicial}
+    </span>
+  )
+}
+
+/** Que puede hacer ahora con ese local, en pocas palabras. */
+function estadoCorto(local) {
+  if (local.abierto) return local.tiempo ? `Abierto · ${local.tiempo}` : 'Abierto'
+  if (local.programable) return 'Cerrado · podés programar'
+  return cuandoAbre(local.proximaApertura) || 'Cerrado ahora'
+}
+
+/**
+ * "Volver a pedir": el ultimo pedido de cada local, guardado en este telefono
+ * (shared/volverAPedir.js). Un toque abre el menu con el carrito ya armado,
+ * con los precios de hoy.
+ */
+function VolverAPedir({ pedidos }) {
+  return (
+    <section className="cd-tira" aria-label="Volver a pedir">
+      <div className="cd-titulo-seccion">
+        <h2>Volver a pedir</h2>
+      </div>
+      <div className="cd-carrusel">
+        {pedidos.map(({ pedido, local }) => (
+          <a
+            key={local.slug}
+            className="cd-repetir"
+            href={`/${encodeURIComponent(local.slug)}?vitrina=1&repetir=1`}
+          >
+            <MiniLogo local={local} />
+            <span className="cd-repetir-textos">
+              <strong>{local.nombre}</strong>
+              <small>{resumenDelPedido(pedido)}</small>
+              <em>{local.abierto ? 'Repetir pedido' : local.programable ? 'Programarlo de nuevo' : estadoCorto(local)}</em>
+            </span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+/** Las promos de los locales de la ciudad (las carga Capta desde su panel). */
+function PromosDeHoy({ locales }) {
+  return (
+    <section className="cd-tira" aria-label="Promos de hoy">
+      <div className="cd-titulo-seccion">
+        <h2>Promos de hoy</h2>
+      </div>
+      <div className="cd-carrusel">
+        {locales.map((local) => (
+          <a
+            key={local.slug}
+            className={`cd-promo ${local.abierto || local.programable ? '' : 'cd-promo-cerrada'}`}
+            href={`/${encodeURIComponent(local.slug)}?vitrina=1`}
+            style={{ '--cd-marca': local.color || '#f4511e' }}
+          >
+            <span className="cd-promo-icono">
+              <Icono nombre="local_offer" relleno />
+            </span>
+            <strong>{local.promo}</strong>
+            <span className="cd-promo-pie">
+              <MiniLogo local={local} />
+              <span>
+                <b>{local.nombre}</b>
+                <small>{estadoCorto(local)}</small>
+              </span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </section>
   )
 }
 
@@ -555,6 +641,8 @@ export default function CaptaDeliveryApp() {
   const [vista, setVista] = useState('inicio')
   const [eligiendoCiudad, setEligiendoCiudad] = useState(false)
   const [pidiendoMandado, setPidiendoMandado] = useState(false)
+  // Los ultimos pedidos de este telefono, para "Volver a pedir".
+  const [ultimosPedidos] = useState(() => leerUltimosPedidos(almacenDelNavegador()))
 
   // Las ciudades para elegir: las que tienen locales y, al final, las que por
   // ahora solo tienen mandados.
@@ -619,6 +707,25 @@ export default function CaptaDeliveryApp() {
       .filter((local) => categoria === 'todos' || local.categoria === categoria)
       .filter((local) => localCoincideCon(local, busqueda))
   }, [vista, locales, favoritos, deLaCiudad, categoria, busqueda])
+
+  // Volver a pedir: solo locales que siguen en la vitrina y son de esta ciudad.
+  const paraRepetir = useMemo(
+    () =>
+      ultimosPedidos
+        .map((pedido) => ({ pedido, local: deLaCiudad.find((l) => l.slug === pedido.slug) }))
+        .filter((x) => x.local)
+        .slice(0, 4),
+    [ultimosPedidos, deLaCiudad],
+  )
+
+  // Promos de hoy: primero las que se pueden pedir ya.
+  const conPromo = useMemo(
+    () =>
+      deLaCiudad
+        .filter((l) => l.promo)
+        .sort((a, b) => Number(b.abierto) - Number(a.abierto) || Number(b.programable) - Number(a.programable)),
+    [deLaCiudad],
+  )
 
   const abiertos = filtrados.filter((local) => local.abierto)
   const cerrados = filtrados.filter((local) => !local.abierto)
@@ -695,6 +802,14 @@ export default function CaptaDeliveryApp() {
 
         {vista === 'inicio' && !busqueda && categoria === 'todos' && mandadoDeLaCiudad ? (
           <EntradaMandados mandado={mandadoDeLaCiudad} onAbrir={() => setPidiendoMandado(true)} />
+        ) : null}
+
+        {vista === 'inicio' && !busqueda && categoria === 'todos' && !cargando && paraRepetir.length ? (
+          <VolverAPedir pedidos={paraRepetir} />
+        ) : null}
+
+        {vista === 'inicio' && !busqueda && categoria === 'todos' && !cargando && conPromo.length ? (
+          <PromosDeHoy locales={conPromo} />
         ) : null}
 
         {cargando ? (

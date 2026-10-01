@@ -88,7 +88,7 @@ function hasConfiguredBusinessHours(value) {
   })
 }
 
-function normalizeDaySchedule(schedule) {
+export function normalizeDaySchedule(schedule) {
   if (!schedule || typeof schedule !== 'object') {
     return null
   }
@@ -247,7 +247,7 @@ function normalizeTime(value) {
   return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
 }
 
-function parseTimeToMinutes(value) {
+export function parseTimeToMinutes(value) {
   const normalized = normalizeTime(value)
 
   if (!normalized) {

@@ -166,3 +166,34 @@ export function localCoincideCon(local, busqueda) {
 }
 
 export { CATEGORIAS }
+
+/**
+ * El tiempo de la tarjeta: el MEDIDO con las entregas de Capta (lo calcula el
+ * dashboard, /api/public/tiempos-entrega) y, si el local tiene pocas, el que
+ * escribio en Ajustes.
+ */
+export function tiempoParaVitrina(medido, declarado) {
+  const desde = Number(medido?.desde)
+  const hasta = Number(medido?.hasta)
+  if (Number.isFinite(desde) && Number.isFinite(hasta) && desde > 0 && hasta > desde) {
+    return { texto: `${desde}-${hasta} min`, medido: true }
+  }
+  const texto = tiempoDeEntrega(declarado)
+  return { texto, medido: false }
+}
+
+/**
+ * La promo del local en "Promos de hoy" (horarios._settings.captaPromo, la
+ * carga Capta desde su panel). Se muestra hasta el ultimo dia inclusive, en
+ * hora argentina. La misma regla esta en el dashboard (lib/promoVitrina.ts).
+ */
+export function promoVigente(promo, ahora = new Date()) {
+  const texto = String(promo?.texto ?? '').replace(/\s+/g, ' ').trim()
+  if (!texto) return null
+  const hasta = String(promo?.hasta ?? '').trim()
+  if (hasta) {
+    const hoy = ahora.toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' })
+    if (hoy > hasta) return null
+  }
+  return texto.slice(0, 70)
+}

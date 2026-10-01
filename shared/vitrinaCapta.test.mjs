@@ -7,7 +7,9 @@ import {
   localCoincideCon,
   localVisibleEnVitrina,
   nombreDeCategoria,
+  promoVigente,
   tiempoDeEntrega,
+  tiempoParaVitrina,
 } from './vitrinaCapta.js'
 
 test('la categoria elegida a mano gana sobre todo lo demas', () => {
@@ -93,4 +95,19 @@ test('la busqueda no distingue acentos ni mayusculas', () => {
   assert.equal(localCoincideCon(local, 'pizza'), false)
   assert.equal(localCoincideCon(local, ''), true)
   assert.equal(ciudadPareja(' Chivilcoy '), 'chivilcoy')
+})
+
+test('el tiempo medido le gana al que escribio el local', () => {
+  assert.deepEqual(tiempoParaVitrina({ desde: 20, hasta: 30 }, '45 minutos'), { texto: '20-30 min', medido: true })
+  assert.deepEqual(tiempoParaVitrina(null, '45 minutos'), { texto: '45 min', medido: false })
+  assert.deepEqual(tiempoParaVitrina({ desde: 30, hasta: 20 }, ''), { texto: '', medido: false })
+})
+
+test('la promo se ve hasta su ultimo dia, en hora argentina', () => {
+  const promo = { texto: ' Envío  gratis hoy ', hasta: '2026-10-05' }
+  assert.equal(promoVigente(promo, new Date('2026-10-06T02:30:00Z')), 'Envío gratis hoy')
+  assert.equal(promoVigente(promo, new Date('2026-10-06T03:30:00Z')), null)
+  assert.equal(promoVigente({ texto: '2x1', hasta: null }), '2x1')
+  assert.equal(promoVigente(null), null)
+  assert.equal(promoVigente({ texto: '   ' }), null)
 })
