@@ -772,7 +772,6 @@ function TarjetaCerca({ local, esFavorito, onFavorito, enLista = false }) {
         {local.promo ? <span className="cd-promo-cinta">{local.promo}</span> : null}
         <span className="cd-cerca-pie-foto">
           <LogoLocal local={local} />
-          <span className="cd-pastilla">{local.categoriaNombre}</span>
         </span>
       </a>
       <button
