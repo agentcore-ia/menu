@@ -730,7 +730,7 @@ function Categorias({ onElegir, onVerTodas }) {
             style={{ background: grupo.fondo }}
             onClick={() => onElegir(grupo.id)}
           >
-            <img src={`/capta/categorias/${grupo.id}.webp`} alt="" loading="lazy" />
+            <img src={`/capta/categorias/${grupo.id}.webp`} alt="" width="135" height="118" decoding="async" />
             <span>{grupo.label}</span>
           </button>
         ))}
