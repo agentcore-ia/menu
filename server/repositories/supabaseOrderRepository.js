@@ -594,7 +594,8 @@ export class SupabaseOrderRepository {
 
   async fetchRestaurant(accountId) {
     const slug = slugify(accountId)
-    const select = 'id,slug,name,phone,delivery_fee,city,horarios,plan_code,stock_strict_mode,' +
+    // tiempo_entrega: el anticipo de los pedidos programados (shared/pedidoProgramado.js).
+    const select = 'id,slug,name,phone,delivery_fee,city,horarios,plan_code,stock_strict_mode,tiempo_entrega,' +
       'transfer_payment_enabled,transfer_payment_alias,transfer_payment_cvu'
     const exactRows = await this.request(
       `/restaurants?slug=eq.${encodeURIComponent(slug)}&select=${select}&limit=1`,
