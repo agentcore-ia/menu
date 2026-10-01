@@ -26,7 +26,32 @@ const CATEGORIAS = [
   { id: 'kiosco', label: 'Kioscos', singular: 'Kiosco' },
   { id: 'dietetica', label: 'Dietéticas', singular: 'Dietética' },
   { id: 'farmacia', label: 'Farmacias', singular: 'Farmacia' },
+  { id: 'super', label: 'Supermercados', singular: 'Supermercado' },
+  { id: 'licoreria', label: 'Licorerías', singular: 'Licorería' },
+  { id: 'mascotas', label: 'Pet shops', singular: 'Pet shop' },
 ]
+
+/**
+ * Los cuadrados de "Categorías" del inicio: cada uno junta una o mas
+ * categorias ("Comida" son las casas de comida, hamburgueserias, pizzerias...).
+ * `mandado`: si no hay locales de eso en la ciudad, se ofrece comprarlo con un
+ * mandado, empezando por ese lugar (src/MandadoCapta.jsx).
+ */
+const GRUPOS = [
+  { id: 'comida', label: 'Comida', categorias: ['comida', 'hamburgueseria', 'pizzeria', 'rotiseria', 'cafeteria'], fondo: '#fdebde' },
+  { id: 'farmacia', label: 'Farmacia', categorias: ['farmacia'], fondo: '#fbe9e9', mandado: 'La farmacia más cercana' },
+  { id: 'super', label: 'Súper', categorias: ['super', 'dietetica'], fondo: '#fde8d4', mandado: 'El supermercado más cercano' },
+  { id: 'licores', label: 'Licores', categorias: ['licoreria'], fondo: '#fdebdc', mandado: 'La licorería más cercana' },
+  { id: 'helados', label: 'Helados', categorias: ['heladeria'], fondo: '#fbdfd6' },
+  { id: 'panaderia', label: 'Panadería', categorias: ['panaderia'], fondo: '#fce4c8', mandado: 'La panadería más cercana' },
+  { id: 'kioscos', label: 'Kioscos', categorias: ['kiosco'], fondo: '#fce7cd', mandado: 'El kiosco más cercano' },
+  { id: 'mascotas', label: 'Mascotas', categorias: ['mascotas'], fondo: '#fdebd1', mandado: 'El pet shop más cercano' },
+]
+
+/** El grupo del inicio al que pertenece una categoria. */
+export function grupoDeCategoria(categoria) {
+  return GRUPOS.find((g) => g.categorias.includes(categoria)) ?? GRUPOS[0]
+}
 
 const IDS = new Set(CATEGORIAS.map((c) => c.id))
 
@@ -44,6 +69,13 @@ const POR_RUBRO = {
   pizzeria: 'pizzeria',
   hamburgueseria: 'hamburgueseria',
   comercio: 'kiosco',
+  super: 'super',
+  supermercado: 'super',
+  almacen: 'super',
+  licoreria: 'licoreria',
+  bebidas: 'licoreria',
+  mascotas: 'mascotas',
+  petshop: 'mascotas',
 }
 
 // La plantilla del menu es la ultima pista: un local cargado como "restaurant"
@@ -165,7 +197,7 @@ export function localCoincideCon(local, busqueda) {
   return campos.some((campo) => ciudadPareja(campo).includes(q))
 }
 
-export { CATEGORIAS }
+export { CATEGORIAS, GRUPOS }
 
 /**
  * El tiempo de la tarjeta: el MEDIDO con las entregas de Capta (lo calcula el

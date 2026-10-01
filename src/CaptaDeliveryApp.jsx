@@ -9,11 +9,12 @@
 // cobrar, calcular el envio y mandar el pedido. Esta pantalla no hace pedidos:
 // los reparte.
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { CATEGORIAS, ciudadPareja, localCoincideCon } from '../shared/vitrinaCapta.js'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { CATEGORIAS, ciudadPareja, GRUPOS, localCoincideCon } from '../shared/vitrinaCapta.js'
 import { almacenDelNavegador, leerDatos, olvidarDatos } from '../shared/datosDelCliente.js'
 import { celularValido, normalizarCelular } from '../shared/celular.js'
 import { EntradaMandados, FormularioMandado } from './MandadoCapta.jsx'
+import { leerEnCurso } from './mandadoEnCurso.js'
 import { leerUltimosPedidos, resumenDelPedido } from '../shared/volverAPedir.js'
 import './CaptaDelivery.css'
 
@@ -220,60 +221,6 @@ function LogoLocal({ local }) {
     <span className="cd-logo-local">
       <img src={local.logo} alt="" loading="lazy" onError={() => setFallo(true)} />
     </span>
-  )
-}
-
-function TarjetaLocal({ local, esFavorito, onFavorito }) {
-  const url = `/${encodeURIComponent(local.slug)}?vitrina=1`
-
-  return (
-    <article className={`cd-tarjeta ${local.abierto ? '' : 'cd-tarjeta-cerrada'}`}>
-      <a className="cd-tarjeta-foto" href={url} aria-label={`Ver el menú de ${local.nombre}`}>
-        <Portada local={local} />
-        <LogoLocal local={local} />
-        {local.promo ? <span className="cd-promo-cinta">{local.promo}</span> : null}
-        {local.abierto ? null : (
-          <span className={`cd-cartel-cerrado ${local.programable ? 'cd-cartel-programar' : ''}`}>
-            {local.pausado ? 'No toma pedidos' : local.programable ? 'Cerrado · podés programar' : 'Cerrado'}
-          </span>
-        )}
-      </a>
-      <button
-        type="button"
-        className={`cd-favorito ${esFavorito ? 'cd-favorito-si' : ''}`}
-        onClick={() => onFavorito(local.slug)}
-        aria-pressed={esFavorito}
-        aria-label={esFavorito ? `Sacar ${local.nombre} de favoritos` : `Guardar ${local.nombre} en favoritos`}
-      >
-        <Icono nombre="favorite" relleno={esFavorito} />
-      </button>
-
-      <div className="cd-tarjeta-cuerpo">
-        <h3 className="cd-tarjeta-nombre">{local.nombre}</h3>
-        <p className="cd-tarjeta-rubro">{local.categoriaNombre}</p>
-        <div className="cd-tarjeta-pie">
-          <p className="cd-tarjeta-estado">
-            {local.abierto ? (
-              <>
-                <span className="cd-punto cd-punto-abierto" />
-                Abierto{local.tiempo ? ` · ${local.tiempo}` : ''}
-              </>
-            ) : (
-              <>
-                <span className="cd-punto" />
-                {cuandoAbre(local.proximaApertura) || 'Cerrado ahora'}
-              </>
-            )}
-          </p>
-          <a className="cd-boton-menu" href={url}>
-            {!local.abierto && local.programable ? 'Programar' : 'Ver menú'}
-          </a>
-        </div>
-        {local.envioDesde ? (
-          <p className="cd-tarjeta-envio">Envío desde {pesos(local.envioDesde)}</p>
-        ) : null}
-      </div>
-    </article>
   )
 }
 
@@ -599,14 +546,52 @@ function MisPuntos({ onCerrar }) {
   )
 }
 
-function BarraInferior({ vista, onVista, favoritos }) {
+/** Los iconos de la barra de abajo, dibujados como en el diseño (trazo fino). */
+function IconoBarra({ nombre, activo }) {
+  const trazo = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.9, strokeLinecap: 'round', strokeLinejoin: 'round' }
+  if (nombre === 'inicio') {
+    return activo ? (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+        <path d="M3.6 10.4 12 3.5l8.4 6.9V20a1 1 0 0 1-1 1h-4.6v-6.2H9.2V21H4.6a1 1 0 0 1-1-1z" fill="currentColor" />
+      </svg>
+    ) : (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+        <path d="M3.6 10.4 12 3.5l8.4 6.9V20a1 1 0 0 1-1 1h-4.6v-6.2H9.2V21H4.6a1 1 0 0 1-1-1z" {...trazo} />
+      </svg>
+    )
+  }
+  if (nombre === 'pedidos') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+        <rect x="5.5" y="3" width="13" height="18" rx="3" {...trazo} fill={activo ? 'currentColor' : 'none'} />
+        <path d="M9 3.2v1.3a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3.2" {...trazo} stroke={activo ? '#fff' : 'currentColor'} />
+      </svg>
+    )
+  }
+  if (nombre === 'guardados') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+        <path d="M6.5 3.5h11a1 1 0 0 1 1 1V21l-6.5-4.6L5.5 21V4.5a1 1 0 0 1 1-1z" {...trazo} fill={activo ? 'currentColor' : 'none'} />
+      </svg>
+    )
+  }
+  return (
+    <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+      <circle cx="12" cy="8" r="4.2" {...trazo} fill={activo ? 'currentColor' : 'none'} />
+      <path d="M4 20.5c.9-4 4.1-6.2 8-6.2s7.1 2.2 8 6.2" {...trazo} fill={activo ? 'currentColor' : 'none'} />
+    </svg>
+  )
+}
+
+function BarraInferior({ vista, onVista, guardados }) {
   const items = [
-    { id: 'inicio', icono: 'home', texto: 'Inicio' },
-    { id: 'categorias', icono: 'grid_view', texto: 'Categorías' },
-    { id: 'favoritos', icono: 'favorite', texto: 'Favoritos', globo: favoritos || 0 },
-    { id: 'puntos', icono: 'stars', texto: 'Puntos' },
-    { id: 'datos', icono: 'person', texto: 'Mis datos' },
+    { id: 'inicio', texto: 'Inicio' },
+    { id: 'pedidos', texto: 'Pedidos' },
+    { id: 'guardados', texto: 'Guardados', globo: guardados || 0 },
+    { id: 'perfil', texto: 'Perfil' },
   ]
+  // "Ver todos" y los cuadrados de categorias siguen siendo parte del inicio.
+  const activa = ['todos', 'grupo'].includes(vista) ? 'inicio' : vista
 
   return (
     <nav className="cd-barra-inferior" aria-label="Secciones">
@@ -614,11 +599,12 @@ function BarraInferior({ vista, onVista, favoritos }) {
         <button
           key={item.id}
           type="button"
-          className={vista === item.id ? 'cd-nav-activo' : ''}
+          className={activa === item.id ? 'cd-nav-activo' : ''}
+          aria-current={activa === item.id ? 'page' : undefined}
           onClick={() => onVista(item.id)}
         >
           <span className="cd-nav-icono">
-            <Icono nombre={item.icono} relleno={vista === item.id} />
+            <IconoBarra nombre={item.id} activo={activa === item.id} />
             {item.globo ? <span className="cd-globo">{item.globo}</span> : null}
           </span>
           {item.texto}
@@ -628,20 +614,310 @@ function BarraInferior({ vista, onVista, favoritos }) {
   )
 }
 
+/** "Chivilcoy" -> "chivilcoy": el nombre de los archivos de cada ciudad. */
+function claveDeCiudad(ciudad) {
+  return ciudadPareja(ciudad).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+}
+
+/**
+ * El carrusel de arriba. Cada ciudad puede tener su foto principal
+ * (public/capta/hero-<ciudad>.webp) y su banner (banner-<ciudad>.webp); despues
+ * van las promos del dia. Una imagen que no existe se saca sola; si no queda
+ * ninguna, se dibuja el banner con el nombre de la ciudad.
+ */
+function Carrusel({ ciudad, promos }) {
+  const clave = claveDeCiudad(ciudad)
+  const [rotas, setRotas] = useState([])
+  const [actual, setActual] = useState(0)
+  const pistaRef = useRef(null)
+  const tocandoRef = useRef(false)
+
+  const slides = useMemo(() => {
+    const lista = []
+    if (clave) {
+      lista.push({ id: `hero-${clave}`, tipo: 'imagen', src: `/capta/hero-${clave}.webp` })
+      lista.push({ id: `banner-${clave}`, tipo: 'imagen', src: `/capta/banner-${clave}.webp` })
+    }
+    for (const local of promos.slice(0, 3)) lista.push({ id: `promo-${local.slug}`, tipo: 'promo', local })
+    const sanas = lista.filter((s) => !rotas.includes(s.id))
+    return sanas.some((s) => s.tipo === 'imagen') ? sanas : [{ id: 'dibujado', tipo: 'dibujado' }, ...sanas]
+  }, [clave, promos, rotas])
+
+  const total = slides.length
+
+  // Pasa solo cada 5 segundos, salvo que el cliente lo este moviendo.
+  useEffect(() => {
+    if (total < 2) return undefined
+    const intervalo = window.setInterval(() => {
+      const pista = pistaRef.current
+      if (!pista || tocandoRef.current) return
+      const siguiente = (Math.round(pista.scrollLeft / pista.clientWidth) + 1) % total
+      pista.scrollTo({ left: siguiente * pista.clientWidth, behavior: 'smooth' })
+    }, 5000)
+    return () => window.clearInterval(intervalo)
+  }, [total])
+
+  const alMover = () => {
+    const pista = pistaRef.current
+    if (pista) setActual(Math.min(total - 1, Math.round(pista.scrollLeft / Math.max(1, pista.clientWidth))))
+  }
+
+  return (
+    <section className="cd-carrusel-hero" aria-label="Novedades">
+      <div
+        className="cd-carrusel-pista"
+        ref={pistaRef}
+        onScroll={alMover}
+        onPointerDown={() => (tocandoRef.current = true)}
+        onPointerUp={() => (tocandoRef.current = false)}
+        onTouchStart={() => (tocandoRef.current = true)}
+        onTouchEnd={() => (tocandoRef.current = false)}
+      >
+        {slides.map((slide) => (
+          <div key={slide.id} className="cd-slide">
+            {slide.tipo === 'imagen' ? (
+              <img
+                src={slide.src}
+                alt={`Capta Delivery en ${ciudad}`}
+                onError={() => setRotas((previas) => [...previas, slide.id])}
+              />
+            ) : slide.tipo === 'promo' ? (
+              <a
+                className="cd-slide-promo"
+                href={`/${encodeURIComponent(slide.local.slug)}?vitrina=1`}
+                style={{ '--cd-marca': slide.local.color || '#f4511e' }}
+              >
+                <span className="cd-slide-promo-etiqueta">Promo de hoy</span>
+                <strong>{slide.local.promo}</strong>
+                <span className="cd-slide-promo-local">
+                  <MiniLogo local={slide.local} />
+                  {slide.local.nombre}
+                </span>
+              </a>
+            ) : (
+              <Banner ciudad={ciudad} />
+            )}
+          </div>
+        ))}
+      </div>
+      {total > 1 ? (
+        <div className="cd-puntos-carrusel" aria-hidden="true">
+          {slides.map((slide, i) => (
+            <span key={slide.id} className={i === actual ? 'cd-punto-activo' : ''} />
+          ))}
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
+/** Los cuadrados de "Categorías" (shared/vitrinaCapta.js, GRUPOS). */
+function Categorias({ onElegir, onVerTodas }) {
+  return (
+    <section className="cd-seccion" aria-label="Categorías">
+      <div className="cd-seccion-cabeza">
+        <h2>Categorías</h2>
+        <button type="button" onClick={onVerTodas}>
+          Ver todas <Icono nombre="chevron_right" />
+        </button>
+      </div>
+      <div className="cd-cuadros">
+        {GRUPOS.map((grupo) => (
+          <button
+            key={grupo.id}
+            type="button"
+            className="cd-cuadro"
+            style={{ background: grupo.fondo }}
+            onClick={() => onElegir(grupo.id)}
+          >
+            <img src={`/capta/categorias/${grupo.id}.webp`} alt="" loading="lazy" />
+            <span>{grupo.label}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+/** "★ 4.8 · 20-30 min" — las estrellas solo si hay opiniones de verdad. */
+function LineaDeEstado({ local }) {
+  const estrellas = local.calificacion ? (
+    <span className="cd-estrellas">
+      <Icono nombre="star" relleno /> {local.calificacion.promedio.toFixed(1)}
+    </span>
+  ) : null
+  // Cerrado: cuando abre (entra en un renglon). Que se puede programar se ve
+  // al entrar al menu, que es donde se elige la hora.
+  const texto = local.abierto
+    ? local.tiempo || 'Abierto'
+    : local.pausado
+      ? 'No toma pedidos'
+      : cuandoAbre(local.proximaApertura) || 'Cerrado ahora'
+  return (
+    <p className={`cd-linea-estado ${local.abierto ? '' : 'cd-linea-cerrado'}`}>
+      {estrellas}
+      {estrellas ? <span className="cd-separador">·</span> : null}
+      <span>{texto}</span>
+    </p>
+  )
+}
+
+/** La tarjeta grande de "Cerca de ti" (y de las listas). */
+function TarjetaCerca({ local, esFavorito, onFavorito, enLista = false }) {
+  const url = `/${encodeURIComponent(local.slug)}?vitrina=1`
+  return (
+    <article className={`cd-cerca ${enLista ? 'cd-cerca-lista' : ''} ${local.abierto ? '' : 'cd-cerca-cerrado'}`}>
+      <a className="cd-cerca-foto" href={url} aria-label={`Ver el menú de ${local.nombre}`}>
+        <Portada local={local} />
+        {local.promo ? <span className="cd-promo-cinta">{local.promo}</span> : null}
+        <span className="cd-cerca-pie-foto">
+          <LogoLocal local={local} />
+          <span className="cd-pastilla">{local.categoriaNombre}</span>
+        </span>
+      </a>
+      <button
+        type="button"
+        className={`cd-favorito ${esFavorito ? 'cd-favorito-si' : ''}`}
+        onClick={() => onFavorito(local.slug)}
+        aria-pressed={esFavorito}
+        aria-label={esFavorito ? `Sacar ${local.nombre} de guardados` : `Guardar ${local.nombre}`}
+      >
+        <Icono nombre="favorite" relleno={esFavorito} />
+      </button>
+      <a className="cd-cerca-cuerpo" href={url}>
+        <h3>{local.nombre}</h3>
+        <p className="cd-cerca-rubro">{local.categoriaNombre}</p>
+        <LineaDeEstado local={local} />
+      </a>
+    </article>
+  )
+}
+
+/** La lista en grilla de una pantalla ("Ver todos", una categoria, guardados, una busqueda). */
+function ListaDeLocales({ locales, favoritos, onFavorito }) {
+  const abiertos = locales.filter((l) => l.abierto)
+  const cerrados = locales.filter((l) => !l.abierto)
+  return (
+    <>
+      {abiertos.length ? (
+        <div className="cd-grilla-cerca">
+          {abiertos.map((local) => (
+            <TarjetaCerca key={local.slug} local={local} esFavorito={favoritos.includes(local.slug)} onFavorito={onFavorito} enLista />
+          ))}
+        </div>
+      ) : null}
+      {cerrados.length ? (
+        <>
+          <div className="cd-seccion-cabeza cd-seccion-suave">
+            <h2>Abren más tarde</h2>
+            <span className="cd-cuenta">{cerrados.length}</span>
+          </div>
+          <div className="cd-grilla-cerca">
+            {cerrados.map((local) => (
+              <TarjetaCerca key={local.slug} local={local} esFavorito={favoritos.includes(local.slug)} onFavorito={onFavorito} enLista />
+            ))}
+          </div>
+        </>
+      ) : null}
+    </>
+  )
+}
+
+/** Pedidos: el mandado en curso y el ultimo pedido de cada local, para repetirlo. */
+function MisPedidos({ locales, ultimos, mandadoEnCurso, onIrAlInicio }) {
+  const conLocal = ultimos
+    .map((pedido) => ({ pedido, local: locales.find((l) => l.slug === pedido.slug) }))
+    .filter((x) => x.local)
+  return (
+    <section className="cd-pagina">
+      <h1 className="cd-pagina-titulo">Tus pedidos</h1>
+      {mandadoEnCurso ? (
+        <a className="cd-pedido-fila cd-pedido-en-curso" href={mandadoEnCurso.seguimiento} target="_blank" rel="noopener noreferrer">
+          <span className="cd-mandados-icono">
+            <Icono nombre="route" />
+          </span>
+          <span className="cd-pedido-textos">
+            <strong>Tu mandado{mandadoEnCurso.numero ? ` #${mandadoEnCurso.numero}` : ''}</strong>
+            <small>En curso · tocá para ver en qué va</small>
+          </span>
+          <Icono nombre="chevron_right" />
+        </a>
+      ) : null}
+      {conLocal.length ? (
+        conLocal.map(({ pedido, local }) => (
+          <div key={local.slug} className="cd-pedido-fila">
+            <MiniLogo local={local} />
+            <span className="cd-pedido-textos">
+              <strong>{local.nombre}</strong>
+              <small>{resumenDelPedido(pedido, 3)}</small>
+              <small className="cd-pedido-fecha">
+                {new Date(pedido.at).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+              </small>
+            </span>
+            <a className="cd-boton-chico" href={`/${encodeURIComponent(local.slug)}?vitrina=1&repetir=1`}>
+              {local.abierto ? 'Repetir' : local.programable ? 'Programar' : 'Ver'}
+            </a>
+          </div>
+        ))
+      ) : !mandadoEnCurso ? (
+        <div className="cd-vacio">
+          <img className="cd-vacio-logo" src="/capta/logo-3d.webp" alt="" width="64" height="64" />
+          <p>Todavía no hiciste pedidos desde este teléfono. Cuando hagas uno, lo vas a poder repetir desde acá.</p>
+          <button type="button" className="cd-boton-chico" onClick={onIrAlInicio}>
+            Ver locales
+          </button>
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
+/** Perfil: sus puntos, sus datos, la ciudad y los mandados. */
+function Perfil({ ciudad, onPuntos, onDatos, onCiudad, onMandado }) {
+  const datos = leerDatos(almacenDelNavegador())
+  const filas = [
+    { id: 'puntos', icono: 'stars', titulo: 'Mis puntos', detalle: 'Lo que juntaste pidiendo por Capta', accion: onPuntos },
+    { id: 'datos', icono: 'badge', titulo: 'Mis datos', detalle: datos?.name ? `${datos.name}${datos.phone ? ` · ${datos.phone}` : ''}` : 'Nombre, celular y dirección', accion: onDatos },
+    { id: 'ciudad', icono: 'location_on', titulo: 'Mi ciudad', detalle: ciudad || 'Elegí tu ciudad', accion: onCiudad },
+    onMandado ? { id: 'mandado', icono: 'directions_bike', titulo: 'Pedir un mandado', detalle: 'Te compramos o llevamos lo que necesites', accion: onMandado } : null,
+  ].filter(Boolean)
+  return (
+    <section className="cd-pagina">
+      <h1 className="cd-pagina-titulo">Perfil</h1>
+      <div className="cd-perfil-lista">
+        {filas.map((fila) => (
+          <button key={fila.id} type="button" className="cd-perfil-fila" onClick={fila.accion}>
+            <span className="cd-perfil-icono">
+              <Icono nombre={fila.icono} />
+            </span>
+            <span className="cd-pedido-textos">
+              <strong>{fila.titulo}</strong>
+              <small>{fila.detalle}</small>
+            </span>
+            <Icono nombre="chevron_right" />
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function CaptaDeliveryApp() {
   const { cargando, error, locales, ciudades: ciudadesConLocales, recargar } = useVitrina()
   const mandados = useMandados()
   const [ciudadElegida, setCiudadElegida] = useState(() => leerPreferencia(CLAVE_CIUDAD, ''))
-  const [categoriaElegida, setCategoriaElegida] = useState('todos')
   const [busqueda, setBusqueda] = useState('')
   const [favoritos, setFavoritos] = useState(() => {
     const guardados = leerPreferencia(CLAVE_FAVORITOS, [])
     return Array.isArray(guardados) ? guardados : []
   })
+  // inicio · todos ("Ver todos") · grupo (un cuadrado) · pedidos · guardados · perfil
   const [vista, setVista] = useState('inicio')
-  const [eligiendoCiudad, setEligiendoCiudad] = useState(false)
-  const [pidiendoMandado, setPidiendoMandado] = useState(false)
-  // Los ultimos pedidos de este telefono, para "Volver a pedir".
+  const [grupoElegido, setGrupoElegido] = useState(null)
+  const [subcategoria, setSubcategoria] = useState('todos')
+  const [hoja, setHoja] = useState(null) // ciudad · categorias · puntos · datos · mandado
+  const [dondeDelMandado, setDondeDelMandado] = useState('')
+  // Los ultimos pedidos de este telefono, para "Volver a pedir" y "Pedidos".
   const [ultimosPedidos] = useState(() => leerUltimosPedidos(almacenDelNavegador()))
 
   // Las ciudades para elegir: las que tienen locales y, al final, las que por
@@ -665,7 +941,7 @@ export default function CaptaDeliveryApp() {
   const elegirCiudad = (nombre) => {
     setCiudadElegida(nombre)
     guardarPreferencia(CLAVE_CIUDAD, nombre)
-    setEligiendoCiudad(false)
+    setHoja(null)
   }
 
   const alternarFavorito = (slug) => {
@@ -683,30 +959,46 @@ export default function CaptaDeliveryApp() {
     () => mandados.find((m) => ciudadPareja(m.ciudad) === ciudadPareja(ciudad)) ?? null,
     [mandados, ciudad],
   )
+  const [mandadoEnCurso] = useState(() => leerEnCurso(null))
 
   const deLaCiudad = useMemo(() => {
     if (!ciudad) return locales
     return locales.filter((local) => ciudadPareja(local.ciudad) === ciudadPareja(ciudad))
   }, [locales, ciudad])
 
-  // Los botones de categoria son SOLO los que tienen algun local en esa ciudad:
-  // un filtro que no devuelve nada no sirve de nada.
-  const categoriasVisibles = useMemo(() => {
-    const cuenta = new Map()
-    for (const local of deLaCiudad) cuenta.set(local.categoria, (cuenta.get(local.categoria) ?? 0) + 1)
-    return CATEGORIAS.filter((c) => cuenta.has(c.id)).map((c) => ({ ...c, cuantos: cuenta.get(c.id) }))
-  }, [deLaCiudad])
+  // "Cerca de ti": primero lo que se puede pedir ya, despues lo que se puede
+  // programar, al final lo cerrado.
+  const cercaDeTi = useMemo(
+    () =>
+      [...deLaCiudad].sort(
+        (a, b) =>
+          Number(b.abierto) - Number(a.abierto) ||
+          Number(b.programable) - Number(a.programable) ||
+          a.nombre.localeCompare(b.nombre),
+      ),
+    [deLaCiudad],
+  )
 
-  // Si la categoria elegida se quedo sin locales (cambio de ciudad), se vuelve
-  // sola a "Todos" en vez de mostrar una lista vacia.
-  const categoria = categoriasVisibles.some((c) => c.id === categoriaElegida) ? categoriaElegida : 'todos'
+  const grupo = GRUPOS.find((g) => g.id === grupoElegido) ?? null
+  const delGrupo = useMemo(
+    () => (grupo ? cercaDeTi.filter((l) => grupo.categorias.includes(l.categoria)) : []),
+    [grupo, cercaDeTi],
+  )
+  // Las sub-categorias del cuadrado que tienen algun local ("Comida" ->
+  // Pizzerias, Hamburgueserias...). Con una sola no hace falta elegir.
+  const subcategorias = useMemo(
+    () => CATEGORIAS.filter((c) => delGrupo.some((l) => l.categoria === c.id)),
+    [delGrupo],
+  )
+  const sub = subcategorias.some((c) => c.id === subcategoria) ? subcategoria : 'todos'
 
-  const filtrados = useMemo(() => {
-    const base = vista === 'favoritos' ? locales.filter((l) => favoritos.includes(l.slug)) : deLaCiudad
-    return base
-      .filter((local) => categoria === 'todos' || local.categoria === categoria)
-      .filter((local) => localCoincideCon(local, busqueda))
-  }, [vista, locales, favoritos, deLaCiudad, categoria, busqueda])
+  // Lo que muestra una pantalla de lista.
+  const enLista = useMemo(() => {
+    let base = cercaDeTi
+    if (vista === 'guardados') base = locales.filter((l) => favoritos.includes(l.slug))
+    if (vista === 'grupo') base = delGrupo.filter((l) => sub === 'todos' || l.categoria === sub)
+    return base.filter((local) => localCoincideCon(local, busqueda))
+  }, [vista, cercaDeTi, locales, favoritos, delGrupo, sub, busqueda])
 
   // Volver a pedir: solo locales que siguen en la vitrina y son de esta ciudad.
   const paraRepetir = useMemo(
@@ -727,105 +1019,87 @@ export default function CaptaDeliveryApp() {
     [deLaCiudad],
   )
 
-  const abiertos = filtrados.filter((local) => local.abierto)
-  const cerrados = filtrados.filter((local) => !local.abierto)
+  const irA = (siguiente) => {
+    setVista(siguiente)
+    setBusqueda('')
+    if (siguiente !== 'grupo') setGrupoElegido(null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const abrirGrupo = (id) => {
+    setGrupoElegido(id)
+    setSubcategoria('todos')
+    setHoja(null)
+    setVista('grupo')
+    setBusqueda('')
+    window.scrollTo({ top: 0 })
+  }
+
+  const pedirMandado = (donde = '') => {
+    setDondeDelMandado(donde)
+    setHoja('mandado')
+  }
+
+  const esInicio = vista === 'inicio' && !busqueda
+  const esLista = ['todos', 'grupo', 'guardados'].includes(vista) || (vista === 'inicio' && busqueda)
+  const tituloLista =
+    vista === 'guardados'
+      ? 'Guardados'
+      : vista === 'grupo' && grupo
+        ? grupo.label
+        : busqueda
+          ? 'Resultados'
+          : ciudad
+            ? `Todos en ${ciudad}`
+            : 'Todos los locales'
 
   return (
     <div className="cd-app">
       <header className="cd-cabecera">
-        <a className="cd-marca" href="/pedi">
-          <LogoCapta tamano={42} />
+        <a className="cd-marca" href="/pedi" aria-label="Capta Delivery">
+          <img className="cd-marca-logo" src="/capta/logo-3d.webp" alt="" width="56" height="56" />
           <span>
             <strong>Capta</strong>
-            <small>Delivery</small>
+            <em>Delivery</em>
           </span>
         </a>
 
         {ciudades.length ? (
-          <button type="button" className="cd-ciudad" onClick={() => setEligiendoCiudad(true)}>
+          <button type="button" className="cd-ciudad" onClick={() => setHoja('ciudad')}>
             <Icono nombre="location_on" relleno />
             <span>
-              <strong>{ciudad || 'Elegí tu ciudad'}</strong>
+              <strong>
+                {ciudad || 'Elegí tu ciudad'}
+                <Icono nombre="expand_more" />
+              </strong>
               <small>Tu ciudad, más cerca</small>
             </span>
-            <Icono nombre="expand_more" />
           </button>
         ) : null}
       </header>
 
-      <div className="cd-buscador">
-        <Icono nombre="search" />
-        <input
-          type="search"
-          value={busqueda}
-          onChange={(evento) => setBusqueda(evento.target.value)}
-          placeholder="¿Qué se te antoja hoy?"
-          aria-label="Buscar un local"
-        />
-        {busqueda ? (
-          <button type="button" onClick={() => setBusqueda('')} aria-label="Borrar la búsqueda">
-            <Icono nombre="close" />
-          </button>
-        ) : null}
-      </div>
-
-      {categoriasVisibles.length > 1 ? (
-        <div className="cd-categorias" role="tablist" aria-label="Categorias">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={categoria === 'todos'}
-            className={categoria === 'todos' ? 'cd-chip cd-chip-activo' : 'cd-chip'}
-            onClick={() => setCategoriaElegida('todos')}
-          >
-            Todos
-          </button>
-          {categoriasVisibles.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              role="tab"
-              aria-selected={categoria === c.id}
-              className={categoria === c.id ? 'cd-chip cd-chip-activo' : 'cd-chip'}
-              onClick={() => setCategoriaElegida(c.id)}
-            >
-              {c.label}
+      {vista !== 'pedidos' && vista !== 'perfil' ? (
+        <div className="cd-buscador">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+            <circle cx="10.5" cy="10.5" r="6.8" fill="none" stroke="currentColor" strokeWidth="2.2" />
+            <path d="m15.6 15.6 4.9 4.9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+          </svg>
+          <input
+            type="search"
+            value={busqueda}
+            onChange={(evento) => setBusqueda(evento.target.value)}
+            placeholder="¿Qué se te antoja hoy?"
+            aria-label="Buscar un local"
+          />
+          {busqueda ? (
+            <button type="button" onClick={() => setBusqueda('')} aria-label="Borrar la búsqueda">
+              <Icono nombre="close" />
             </button>
-          ))}
+          ) : null}
         </div>
       ) : null}
 
       <main className="cd-contenido">
-        {vista === 'inicio' && !busqueda && categoria === 'todos' ? (
-          <Banner key={ciudad} ciudad={ciudad} />
-        ) : null}
-
-        {vista === 'inicio' && !busqueda && categoria === 'todos' && mandadoDeLaCiudad ? (
-          <EntradaMandados mandado={mandadoDeLaCiudad} onAbrir={() => setPidiendoMandado(true)} />
-        ) : null}
-
-        {vista === 'inicio' && !busqueda && categoria === 'todos' && !cargando && paraRepetir.length ? (
-          <VolverAPedir pedidos={paraRepetir} />
-        ) : null}
-
-        {vista === 'inicio' && !busqueda && categoria === 'todos' && !cargando && conPromo.length ? (
-          <PromosDeHoy locales={conPromo} />
-        ) : null}
-
-        {cargando ? (
-          <div className="cd-grilla">
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="cd-tarjeta cd-esqueleto" aria-hidden="true">
-                <div className="cd-portada" />
-                <div className="cd-tarjeta-cuerpo">
-                  <span />
-                  <span />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : null}
-
         {error ? (
           <div className="cd-aviso">
             <p>{error}</p>
@@ -835,24 +1109,35 @@ export default function CaptaDeliveryApp() {
           </div>
         ) : null}
 
-        {!cargando && !error ? (
+        {esInicio ? (
           <>
-            <div className="cd-titulo-seccion">
-              <h2>
-                {vista === 'favoritos'
-                  ? 'Tus favoritos'
-                  : ciudad
-                    ? `Comercios en ${ciudad}`
-                    : 'Comercios'}
-              </h2>
-              <span>{filtrados.length}</span>
-            </div>
+            <Carrusel key={ciudad} ciudad={ciudad} promos={conPromo} />
 
-            {filtrados.length ? (
-              <>
-                <div className="cd-grilla">
-                  {abiertos.map((local) => (
-                    <TarjetaLocal
+            <Categorias onElegir={abrirGrupo} onVerTodas={() => setHoja('categorias')} />
+
+            <section className="cd-seccion" aria-label="Cerca de ti">
+              <div className="cd-seccion-cabeza">
+                <h2>Cerca de ti</h2>
+                <button type="button" onClick={() => irA('todos')}>
+                  Ver todos <Icono nombre="chevron_right" />
+                </button>
+              </div>
+              {cargando ? (
+                <div className="cd-fila-cerca">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="cd-cerca cd-esqueleto" aria-hidden="true">
+                      <div className="cd-cerca-foto" />
+                      <div className="cd-cerca-cuerpo">
+                        <span />
+                        <span />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : cercaDeTi.length ? (
+                <div className="cd-fila-cerca">
+                  {cercaDeTi.map((local) => (
+                    <TarjetaCerca
                       key={local.slug}
                       local={local}
                       esFavorito={favoritos.includes(local.slug)}
@@ -860,68 +1145,102 @@ export default function CaptaDeliveryApp() {
                     />
                   ))}
                 </div>
+              ) : !error ? (
+                <p className="cd-hoja-texto">Por ahora no hay locales en {ciudad || 'esta ciudad'}.</p>
+              ) : null}
+            </section>
 
-                {cerrados.length ? (
-                  <>
-                    <div className="cd-titulo-seccion cd-titulo-suave">
-                      <h2>Abren más tarde</h2>
-                      <span>{cerrados.length}</span>
-                    </div>
-                    <div className="cd-grilla">
-                      {cerrados.map((local) => (
-                        <TarjetaLocal
-                          key={local.slug}
-                          local={local}
-                          esFavorito={favoritos.includes(local.slug)}
-                          onFavorito={alternarFavorito}
-                        />
-                      ))}
-                    </div>
-                  </>
-                ) : null}
-              </>
-            ) : (
-              <div className="cd-vacio">
-                <LogoCapta tamano={64} />
-                <p>
-                  {vista === 'favoritos'
-                    ? 'Todavía no guardaste ningún local. Tocá el corazón de una tarjeta.'
-                    : busqueda
-                      ? `No encontramos nada con "${busqueda}".`
-                      : 'Por ahora no hay locales en esta ciudad.'}
-                </p>
-              </div>
-            )}
+            {mandadoDeLaCiudad ? (
+              <EntradaMandados mandado={mandadoDeLaCiudad} onAbrir={() => pedirMandado('')} />
+            ) : null}
+
+            {!cargando && paraRepetir.length ? <VolverAPedir pedidos={paraRepetir} /> : null}
+
+            {!cargando && conPromo.length ? <PromosDeHoy locales={conPromo} /> : null}
           </>
         ) : null}
 
-        <p className="cd-pie">
-          Los pedidos los toma cada local en su menú. Los reparte Capta Delivery.
-        </p>
+        {esLista ? (
+          <section className="cd-pagina">
+            <div className="cd-pagina-cabeza">
+              <button type="button" className="cd-volver" onClick={() => irA('inicio')} aria-label="Volver al inicio">
+                <Icono nombre="arrow_back" />
+              </button>
+              <h1 className="cd-pagina-titulo">{tituloLista}</h1>
+              <span className="cd-cuenta">{enLista.length}</span>
+            </div>
+
+            {vista === 'grupo' && subcategorias.length > 1 ? (
+              <div className="cd-categorias" role="tablist" aria-label="Tipo">
+                {[{ id: 'todos', label: 'Todos' }, ...subcategorias].map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={sub === c.id}
+                    className={sub === c.id ? 'cd-chip cd-chip-activo' : 'cd-chip'}
+                    onClick={() => setSubcategoria(c.id)}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
+            {cargando ? null : enLista.length ? (
+              <ListaDeLocales locales={enLista} favoritos={favoritos} onFavorito={alternarFavorito} />
+            ) : (
+              <div className="cd-vacio">
+                {vista === 'grupo' && grupo ? (
+                  <img className="cd-vacio-icono" src={`/capta/categorias/${grupo.id}.webp`} alt="" style={{ background: grupo.fondo }} />
+                ) : (
+                  <img className="cd-vacio-logo" src="/capta/logo-3d.webp" alt="" width="64" height="64" />
+                )}
+                <p>
+                  {vista === 'guardados'
+                    ? 'Todavía no guardaste ningún local. Tocá el corazón de una tarjeta.'
+                    : busqueda
+                      ? `No encontramos nada con "${busqueda}".`
+                      : grupo
+                        ? `Todavía no hay locales de ${grupo.label.toLowerCase()} en ${ciudad || 'tu ciudad'} con Capta.`
+                        : 'Por ahora no hay locales en esta ciudad.'}
+                </p>
+                {vista === 'grupo' && grupo?.mandado && mandadoDeLaCiudad ? (
+                  <button type="button" className="cd-boton-chico" onClick={() => pedirMandado(grupo.mandado)}>
+                    Te lo compramos con un mandado
+                  </button>
+                ) : null}
+              </div>
+            )}
+          </section>
+        ) : null}
+
+        {vista === 'pedidos' ? (
+          <MisPedidos
+            locales={locales}
+            ultimos={ultimosPedidos}
+            mandadoEnCurso={mandadoEnCurso}
+            onIrAlInicio={() => irA('inicio')}
+          />
+        ) : null}
+
+        {vista === 'perfil' ? (
+          <Perfil
+            ciudad={ciudad}
+            onPuntos={() => setHoja('puntos')}
+            onDatos={() => setHoja('datos')}
+            onCiudad={() => setHoja('ciudad')}
+            onMandado={mandadoDeLaCiudad ? () => pedirMandado('') : null}
+          />
+        ) : null}
+
+        <p className="cd-pie">Los pedidos los toma cada local en su menú. Los reparte Capta Delivery.</p>
       </main>
 
-      <BarraInferior
-        vista={vista}
-        favoritos={favoritos.length}
-        onVista={(siguiente) => {
-          if (siguiente === 'datos' || siguiente === 'puntos') {
-            setVista(siguiente)
-            return
-          }
-          setVista(siguiente)
-          if (siguiente === 'categorias') {
-            document.querySelector('.cd-categorias')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          }
-          if (siguiente === 'inicio') {
-            setCategoriaElegida('todos')
-            setBusqueda('')
-            window.scrollTo({ top: 0, behavior: 'smooth' })
-          }
-        }}
-      />
+      <BarraInferior vista={vista} guardados={favoritos.length} onVista={irA} />
 
-      {eligiendoCiudad ? (
-        <Hoja titulo="Elegí tu ciudad" onCerrar={() => setEligiendoCiudad(false)}>
+      {hoja === 'ciudad' ? (
+        <Hoja titulo="Elegí tu ciudad" onCerrar={() => setHoja(null)}>
           <ul className="cd-lista-ciudades">
             {ciudades.map((c) => (
               <li key={c.nombre}>
@@ -939,15 +1258,34 @@ export default function CaptaDeliveryApp() {
         </Hoja>
       ) : null}
 
-      {pidiendoMandado && mandadoDeLaCiudad ? (
-        <Hoja titulo="Pedí un mandado" onCerrar={() => setPidiendoMandado(false)}>
-          <FormularioMandado mandado={mandadoDeLaCiudad} />
+      {hoja === 'categorias' ? (
+        <Hoja titulo="Categorías" onCerrar={() => setHoja(null)}>
+          <ul className="cd-lista-categorias">
+            {GRUPOS.map((g) => {
+              const cuantos = deLaCiudad.filter((l) => g.categorias.includes(l.categoria)).length
+              return (
+                <li key={g.id}>
+                  <button type="button" onClick={() => abrirGrupo(g.id)}>
+                    <img src={`/capta/categorias/${g.id}.webp`} alt="" style={{ background: g.fondo }} />
+                    <span>{g.label}</span>
+                    <small>{cuantos ? `${cuantos} local${cuantos === 1 ? '' : 'es'}` : g.mandado && mandadoDeLaCiudad ? 'Con mandados' : 'Próximamente'}</small>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
         </Hoja>
       ) : null}
 
-      {vista === 'puntos' ? <MisPuntos onCerrar={() => setVista('inicio')} /> : null}
+      {hoja === 'mandado' && mandadoDeLaCiudad ? (
+        <Hoja titulo="Pedí un mandado" onCerrar={() => setHoja(null)}>
+          <FormularioMandado key={dondeDelMandado} mandado={mandadoDeLaCiudad} dondeInicial={dondeDelMandado} />
+        </Hoja>
+      ) : null}
 
-      {vista === 'datos' ? <MisDatos onCerrar={() => setVista('inicio')} /> : null}
+      {hoja === 'puntos' ? <MisPuntos onCerrar={() => setHoja(null)} /> : null}
+
+      {hoja === 'datos' ? <MisDatos onCerrar={() => setHoja(null)} /> : null}
     </div>
   )
 }

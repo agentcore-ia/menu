@@ -25,15 +25,19 @@ import { aceptaProgramados, anticipoDelLocal, turnosParaProgramar } from '../../
  * cada local: esto no puede trabar la pantalla.
  */
 async function tiemposMedidos(dashboardUrl) {
+  const vacio = { tiempos: {}, calificaciones: {} }
   const base = String(dashboardUrl || '').replace(/\/+$/, '')
-  if (!base) return {}
+  if (!base) return vacio
   try {
     const respuesta = await fetch(`${base}/api/public/tiempos-entrega`, { signal: AbortSignal.timeout(2500) })
-    if (!respuesta.ok) return {}
+    if (!respuesta.ok) return vacio
     const datos = await respuesta.json()
-    return datos?.tiempos && typeof datos.tiempos === 'object' ? datos.tiempos : {}
+    const objeto = (v) => (v && typeof v === 'object' ? v : {})
+    // calificaciones: las estrellas reales de los clientes (minimo 5 opiniones,
+    // lo decide el dashboard). Sin eso la tarjeta no muestra estrellas.
+    return { tiempos: objeto(datos?.tiempos), calificaciones: objeto(datos?.calificaciones) }
   } catch {
-    return {}
+    return vacio
   }
 }
 import { imagenesDeVitrina } from '../vitrinaImagenes.js'
@@ -546,7 +550,8 @@ export class SupabaseMenuRepository {
           plantilla: presentacion.layout,
         })
         const imagenes = imagenesDeVitrina(r.slug, { ajustes, presentacion })
-        const tiempo = tiempoParaVitrina(medidos?.[r.id], r.tiempo_entrega)
+        const tiempo = tiempoParaVitrina(medidos?.tiempos?.[r.id], r.tiempo_entrega)
+        const calificacion = medidos?.calificaciones?.[r.id]
         // Cerrado pero toma pedidos programados: la tarjeta invita a dejarlo
         // para mas tarde en vez de decir solo "Cerrado".
         const programable =
@@ -569,6 +574,10 @@ export class SupabaseMenuRepository {
           // El tiempo sale de las entregas reales, no de lo que dice el local.
           tiempoMedido: tiempo.medido,
           programable,
+          calificacion:
+            calificacion && Number(calificacion.cantidad) >= 5
+              ? { promedio: Number(calificacion.promedio), cantidad: Number(calificacion.cantidad) }
+              : null,
           // El cartel de "Promos de hoy" (lo carga Capta desde su panel).
           promo: promoVigente(ajustes.captaPromo),
           envioDesde: envioDesde(normalizeDeliveryZones(ajustes.deliveryZones)),

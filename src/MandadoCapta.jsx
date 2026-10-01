@@ -7,6 +7,7 @@
 // pasa todo al dashboard. No decide plata: el precio lo pone el servidor.
 
 import { useState } from 'react'
+import { guardarEnCurso, leerEnCurso } from './mandadoEnCurso.js'
 import { TIPOS_MANDADO, normalizarMandado } from '../shared/mandados.js'
 import {
   almacenDelNavegador,
@@ -22,31 +23,6 @@ function pesos(valor) {
     currency: 'ARS',
     maximumFractionDigits: 0,
   }).format(Number(valor) || 0)
-}
-
-// El ultimo mandado pedido desde este navegador, para volver a seguirlo desde
-// la vitrina (como el "pedido en curso" de Rappi). Vence solo: despues de 12 h
-// ya se entrego o se cancelo, y el seguimiento sigue llegando por WhatsApp.
-const CLAVE_EN_CURSO = 'capta-mandado-en-curso'
-const HORAS_EN_CURSO = 12
-
-function guardarEnCurso(dato) {
-  try {
-    window.localStorage.setItem(CLAVE_EN_CURSO, JSON.stringify({ ...dato, at: Date.now() }))
-  } catch {
-    // sin almacenamiento (modo privado): queda el WhatsApp
-  }
-}
-
-function leerEnCurso(ciudad) {
-  try {
-    const dato = JSON.parse(window.localStorage.getItem(CLAVE_EN_CURSO) || 'null')
-    if (!dato?.seguimiento || Date.now() - Number(dato.at) > HORAS_EN_CURSO * 3600 * 1000) return null
-    if (ciudad && dato.ciudad && String(dato.ciudad).toLowerCase() !== String(ciudad).toLowerCase()) return null
-    return dato
-  } catch {
-    return null
-  }
 }
 
 // Atajos para arrancar rapido, como los Favores de Rappi: en una compra dicen
@@ -129,12 +105,13 @@ async function cotizar(mandado, { direccion, barrio, punto }) {
   return datos
 }
 
-export function FormularioMandado({ mandado }) {
+export function FormularioMandado({ mandado, dondeInicial = '' }) {
   const ciudad = mandado.ciudad
   const [guardados] = useState(() => leerDatos(almacenDelNavegador()))
   const [tipo, setTipo] = useState('compra')
   const [que, setQue] = useState('')
-  const [donde, setDonde] = useState('')
+  // Viene de un cuadrado del inicio sin locales ("La farmacia más cercana").
+  const [donde, setDonde] = useState(dondeInicial)
   const [tope, setTope] = useState('')
   const [contacto, setContacto] = useState('')
   const [pagaEn, setPagaEn] = useState('entrega')

@@ -4,6 +4,8 @@ import {
   categoriaDeVitrina,
   ciudadPareja,
   envioDesde,
+  grupoDeCategoria,
+  GRUPOS,
   localCoincideCon,
   localVisibleEnVitrina,
   nombreDeCategoria,
@@ -110,4 +112,16 @@ test('la promo se ve hasta su ultimo dia, en hora argentina', () => {
   assert.equal(promoVigente({ texto: '2x1', hasta: null }), '2x1')
   assert.equal(promoVigente(null), null)
   assert.equal(promoVigente({ texto: '   ' }), null)
+})
+
+test('los cuadrados del inicio juntan las categorias parecidas', () => {
+  assert.equal(GRUPOS.length, 8)
+  assert.equal(grupoDeCategoria('pizzeria').id, 'comida')
+  assert.equal(grupoDeCategoria('heladeria').id, 'helados')
+  assert.equal(grupoDeCategoria('dietetica').id, 'super')
+  // Toda categoria cae en algun cuadrado.
+  for (const c of ['comida', 'hamburgueseria', 'pizzeria', 'rotiseria', 'heladeria', 'panaderia', 'cafeteria', 'kiosco', 'dietetica', 'farmacia', 'super', 'licoreria', 'mascotas']) {
+    assert.ok(GRUPOS.some((g) => g.categorias.includes(c)), c)
+  }
+  assert.equal(categoriaDeVitrina({ rubro: 'petshop' }), 'mascotas')
 })
