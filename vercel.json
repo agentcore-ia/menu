@@ -3,6 +3,11 @@
   "rewrites": [
     {
       "source": "/",
+      "has": [{ "type": "host", "value": "delivery.capta.ar" }],
+      "destination": "/pedi.html"
+    },
+    {
+      "source": "/",
       "has": [
         {
           "type": "host",
