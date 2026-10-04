@@ -18,6 +18,7 @@ import { leerEnCurso } from './mandadoEnCurso.js'
 import { Ingresar, NombreDeLaCuenta } from './CuentaCapta.jsx'
 import { borrarSesion, leerSesion, pedirCuenta } from './sesionCapta.js'
 import { leerUltimosPedidos, resumenDelPedido } from '../shared/volverAPedir.js'
+import { coincideConElRubro, normalizarTexto, palabrasDeLaBusqueda } from '../shared/busquedaProductos.js'
 import './CaptaDelivery.css'
 
 const CLAVE_CIUDAD = 'capta-vitrina-ciudad'
@@ -1131,6 +1132,20 @@ export default function CaptaDeliveryApp() {
       window.clearTimeout(espera)
     }
   }, [consulta, ciudad])
+  // Las categorias que coinciden con lo buscado ("helado" -> Heladerias): un
+  // acceso directo arriba de los resultados. Solo las que tienen locales en la
+  // ciudad, o las que se pueden pedir con un mandado.
+  const categoriasDeLaBusqueda = useMemo(() => {
+    const palabras = palabrasDeLaBusqueda(consulta)
+    if (!palabras.length) return []
+    return CATEGORIAS.map((c) => {
+      const grupo = GRUPOS.find((g) => g.categorias.includes(c.id))
+      const cuantos = deLaCiudad.filter((l) => l.categoria === c.id).length
+      const porNombre = palabras.every((p) => normalizarTexto(`${c.label} ${c.singular}`).includes(p))
+      return { ...c, grupo, cuantos, coincide: porNombre || coincideConElRubro(c.id, palabras) }
+    }).filter((c) => c.coincide && c.grupo && (c.cuantos > 0 || (c.grupo.mandado && mandadoDeLaCiudad)))
+  }, [consulta, deLaCiudad, mandadoDeLaCiudad])
+
   // Lo que se muestra es solo lo de la busqueda actual (no la anterior).
   const productosDeLaBusqueda = consulta.length >= 2 && encontrados.q === consulta ? encontrados.productos : []
   const buscandoProductos = consulta.length >= 2 && (encontrados.cargando || encontrados.q !== consulta)
@@ -1344,6 +1359,29 @@ export default function CaptaDeliveryApp() {
                     onClick={() => setSubcategoria(c.id)}
                   >
                     {c.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
+            {vista === 'inicio' && busqueda && categoriasDeLaBusqueda.length ? (
+              <div className="cd-cats-encontradas" aria-label="Categorías">
+                {categoriasDeLaBusqueda.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className="cd-cat-encontrada"
+                    onClick={() => {
+                      abrirGrupo(c.grupo.id)
+                      if (c.grupo.categorias.length > 1) setSubcategoria(c.id)
+                    }}
+                  >
+                    <img src={`/capta/categorias/${c.grupo.id}.webp`} alt="" style={{ background: c.grupo.fondo }} />
+                    <span>
+                      <strong>{c.label}</strong>
+                      <small>{c.cuantos ? `${c.cuantos} local${c.cuantos === 1 ? '' : 'es'}` : 'Con mandados'}</small>
+                    </span>
+                    <Icono nombre="chevron_right" />
                   </button>
                 ))}
               </div>

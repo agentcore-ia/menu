@@ -656,6 +656,8 @@ export class SupabaseMenuRepository {
       : vendibles
     const encontrados = buscarProductos(deLaCiudad, texto, {
       abierto: (p) => localPorId.get(p.restaurant_id)?.abierto === true,
+      // El rubro del local: "helado" trae los productos de las heladerias.
+      rubro: (p) => localPorId.get(p.restaurant_id)?.categoria || '',
     })
 
     return {

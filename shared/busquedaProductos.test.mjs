@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { buscarProductos, palabrasDeLaBusqueda, puntajeDelProducto } from './busquedaProductos.js'
+import { buscarProductos, coincideConElRubro, palabrasDeLaBusqueda, puntajeDelProducto } from './busquedaProductos.js'
 
 const productos = [
   { id: 1, restaurant_id: 'bruder', name: 'Pizza Muzzarella', category: 'Pizzas', price: 9000 },
@@ -47,4 +47,43 @@ test('tope por local para que se vean varias opciones', () => {
 test('menos de 2 letras no busca', () => {
   assert.deepEqual(buscarProductos(productos, 'p'), [])
   assert.equal(puntajeDelProducto(productos[0], []), 0)
+})
+
+const heladeria = [
+  { id: 'k1', restaurant_id: 'troka', name: '1 Kilo', category: 'Formato', price: 18000 },
+  { id: 'k2', restaurant_id: 'troka', name: '1/4 Kilo', category: 'Formato', price: 6800 },
+  { id: 'k3', restaurant_id: 'troka', name: 'Agua mineral', category: 'Bebidas', price: 1500 },
+  { id: 'p1', restaurant_id: 'bruder', name: 'Coca Cola 1,5 L', category: 'Bebidas', price: 4000 },
+  { id: 'p2', restaurant_id: 'bruder', name: 'Muzzarella', category: 'Pizzas', price: 9000 },
+]
+const rubros = { troka: 'heladeria', bruder: 'pizzeria', chicha: 'heladeria' }
+const rubro = (p) => rubros[p.restaurant_id]
+
+test('"helado" trae los productos de la heladeria aunque se llamen "1 Kilo", sin las bebidas', () => {
+  const r = buscarProductos(heladeria, 'helados', { rubro })
+  assert.deepEqual(r.map((p) => p.id), ['k1', 'k2'])
+})
+
+test('lo que tiene la palabra en el nombre va antes que lo que entra por el rubro', () => {
+  const conChicha = [...heladeria, { id: 'c1', restaurant_id: 'chicha', name: 'Bochas de helado', category: 'Postres', price: 5000 }]
+  const r = buscarProductos(conChicha, 'helado', { rubro })
+  assert.equal(r[0].id, 'c1')
+  assert.deepEqual(r.slice(1).map((p) => p.id), ['k1', 'k2'])
+})
+
+test('el rubro no mete productos de un local que ya tiene lo buscado', () => {
+  // La pizzeria tiene "Pizzas" en la categoria: no se suma la gaseosa por el rubro.
+  assert.deepEqual(buscarProductos(heladeria, 'pizza', { rubro }).map((p) => p.id), ['p2'])
+})
+
+test('el rubro se entiende con el plural y con el nombre del rubro', () => {
+  assert.equal(coincideConElRubro('heladeria', palabrasDeLaBusqueda('heladería')), true)
+  assert.equal(coincideConElRubro('licoreria', palabrasDeLaBusqueda('cervezas')), true)
+  assert.equal(coincideConElRubro('heladeria', palabrasDeLaBusqueda('pizza')), false)
+})
+
+test('en una licoreria las bebidas si aparecen por el rubro', () => {
+  const lico = [{ id: 'v1', restaurant_id: 'lico', name: 'Fernet Branca 750', category: 'Aperitivos', price: 12000 }, { id: 'v2', restaurant_id: 'lico', name: 'Coca Cola 2,25', category: 'Gaseosas', price: 4000 }]
+  const r = buscarProductos(lico, 'bebidas', { rubro: () => 'licoreria' })
+  assert.deepEqual(r.map((p) => p.id), ['v1', 'v2'])
 })
