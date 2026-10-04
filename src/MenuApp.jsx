@@ -14,6 +14,8 @@ import { canjePosible, porQueNoEntraTodo } from '../shared/puntosCapta.js'
 import { vinoDeLaVitrina } from './vitrinaDelCliente.js'
 import { turnosParaProgramar } from '../shared/pedidoProgramado.js'
 import { guardarUltimoPedido, rearmarCarrito, ultimoPedidoDe } from '../shared/volverAPedir.js'
+import { leerSesion } from './sesionCapta.js'
+import { VerificarCelular } from './VerificarCelular.jsx'
 import {
   almacenDelNavegador,
   coordenadasGuardadas,
@@ -8012,6 +8014,9 @@ export default function MenuApp() {
   // Capta, no del local, y el descuento lo pone Capta.
   const [puntosTraidos, setPuntosTraidos] = useState(null)
   const [usarPuntosCapta, setUsarPuntosCapta] = useState(false)
+  // La cuenta de Capta (entrar con el codigo por WhatsApp). Usar puntos exige
+  // que el celular del pedido sea el verificado: lo controla el servidor.
+  const [sesionCapta, setSesionCapta] = useState(leerSesion)
   const desdeLaVitrina = useMemo(() => vinoDeLaVitrina(), [])
   const celularDelPedido = celularValido(orderForm.phone) ? normalizarCelular(orderForm.phone) : ''
 
@@ -8048,7 +8053,8 @@ export default function MenuApp() {
     )
   }, [puntosCapta, hasOrderItems, cartTotal, selectedDeliveryFee])
 
-  const descuentoCapta = usarPuntosCapta ? canjeCapta.pesos : 0
+  const celularVerificado = Boolean(celularDelPedido && sesionCapta?.cliente?.telefono === celularDelPedido)
+  const descuentoCapta = usarPuntosCapta && celularVerificado ? canjeCapta.pesos : 0
   const orderTotal = Math.max(
     0,
     cartTotal + selectedDeliveryFee + paymentSurchargeAmount - descuentoCapta,
@@ -9377,6 +9383,8 @@ export default function MenuApp() {
       // Lo que quiere usar de sus puntos, en pesos. El servidor lo vuelve a
       // validar contra su saldo real.
       puntosCapta: descuentoCapta,
+      // La sesion verificada: sin ella el servidor no deja usar los puntos.
+      sesionCapta: descuentoCapta > 0 ? sesionCapta?.token : undefined,
     }
 
     try {
@@ -11462,7 +11470,16 @@ export default function MenuApp() {
                       </strong>
                     </div>
 
-                    {canjeCapta.pesos > 0 ? (
+                    {canjeCapta.pesos > 0 && !celularVerificado ? (
+                      <VerificarCelular
+                        key={celularDelPedido}
+                        telefono={celularDelPedido}
+                        onVerificado={(sesion) => {
+                          setSesionCapta(sesion)
+                          setUsarPuntosCapta(true)
+                        }}
+                      />
+                    ) : canjeCapta.pesos > 0 ? (
                       <>
                         <label className="capta-puntos-checkout-usar">
                           <input

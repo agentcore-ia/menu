@@ -13,6 +13,7 @@ import { canjeElegido, configDePuntos } from '../../shared/puntosCapta.js'
 import { aceptaTransferencia } from '../../shared/transferencia.js'
 import { leerHorarioMenuDelDia, menuDelDiaDisponible, textoHorarioMenuDelDia } from '../../shared/horarioMenuDelDia.js'
 import { aceptaProgramados, anticipoDelLocal, validarProgramado } from '../../shared/pedidoProgramado.js'
+import { celularDeLaSesion } from '../cuenta.js'
 
 export class SupabaseOrderRepository {
   constructor(config) {
@@ -114,6 +115,21 @@ export class SupabaseOrderRepository {
 
     // Antes de tocar la base: un pedido rechazado por pagar una promo de
     // efectivo con otra cosa no tiene que dejar cliente ni conversacion.
+    // Usar puntos de Capta exige el celular VERIFICADO (entrar con el codigo
+    // por WhatsApp en menu.net.ar/pedi), y que sea el mismo del pedido. Sin
+    // esto, con escribir el numero de otro se usaban sus puntos. Va antes de
+    // tocar la base: un pedido rechazado no deja nada a medias. Se rechaza en
+    // vez de ignorar los puntos: el cliente vio un total con el descuento.
+    if (payload.desdeVitrina === true && Number(payload.puntosCapta) > 0) {
+      const verificado = await celularDeLaSesion(payload.sesionCapta)
+      if (!verificado || verificado !== normalizarCelular(payload.customer?.phone)) {
+        const error = new Error('Para usar tus puntos verificá tu celular con el código que te llega por WhatsApp.')
+        error.code = 'PUNTOS_SIN_VERIFICAR'
+        error.statusCode = 403
+        throw error
+      }
+    }
+
     await this.validateCashOnlyItems(Array.isArray(payload.items) ? payload.items : [], payload)
     await this.validateDayRestrictedItems(Array.isArray(payload.items) ? payload.items : [])
     await this.validateDailyMenuHorario(restaurant, Array.isArray(payload.items) ? payload.items : [])

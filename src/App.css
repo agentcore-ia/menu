@@ -19641,3 +19641,59 @@ body:has(.detail-order-bar) {
   background: color-mix(in srgb, var(--theme-primary) 12%, transparent);
   font-size: 0.92rem;
 }
+
+/* Verificar el celular para usar los puntos (src/VerificarCelular.jsx). Va
+   adentro del bloque de puntos: mismos colores, sin depender del tema. */
+.capta-verificar {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.capta-verificar p {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.capta-verificar > button {
+  height: 2.6rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: #25a55a;
+  color: #fff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.capta-verificar > button:disabled {
+  opacity: 0.55;
+}
+
+.capta-verificar input {
+  height: 2.8rem;
+  border: 1px solid rgba(244, 81, 30, 0.4);
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #1c1917;
+  font: inherit;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.4em;
+  text-align: center;
+  outline: none;
+}
+
+.capta-verificar > .capta-verificar-link {
+  height: auto;
+  padding: 0.2rem 0;
+  background: none;
+  color: #c2410c;
+  font-size: 0.8rem;
+}
+
+.capta-verificar-error {
+  color: #b91c1c;
+}

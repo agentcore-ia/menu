@@ -66,3 +66,25 @@ export async function cuenta(req, res) {
     res.status(502).json({ message: 'No pudimos conectar. Probá de nuevo en un rato.' })
   }
 }
+
+/**
+ * El celular verificado de una sesion (lo confirma el dashboard), o null si
+ * el token no vale. Lo usa la creacion del pedido para dejar usar puntos.
+ */
+export async function celularDeLaSesion(token) {
+  const t = String(token || '')
+  if (!/^[a-f0-9]{64}$/i.test(t)) return null
+  const base = String(getServerConfig().dashboardUrl || '').replace(/\/+$/, '')
+  if (!base) return null
+  try {
+    const respuesta = await fetch(`${base}/api/public/cuenta`, {
+      headers: { Authorization: `Bearer ${t}` },
+      signal: AbortSignal.timeout(8000),
+    })
+    if (!respuesta.ok) return null
+    const datos = await respuesta.json()
+    return datos?.cliente?.telefono ? String(datos.cliente.telefono) : null
+  } catch {
+    return null
+  }
+}
