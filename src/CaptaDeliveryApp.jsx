@@ -838,13 +838,10 @@ function ProductoEncontrado({ p }) {
       className={`cd-producto ${local.abierto ? '' : 'cd-producto-cerrado'}`}
       href={`/${encodeURIComponent(local.slug)}?vitrina=1&producto=${encodeURIComponent(p.id)}`}
     >
+      {/* Sin foto no va nada en su lugar (ni el logo del local). */}
       {p.foto && !sinFoto ? (
         <img className="cd-producto-foto" src={p.foto} alt="" loading="lazy" onError={() => setSinFoto(true)} />
-      ) : (
-        <span className="cd-producto-foto cd-producto-sin-foto">
-          <MiniLogo local={local} />
-        </span>
-      )}
+      ) : null}
       <span className="cd-producto-textos">
         <strong>{p.nombre}</strong>
         {p.descripcion ? <small className="cd-producto-desc">{p.descripcion}</small> : null}
