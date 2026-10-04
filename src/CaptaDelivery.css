@@ -2147,3 +2147,210 @@ body {
   width: 22px;
   height: 22px;
 }
+
+/* ---------- cuenta: entrar con el celular (src/CuentaCapta.jsx) ---------- */
+.cd-tarjeta-ingresar {
+  margin: 4px 0 14px;
+  padding: 16px;
+  border: 1px solid #efe9e1;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.cd-ingresar-cabeza {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cd-ingresar-cabeza > div {
+  display: grid;
+  gap: 2px;
+}
+
+.cd-ingresar-cabeza strong {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.cd-ingresar-cabeza small {
+  color: var(--cd-gris);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cd-ingresar-icono {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: #e8f7ee;
+  color: #1f8f4e;
+}
+
+.cd-ingresar-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.cd-ingresar-form input {
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid #e7e0d7;
+  border-radius: 14px;
+  background: #fbf9f6;
+  font: inherit;
+  font-size: 16px;
+  outline: none;
+}
+
+.cd-ingresar-form input:focus {
+  border-color: var(--cd-naranja);
+  background: #fff;
+}
+
+.cd-ingresar-form .cd-ingresar-codigo {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.45em;
+}
+
+.cd-ingresar-form > button[type='submit'] {
+  height: 48px;
+  border: 0;
+  border-radius: 14px;
+  background: #25a55a;
+  color: #fff;
+  font: inherit;
+  font-size: 15.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cd-ingresar-form > button[type='submit']:disabled {
+  opacity: 0.5;
+}
+
+.cd-ingresar-links {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cd-ingresar-links button {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--cd-naranja);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cd-ingresar-links button:disabled {
+  color: var(--cd-gris);
+}
+
+.cd-cuenta-cabeza {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 4px 0 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ff7a1a, #f2581b);
+  color: #fff;
+}
+
+.cd-cuenta-avatar {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.cd-cuenta-textos {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 3px;
+}
+
+.cd-cuenta-textos small {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.cd-cuenta-nombre {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  font-size: 19px;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cd-cuenta-nombre .cd-icono {
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+.cd-cuenta-textos form {
+  display: flex;
+  gap: 6px;
+}
+
+.cd-cuenta-textos form input {
+  min-width: 0;
+  flex: 1;
+  height: 38px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 15px;
+}
+
+.cd-cuenta-textos form button {
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: #1c1917;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.cd-pedidos-subtitulo {
+  margin: 16px 2px 8px;
+  color: #57534e;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.cd-pedido-estado-vivo {
+  color: #1f8f4e !important;
+  font-weight: 700 !important;
+}
+
+.cd-boton-suave {
+  background: #fdebde;
+  color: var(--cd-naranja);
+}

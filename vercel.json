@@ -232,6 +232,10 @@
       "destination": "/api/accounts/capta/orders?ruta=mandados"
     },
     {
+      "source": "/api/delivery/cuenta",
+      "destination": "/api/accounts/capta/orders?ruta=cuenta"
+    },
+    {
       "source": "/api/accounts/:accountId/pay-card",
       "destination": "/api/accounts/:accountId/orders?accion=pagar-con-tarjeta"
     },

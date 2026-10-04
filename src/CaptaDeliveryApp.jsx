@@ -15,6 +15,8 @@ import { almacenDelNavegador, leerDatos, olvidarDatos } from '../shared/datosDel
 import { celularValido, normalizarCelular } from '../shared/celular.js'
 import { EntradaMandados, FormularioMandado } from './MandadoCapta.jsx'
 import { leerEnCurso } from './mandadoEnCurso.js'
+import { Ingresar, NombreDeLaCuenta } from './CuentaCapta.jsx'
+import { borrarSesion, leerSesion, pedirCuenta } from './sesionCapta.js'
 import { leerUltimosPedidos, resumenDelPedido } from '../shared/volverAPedir.js'
 import './CaptaDelivery.css'
 
@@ -822,11 +824,52 @@ function ListaDeLocales({ locales, favoritos, onFavorito }) {
   )
 }
 
-/** Pedidos: el mandado en curso y el ultimo pedido de cada local, para repetirlo. */
-function MisPedidos({ locales, ultimos, mandadoEnCurso, onIrAlInicio }) {
+/** Un pedido de su cuenta (de cualquier local, de cualquier telefono). */
+function FilaPedidoDeCuenta({ p, local, repetible }) {
+  return (
+    <div className="cd-pedido-fila">
+      {local ? (
+        <MiniLogo local={local} />
+      ) : (
+        <span className="cd-perfil-icono">
+          <Icono nombre="receipt_long" />
+        </span>
+      )}
+      <span className="cd-pedido-textos">
+        <strong>
+          {p.local || 'Pedido'} · #{p.numero}
+        </strong>
+        <small>
+          {new Date(p.fecha).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })} · {pesos(p.total)}
+        </small>
+        <small className={p.terminado ? '' : 'cd-pedido-estado-vivo'}>{p.estado}</small>
+      </span>
+      {!p.terminado && p.seguimiento ? (
+        <a className="cd-boton-chico" href={p.seguimiento} target="_blank" rel="noopener noreferrer">
+          Seguir
+        </a>
+      ) : repetible && local ? (
+        <a className="cd-boton-chico cd-boton-suave" href={`/${encodeURIComponent(local.slug)}?vitrina=1&repetir=1`}>
+          Repetir
+        </a>
+      ) : null}
+    </div>
+  )
+}
+
+/**
+ * Pedidos. Con la cuenta abierta: los de TODOS sus locales y telefonos (los
+ * trae el dashboard por su celular verificado). Sin cuenta: lo que quedo en
+ * este telefono, y la invitacion a entrar.
+ */
+function MisPedidos({ locales, ultimos, mandadoEnCurso, sesion, pedidosCuenta, onEntro, onIrAlInicio }) {
   const conLocal = ultimos
     .map((pedido) => ({ pedido, local: locales.find((l) => l.slug === pedido.slug) }))
     .filter((x) => x.local)
+  const repetibles = new Set(ultimos.map((u) => u.slug))
+  const enCurso = (pedidosCuenta || []).filter((p) => !p.terminado)
+  const anteriores = (pedidosCuenta || []).filter((p) => p.terminado)
+
   return (
     <section className="cd-pagina">
       <h1 className="cd-pagina-titulo">Tus pedidos</h1>
@@ -842,47 +885,75 @@ function MisPedidos({ locales, ultimos, mandadoEnCurso, onIrAlInicio }) {
           <Icono nombre="chevron_right" />
         </a>
       ) : null}
-      {conLocal.length ? (
-        conLocal.map(({ pedido, local }) => (
-          <div key={local.slug} className="cd-pedido-fila">
-            <MiniLogo local={local} />
-            <span className="cd-pedido-textos">
-              <strong>{local.nombre}</strong>
-              <small>{resumenDelPedido(pedido, 3)}</small>
-              <small className="cd-pedido-fecha">
-                {new Date(pedido.at).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
-              </small>
-            </span>
-            <a className="cd-boton-chico" href={`/${encodeURIComponent(local.slug)}?vitrina=1&repetir=1`}>
-              {local.abierto ? 'Repetir' : local.programable ? 'Programar' : 'Ver'}
-            </a>
+
+      {sesion ? (
+        pedidosCuenta === null ? (
+          <p className="cd-hoja-texto">Cargando tus pedidos…</p>
+        ) : pedidosCuenta.length ? (
+          <>
+            {enCurso.length ? <h2 className="cd-pedidos-subtitulo">En curso</h2> : null}
+            {enCurso.map((p) => (
+              <FilaPedidoDeCuenta key={`${p.slug}-${p.numero}`} p={p} local={locales.find((l) => l.slug === p.slug)} repetible={repetibles.has(p.slug)} />
+            ))}
+            {anteriores.length ? <h2 className="cd-pedidos-subtitulo">Anteriores</h2> : null}
+            {anteriores.map((p) => (
+              <FilaPedidoDeCuenta key={`${p.slug}-${p.numero}`} p={p} local={locales.find((l) => l.slug === p.slug)} repetible={repetibles.has(p.slug)} />
+            ))}
+          </>
+        ) : (
+          <div className="cd-vacio">
+            <img className="cd-vacio-logo" src="/capta/logo-3d.webp" alt="" width="64" height="64" />
+            <p>Todavía no hay pedidos con tu celular. Cuando pidas, los vas a ver acá.</p>
+            <button type="button" className="cd-boton-chico" onClick={onIrAlInicio}>
+              Ver locales
+            </button>
           </div>
-        ))
-      ) : !mandadoEnCurso ? (
-        <div className="cd-vacio">
-          <img className="cd-vacio-logo" src="/capta/logo-3d.webp" alt="" width="64" height="64" />
-          <p>Todavía no hiciste pedidos desde este teléfono. Cuando hagas uno, lo vas a poder repetir desde acá.</p>
-          <button type="button" className="cd-boton-chico" onClick={onIrAlInicio}>
-            Ver locales
-          </button>
-        </div>
-      ) : null}
+        )
+      ) : (
+        <>
+          {conLocal.map(({ pedido, local }) => (
+            <div key={local.slug} className="cd-pedido-fila">
+              <MiniLogo local={local} />
+              <span className="cd-pedido-textos">
+                <strong>{local.nombre}</strong>
+                <small>{resumenDelPedido(pedido, 3)}</small>
+                <small className="cd-pedido-fecha">
+                  {new Date(pedido.at).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                </small>
+              </span>
+              <a className="cd-boton-chico" href={`/${encodeURIComponent(local.slug)}?vitrina=1&repetir=1`}>
+                {local.abierto ? 'Repetir' : local.programable ? 'Programar' : 'Ver'}
+              </a>
+            </div>
+          ))}
+          <div className="cd-tarjeta-ingresar">
+            <Ingresar titulo="Entrá para ver todos tus pedidos" onListo={onEntro} />
+          </div>
+        </>
+      )}
     </section>
   )
 }
 
-/** Perfil: sus puntos, sus datos, la ciudad y los mandados. */
-function Perfil({ ciudad, onPuntos, onDatos, onCiudad, onMandado }) {
+/** Perfil: su cuenta (o entrar), sus puntos, sus datos, la ciudad y los mandados. */
+function Perfil({ ciudad, sesion, onSesion, onSalir, onPuntos, onDatos, onCiudad, onMandado }) {
   const datos = leerDatos(almacenDelNavegador())
   const filas = [
     { id: 'puntos', icono: 'stars', titulo: 'Mis puntos', detalle: 'Lo que juntaste pidiendo por Capta', accion: onPuntos },
-    { id: 'datos', icono: 'badge', titulo: 'Mis datos', detalle: datos?.name ? `${datos.name}${datos.phone ? ` · ${datos.phone}` : ''}` : 'Nombre, celular y dirección', accion: onDatos },
+    { id: 'datos', icono: 'badge', titulo: 'Mis datos', detalle: datos?.address ? datos.address : 'Dirección guardada en este teléfono', accion: onDatos },
     { id: 'ciudad', icono: 'location_on', titulo: 'Mi ciudad', detalle: ciudad || 'Elegí tu ciudad', accion: onCiudad },
     onMandado ? { id: 'mandado', icono: 'directions_bike', titulo: 'Pedir un mandado', detalle: 'Te compramos o llevamos lo que necesites', accion: onMandado } : null,
   ].filter(Boolean)
   return (
     <section className="cd-pagina">
       <h1 className="cd-pagina-titulo">Perfil</h1>
+      {sesion ? (
+        <NombreDeLaCuenta sesion={sesion} onCambio={onSesion} />
+      ) : (
+        <div className="cd-tarjeta-ingresar">
+          <Ingresar onListo={onSesion} />
+        </div>
+      )}
       <div className="cd-perfil-lista">
         {filas.map((fila) => (
           <button key={fila.id} type="button" className="cd-perfil-fila" onClick={fila.accion}>
@@ -897,6 +968,11 @@ function Perfil({ ciudad, onPuntos, onDatos, onCiudad, onMandado }) {
           </button>
         ))}
       </div>
+      {sesion ? (
+        <button type="button" className="cd-boton-borrar" onClick={onSalir}>
+          Cerrar sesión
+        </button>
+      ) : null}
     </section>
   )
 }
@@ -918,6 +994,42 @@ export default function CaptaDeliveryApp() {
   const [dondeDelMandado, setDondeDelMandado] = useState('')
   // Los ultimos pedidos de este telefono, para "Volver a pedir" y "Pedidos".
   const [ultimosPedidos] = useState(() => leerUltimosPedidos(almacenDelNavegador()))
+  // La cuenta (entrar con el celular y un codigo por WhatsApp). null = sin entrar.
+  const [sesion, setSesion] = useState(leerSesion)
+  // Sus pedidos de todos los locales; null mientras se cargan.
+  const [pedidosCuenta, setPedidosCuenta] = useState(null)
+
+  // Con la cuenta abierta se traen sus datos y pedidos. Si la sesion vencio
+  // (o la cerro en otro lado), se sale sola.
+  const token = sesion?.token || null
+  useEffect(() => {
+    if (!token) return undefined
+    let vivo = true
+    pedirCuenta('GET', null, token)
+      .then((datos) => {
+        if (!vivo) return
+        setPedidosCuenta(Array.isArray(datos?.pedidos) ? datos.pedidos : [])
+        if (datos?.cliente) setSesion((s) => (s ? { ...s, cliente: datos.cliente } : s))
+      })
+      .catch((e) => {
+        if (!vivo) return
+        if (e.status === 401) {
+          borrarSesion()
+          setSesion(null)
+        }
+        setPedidosCuenta([])
+      })
+    return () => {
+      vivo = false
+    }
+  }, [token])
+
+  const salir = () => {
+    if (token) void pedirCuenta('POST', { accion: 'salir' }, token).catch(() => {})
+    borrarSesion()
+    setSesion(null)
+    setPedidosCuenta(null)
+  }
 
   // Las ciudades para elegir: las que tienen locales y, al final, las que por
   // ahora solo tienen mandados.
@@ -1210,6 +1322,12 @@ export default function CaptaDeliveryApp() {
             locales={locales}
             ultimos={ultimosPedidos}
             mandadoEnCurso={mandadoEnCurso}
+            sesion={sesion}
+            pedidosCuenta={pedidosCuenta}
+            onEntro={(nueva) => {
+              setPedidosCuenta(null)
+              setSesion(nueva)
+            }}
             onIrAlInicio={() => irA('inicio')}
           />
         ) : null}
@@ -1217,6 +1335,12 @@ export default function CaptaDeliveryApp() {
         {vista === 'perfil' ? (
           <Perfil
             ciudad={ciudad}
+            sesion={sesion}
+            onSesion={(nueva) => {
+              if (nueva?.token !== token) setPedidosCuenta(null)
+              setSesion(nueva)
+            }}
+            onSalir={salir}
             onPuntos={() => setHoja('puntos')}
             onDatos={() => setHoja('datos')}
             onCiudad={() => setHoja('ciudad')}

@@ -3,6 +3,7 @@ import { celularValido, MENSAJE_CELULAR_INVALIDO } from '../../../shared/celular
 import { pagarConTarjeta } from '../../../server/pagarConTarjeta.js'
 import { estadoDelPago } from '../../../server/estadoDelPago.js'
 import { mandados } from '../../../server/mandados.js'
+import { cuenta } from '../../../server/cuenta.js'
 import { createOrderRepository } from '../../../server/repositories/orderRepository.js'
 
 export default async function handler(req, res) {
@@ -24,6 +25,13 @@ export default async function handler(req, res) {
   // el rewrite pisaba el del cliente y todo terminaba en "Accion desconocida".
   if (req.query?.ruta === 'mandados') {
     await mandados(req, res)
+    return
+  }
+
+  // La cuenta del cliente de Capta Delivery (/api/delivery/cuenta): mismo
+  // camino y mismo motivo que los mandados.
+  if (req.query?.ruta === 'cuenta') {
+    await cuenta(req, res)
     return
   }
 

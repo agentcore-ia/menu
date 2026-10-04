@@ -10,6 +10,7 @@ import { assertAdminToken } from './admin/requireAdminToken.js'
 import { createMenuManifest } from './pwaManifest.js'
 import { resolveDeliveryQuote } from './deliveryZones.js'
 import { mandados } from './mandados.js'
+import { cuenta } from './cuenta.js'
 
 const config = getServerConfig()
 const repository = createMenuRepository(config)
@@ -122,6 +123,8 @@ app.get('/api/delivery/puntos', async (req, res) => {
 
 // Los mandados de Capta Delivery (server/mandados.js): los arma el dashboard.
 app.all('/api/delivery/mandados', mandados)
+// La cuenta del cliente (server/cuenta.js): la lleva el dashboard.
+app.all('/api/delivery/cuenta', cuenta)
 
 // La vitrina de Capta Delivery: los locales que reparten con Capta. Publica y
 // sin datos de nadie (server/repositories -> listarVitrinaCapta).
