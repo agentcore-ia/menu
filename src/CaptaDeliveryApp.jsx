@@ -824,6 +824,39 @@ function ListaDeLocales({ locales, favoritos, onFavorito }) {
   )
 }
 
+/** Un producto encontrado en la busqueda: tocarlo abre su ficha en el menu del local. */
+function ProductoEncontrado({ p }) {
+  const [sinFoto, setSinFoto] = useState(false)
+  const local = p.local
+  const estado = local.abierto
+    ? local.tiempo || 'Abierto'
+    : local.programable
+      ? 'Cerrado · podés programar'
+      : cuandoAbre(local.proximaApertura) || 'Cerrado ahora'
+  return (
+    <a
+      className={`cd-producto ${local.abierto ? '' : 'cd-producto-cerrado'}`}
+      href={`/${encodeURIComponent(local.slug)}?vitrina=1&producto=${encodeURIComponent(p.id)}`}
+    >
+      {p.foto && !sinFoto ? (
+        <img className="cd-producto-foto" src={p.foto} alt="" loading="lazy" onError={() => setSinFoto(true)} />
+      ) : (
+        <span className="cd-producto-foto cd-producto-sin-foto">
+          <MiniLogo local={local} />
+        </span>
+      )}
+      <span className="cd-producto-textos">
+        <strong>{p.nombre}</strong>
+        {p.descripcion ? <small className="cd-producto-desc">{p.descripcion}</small> : null}
+        <small className="cd-producto-local">
+          {local.nombre} · {estado}
+        </small>
+      </span>
+      <span className="cd-producto-precio">{pesos(p.precio)}</span>
+    </a>
+  )
+}
+
 /** Un pedido de su cuenta (de cualquier local, de cualquier telefono). */
 function FilaPedidoDeCuenta({ p, local, repetible }) {
   return (
@@ -994,6 +1027,10 @@ export default function CaptaDeliveryApp() {
   const [dondeDelMandado, setDondeDelMandado] = useState('')
   // Los ultimos pedidos de este telefono, para "Volver a pedir" y "Pedidos".
   const [ultimosPedidos] = useState(() => leerUltimosPedidos(almacenDelNavegador()))
+  // Los productos de TODOS los locales que coinciden con lo que escribe
+  // (/api/delivery/buscar). Se pide 300 ms despues de que deja de escribir.
+  const [encontrados, setEncontrados] = useState({ q: '', productos: [], cargando: false })
+
   // La cuenta (entrar con el celular y un codigo por WhatsApp). null = sin entrar.
   const [sesion, setSesion] = useState(leerSesion)
   // Sus pedidos de todos los locales; null mientras se cargan.
@@ -1076,6 +1113,31 @@ export default function CaptaDeliveryApp() {
     if (!ciudad) return locales
     return locales.filter((local) => ciudadPareja(local.ciudad) === ciudadPareja(ciudad))
   }, [locales, ciudad])
+
+  const consulta = busqueda.trim()
+  useEffect(() => {
+    if (consulta.length < 2) return undefined
+    let vivo = true
+    const espera = window.setTimeout(() => {
+      setEncontrados((e) => ({ ...e, cargando: true }))
+      fetch(`/api/delivery/buscar?q=${encodeURIComponent(consulta)}&ciudad=${encodeURIComponent(ciudad || '')}`)
+        .then((r) => (r.ok ? r.json() : { productos: [] }))
+        .then((datos) => {
+          if (vivo) setEncontrados({ q: consulta, productos: Array.isArray(datos?.productos) ? datos.productos : [], cargando: false })
+        })
+        .catch(() => {
+          if (vivo) setEncontrados({ q: consulta, productos: [], cargando: false })
+        })
+    }, 300)
+    return () => {
+      vivo = false
+      window.clearTimeout(espera)
+    }
+  }, [consulta, ciudad])
+  // Lo que se muestra es solo lo de la busqueda actual (no la anterior).
+  const productosDeLaBusqueda = consulta.length >= 2 && encontrados.q === consulta ? encontrados.productos : []
+  const buscandoProductos = consulta.length >= 2 && (encontrados.cargando || encontrados.q !== consulta)
+
 
   // Los comercios de la ciudad: primero lo que se puede pedir ya, despues lo
   // que se puede programar, al final lo cerrado.
@@ -1289,9 +1351,35 @@ export default function CaptaDeliveryApp() {
               </div>
             ) : null}
 
+            {vista === 'inicio' && busqueda ? (
+              <section className="cd-resultados-productos" aria-label="Productos">
+                <div className="cd-seccion-cabeza cd-seccion-suave">
+                  <h2>Productos</h2>
+                  {!buscandoProductos ? <span className="cd-cuenta">{productosDeLaBusqueda.length}</span> : null}
+                </div>
+                {buscandoProductos && !productosDeLaBusqueda.length ? (
+                  <p className="cd-hoja-texto">Buscando en todos los locales…</p>
+                ) : productosDeLaBusqueda.length ? (
+                  <div className="cd-lista-productos">
+                    {productosDeLaBusqueda.map((p) => (
+                      <ProductoEncontrado key={`${p.local.slug}-${p.id}`} p={p} />
+                    ))}
+                  </div>
+                ) : consulta.length >= 2 ? (
+                  <p className="cd-hoja-texto">Ningún local tiene un producto con &quot;{consulta}&quot;.</p>
+                ) : null}
+                {enLista.length ? (
+                  <div className="cd-seccion-cabeza cd-seccion-suave">
+                    <h2>Locales</h2>
+                    <span className="cd-cuenta">{enLista.length}</span>
+                  </div>
+                ) : null}
+              </section>
+            ) : null}
+
             {cargando ? null : enLista.length ? (
               <ListaDeLocales locales={enLista} favoritos={favoritos} onFavorito={alternarFavorito} />
-            ) : (
+            ) : vista === 'inicio' && busqueda && (productosDeLaBusqueda.length || buscandoProductos) ? null : (
               <div className="cd-vacio">
                 {vista === 'grupo' && grupo ? (
                   <img className="cd-vacio-icono" src={`/capta/categorias/${grupo.id}.webp`} alt="" style={{ background: grupo.fondo }} />

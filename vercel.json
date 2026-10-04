@@ -233,6 +233,10 @@
       "destination": "/api/accounts/capta/menu?accion=puntos"
     },
     {
+      "source": "/api/delivery/buscar",
+      "destination": "/api/accounts/capta/menu?accion=buscar"
+    },
+    {
       "source": "/api/delivery/mandados",
       "destination": "/api/accounts/capta/orders?ruta=mandados"
     },

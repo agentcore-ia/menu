@@ -126,6 +126,15 @@ app.all('/api/delivery/mandados', mandados)
 // La cuenta del cliente (server/cuenta.js): la lleva el dashboard.
 app.all('/api/delivery/cuenta', cuenta)
 
+// Buscar productos en todos los locales de la vitrina.
+app.get('/api/delivery/buscar', async (req, res) => {
+  try {
+    res.json(await repository.buscarEnVitrina(req.query.q, req.query.ciudad))
+  } catch {
+    res.json({ productos: [] })
+  }
+})
+
 // La vitrina de Capta Delivery: los locales que reparten con Capta. Publica y
 // sin datos de nadie (server/repositories -> listarVitrinaCapta).
 app.get('/api/delivery/locales', async (_req, res) => {

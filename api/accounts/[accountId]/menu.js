@@ -48,6 +48,17 @@ export default async function handler(req, res) {
   // de funciones y ya estaba justo. Es el mismo truco que ya se usa con
   // pay-card y con pago, que entran por orders.js. En el servidor local (
   // server/index.js) si es una ruta aparte.
+  // Buscar productos en todos los locales (/api/delivery/buscar): mismo camino.
+  if (req.query.accion === 'buscar') {
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=30, stale-while-revalidate=120')
+    try {
+      res.status(200).json(await repository.buscarEnVitrina(req.query.q, req.query.ciudad))
+    } catch {
+      res.status(200).json({ productos: [] })
+    }
+    return
+  }
+
   if (req.query.accion === 'vitrina') {
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300')
 

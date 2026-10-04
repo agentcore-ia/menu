@@ -28,5 +28,11 @@ export function createMenuRepository(config) {
       }
       return repository.listarVitrinaCapta()
     },
+
+    // Buscar productos en todos los locales de la vitrina.
+    async buscarEnVitrina(q, ciudad) {
+      if (typeof repository.buscarEnVitrina !== 'function') return { productos: [] }
+      return repository.buscarEnVitrina(q, ciudad)
+    },
   }
 }

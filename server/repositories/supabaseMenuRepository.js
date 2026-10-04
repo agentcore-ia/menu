@@ -18,6 +18,11 @@ import {
   tiempoParaVitrina,
 } from '../../shared/vitrinaCapta.js'
 import { aceptaProgramados, anticipoDelLocal, turnosParaProgramar } from '../../shared/pedidoProgramado.js'
+import { buscarProductos, normalizarTexto } from '../../shared/busquedaProductos.js'
+
+// Los productos de la vitrina para buscar, guardados un minuto: mientras el
+// cliente escribe se busca varias veces y no hace falta ir a la base cada vez.
+let productosDeLaVitrina = { at: 0, datos: null }
 
 /**
  * Cuanto tarda cada local de verdad (lo mide el dashboard con las entregas de
@@ -599,6 +604,82 @@ export class SupabaseMenuRepository {
       .sort((a, b) => b.locales - a.locales || a.nombre.localeCompare(b.nombre))
 
     return { locales, ciudades }
+  }
+
+  /**
+   * Buscar productos en TODOS los locales de la vitrina (de esa ciudad). Sale
+   * solo lo que el cliente podria pedir: locales que estan en la vitrina,
+   * productos disponibles, con precio, que se venden hoy y que no son
+   * adicionales ni estan ocultos (shared/busquedaProductos.js ordena).
+   */
+  async buscarEnVitrina(q, ciudad = '') {
+    const texto = String(q ?? '').trim().slice(0, 60)
+    if (normalizarTexto(texto).length < 2) return { productos: [] }
+
+    if (!productosDeLaVitrina.datos || Date.now() - productosDeLaVitrina.at > 60 * 1000) {
+      const { locales } = await this.listarVitrinaCapta()
+      const porSlug = new Map(locales.map((l) => [l.slug, l]))
+      const slugs = [...porSlug.keys()]
+      if (!slugs.length) return { productos: [] }
+      const restaurantes = await this.request(
+        `/restaurants?slug=in.(${slugs.map((s) => `"${s}"`).join(',')})&select=id,slug,horarios`,
+      )
+      const localPorId = new Map()
+      const ocultosPorId = new Map()
+      for (const r of restaurantes) {
+        const local = porSlug.get(r.slug)
+        if (!local) continue
+        localPorId.set(r.id, local)
+        const ocultos = r.horarios?._settings?.hiddenProducts
+        ocultosPorId.set(r.id, new Set(Array.isArray(ocultos) ? ocultos.map(String) : []))
+      }
+      const ids = [...localPorId.keys()]
+      const productos = ids.length
+        ? await this.request(
+            `/products?restaurant_id=in.(${ids.map((id) => `"${id}"`).join(',')})&available=eq.true&select=id,restaurant_id,name,description,price,category,image_url,aliases&limit=5000`,
+          )
+        : []
+      const vendibles = (Array.isArray(productos) ? productos : []).filter(
+        (p) =>
+          Number(p.price) > 0 &&
+          !ocultosPorId.get(p.restaurant_id)?.has(String(p.id)) &&
+          !ADDON_CATEGORY_PATTERN.test(normalizeMenuCategoryKey(p.category)) &&
+          productoDisponibleHoy(p),
+      )
+      productosDeLaVitrina = { at: Date.now(), datos: { vendibles, localPorId } }
+    }
+
+    const { vendibles, localPorId } = productosDeLaVitrina.datos
+    const ciudadBuscada = normalizarTexto(ciudad)
+    const deLaCiudad = ciudadBuscada
+      ? vendibles.filter((p) => normalizarTexto(localPorId.get(p.restaurant_id)?.ciudad) === ciudadBuscada)
+      : vendibles
+    const encontrados = buscarProductos(deLaCiudad, texto, {
+      abierto: (p) => localPorId.get(p.restaurant_id)?.abierto === true,
+    })
+
+    return {
+      productos: encontrados.map((p) => {
+        const local = localPorId.get(p.restaurant_id)
+        return {
+          id: p.id,
+          nombre: p.name,
+          descripcion: String(p.description || '').slice(0, 140),
+          precio: Number(p.price) || 0,
+          foto: p.image_url || null,
+          local: {
+            slug: local.slug,
+            nombre: local.nombre,
+            abierto: local.abierto,
+            programable: local.programable,
+            proximaApertura: local.proximaApertura,
+            tiempo: local.tiempo,
+            logo: local.logo,
+            color: local.color,
+          },
+        }
+      }),
+    }
   }
 
   async fetchRestaurant(accountId) {

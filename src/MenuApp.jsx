@@ -7354,6 +7354,16 @@ export default function MenuApp() {
     }
   })
   const repetidoRef = useRef(false)
+  // Un producto elegido en la busqueda de la vitrina (?producto=<id>): se abre
+  // solo apenas carga el menu.
+  const [productoPedido] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('producto') || ''
+    } catch {
+      return ''
+    }
+  })
+  const productoAbiertoRef = useRef(false)
   const [avisoRepetir, setAvisoRepetir] = useState(null)
   // El pedido que quedo esperando que el cliente pase la tarjeta, sin salir
   // del menu. Solo se arma si el local tiene la cuenta vinculada.
@@ -8124,6 +8134,27 @@ export default function MenuApp() {
   // Si el horario elegido se paso (la pagina quedo abierta), hay que elegir otro.
   const turnoElegido = turnosProgramables.some((t) => t.iso === programadoPara) ? programadoPara : ''
   const orderingBlocked = Boolean(cerradoAhora && !puedeProgramar)
+
+  // El producto que eligio en la busqueda de la vitrina: se abre su ficha.
+  useEffect(() => {
+    if (!productoPedido || productoAbiertoRef.current || status !== 'ready' || !allItems.length) return undefined
+    const espera = window.setTimeout(() => {
+      if (productoAbiertoRef.current) return
+      productoAbiertoRef.current = true
+      try {
+        const url = new URL(window.location.href)
+        url.searchParams.delete('producto')
+        window.history.replaceState(null, '', url.toString())
+      } catch {
+        // la direccion queda como estaba
+      }
+      const item = allItems.find((i) => String(i.id) === String(productoPedido) || String(i.productId) === String(productoPedido))
+      if (item) handleOpenDish(item)
+    }, 0)
+    return () => window.clearTimeout(espera)
+    // handleOpenDish se arma en cada render; lo que importa es que el menu cargo.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productoPedido, status, allItems])
 
   // Volver a pedir: el carrito sale del ultimo pedido guardado en este
   // telefono, con los precios y el stock de HOY (shared/volverAPedir.js).
