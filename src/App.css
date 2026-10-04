@@ -19697,3 +19697,24 @@ body:has(.detail-order-bar) {
 .capta-verificar-error {
   color: #b91c1c;
 }
+
+/* SIN ZOOM AL ESCRIBIR. El iPhone agranda la pagina cuando se toca un campo
+   con letra de menos de 16px, y despues no vuelve solo. maximum-scale=1 en el
+   viewport lo evita en Safari, pero no en todos lados (el navegador de
+   WhatsApp/Instagram, o una pestaña abierta de antes): con 16px no hay zoom en
+   ningun navegador. Va al final y con !important para ganarle a cualquier
+   plantilla. Pedido del usuario 4/10/2026: "que en ningun menu pase eso". */
+@media (max-width: 1024px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Los que ya eran mas grandes que 16px conservan su tamaño. */
+@media (max-width: 1024px) {
+  .capta-verificar input {
+    font-size: 1.4rem !important;
+  }
+}
