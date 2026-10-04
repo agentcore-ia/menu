@@ -1221,7 +1221,7 @@ export default function CaptaDeliveryApp() {
       : vista === 'grupo' && grupo
         ? grupo.label
         : busqueda
-          ? 'Resultados'
+          ? `“${busqueda.trim()}”`
           : ciudad
             ? `Todos en ${ciudad}`
             : 'Todos los locales'
@@ -1331,7 +1331,8 @@ export default function CaptaDeliveryApp() {
                 <Icono nombre="arrow_back" />
               </button>
               <h1 className="cd-pagina-titulo">{tituloLista}</h1>
-              <span className="cd-cuenta">{enLista.length}</span>
+              {/* En una busqueda cada seccion (productos, locales) lleva su numero. */}
+              {busqueda ? null : <span className="cd-cuenta">{enLista.length}</span>}
             </div>
 
             {vista === 'grupo' && subcategorias.length > 1 ? (

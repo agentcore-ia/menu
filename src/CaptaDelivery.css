@@ -2467,3 +2467,10 @@ body {
   font-size: 15px;
   font-weight: 800;
 }
+
+/* El buscador ya tiene su cruz para borrar: sin la del navegador. */
+.cd-buscador input::-webkit-search-cancel-button,
+.cd-buscador input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
