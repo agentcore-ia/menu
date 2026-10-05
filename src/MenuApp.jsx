@@ -3707,7 +3707,7 @@ function getSaborPampaCategoryMeta(label) {
   return { label, icon: IconServe, tone: 'default' }
 }
 
-function getSaborPampaSectionSubtitle(label) {
+function getSaborPampaSectionSubtitle(label, sinGenerico = false) {
   const key = slugify(label)
 
   if (isPromoCategoryLabel(label)) return 'Opciones destacadas para pedir hoy.'
@@ -3715,7 +3715,8 @@ function getSaborPampaSectionSubtitle(label) {
   if (key.includes('sandwich')) return 'Pan fresco, sabores caseros y combinaciones generosas.'
   if (key.includes('burger') || key.includes('hamburgues')) return 'Burgers con identidad de casa.'
   if (key.includes('ensalada')) return 'Frescas, completas y listas para acompañar.'
-  return 'Platos caseros preparados para volver.'
+  // Un kiosco o un super no sirven "platos caseros": su cuenta apaga la frase.
+  return sinGenerico ? '' : 'Platos caseros preparados para volver.'
 }
 
 function shouldShowSaborPampaBulkActions(item) {
@@ -6435,7 +6436,7 @@ function TemplateMenuCollection({
           ? renderPampaProductSection({
               id: 'selected-products',
               title: isSearchActive ? 'Resultados' : selectedCategory?.label ?? 'Elegi tu favorita',
-              subtitle: !isSearchActive ? getSaborPampaSectionSubtitle(selectedCategory?.label) : '',
+              subtitle: !isSearchActive ? getSaborPampaSectionSubtitle(selectedCategory?.label, presentation.theme?.sinSubtituloGenerico === true) : '',
               items: listItems,
             })
           : homeCategorySections.length
@@ -6443,7 +6444,7 @@ function TemplateMenuCollection({
                 renderPampaProductSection({
                   id: category.id,
                   title: category.label,
-                  subtitle: getSaborPampaSectionSubtitle(category.label),
+                  subtitle: getSaborPampaSectionSubtitle(category.label, presentation.theme?.sinSubtituloGenerico === true),
                   items: category.items,
                   showRibbon: false,
                   isHomeSection: true,
