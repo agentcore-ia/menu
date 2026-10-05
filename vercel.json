@@ -169,6 +169,14 @@
       "destination": "/lodetoto.html"
     },
     {
+      "source": "/kiosco-9-de-julio",
+      "destination": "/kiosco-9-de-julio.html"
+    },
+    {
+      "source": "/kiosco-9-de-julio/:path*",
+      "destination": "/kiosco-9-de-julio.html"
+    },
+    {
       "source": "/babson",
       "destination": "/babson.html"
     },
@@ -269,7 +277,7 @@
       "destination": "/chicha.html"
     },
     {
-      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha).*)",
+      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|kiosco-9-de-julio|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha).*)",
       "destination": "/host.html"
     }
   ]

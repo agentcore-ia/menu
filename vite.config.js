@@ -37,6 +37,7 @@ export default defineConfig({
         saborapampa: resolve(__dirname, 'saborapampa.html'),
         lodetoto: resolve(__dirname, 'lodetoto.html'),
         babson: resolve(__dirname, 'babson.html'),
+        'kiosco-9-de-julio': resolve(__dirname, 'kiosco-9-de-julio.html'),
         troka: resolve(__dirname, 'troka.html'),
         panacea: resolve(__dirname, 'panacea.html'),
         racing: resolve(__dirname, 'racing.html'),
