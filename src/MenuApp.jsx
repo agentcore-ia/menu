@@ -1221,6 +1221,10 @@ function getLoadingTemplate(accountId) {
     return 'sabor-pampa'
   }
 
+  if (key.includes('kiosco')) {
+    return 'kiosco'
+  }
+
   // Locales con marca propia que usan la plantilla burger: la pantalla de
   // carga "BRASA" es de otra marca. Aca todavia no se sabe si la marca es
   // propia (la presentacion no llego), por eso va por slug.
@@ -4693,6 +4697,34 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menu</p>
 
             <div className="almendra-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'kiosco') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-kiosco">
+          <div className="kiosco-loading" role="status" aria-live="polite" aria-label="Cargando menu de Kiosco 9 de Julio">
+            <div className="kiosco-loading-sello" aria-hidden="true">
+              <span className="kiosco-loading-arco" />
+              <span className="kiosco-loading-icono">
+                <IconCart />
+              </span>
+            </div>
+
+            <div className="kiosco-loading-marca">
+              <strong>Kiosco</strong>
+              <span>9 de Julio</span>
+            </div>
+
+            <p>Cargando productos</p>
+
+            <div className="kiosco-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>
@@ -12276,7 +12308,7 @@ export default function MenuApp() {
                     />
                   ) : (
                     <span className="confirmation-pampa-seal">
-                      <IconEmpanada />
+                      {presentation.theme?.modoKiosco ? <IconCart /> : <IconEmpanada />}
                     </span>
                   )}
                   <div>
@@ -12314,7 +12346,7 @@ export default function MenuApp() {
                   : templateId === 'pizzeria'
                     ? (marcaConfirmacionPropia ? 'Pedido enviado' : 'Directo al horno')
                     : templateId === 'sabor-pampa'
-                      ? 'Listo para preparar'
+                      ? (presentation.theme?.modoKiosco ? 'Pedido recibido' : 'Listo para preparar')
                       : templateId === 'kika' || templateId === 'almendra'
                         ? 'Pedido en el local'
                       : 'Pedido enviado'}
@@ -12326,7 +12358,9 @@ export default function MenuApp() {
             </h3>
             <p>
               {templateId === 'sabor-pampa'
-                ? (marcaConfirmacionPropia
+                ? (presentation.theme?.modoKiosco
+                    ? 'Ya recibimos tu pedido. Te avisamos por WhatsApp cuando esté listo.'
+                    : marcaConfirmacionPropia
                     ? 'Ya recibimos tu pedido. Lo preparamos y te contactamos para coordinarlo.'
                     : 'Ya recibimos tu pedido. Lo preparamos con el sabor de casa y te contactamos para coordinarlo.')
                 : templateId === 'kika' || templateId === 'almendra'
