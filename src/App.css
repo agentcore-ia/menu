@@ -19879,3 +19879,10 @@ html:has(.menu-modo-kiosco) #root {
   overflow-x: clip;
   overflow-y: visible;
 }
+
+/* El contenedor de las categorias mide lo que mide la barra: un "sticky" adentro
+   no tiene por donde moverse. Sin caja propia, la barra se fija contra todo el
+   contenido del menu. */
+.menu-modo-kiosco [data-menu-categories] {
+  display: contents;
+}
