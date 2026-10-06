@@ -6333,7 +6333,7 @@ function TemplateMenuCollection({
           </p>
         ) : null}
 
-        {!isSearchActive && (featuredItems.length || hasAnyDailyMenuItems) ? (
+        {!isSearchActive && !presentation.theme?.modoKiosco && (featuredItems.length || hasAnyDailyMenuItems) ? (
           <article className="pampa-featured-section">
             <div className="pampa-section-heading">
               <h2>{featuredTitle}</h2>
@@ -9638,6 +9638,9 @@ export default function MenuApp() {
     // escritos en el CSS, fuera del alcance de los colores del local. Este
     // flag prende la version clara de esa plantilla.
     presentation.theme?.temaClaro ? 'tema-claro' : '',
+    // Kiosco / almacen: se entra a comprar, no a mirar. Sin cabecera grande, las
+    // categorias solo con su nombre y a la vista, y nada de "destacados".
+    presentation.theme?.modoKiosco ? 'menu-modo-kiosco' : '',
     // La cabecera es un video y no una imagen. Cambia como se apoya el panel
     // de contenido encima: una foto puede traer su union dibujada, un video no.
     presentation.hero?.video ? 'hero-video' : '',
@@ -9750,6 +9753,10 @@ export default function MenuApp() {
                 <IconMenu />
               </button>
 
+              {presentation.theme?.modoKiosco ? (
+                <strong className="kiosco-nombre">{presentation.branding?.wordmark ?? menu?.accountName}</strong>
+              ) : null}
+
               {!isHostLikeAccount(accountId, templateId) && templateId !== 'kika' && templateId !== 'florian' ? (
                 <button
                   type="button"
@@ -9772,7 +9779,7 @@ export default function MenuApp() {
                 hay tal marca: vuelve el lockup, porque si no el menu abre sin
                 decir de quien es. */}
             {(!TEMPLATES_CON_MARCA_EN_PORTADA.includes(templateId) ||
-            presentation.theme?.ocultarPortada) ? (
+            presentation.theme?.ocultarPortada) && !presentation.theme?.modoKiosco ? (
               // El logo del local manda sobre el nombre escrito: si lo subio,
               // esa es su marca dibujada, y la hojita generica no la
               // representa. Sin logo queda el lockup de siempre.

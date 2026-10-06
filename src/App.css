@@ -19718,3 +19718,82 @@ body:has(.detail-order-bar) {
     font-size: 1.4rem !important;
   }
 }
+
+
+/* Modo kiosco (theme_overrides.modoKiosco): barra superior chica con el nombre,
+   categorias como botones de texto siempre a la vista y los productos arriba. */
+.menu-modo-kiosco .hero-sabor-pampa {
+  height: auto;
+  min-height: 0;
+  padding: 0.6rem 0.9rem 0.5rem;
+  border-radius: 0;
+}
+
+.menu-modo-kiosco .hero-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  padding: 0;
+}
+
+.menu-modo-kiosco .icon-button,
+.menu-modo-kiosco .cart-button {
+  width: 2.6rem;
+  height: 2.6rem;
+  flex: 0 0 auto;
+}
+
+.menu-modo-kiosco .kiosco-nombre {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #f7efe2;
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 4.6vw, 1.35rem);
+  letter-spacing: 0.04em;
+}
+
+.menu-modo-kiosco .pampa-menu-title-row {
+  justify-content: end;
+  margin-bottom: 0.6rem;
+}
+
+.menu-modo-kiosco .pampa-menu-title {
+  display: none;
+}
+
+.menu-modo-kiosco .pampa-category-row {
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  overflow: visible;
+}
+
+.menu-modo-kiosco .pampa-category-pill {
+  min-width: 0;
+  display: block;
+  padding: 0.5rem 0.85rem;
+  border: 0.08rem solid rgba(247, 239, 226, 0.3);
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.menu-modo-kiosco .pampa-category-pill > span:last-child {
+  display: block;
+  max-width: none;
+  min-height: 0;
+  white-space: nowrap;
+}
+
+.menu-modo-kiosco .pampa-category-icon {
+  display: none;
+}
+
+.menu-modo-kiosco .pampa-category-pill.active {
+  border-color: #f4b739;
+  color: #090806;
+  background: #f4b739;
+}
