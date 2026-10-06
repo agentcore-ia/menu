@@ -19721,7 +19721,13 @@ body:has(.detail-order-bar) {
 
 
 /* Modo kiosco (theme_overrides.modoKiosco): barra superior chica con el nombre,
-   categorias como botones de texto siempre a la vista y los productos arriba. */
+   buscador ancho siempre a la vista, categorias en una fila que se desliza y
+   queda fija arriba, y los productos enseguida. */
+.menu-modo-kiosco.phone-surface {
+  /* clip y no hidden: con hidden la barra de categorias no puede quedar fija. */
+  overflow: clip;
+}
+
 .menu-modo-kiosco .hero-sabor-pampa {
   height: auto;
   min-height: 0;
@@ -19757,43 +19763,104 @@ body:has(.detail-order-bar) {
   letter-spacing: 0.04em;
 }
 
-.menu-modo-kiosco .pampa-menu-title-row {
-  justify-content: end;
-  margin-bottom: 0.6rem;
+.menu-modo-kiosco .kiosco-head {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin: 0 -0.2rem 1rem;
+  padding: 0.6rem 0.2rem 0.7rem;
+  background: #050706;
+  border-bottom: 0.06rem solid rgba(247, 239, 226, 0.1);
 }
 
-.menu-modo-kiosco .pampa-menu-title {
-  display: none;
+.kiosco-search {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 3rem;
+  margin: 0 0 0.6rem;
+  padding: 0 0.9rem;
+  border: 0.08rem solid rgba(247, 239, 226, 0.2);
+  border-radius: 0.9rem;
+  color: #f7efe2;
+  background: rgba(247, 239, 226, 0.07);
 }
 
-.menu-modo-kiosco .pampa-category-row {
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  overflow: visible;
-}
-
-.menu-modo-kiosco .pampa-category-pill {
-  min-width: 0;
-  display: block;
-  padding: 0.5rem 0.85rem;
-  border: 0.08rem solid rgba(247, 239, 226, 0.3);
-  border-radius: 999px;
-  font-size: 0.85rem;
-}
-
-.menu-modo-kiosco .pampa-category-pill > span:last-child {
-  display: block;
-  max-width: none;
-  min-height: 0;
-  white-space: nowrap;
-}
-
-.menu-modo-kiosco .pampa-category-icon {
-  display: none;
-}
-
-.menu-modo-kiosco .pampa-category-pill.active {
+.kiosco-search:focus-within {
   border-color: #f4b739;
+  background: rgba(247, 239, 226, 0.1);
+}
+
+.kiosco-search svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex: 0 0 auto;
+  color: #f4b739;
+}
+
+.kiosco-search input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  color: inherit;
+  background: transparent;
+  font: 600 1rem / 1 var(--font-body);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.kiosco-search input::placeholder {
+  color: rgba(247, 239, 226, 0.5);
+}
+
+.kiosco-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.kiosco-search-clear {
+  width: 1.8rem;
+  height: 1.8rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #f7efe2;
+  background: rgba(247, 239, 226, 0.16);
+  font: 700 1.1rem / 1 var(--font-body);
+}
+
+.kiosco-categorias {
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  /* Se esfuma al borde: avisa que hay mas categorias hacia el costado. */
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 88%, transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0, #000 88%, transparent 100%);
+  padding-right: 1.5rem;
+}
+
+.kiosco-categorias::-webkit-scrollbar {
+  display: none;
+}
+
+.kiosco-categoria {
+  flex: 0 0 auto;
+  height: 2.4rem;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 999rem;
+  color: rgba(247, 239, 226, 0.86);
+  background: rgba(247, 239, 226, 0.09);
+  font: 700 0.88rem / 1 var(--font-body);
+  white-space: nowrap;
+  scroll-snap-align: start;
+}
+
+.kiosco-categoria.active {
   color: #090806;
   background: #f4b739;
 }

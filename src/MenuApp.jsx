@@ -5190,6 +5190,7 @@ function TemplateCategorySelector({
   isSearchOpen = false,
   onOpenSearch,
   onCloseSearch,
+  modoKiosco = false,
 }) {
   if (templateId === 'gelato') {
     return null
@@ -5420,6 +5421,60 @@ function TemplateCategorySelector({
 
   if (templateId === 'sabor-pampa') {
     const orderedCategories = categories
+
+    // Kiosco: el buscador es lo primero que se usa con mil productos, asi que
+    // va siempre abierto y de ancho completo, y las categorias en una sola
+    // fila que se desliza y queda fija arriba al bajar.
+    if (modoKiosco) {
+      const visibles = orderedCategories.filter((category) => !category?.hiddenFromBar)
+      return (
+        <div className="pampa-menu-head kiosco-head" aria-label="Buscador y categorias">
+          <form
+            className="kiosco-search"
+            role="search"
+            onSubmit={(event) => event.preventDefault()}
+          >
+            <IconSearch />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => onSearchQueryChange?.(event.target.value)}
+              placeholder="Buscar producto"
+              aria-label="Buscar producto"
+              enterKeyHint="search"
+            />
+            {searchQuery ? (
+              <button
+                type="button"
+                className="kiosco-search-clear"
+                aria-label="Borrar busqueda"
+                onClick={() => onSearchQueryChange?.('')}
+              >
+                ×
+              </button>
+            ) : null}
+          </form>
+
+          <div className="kiosco-categorias" role="tablist" aria-label="Categorias">
+            {visibles.map((category) => {
+              const isActive = category.id === currentCategory?.id
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  className={`kiosco-categoria${isActive ? ' active' : ''}`}
+                  onClick={() => onSelectCategory(category.id)}
+                >
+                  {category.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )
+    }
 
     return (
       <div className="pampa-menu-head" aria-label="Categorias de Sabor a Pampa">
@@ -9870,6 +9925,7 @@ export default function MenuApp() {
                       isSearchOpen={isSearchOpen}
                       onOpenSearch={() => setIsSearchOpen(true)}
                       onCloseSearch={() => setIsSearchOpen(false)}
+                      modoKiosco={Boolean(presentation.theme?.modoKiosco)}
                     />
                   </div>
                 ) : null}
