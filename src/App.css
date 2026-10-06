@@ -19796,6 +19796,10 @@ body:has(.detail-order-bar) {
   height: 1.2rem;
   flex: 0 0 auto;
   color: #f4b739;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
 }
 
 .kiosco-search input {
