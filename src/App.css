@@ -19868,3 +19868,14 @@ body:has(.detail-order-bar) {
   color: #090806;
   background: #f4b739;
 }
+
+/* La barra fija necesita que ningun ancestro sea un contenedor de scroll: el
+   html y el body del menu traen overflow-x hidden, y con eso el "sticky" se
+   ata a un body que nunca scrollea. Con clip el scroll vuelve a ser el de la
+   ventana. */
+html:has(.menu-modo-kiosco),
+body:has(.menu-modo-kiosco),
+html:has(.menu-modo-kiosco) #root {
+  overflow-x: clip;
+  overflow-y: visible;
+}
