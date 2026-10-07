@@ -11289,7 +11289,7 @@ export default function MenuApp() {
 
               {hasOrderItems ? (
                 <>
-                  {cartRecommendations.length ? (
+                  {cartRecommendations.length && !presentation.theme?.modoKiosco ? (
                     <section className="cart-panel">
                       <div className="section-heading compact">
                         <h2>Recomendados para sumar</h2>
@@ -11322,7 +11322,7 @@ export default function MenuApp() {
                     </section>
                   ) : null}
 
-                  {cartExtraSections.map((section) => (
+                  {(presentation.theme?.modoKiosco ? [] : cartExtraSections).map((section) => (
                     <section key={section.key} className="cart-panel">
                       <div className="section-heading compact">
                         <h2>{section.title}</h2>
@@ -12295,7 +12295,7 @@ export default function MenuApp() {
                     </>
                   )}
                 </div>
-              ) : templateId === 'sabor-pampa' ? (
+              ) : templateId === 'sabor-pampa' && presentation.theme?.modoKiosco ? null : templateId === 'sabor-pampa' ? (
                 <div className="confirmation-pampa-top">
                   {/* El local que tiene marca propia ve la SUYA. Esta plantilla
                       la heredan otros negocios (Chicha), y les decia "sabor a

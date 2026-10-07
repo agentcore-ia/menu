@@ -20047,3 +20047,34 @@ html:has(.menu-modo-kiosco) #root {
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
 }
+
+/* KIOSCO: arreglos finos.
+   - El boton "+" se achicaba o quedaba cortado cuando el precio era largo
+     ($54.000): el precio compite por el ancho y el boton cede. */
+.pampa-add-button {
+  flex: 0 0 auto;
+}
+
+.menu-modo-kiosco .pampa-product-footer {
+  min-width: 0;
+}
+
+.menu-modo-kiosco .pampa-product-footer strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(1.1rem, 4.4vw, 1.5rem);
+}
+
+/* - La "luz" detras del nombre: un resplandor claro que la cabecera dibuja por
+     encima del fondo negro. En un menu que se usa para comprar solo ensucia. */
+.menu-modo-kiosco .hero::before,
+.menu-modo-kiosco .hero::after {
+  display: none;
+}
+
+.menu-modo-kiosco .hero-topbar {
+  background: transparent;
+  box-shadow: none;
+}
