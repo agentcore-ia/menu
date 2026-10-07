@@ -20128,6 +20128,6 @@ html:has(.menu-modo-kiosco) #root {
 }
 
 .menu-modo-kiosco .pampa-product-section.is-home-section .pampa-product-card {
-  flex: 0 0 min(44vw, 9.4rem);
+  flex: 0 0 min(48vw, 10.4rem);
   scroll-snap-align: start;
 }
