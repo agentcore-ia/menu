@@ -12235,7 +12235,7 @@ export default function MenuApp() {
           <div
             className={`confirmation-card confirmation-card-${templateId}${
               marcaConfirmacionPropia ? ' confirmation-card-marca-propia' : ''
-            }`}
+            }${presentation.theme?.modoKiosco && presentation.theme?.temaClaro ? ' confirmation-card-claro' : ''}`}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="confirmation-hero" aria-hidden="true">

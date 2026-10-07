@@ -19895,8 +19895,8 @@ html:has(.menu-modo-kiosco) #root {
   place-items: center;
   padding: clamp(1.2rem, 5vw, 2rem);
   background:
-    radial-gradient(circle at 50% 36%, rgba(244, 183, 57, 0.16), transparent 46%),
-    linear-gradient(180deg, #0c0b08 0%, #030303 100%);
+    radial-gradient(circle at 50% 36%, rgba(244, 183, 57, 0.2), transparent 46%),
+    #ffffff;
 }
 
 .loading-kiosco::before,
@@ -19909,7 +19909,7 @@ html:has(.menu-modo-kiosco) #root {
   display: grid;
   justify-items: center;
   gap: clamp(1.2rem, 5vw, 1.8rem);
-  color: #f7efe2;
+  color: #1a1a17;
   text-align: center;
 }
 
@@ -19966,7 +19966,7 @@ html:has(.menu-modo-kiosco) #root {
 }
 
 .kiosco-loading-marca span {
-  color: #f4b739;
+  color: #b97d00;
   font-size: clamp(1.1rem, 5.4vw, 1.5rem);
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -19974,7 +19974,7 @@ html:has(.menu-modo-kiosco) #root {
 
 .kiosco-loading p {
   margin: 0;
-  color: rgba(247, 239, 226, 0.7);
+  color: rgba(26, 26, 23, 0.6);
   font: 700 0.9rem / 1 var(--font-body);
   letter-spacing: 0.04em;
 }
@@ -19984,7 +19984,7 @@ html:has(.menu-modo-kiosco) #root {
   height: 0.28rem;
   overflow: hidden;
   border-radius: 999rem;
-  background: rgba(247, 239, 226, 0.12);
+  background: rgba(26, 26, 23, 0.1);
 }
 
 .kiosco-loading-progress span {
@@ -20278,4 +20278,55 @@ html:has(.menu-modo-kiosco) #root {
 .detail-phone.menu-modo-kiosco.tema-claro h4,
 .detail-phone.menu-modo-kiosco.tema-claro strong {
   color: #1a1a17;
+}
+
+/* Kiosco claro: boton de ubicacion y ventana de confirmacion. */
+.detail-phone.menu-modo-kiosco.tema-claro .checkout-ubicacion-boton {
+  color: #7a5200;
+  border-color: rgba(138, 90, 0, 0.4);
+  background: #fff6e0;
+}
+
+.confirmation-card.confirmation-card-sabor-pampa.confirmation-card-claro {
+  background: #ffffff;
+  color: #1a1a17;
+  border-color: rgba(26, 26, 23, 0.1);
+  box-shadow: 0 1.4rem 3rem rgba(26, 26, 23, 0.22);
+}
+
+.confirmation-card-claro h3,
+.confirmation-card-claro strong,
+.confirmation-card.confirmation-card-sabor-pampa.confirmation-card-marca-propia.confirmation-card-claro .confirmation-meta strong {
+  color: #1a1a17;
+}
+
+.confirmation-card-claro p,
+.confirmation-card-sabor-pampa.confirmation-card-claro .confirmation-meta span,
+.confirmation-card-sabor-pampa.confirmation-card-claro .confirmation-step small {
+  color: rgba(26, 26, 23, 0.66);
+}
+
+.confirmation-card.confirmation-card-sabor-pampa.confirmation-card-marca-propia.confirmation-card-claro .confirmation-meta div {
+  background: #f4f2ec;
+  border-color: rgba(26, 26, 23, 0.1);
+}
+
+.confirmation-card.confirmation-card-sabor-pampa.confirmation-card-marca-propia.confirmation-card-claro .confirmation-kicker {
+  background: rgba(244, 183, 57, 0.22);
+  color: #7a5200;
+}
+
+.confirmation-card-claro .confirmation-step > span {
+  background: rgba(26, 26, 23, 0.18);
+}
+
+.confirmation-overlay:has(.confirmation-card-claro) {
+  background: rgba(26, 26, 23, 0.5);
+}
+
+
+/* Raiz clara: el color base de la plantilla sigue siendo el crema del tema oscuro. */
+.menu-modo-kiosco.tema-claro.template-sabor-pampa {
+  color: #1a1a17;
+  background: #ffffff;
 }
