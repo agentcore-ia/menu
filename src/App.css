@@ -20131,3 +20131,9 @@ html:has(.menu-modo-kiosco) #root {
   flex: 0 0 min(48vw, 10.4rem);
   scroll-snap-align: start;
 }
+
+/* KIOSCO: sin la etiqueta "Mas pedida" (se prendia sobre el primer producto de
+   cada categoria, que en un kiosco no es el mas pedido). */
+.menu-modo-kiosco .pampa-favorite-ribbon {
+  display: none;
+}
