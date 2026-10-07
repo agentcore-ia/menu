@@ -20364,3 +20364,132 @@ html:has(.menu-modo-kiosco) #root {
 .confirmation-card-sabor-pampa.confirmation-card-claro .confirmation-step.active > span {
   background: #f2581b;
 }
+
+/* Aviso unico del menu (theme_overrides.avisoMenu): una linea entre las
+   categorias y los productos, con el color de acento del local. */
+.menu-aviso {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.95rem;
+  border: 0.08rem solid color-mix(in srgb, var(--theme-accent, #b85a3a) 30%, transparent);
+  border-radius: 0.9rem;
+  color: var(--theme-text, #5a3a22);
+  background: color-mix(in srgb, var(--theme-accent, #b85a3a) 9%, transparent);
+  font: 600 0.85rem / 1.35 var(--font-body);
+  text-align: center;
+}
+
+/* Pantalla de carga de La Argenta: crema, marron y terracota. */
+.loading-argenta {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.2rem, 5vw, 2rem);
+  background:
+    radial-gradient(circle at 50% 36%, rgba(184, 90, 58, 0.14), transparent 46%),
+    #f5efe6;
+}
+
+.loading-argenta::before,
+.loading-argenta::after {
+  display: none;
+}
+
+.argenta-loading {
+  width: min(100%, 17rem);
+  display: grid;
+  justify-items: center;
+  gap: clamp(1.2rem, 5vw, 1.8rem);
+  color: #5a3a22;
+  text-align: center;
+}
+
+.argenta-loading-sello {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(7.5rem, 38vw, 9.5rem);
+  aspect-ratio: 1;
+}
+
+.argenta-loading-arco {
+  position: absolute;
+  inset: 0;
+  border: 0.18rem solid rgba(107, 66, 38, 0.16);
+  border-top-color: #b85a3a;
+  border-radius: 50%;
+  animation: kiosco-loading-girar 1.1s linear infinite;
+}
+
+.argenta-loading-icono {
+  width: 58%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #f6efe4;
+  background: #6b4226;
+  box-shadow: 0 0.9rem 1.8rem rgba(107, 66, 38, 0.25);
+  animation: kiosco-loading-latir 1.8s ease-in-out infinite;
+}
+
+.argenta-loading-icono svg {
+  width: 54%;
+  height: 54%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.argenta-loading-marca {
+  display: grid;
+  gap: 0.35rem;
+  line-height: 1;
+}
+
+.argenta-loading-marca strong {
+  color: #6b4226;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.9rem, 9vw, 2.5rem);
+  letter-spacing: 0.08em;
+}
+
+.argenta-loading-marca span {
+  color: #b85a3a;
+  font: 700 0.78rem / 1 var(--font-body);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.argenta-loading p {
+  margin: 0;
+  color: rgba(90, 58, 34, 0.65);
+  font: 700 0.9rem / 1 var(--font-body);
+  letter-spacing: 0.04em;
+}
+
+.argenta-loading-progress {
+  width: min(100%, 8.5rem);
+  height: 0.28rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(90, 58, 34, 0.12);
+}
+
+.argenta-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: #b85a3a;
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .argenta-loading-arco,
+  .argenta-loading-icono,
+  .argenta-loading-progress span {
+    animation: none;
+  }
+}

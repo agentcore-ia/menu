@@ -1225,6 +1225,10 @@ function getLoadingTemplate(accountId) {
     return 'kiosco'
   }
 
+  if (key.includes('argenta')) {
+    return 'argenta'
+  }
+
   // Locales con marca propia que usan la plantilla burger: la pantalla de
   // carga "BRASA" es de otra marca. Aca todavia no se sabe si la marca es
   // propia (la presentacion no llego), por eso va por slug.
@@ -4697,6 +4701,34 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menu</p>
 
             <div className="almendra-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'argenta') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-argenta">
+          <div className="argenta-loading" role="status" aria-live="polite" aria-label="Cargando menu de La Argenta">
+            <div className="argenta-loading-sello" aria-hidden="true">
+              <span className="argenta-loading-arco" />
+              <span className="argenta-loading-icono">
+                <IconEmpanada />
+              </span>
+            </div>
+
+            <div className="argenta-loading-marca">
+              <strong>LA ARGENTA</strong>
+              <span>empanadas y tartas</span>
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="argenta-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>
@@ -9992,6 +10024,12 @@ export default function MenuApp() {
                       onSelectCategory={handleSelectCategory}
                     />
                   </section>
+                ) : null}
+
+                {presentation.theme?.avisoMenu ? (
+                  <p className="menu-aviso" role="note">
+                    {presentation.theme.avisoMenu}
+                  </p>
                 ) : null}
 
                 <TemplateMenuCollection
