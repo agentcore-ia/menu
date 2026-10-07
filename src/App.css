@@ -20263,3 +20263,19 @@ html:has(.menu-modo-kiosco) #root {
 .menu-modo-kiosco.tema-claro .hero::after {
   display: none;
 }
+
+/* Carrito, datos del pedido, detalle de un producto: la pantalla que se abre
+   encima del menu hereda el color del texto del tema oscuro. */
+.detail-phone.menu-modo-kiosco.tema-claro,
+.detail-phone.menu-modo-kiosco.tema-claro.template-sabor-pampa {
+  color: #1a1a17;
+  background: #ffffff;
+}
+
+.detail-phone.menu-modo-kiosco.tema-claro h1,
+.detail-phone.menu-modo-kiosco.tema-claro h2,
+.detail-phone.menu-modo-kiosco.tema-claro h3,
+.detail-phone.menu-modo-kiosco.tema-claro h4,
+.detail-phone.menu-modo-kiosco.tema-claro strong {
+  color: #1a1a17;
+}
