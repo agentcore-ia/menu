@@ -20354,3 +20354,13 @@ html:has(.menu-modo-kiosco) #root {
   color: #ffffff;
   background: #f2581b;
 }
+
+.confirmation-card-claro .confirmation-button,
+.confirmation-card-sabor-pampa.confirmation-card-claro .confirmation-button {
+  color: #ffffff;
+  background: #f2581b;
+}
+
+.confirmation-card-sabor-pampa.confirmation-card-claro .confirmation-step.active > span {
+  background: #f2581b;
+}
