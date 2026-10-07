@@ -29,7 +29,7 @@ const IMAGENES_DEL_REPO = {
   almendra: { portada: '/almendra/header.png', logo: '/almendra/logo.png' },
   kika: { portada: '/kika/banner.png' },
   'la-argenta': { portada: '/la-argenta/portada.jpg', logo: '/la-argenta/icono-192.png' },
-  fratello: { logo: '/fratello/logo.png' },
+  fratello: { portada: '/fratello/portada.jpg', logo: '/fratello/logo.png' },
   'kiosco-9-de-julio': { portada: '/kiosco-9-de-julio/compartir.png', logo: '/kiosco-9-de-julio/icono-192.png' },
 }
 
