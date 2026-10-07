@@ -177,6 +177,14 @@
       "destination": "/kiosco-9-de-julio.html"
     },
     {
+      "source": "/la-argenta",
+      "destination": "/la-argenta.html"
+    },
+    {
+      "source": "/la-argenta/:path*",
+      "destination": "/la-argenta.html"
+    },
+    {
       "source": "/babson",
       "destination": "/babson.html"
     },
@@ -277,7 +285,7 @@
       "destination": "/chicha.html"
     },
     {
-      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|kiosco-9-de-julio|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha).*)",
+      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|la-argenta|kiosco-9-de-julio|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha).*)",
       "destination": "/host.html"
     }
   ]
