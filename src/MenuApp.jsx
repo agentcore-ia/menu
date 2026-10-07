@@ -11011,7 +11011,14 @@ export default function MenuApp() {
                             >
                               {optionMedia ? optionMedia : null}
                               <span className="option-label">{option.label}</span>
-                              {Number(option.price || 0) > 0 ? (
+                              {group.precioFinal ? (
+                                <small className="option-price">
+                                  {formatPrice(
+                                    (selectedDish.unitPrice ?? toNumericPrice(selectedDish.price)) + Number(option.price || 0),
+                                    currencySymbol,
+                                  )}
+                                </small>
+                              ) : Number(option.price || 0) > 0 ? (
                                 <small className="option-price">
                                   {formatPrice(Number(option.price || 0), currencySymbol)}
                                 </small>

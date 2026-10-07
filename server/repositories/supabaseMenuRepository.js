@@ -214,6 +214,9 @@ function parseProductOptionGroups(product) {
         kind: String(group?.kind || '').trim() || undefined,
         day: String(group?.day || '').trim() || undefined,
         display: String(group?.display || '').trim() || undefined,
+        // Opciones que son el precio completo de cada presentacion (Docena, Media
+        // docena): se muestra el precio final y no la diferencia sobre el base.
+        precioFinal: group?.precioFinal === true ? true : undefined,
         options,
       }
     })
