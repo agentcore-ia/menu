@@ -19789,7 +19789,7 @@ body:has(.detail-order-bar) {
 }
 
 .kiosco-search:focus-within {
-  border-color: #f4b739;
+  border-color: #f2581b;
   background: rgba(247, 239, 226, 0.1);
 }
 
@@ -19797,7 +19797,7 @@ body:has(.detail-order-bar) {
   width: 1.2rem;
   height: 1.2rem;
   flex: 0 0 auto;
-  color: #f4b739;
+  color: #f2581b;
   fill: none;
   stroke: currentColor;
   stroke-width: 2.2;
@@ -19867,8 +19867,8 @@ body:has(.detail-order-bar) {
 }
 
 .kiosco-categoria.active {
-  color: #090806;
-  background: #f4b739;
+  color: #ffffff;
+  background: #f2581b;
 }
 
 /* La barra fija necesita que ningun ancestro sea un contenedor de scroll: el
@@ -19897,7 +19897,7 @@ html:has(.menu-modo-kiosco) #root {
   place-items: center;
   padding: clamp(1.2rem, 5vw, 2rem);
   background:
-    radial-gradient(circle at 50% 36%, rgba(244, 183, 57, 0.2), transparent 46%),
+    radial-gradient(circle at 50% 36%, rgba(242, 88, 27, 0.2), transparent 46%),
     #ffffff;
 }
 
@@ -19926,8 +19926,8 @@ html:has(.menu-modo-kiosco) #root {
 .kiosco-loading-arco {
   position: absolute;
   inset: 0;
-  border: 0.18rem solid rgba(244, 183, 57, 0.18);
-  border-top-color: #f4b739;
+  border: 0.18rem solid rgba(242, 88, 27, 0.18);
+  border-top-color: #f2581b;
   border-radius: 50%;
   animation: kiosco-loading-girar 1.1s linear infinite;
 }
@@ -19938,9 +19938,9 @@ html:has(.menu-modo-kiosco) #root {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  color: #090806;
-  background: #f4b739;
-  box-shadow: 0 0.9rem 1.8rem rgba(244, 183, 57, 0.22);
+  color: #ffffff;
+  background: #f2581b;
+  box-shadow: 0 0.9rem 1.8rem rgba(242, 88, 27, 0.22);
   animation: kiosco-loading-latir 1.8s ease-in-out infinite;
 }
 
@@ -19968,7 +19968,7 @@ html:has(.menu-modo-kiosco) #root {
 }
 
 .kiosco-loading-marca span {
-  color: #b97d00;
+  color: #c2410c;
   font-size: clamp(1.1rem, 5.4vw, 1.5rem);
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -19994,7 +19994,7 @@ html:has(.menu-modo-kiosco) #root {
   width: 46%;
   height: 100%;
   border-radius: inherit;
-  background: #f4b739;
+  background: #f2581b;
   animation: pampa-loading-progress 1.25s ease-in-out infinite;
 }
 
@@ -20029,7 +20029,7 @@ html:has(.menu-modo-kiosco) #root {
    quedan oscuros como el resto de la tarjeta. */
 .confirmation-card.confirmation-card-sabor-pampa.confirmation-card-marca-propia .confirmation-meta div {
   background: rgba(247, 239, 226, 0.06);
-  border-color: rgba(244, 183, 57, 0.22);
+  border-color: rgba(242, 88, 27, 0.22);
 }
 
 .confirmation-card.confirmation-card-sabor-pampa.confirmation-card-marca-propia .confirmation-meta strong {
@@ -20037,8 +20037,8 @@ html:has(.menu-modo-kiosco) #root {
 }
 
 .confirmation-card.confirmation-card-sabor-pampa.confirmation-card-marca-propia .confirmation-kicker {
-  background: rgba(244, 183, 57, 0.14);
-  color: #f4b739;
+  background: rgba(242, 88, 27, 0.14);
+  color: #f2581b;
 }
 
 /* La tarjeta oscura sobre un velo casi transparente dejaba ver la barra
@@ -20105,9 +20105,9 @@ html:has(.menu-modo-kiosco) #root {
 .kiosco-ver-todo {
   flex: 0 0 auto;
   padding: 0.4rem 0.75rem;
-  border: 0.08rem solid rgba(244, 183, 57, 0.5);
+  border: 0.08rem solid rgba(242, 88, 27, 0.5);
   border-radius: 999rem;
-  color: #f4b739;
+  color: #f2581b;
   background: transparent;
   font: 800 0.78rem / 1 var(--font-body);
 }
@@ -20182,11 +20182,11 @@ html:has(.menu-modo-kiosco) #root {
 
 .menu-modo-kiosco.tema-claro .kiosco-search:focus-within {
   background: #ffffff;
-  border-color: #d99a14;
+  border-color: #f2581b;
 }
 
 .menu-modo-kiosco.tema-claro .kiosco-search svg {
-  color: #b97d00;
+  color: #c2410c;
 }
 
 .menu-modo-kiosco.tema-claro .kiosco-search input::placeholder {
@@ -20204,8 +20204,8 @@ html:has(.menu-modo-kiosco) #root {
 }
 
 .menu-modo-kiosco.tema-claro .kiosco-categoria.active {
-  color: #090806;
-  background: #f4b739;
+  color: #ffffff;
+  background: #f2581b;
 }
 
 .menu-modo-kiosco.tema-claro .pampa-section-heading,
@@ -20215,12 +20215,12 @@ html:has(.menu-modo-kiosco) #root {
 }
 
 .menu-modo-kiosco.tema-claro .pampa-section-heading span {
-  background: #d99a14;
+  background: #f2581b;
 }
 
 .menu-modo-kiosco.tema-claro .kiosco-ver-todo {
-  color: #8a5a00;
-  border-color: rgba(138, 90, 0, 0.45);
+  color: #c2410c;
+  border-color: rgba(194, 65, 12, 0.45);
 }
 
 .menu-modo-kiosco.tema-claro .pampa-empty-category,
@@ -20240,7 +20240,7 @@ html:has(.menu-modo-kiosco) #root {
 }
 
 .menu-modo-kiosco.tema-claro .pampa-product-category {
-  color: #a36b00;
+  color: #c2410c;
 }
 
 .menu-modo-kiosco.tema-claro .pampa-product-copy p,
@@ -20284,9 +20284,9 @@ html:has(.menu-modo-kiosco) #root {
 
 /* Kiosco claro: boton de ubicacion y ventana de confirmacion. */
 .detail-phone.menu-modo-kiosco.tema-claro .checkout-ubicacion-boton {
-  color: #7a5200;
-  border-color: rgba(138, 90, 0, 0.4);
-  background: #fff6e0;
+  color: #c2410c;
+  border-color: rgba(194, 65, 12, 0.4);
+  background: #fff1ea;
 }
 
 .confirmation-card.confirmation-card-sabor-pampa.confirmation-card-claro {
@@ -20314,8 +20314,8 @@ html:has(.menu-modo-kiosco) #root {
 }
 
 .confirmation-card.confirmation-card-sabor-pampa.confirmation-card-marca-propia.confirmation-card-claro .confirmation-kicker {
-  background: rgba(244, 183, 57, 0.22);
-  color: #7a5200;
+  background: rgba(242, 88, 27, 0.22);
+  color: #c2410c;
 }
 
 .confirmation-card-claro .confirmation-step > span {
@@ -20331,4 +20331,26 @@ html:has(.menu-modo-kiosco) #root {
 .menu-modo-kiosco.tema-claro.template-sabor-pampa {
   color: #1a1a17;
   background: #ffffff;
+}
+
+
+/* ===== KIOSCO: paleta de Capta (naranja) sobre lo que la plantilla dejo en oro ===== */
+.menu-modo-kiosco .pampa-add-button,
+.menu-modo-kiosco .pampa-card-badge {
+  color: #ffffff;
+  background: #f2581b;
+}
+
+.menu-modo-kiosco .pampa-section-heading span {
+  background: #f2581b;
+}
+
+.menu-modo-kiosco .pampa-product-category {
+  color: #c2410c;
+}
+
+.menu-modo-kiosco .template-sabor-pampa .cart-badge,
+.menu-modo-kiosco .cart-badge {
+  color: #ffffff;
+  background: #f2581b;
 }
