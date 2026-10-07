@@ -6394,11 +6394,17 @@ function TemplateMenuCollection({
       items,
       showRibbon = true,
       isHomeSection = false,
+      onVerTodo = null,
     }) => (
       <article key={id} className={`pampa-product-section${isHomeSection ? ' is-home-section' : ''}`}>
         <div className="pampa-section-heading">
           <h2>{title}</h2>
           <span aria-hidden="true" />
+          {onVerTodo ? (
+            <button type="button" className="kiosco-ver-todo" onClick={onVerTodo}>
+              Ver todo
+            </button>
+          ) : null}
         </div>
         {subtitle ? <p>{subtitle}</p> : null}
 
@@ -6535,6 +6541,8 @@ function TemplateMenuCollection({
                   items: category.items,
                   showRibbon: false,
                   isHomeSection: true,
+                  // Kiosco: cada categoria es un slider; "Ver todo" abre la grilla.
+                  onVerTodo: presentation.theme?.modoKiosco ? () => onSelectCategory(category.id) : null,
                 }),
               )
             : renderPampaProductSection({

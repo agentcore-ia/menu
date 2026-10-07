@@ -20080,3 +20080,54 @@ html:has(.menu-modo-kiosco) #root {
   background: transparent;
   box-shadow: none;
 }
+
+/* KIOSCO, inicio: cada categoria con su nombre y, abajo, UNA fila deslizable de
+   sus productos (en vez de una grilla de mil tarjetas). "Ver todo" abre la
+   categoria completa. */
+.menu-modo-kiosco .pampa-product-section.is-home-section {
+  margin-bottom: 1.5rem;
+}
+
+.menu-modo-kiosco .pampa-product-section.is-home-section .pampa-section-heading {
+  margin-bottom: 0.7rem;
+}
+
+.menu-modo-kiosco .pampa-product-section.is-home-section .pampa-section-heading h2 {
+  flex: 0 1 auto;
+}
+
+.menu-modo-kiosco .pampa-product-section.is-home-section .pampa-section-heading > span {
+  flex: 1 1 auto;
+}
+
+.kiosco-ver-todo {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.75rem;
+  border: 0.08rem solid rgba(244, 183, 57, 0.5);
+  border-radius: 999rem;
+  color: #f4b739;
+  background: transparent;
+  font: 800 0.78rem / 1 var(--font-body);
+}
+
+.menu-modo-kiosco .pampa-product-section.is-home-section .pampa-product-list {
+  display: flex;
+  gap: 0.7rem;
+  overflow-x: auto;
+  /* sangra hasta el borde de la pantalla: se ve que sigue hacia el costado */
+  margin: 0 -1rem;
+  padding: 0.2rem 1rem 0.6rem;
+  scroll-snap-type: x proximity;
+  scroll-padding-left: 1rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.menu-modo-kiosco .pampa-product-section.is-home-section .pampa-product-list::-webkit-scrollbar {
+  display: none;
+}
+
+.menu-modo-kiosco .pampa-product-section.is-home-section .pampa-product-card {
+  flex: 0 0 min(44vw, 9.4rem);
+  scroll-snap-align: start;
+}
