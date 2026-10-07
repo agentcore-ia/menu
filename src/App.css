@@ -20137,3 +20137,129 @@ html:has(.menu-modo-kiosco) #root {
 .menu-modo-kiosco .pampa-favorite-ribbon {
   display: none;
 }
+
+/* ===== KIOSCO, TEMA CLARO (theme_overrides.modoKiosco + temaClaro) =====
+   La plantilla de Sabor a Pampa se dibujo en negro y dorado con los colores
+   escritos en el CSS. Esto la pasa a blanco con el mismo dorado de acento. */
+.menu-modo-kiosco.tema-claro.template-sabor-pampa.phone-surface {
+  background: #ffffff;
+  border-color: rgba(26, 26, 23, 0.1);
+}
+
+.menu-modo-kiosco.tema-claro .hero-sabor-pampa,
+.menu-modo-kiosco.tema-claro.template-sabor-pampa .content-panel {
+  background: #ffffff;
+}
+
+.menu-modo-kiosco.tema-claro.template-sabor-pampa .content-panel {
+  box-shadow: none;
+}
+
+.menu-modo-kiosco.tema-claro.template-sabor-pampa .icon-button,
+.menu-modo-kiosco.tema-claro.template-sabor-pampa .cart-button {
+  color: #1a1a17;
+  background: #f4f2ec;
+  border-color: rgba(26, 26, 23, 0.16);
+  box-shadow: none;
+}
+
+.menu-modo-kiosco.tema-claro .kiosco-nombre {
+  color: #1a1a17;
+}
+
+.menu-modo-kiosco.tema-claro .kiosco-head {
+  background: #ffffff;
+  border-bottom-color: rgba(26, 26, 23, 0.1);
+}
+
+.menu-modo-kiosco.tema-claro .kiosco-search {
+  color: #1a1a17;
+  background: #f4f2ec;
+  border-color: rgba(26, 26, 23, 0.14);
+}
+
+.menu-modo-kiosco.tema-claro .kiosco-search:focus-within {
+  background: #ffffff;
+  border-color: #d99a14;
+}
+
+.menu-modo-kiosco.tema-claro .kiosco-search svg {
+  color: #b97d00;
+}
+
+.menu-modo-kiosco.tema-claro .kiosco-search input::placeholder {
+  color: rgba(26, 26, 23, 0.45);
+}
+
+.menu-modo-kiosco.tema-claro .kiosco-search-clear {
+  color: #ffffff;
+  background: rgba(26, 26, 23, 0.4);
+}
+
+.menu-modo-kiosco.tema-claro .kiosco-categoria {
+  color: #3a372f;
+  background: #efece4;
+}
+
+.menu-modo-kiosco.tema-claro .kiosco-categoria.active {
+  color: #090806;
+  background: #f4b739;
+}
+
+.menu-modo-kiosco.tema-claro .pampa-section-heading,
+.menu-modo-kiosco.tema-claro .pampa-menu-title,
+.menu-modo-kiosco.tema-claro .pampa-section-heading h2 {
+  color: #1a1a17;
+}
+
+.menu-modo-kiosco.tema-claro .pampa-section-heading span {
+  background: #d99a14;
+}
+
+.menu-modo-kiosco.tema-claro .kiosco-ver-todo {
+  color: #8a5a00;
+  border-color: rgba(138, 90, 0, 0.45);
+}
+
+.menu-modo-kiosco.tema-claro .pampa-empty-category,
+.menu-modo-kiosco.tema-claro .pampa-search-results {
+  color: rgba(26, 26, 23, 0.7);
+}
+
+.menu-modo-kiosco.tema-claro .pampa-product-card,
+.menu-modo-kiosco.tema-claro .pampa-product-card.no-media {
+  background: #ffffff;
+  border-color: rgba(26, 26, 23, 0.12);
+  box-shadow: 0 0.1rem 0.5rem rgba(26, 26, 23, 0.06);
+}
+
+.menu-modo-kiosco.tema-claro .pampa-product-copy h3 {
+  color: #1a1a17;
+}
+
+.menu-modo-kiosco.tema-claro .pampa-product-category {
+  color: #a36b00;
+}
+
+.menu-modo-kiosco.tema-claro .pampa-product-copy p,
+.menu-modo-kiosco.tema-claro .pampa-product-section > p {
+  color: rgba(26, 26, 23, 0.68);
+}
+
+.menu-modo-kiosco.tema-claro .pampa-product-footer {
+  border-top-color: rgba(26, 26, 23, 0.22);
+}
+
+.menu-modo-kiosco.tema-claro .pampa-product-footer strong {
+  color: #1a1a17;
+}
+
+.menu-modo-kiosco.tema-claro .pampa-card-badge {
+  color: #090806;
+}
+
+/* El borde de arriba de la pantalla (cuando el menu queda como "telefono") */
+.menu-modo-kiosco.tema-claro .hero::before,
+.menu-modo-kiosco.tema-claro .hero::after {
+  display: none;
+}
