@@ -20493,3 +20493,16 @@ html:has(.menu-modo-kiosco) #root {
     animation: none;
   }
 }
+
+/* La Argenta: la banda de arriba es de un solo marron. La plantilla le pasaba
+   por encima un brillo blanco que la dejaba mas clara abajo y mas oscura arriba. */
+.account-la-argenta .hero-content-pizzeria::before,
+.account-la-argenta .pizzeria-header-banda::before,
+.account-la-argenta .pizzeria-header-banda::after {
+  display: none;
+}
+
+.account-la-argenta .pizzeria-header-banda {
+  background: #6b4226;
+  box-shadow: none;
+}
