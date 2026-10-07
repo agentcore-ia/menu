@@ -20059,12 +20059,14 @@ html:has(.menu-modo-kiosco) #root {
   min-width: 0;
 }
 
+.menu-modo-kiosco .pampa-product-footer {
+  gap: 0.35rem;
+}
+
 .menu-modo-kiosco .pampa-product-footer strong {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: clamp(1.1rem, 4.4vw, 1.5rem);
+  font-size: clamp(1rem, 3.9vw, 1.3rem);
 }
 
 /* - La "luz" detras del nombre: un resplandor claro que la cabecera dibuja por
