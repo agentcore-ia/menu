@@ -20614,3 +20614,9 @@ html:has(.menu-modo-kiosco) #root {
     animation: none;
   }
 }
+
+/* Punto Waffle: la tira de "Pedi facil / Elaboracion diaria / Hecho con amor"
+   viene de Sabor a Pampa y no es de este local. */
+.account-punto-waffle .pampa-feature-strip {
+  display: none;
+}
