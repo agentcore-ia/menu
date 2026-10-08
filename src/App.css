@@ -20617,6 +20617,28 @@ html:has(.menu-modo-kiosco) #root {
 
 /* Punto Waffle: la tira de "Pedi facil / Elaboracion diaria / Hecho con amor"
    viene de Sabor a Pampa y no es de este local. */
-.account-punto-waffle .pampa-feature-strip {
+.account-punto-waffle .pampa-feature-strip,
+.account-punto-waffle .pampa-hero-copy {
   display: none;
+}
+
+/* Punto Waffle, como Chicha: el banner (1536x600) ya trae el logo arriba al
+   medio y las fotos abajo, entra completo y no lleva el texto de la plantilla. */
+.account-punto-waffle .pampa-hero-copy,
+.account-punto-waffle .pampa-hero-placeholder::before {
+  display: none;
+}
+
+.account-punto-waffle .hero-sabor-pampa {
+  height: auto;
+  aspect-ratio: 1536 / 600;
+  border-radius: 0;
+}
+
+.account-punto-waffle .pampa-hero-media::after {
+  display: none;
+}
+
+.account-punto-waffle .pampa-hero-media .hero-image-slider {
+  height: 100%;
 }
