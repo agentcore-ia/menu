@@ -1225,6 +1225,12 @@ function getLoadingTemplate(accountId) {
     return 'kiosco'
   }
 
+  // Bruder, en sus dos cuentas (bruder y bruderpizza): con su sello, no con el
+  // esqueleto generico de bistro.
+  if (key.includes('bruder')) {
+    return 'bruder'
+  }
+
   if (key.includes('argenta')) {
     return 'argenta'
   }
@@ -4927,6 +4933,29 @@ function MenuLoadingScreen({ accountId }) {
             </div>
 
             <p className="cian-loading-nota">Recién horneado, todos los días</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'bruder') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-bruder">
+          <div className="bruder-loading" role="status" aria-live="polite" aria-label="Cargando menu de Pizzeria Bruder">
+            {/* El sello es el mismo del menu y del ícono; ya trae su negro de
+                fondo, el mismo de esta pantalla, asi apoya sin recuadro. */}
+            <div className="bruder-loading-sello">
+              <span className="bruder-loading-arco" aria-hidden="true" />
+              <img src="/bruderpizza/icono.png" alt="Pizzería Brüder" width="512" height="512" />
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="bruder-loading-progress" aria-hidden="true">
+              <span />
+            </div>
           </div>
         </div>
       </div>

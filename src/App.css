@@ -20721,3 +20721,90 @@ html:has(.menu-modo-kiosco) #root {
 .menu-tarjetas-burger .burger-card-grid {
   margin-bottom: 0.4rem;
 }
+
+/* Pantalla de carga de Bruder: su sello sobre el mismo negro del menu, con un
+   arco rojo (el aro del sello) girando por afuera y la barra en dorado. */
+.loading-bruder {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: radial-gradient(circle at 50% 38%, #1a0b0c 0%, #070505 58%, #000 100%);
+}
+
+.loading-bruder::before,
+.loading-bruder::after {
+  display: none;
+}
+
+.bruder-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.bruder-loading-sello {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(58%, 13rem);
+  aspect-ratio: 1;
+}
+
+.bruder-loading-sello img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+  animation: chicha-loading-latir 2.6s ease-in-out infinite;
+}
+
+.bruder-loading-arco {
+  position: absolute;
+  inset: -0.85rem;
+  border: 0.14rem solid transparent;
+  border-top-color: #e11d2e;
+  border-right-color: rgba(225, 29, 46, 0.3);
+  border-radius: 50%;
+  animation: chicha-loading-girar 1.2s linear infinite;
+}
+
+.bruder-loading p {
+  margin: 0;
+  color: rgba(248, 243, 232, 0.72);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  text-transform: uppercase;
+}
+
+.bruder-loading-progress {
+  width: min(100%, 9rem);
+  height: 0.22rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(245, 183, 46, 0.2);
+}
+
+.bruder-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: #f5b72e;
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bruder-loading-sello img,
+  .bruder-loading-arco,
+  .bruder-loading-progress span {
+    animation: none;
+  }
+}
