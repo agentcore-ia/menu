@@ -20506,3 +20506,111 @@ html:has(.menu-modo-kiosco) #root {
   background: #6b4226;
   box-shadow: none;
 }
+
+/* Pantalla de carga de Punto Waffle: negro y naranja, una grilla de waffle
+   que late dentro de un anillo que gira. */
+.loading-waffle {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.2rem, 5vw, 2rem);
+  background:
+    radial-gradient(circle at 50% 36%, rgba(245, 138, 31, 0.2), transparent 46%),
+    #050505;
+}
+
+.loading-waffle::before,
+.loading-waffle::after {
+  display: none;
+}
+
+.waffle-loading {
+  width: min(100%, 17rem);
+  display: grid;
+  justify-items: center;
+  gap: clamp(1.2rem, 5vw, 1.8rem);
+  color: #ffffff;
+  text-align: center;
+}
+
+.waffle-loading-sello {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(7.5rem, 38vw, 9.5rem);
+  aspect-ratio: 1;
+}
+
+.waffle-loading-arco {
+  position: absolute;
+  inset: 0;
+  border: 0.18rem solid rgba(245, 138, 31, 0.2);
+  border-top-color: #f58a1f;
+  border-radius: 50%;
+  animation: kiosco-loading-girar 1.1s linear infinite;
+}
+
+.waffle-loading-grilla {
+  width: 52%;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8%;
+  animation: kiosco-loading-latir 1.8s ease-in-out infinite;
+}
+
+.waffle-loading-grilla i {
+  border-radius: 22%;
+  background: #f58a1f;
+}
+
+.waffle-loading-marca {
+  display: grid;
+  gap: 0.4rem;
+  line-height: 1;
+}
+
+.waffle-loading-marca strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 8.5vw, 2.3rem);
+  letter-spacing: 0.06em;
+}
+
+.waffle-loading-marca span {
+  color: #f58a1f;
+  font: 700 0.78rem / 1 var(--font-body);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.waffle-loading p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.65);
+  font: 700 0.9rem / 1 var(--font-body);
+  letter-spacing: 0.04em;
+}
+
+.waffle-loading-progress {
+  width: min(100%, 8.5rem);
+  height: 0.28rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.waffle-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: #f58a1f;
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waffle-loading-arco,
+  .waffle-loading-grilla,
+  .waffle-loading-progress span {
+    animation: none;
+  }
+}

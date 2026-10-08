@@ -1229,6 +1229,10 @@ function getLoadingTemplate(accountId) {
     return 'argenta'
   }
 
+  if (key.includes('waffle')) {
+    return 'punto-waffle'
+  }
+
   // Locales con marca propia que usan la plantilla burger: la pantalla de
   // carga "BRASA" es de otra marca. Aca todavia no se sabe si la marca es
   // propia (la presentacion no llego), por eso va por slug.
@@ -4701,6 +4705,36 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menu</p>
 
             <div className="almendra-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'punto-waffle') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-waffle">
+          <div className="waffle-loading" role="status" aria-live="polite" aria-label="Cargando menu de Punto Waffle">
+            <div className="waffle-loading-sello" aria-hidden="true">
+              <span className="waffle-loading-arco" />
+              <span className="waffle-loading-grilla">
+                {Array.from({ length: 9 }, (_, i) => (
+                  <i key={i} />
+                ))}
+              </span>
+            </div>
+
+            <div className="waffle-loading-marca">
+              <strong>PUNTO WAFFLE</strong>
+              <span>waffles y bombitas</span>
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="waffle-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>
