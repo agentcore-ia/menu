@@ -20642,3 +20642,29 @@ html:has(.menu-modo-kiosco) #root {
 .account-punto-waffle .pampa-hero-media .hero-image-slider {
   height: 100%;
 }
+
+/* Bruder con la plantilla de Chicha: su portada (1536x1024) ya trae el logo y el
+   mensaje, como la de Chicha, asi que entra completa y sin el texto ni la tira
+   de beneficios de la plantilla. */
+.account-bruderpizza .pampa-feature-strip,
+.account-bruderpizza .pampa-hero-copy {
+  display: none;
+}
+
+.account-bruderpizza .pampa-hero-placeholder::before {
+  display: none;
+}
+
+.account-bruderpizza .hero-sabor-pampa {
+  height: auto;
+  aspect-ratio: 1536 / 1024;
+  border-radius: 0;
+}
+
+.account-bruderpizza .pampa-hero-media::after {
+  display: none;
+}
+
+.account-bruderpizza .pampa-hero-media .hero-image-slider {
+  height: 100%;
+}
