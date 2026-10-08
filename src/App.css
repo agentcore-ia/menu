@@ -20668,3 +20668,56 @@ html:has(.menu-modo-kiosco) #root {
 .account-bruderpizza .pampa-hero-media .hero-image-slider {
   height: 100%;
 }
+
+/* ===== Tarjetas de la plantilla burger sobre otra plantilla (tarjetasBurger) =====
+   Los mismos valores que .template-burger le pone a sus tarjetas, para que se
+   vean igual donde no esta esa clase. */
+.menu-tarjetas-burger {
+  --burger-action-color: var(--custom-card-price, var(--theme-primary, #f5b72e));
+  --burger-action-text-color: var(--custom-add-text, var(--theme-primary-text, #11100b));
+  --burger-copy-color: var(--custom-card-text, var(--theme-text, #f8f3e8));
+  --burger-muted-color: var(--custom-card-muted, var(--theme-muted, rgba(248, 243, 232, 0.78)));
+  --burger-card-color: var(--custom-card-bg, var(--theme-surface, #0a0f10));
+}
+
+.menu-tarjetas-burger .burger-dish-card {
+  border: 1px solid color-mix(in srgb, var(--burger-action-color) 28%, transparent);
+  border-radius: 1rem;
+  background: var(--burger-card-color);
+  color: var(--burger-copy-color);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28);
+}
+
+.menu-tarjetas-burger .burger-dish-media {
+  background: var(--burger-card-color);
+}
+
+.menu-tarjetas-burger .burger-dish-media .dish-thumb {
+  height: 100%;
+}
+
+.menu-tarjetas-burger .burger-favorite {
+  color: var(--burger-copy-color);
+}
+
+.menu-tarjetas-burger .burger-dish-copy h3,
+.menu-tarjetas-burger .burger-dish-copy h3 strong {
+  color: var(--burger-copy-color);
+}
+
+.menu-tarjetas-burger .burger-dish-copy p {
+  color: var(--burger-muted-color);
+}
+
+.menu-tarjetas-burger .burger-dish-footer strong {
+  color: var(--burger-action-color);
+}
+
+.menu-tarjetas-burger .burger-add-button {
+  background: var(--custom-add-bg, var(--burger-action-color));
+  color: var(--burger-action-text-color);
+}
+
+.menu-tarjetas-burger .burger-card-grid {
+  margin-bottom: 0.4rem;
+}

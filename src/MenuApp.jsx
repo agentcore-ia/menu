@@ -6395,7 +6395,55 @@ function TemplateMenuCollection({
     const featuredTitle = hasAnyDailyMenuItems ? (dailyMenuCategories[0]?.label || 'Menu del dia') : 'Destacados'
     const listItems = isSearchActive ? categoryItems : selectedCategoryItems
 
-    const renderPampaProductCards = (items, { showRibbon = true } = {}) => (
+    // Tarjetas de la plantilla de hamburgueserias (theme_overrides.tarjetasBurger):
+    // el local puede usar la portada y el resto de Sabor a Pampa y conservar sus
+    // tarjetas de siempre (corazon, foto, titulo, precio y boton de agregar).
+    const renderTarjetaBurger = (item) => {
+      const [title, accent] = getBurgerDishParts(item, {
+        marcaPropia: Boolean(presentation?.branding?.esPropio),
+      })
+      const sinMedia = !(item.video || item.hasCustomImage)
+      return (
+        <article key={item.id} className={`burger-dish-card ${sinMedia ? 'no-media' : ''}`}>
+          <button
+            type="button"
+            className={`burger-favorite ${esFavorito(item) ? 'favorito' : ''}`}
+            aria-label={esFavorito(item) ? `Quitar ${item.name} de favoritos` : `Guardar ${item.name} en favoritos`}
+            aria-pressed={esFavorito(item)}
+            onClick={() => alternarFavorito(item)}
+          >
+            <IconHeart />
+          </button>
+
+          {!sinMedia ? (
+            <button type="button" className="burger-dish-media" onClick={() => onOpenDish(item)} aria-label={`Ver ${item.name}`}>
+              {renderProductMedia(item)}
+            </button>
+          ) : null}
+
+          <div className="burger-dish-body">
+            <button type="button" className="burger-dish-copy" onClick={() => onOpenDish(item)}>
+              <h3>
+                <span>{title}</span>
+                {accent ? <strong>{accent}</strong> : null}
+              </h3>
+              <p>{item.description}</p>
+            </button>
+
+            <div className="burger-dish-footer">
+              <strong>{item.price}</strong>
+              <button type="button" className="burger-add-button" onClick={() => onAddItem(item)} aria-label={`Agregar ${item.name}`}>
+                <IconPlus />
+              </button>
+            </div>
+          </div>
+        </article>
+      )
+    }
+
+    const renderPampaProductCards = (items, { showRibbon = true } = {}) => presentation.theme?.tarjetasBurger ? (
+      <div className="burger-card-grid">{items.map(renderTarjetaBurger)}</div>
+    ) : (
       <div className="pampa-product-list">
         {items.map((item, index) => {
           const productMedia = renderProductMedia(item)
@@ -9802,6 +9850,8 @@ export default function MenuApp() {
     // Kiosco / almacen: se entra a comprar, no a mirar. Sin cabecera grande, las
     // categorias solo con su nombre y a la vista, y nada de "destacados".
     presentation.theme?.modoKiosco ? 'menu-modo-kiosco' : '',
+    // Tarjetas de producto de la plantilla de hamburgueserias sobre otra plantilla.
+    presentation.theme?.tarjetasBurger ? 'menu-tarjetas-burger' : '',
     // La cabecera es un video y no una imagen. Cambia como se apoya el panel
     // de contenido encima: una foto puede traer su union dibujada, un video no.
     presentation.hero?.video ? 'hero-video' : '',
