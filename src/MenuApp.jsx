@@ -1024,6 +1024,12 @@ function getAccountFaviconHref(accountId) {
     ['craft', '/craft-burguer/icono.png'],
     ['bruderpizza', '/bruderpizza/icono.png'],
     ['chicha', '/chicha/icono.png'],
+    // Cuentas nuevas: el favicon es el icono de 192 (nitido en pantallas de alta densidad).
+    ['argenta', '/la-argenta/icono-192.png'],
+    ['kiosco-9', '/kiosco-9-de-julio/icono-192.png'],
+    ['waffle', '/punto-waffle/icono-192.png'],
+    ['fratello', '/fratello/icono-192.png'],
+    ['todo-empanadas', '/todo-empanadas/icono-192.png'],
   ].find(([nombre]) => key.includes(nombre))
 
   if (conIconoPropio) {
@@ -1059,6 +1065,11 @@ function getAccountAppleTouchIconHref(accountId) {
     ['craft', '/craft-burguer/icono.png'],
     ['bruderpizza', '/bruderpizza/icono.png'],
     ['chicha', '/chicha/icono.png'],
+    ['argenta', '/la-argenta/apple-touch-icon.png'],
+    ['kiosco-9', '/kiosco-9-de-julio/apple-touch-icon.png'],
+    ['waffle', '/punto-waffle/apple-touch-icon.png'],
+    ['fratello', '/fratello/apple-touch-icon.png'],
+    ['todo-empanadas', '/todo-empanadas/apple-touch-icon.png'],
   ].find(([nombre]) => key.includes(nombre))
 
   if (conIconoPropio) {
