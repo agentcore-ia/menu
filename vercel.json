@@ -141,7 +141,7 @@
       "has": [
         {
           "type": "host",
-          "value": "bruderpizza.menu.net.ar"
+          "value": "bruder.menu.net.ar"
         }
       ],
       "destination": "/bruderpizza.html"
@@ -161,7 +161,7 @@
       "has": [
         {
           "type": "host",
-          "value": "kiosco9dejulio.menu.net.ar"
+          "value": "kiosco9.menu.net.ar"
         }
       ],
       "destination": "/kiosco-9-de-julio.html"

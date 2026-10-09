@@ -936,6 +936,11 @@ function getInitialAccountId() {
   if (hostname.endsWith(domainSuffix)) {
     const subdomain = hostname.slice(0, -domainSuffix.length).split('.').filter(Boolean).at(-1)
 
+    // bruder.menu.net.ar es la cuenta bruderpizza. Solo por subdominio: en la base
+    // hay otra cuenta con slug "bruder" (un duplicado apagado) y menu.net.ar/bruder
+    // no tiene que cambiar de cuenta.
+    if (subdomain === 'bruder') return 'bruderpizza'
+
     if (subdomain && subdomain !== 'www') {
       return normalizeAccountAlias(decodeURIComponent(subdomain))
     }
@@ -982,7 +987,7 @@ function normalizeAccountAlias(accountId) {
   // Las cuentas nuevas: el subdominio va sin guiones (laargenta.menu.net.ar) y el
   // slug de la cuenta en la base los lleva.
   if (key === 'laargenta') return 'la-argenta'
-  if (key === 'kiosco9dejulio') return 'kiosco-9-de-julio'
+  if (key === 'kiosco9') return 'kiosco-9-de-julio'
   if (key === 'puntowaffle') return 'punto-waffle'
   if (key === 'todoempanadas') return 'todo-empanadas'
 
