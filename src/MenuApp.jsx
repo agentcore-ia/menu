@@ -979,6 +979,13 @@ function normalizeAccountAlias(accountId) {
     return 'craft-burguer'
   }
 
+  // Las cuentas nuevas: el subdominio va sin guiones (laargenta.menu.net.ar) y el
+  // slug de la cuenta en la base los lleva.
+  if (key === 'laargenta') return 'la-argenta'
+  if (key === 'kiosco9dejulio') return 'kiosco-9-de-julio'
+  if (key === 'puntowaffle') return 'punto-waffle'
+  if (key === 'todoempanadas') return 'todo-empanadas'
+
   return accountId
 }
 

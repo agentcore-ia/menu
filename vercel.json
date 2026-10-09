@@ -137,6 +137,66 @@
       "destination": "/chicha.html"
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "bruderpizza.menu.net.ar"
+        }
+      ],
+      "destination": "/bruderpizza.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "laargenta.menu.net.ar"
+        }
+      ],
+      "destination": "/la-argenta.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "kiosco9dejulio.menu.net.ar"
+        }
+      ],
+      "destination": "/kiosco-9-de-julio.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "puntowaffle.menu.net.ar"
+        }
+      ],
+      "destination": "/punto-waffle.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "fratello.menu.net.ar"
+        }
+      ],
+      "destination": "/fratello.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "todoempanadas.menu.net.ar"
+        }
+      ],
+      "destination": "/todo-empanadas.html"
+    },
+    {
       "source": "/almendra",
       "destination": "/almendra.html"
     },
@@ -175,6 +235,22 @@
     {
       "source": "/kiosco-9-de-julio/:path*",
       "destination": "/kiosco-9-de-julio.html"
+    },
+    {
+      "source": "/fratello",
+      "destination": "/fratello.html"
+    },
+    {
+      "source": "/fratello/:path*",
+      "destination": "/fratello.html"
+    },
+    {
+      "source": "/todo-empanadas",
+      "destination": "/todo-empanadas.html"
+    },
+    {
+      "source": "/todo-empanadas/:path*",
+      "destination": "/todo-empanadas.html"
     },
     {
       "source": "/la-argenta",
@@ -293,7 +369,7 @@
       "destination": "/chicha.html"
     },
     {
-      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|kiosco-9-de-julio|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha).*)",
+      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|fratello|todo-empanadas|kiosco-9-de-julio|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha).*)",
       "destination": "/host.html"
     }
   ]
