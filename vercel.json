@@ -161,6 +161,16 @@
       "has": [
         {
           "type": "host",
+          "value": "mayoristahelado.menu.net.ar"
+        }
+      ],
+      "destination": "/grupo-lea.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "kiosco9.menu.net.ar"
         }
       ],
