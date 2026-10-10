@@ -7427,30 +7427,27 @@ function TemplateMenuCollection({
                 )
                 .map((category) => (
                   <div key={category.id} id={`carta-${category.id}`} className="gelato-carta-categoria">
-                    <div className="section-heading">
+                    <div className="gelato-carta-titulo">
                       <h2>{category.label}</h2>
+                      <span>{category.items.length}</span>
                     </div>
-                    <div className="dish-list">
+                    <div className="gelato-carta-lista">
                       {category.items.map((item) => (
-                        <article key={item.id} className="dish-card gelato-carta-item">
-                          <div className="dish-body">
-                            <button type="button" className="dish-main" onClick={() => onOpenDish(item)}>
-                              <h3>{item.name}</h3>
-                              {item.description ? <p>{item.description}</p> : null}
-                            </button>
-                            <div className="dish-footer">
-                              <strong>{item.price}</strong>
-                              <button
-                                type="button"
-                                className="add-button"
-                                onClick={() => onAddItem(item)}
-                                aria-label={`Agregar ${item.name}`}
-                              >
-                                <IconPlus />
-                              </button>
-                            </div>
-                          </div>
-                        </article>
+                        <div key={item.id} className="gelato-carta-fila">
+                          <button type="button" className="gelato-carta-info" onClick={() => onOpenDish(item)}>
+                            <strong>{item.name}</strong>
+                            {item.description ? <small>{item.description}</small> : null}
+                          </button>
+                          <span className="gelato-carta-precio">{item.price}</span>
+                          <button
+                            type="button"
+                            className="gelato-carta-mas"
+                            onClick={() => onAddItem(item)}
+                            aria-label={`Agregar ${item.name}`}
+                          >
+                            <IconPlus />
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </div>

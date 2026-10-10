@@ -20831,11 +20831,11 @@ html:has(.menu-modo-kiosco) #root {
 .gelato-atajo i {
   font-style: normal; font-size: 12px; width: 20px; height: 20px; border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(79, 140, 49, 0.14); color: #4f8c31;
+  background: color-mix(in srgb, var(--theme-accent, #4f8c31) 14%, transparent); color: var(--theme-accent, #4f8c31);
 }
 .gelato-destacados-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
 .gelato-destacados-head h2 { margin: 0; font-size: 26px; }
-.gelato-destacados-head button { border: 0; background: none; font-weight: 800; color: #4f8c31; cursor: pointer; }
+.gelato-destacados-head button { border: 0; background: none; font-weight: 800; color: var(--theme-accent, #4f8c31); cursor: pointer; }
 .gelato-destacado {
   width: 100%; display: flex; align-items: center; gap: 14px; text-align: left; cursor: pointer;
   border: 0; background: #fff; border-radius: 18px; padding: 10px; margin-bottom: 10px;
@@ -20847,11 +20847,42 @@ html:has(.menu-modo-kiosco) #root {
 .gelato-destacado-copy small { opacity: 0.6; font-size: 14px; }
 .gelato-destacado-copy em {
   align-self: flex-start; font-style: normal; font-size: 12px; font-weight: 700;
-  padding: 5px 10px; border-radius: 999px; background: rgba(79, 140, 49, 0.12); color: #4f8c31;
+  padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--theme-accent, #4f8c31) 12%, transparent); color: var(--theme-accent, #4f8c31);
 }
 .gelato-destacado-flecha {
   width: 36px; height: 36px; border-radius: 50%; flex: none; display: inline-flex;
   align-items: center; justify-content: center; font-size: 22px;
-  background: rgba(79, 140, 49, 0.12); color: #4f8c31;
+  background: color-mix(in srgb, var(--theme-accent, #4f8c31) 12%, transparent); color: var(--theme-accent, #4f8c31);
 }
 .gelato-carta-categoria { scroll-margin-top: 80px; margin-top: 18px; }
+
+/* Carta de distribuidora: una tarjeta por categoria, una fila por producto. */
+.gelato-carta-titulo { display: flex; align-items: center; gap: 8px; margin: 0 2px 8px; }
+.gelato-carta-titulo h2 { margin: 0; font-size: 22px; }
+.gelato-carta-titulo span {
+  font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-accent, #4f8c31) 14%, transparent);
+  color: var(--theme-accent, #4f8c31);
+}
+.gelato-carta-lista {
+  background: #fff; border-radius: 18px; padding: 4px 14px;
+  box-shadow: 0 6px 16px rgba(46, 32, 24, 0.08);
+}
+.gelato-carta-fila {
+  display: flex; align-items: center; gap: 10px; padding: 12px 0;
+  border-bottom: 1px solid rgba(46, 32, 24, 0.07);
+}
+.gelato-carta-fila:last-child { border-bottom: 0; }
+.gelato-carta-info {
+  flex: 1; min-width: 0; border: 0; background: none; padding: 0; text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; gap: 2px; color: inherit;
+}
+.gelato-carta-info strong { font-size: 15px; line-height: 1.25; }
+.gelato-carta-info small { font-size: 12.5px; opacity: 0.6; }
+.gelato-carta-precio { font-weight: 800; font-size: 15px; color: var(--theme-accent, #4f8c31); white-space: nowrap; }
+.gelato-carta-mas {
+  flex: none; width: 34px; height: 34px; border: 0; border-radius: 50%; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--theme-accent, #4f8c31); color: #fff;
+}
+.gelato-carta-mas svg { width: 18px; height: 18px; }
