@@ -253,6 +253,14 @@
       "destination": "/todo-empanadas.html"
     },
     {
+      "source": "/grupo-lea",
+      "destination": "/grupo-lea.html"
+    },
+    {
+      "source": "/grupo-lea/:path*",
+      "destination": "/grupo-lea.html"
+    },
+    {
       "source": "/la-argenta",
       "destination": "/la-argenta.html"
     },
@@ -369,7 +377,7 @@
       "destination": "/chicha.html"
     },
     {
-      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|fratello|todo-empanadas|kiosco-9-de-julio|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha).*)",
+      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|grupo-lea|fratello|todo-empanadas|kiosco-9-de-julio|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha).*)",
       "destination": "/host.html"
     }
   ]

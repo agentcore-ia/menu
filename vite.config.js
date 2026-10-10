@@ -39,6 +39,7 @@ export default defineConfig({
         babson: resolve(__dirname, 'babson.html'),
         'punto-waffle': resolve(__dirname, 'punto-waffle.html'),
         'la-argenta': resolve(__dirname, 'la-argenta.html'),
+        'grupo-lea': resolve(__dirname, 'grupo-lea.html'),
         fratello: resolve(__dirname, 'fratello.html'),
         'todo-empanadas': resolve(__dirname, 'todo-empanadas.html'),
         'kiosco-9-de-julio': resolve(__dirname, 'kiosco-9-de-julio.html'),

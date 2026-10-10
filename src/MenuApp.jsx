@@ -1026,6 +1026,7 @@ function getAccountFaviconHref(accountId) {
     ['chicha', '/chicha/icono.png'],
     // Cuentas nuevas: el favicon es el icono de 192 (nitido en pantallas de alta densidad).
     ['argenta', '/la-argenta/icono-192.png'],
+    ['grupo-lea', '/grupo-lea/icono-192.png'],
     ['kiosco-9', '/kiosco-9-de-julio/icono-192.png'],
     ['waffle', '/punto-waffle/icono-192.png'],
     ['fratello', '/fratello/icono-192.png'],
@@ -1066,6 +1067,7 @@ function getAccountAppleTouchIconHref(accountId) {
     ['bruderpizza', '/bruderpizza/icono.png'],
     ['chicha', '/chicha/icono.png'],
     ['argenta', '/la-argenta/apple-touch-icon.png'],
+    ['grupo-lea', '/grupo-lea/apple-touch-icon.png'],
     ['kiosco-9', '/kiosco-9-de-julio/apple-touch-icon.png'],
     ['waffle', '/punto-waffle/apple-touch-icon.png'],
     ['fratello', '/fratello/apple-touch-icon.png'],
@@ -1252,6 +1254,10 @@ function getLoadingTemplate(accountId) {
   // esqueleto generico de bistro.
   if (key.includes('bruder')) {
     return 'bruder'
+  }
+
+  if (key.includes('grupo-lea') || key === 'grupolea') {
+    return 'grupo-lea'
   }
 
   if (key.includes('argenta')) {
@@ -4764,6 +4770,32 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menú</p>
 
             <div className="waffle-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'grupo-lea') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-grupo-lea">
+          <div className="lea-loading" role="status" aria-live="polite" aria-label="Cargando menu de GRUPO L.E.A">
+            <div className="lea-loading-sello" aria-hidden="true">
+              <span className="lea-loading-arco" />
+              <img src="/grupo-lea/icono.png" alt="" width="256" height="256" />
+            </div>
+
+            <div className="lea-loading-marca">
+              <strong>GRUPO L.E.A</strong>
+              <span>distribuidora de helados</span>
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="lea-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>
