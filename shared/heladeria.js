@@ -56,6 +56,29 @@ export function topePorNombre(nombre) {
  * de que esto fuera configurable; se sigue leyendo para no romper a los
  * locales que ya lo tienen.
  */
+function portadaDeDistribuidora(crudo) {
+  if (!crudo || typeof crudo !== 'object' || Array.isArray(crudo)) return null
+  const url = (v) => (/^https?:\/\/|^\//.test(String(v ?? '').trim()) ? String(v).trim() : '')
+  const txt = (v, max = 80) => String(v ?? '').trim().slice(0, max)
+  const lista = (v) => (Array.isArray(v) ? v : []).slice(0, 8)
+  const atajos = lista(crudo.atajos)
+    .map((e) => ({ label: txt(e?.label, 24), categoria: txt(e?.categoria, 60), imagen: url(e?.imagen) }))
+    .filter((e) => e.label && e.categoria)
+  const destacados = lista(crudo.destacados)
+    .map((e) => ({
+      titulo: txt(e?.titulo, 40), subtitulo: txt(e?.subtitulo, 40), chip: txt(e?.chip, 40),
+      categoria: txt(e?.categoria, 60), imagen: url(e?.imagen),
+    }))
+    .filter((e) => e.titulo && e.categoria)
+  const hero = url(crudo.hero)
+  if (!hero && !atajos.length && !destacados.length) return null
+  return {
+    hero, alt: txt(crudo.alt, 120),
+    kicker: txt(crudo.kicker, 40), titulo: txt(crudo.titulo, 60), subtitulo: txt(crudo.subtitulo, 120),
+    tituloLista: txt(crudo.tituloLista, 40), atajos, destacados,
+  }
+}
+
 export function configuracionDeHeladeria(theme) {
   const crudo = theme && typeof theme === 'object' ? theme.heladeria : null
   const config = crudo && typeof crudo === 'object' && !Array.isArray(crudo) ? crudo : {}
@@ -138,6 +161,9 @@ export function configuracionDeHeladeria(theme) {
     // los tamanos y no aparece la tarjeta fija de "Conos y copas", que lleva
     // al armado de potes y no a esos productos.
     carta: config.carta === true,
+    // Portada de una distribuidora: foto, atajos a las categorias y tarjetas
+    // de "Nuestros productos". Todo texto e imagen lo pone el local.
+    portada: portadaDeDistribuidora(config.portada),
     destacado: {
       id: destacadoId,
       nombre: destacadoNombre,

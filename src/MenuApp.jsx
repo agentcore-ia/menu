@@ -7251,8 +7251,86 @@ function TemplateMenuCollection({
     // una sola tarjeta que lleva a los tamaños. En ese caso se muestran los
     // tamaños directamente, que es lo primero que el cliente tiene que decidir.
     if (gelatoFormats.length <= 1 && gelatoSizeOptions.length) {
+      const portada = configHeladeria.portada
+      // Las categorias se buscan por nombre; si el local la renombro, el atajo
+      // simplemente no lleva a ningun lado en vez de romper la pantalla.
+      const irACategoria = (nombre) => {
+        const destino = categories.find((c) => slugify(c.label) === slugify(nombre))
+        const el = destino ? document.getElementById(`carta-${destino.id}`) : null
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
       return (
         <section className="section-block">
+          {portada ? (
+            <div className="gelato-portada">
+              {portada.hero ? (
+                <img className="gelato-portada-hero" src={portada.hero} alt={portada.alt} />
+              ) : null}
+              {portada.kicker || portada.titulo || portada.subtitulo ? (
+                <header className="gelato-portada-head">
+                  {portada.kicker ? (
+                    <span className="gelato-tamanos-kicker">
+                      {portada.kicker}
+                      <i aria-hidden="true" />
+                    </span>
+                  ) : null}
+                  {portada.titulo ? <h2>{portada.titulo}</h2> : null}
+                  {portada.subtitulo ? <p>{portada.subtitulo}</p> : null}
+                </header>
+              ) : null}
+              {portada.atajos.length ? (
+                <div className="gelato-atajos">
+                  {portada.atajos.map((atajo) => (
+                    <button
+                      key={atajo.label}
+                      type="button"
+                      className="gelato-atajo"
+                      onClick={() => irACategoria(atajo.categoria)}
+                    >
+                      {atajo.imagen ? <img src={atajo.imagen} alt="" aria-hidden="true" /> : null}
+                      <span>
+                        {atajo.label}
+                        <i aria-hidden="true">→</i>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+              {portada.destacados.length ? (
+                <div className="gelato-destacados">
+                  <div className="gelato-destacados-head">
+                    <h2>{portada.tituloLista || 'Nuestros productos'}</h2>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        document
+                          .querySelector('.gelato-carta-categoria')
+                          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                      }
+                    >
+                      Ver todos ›
+                    </button>
+                  </div>
+                  {portada.destacados.map((card) => (
+                    <button
+                      key={card.titulo}
+                      type="button"
+                      className="gelato-destacado"
+                      onClick={() => irACategoria(card.categoria)}
+                    >
+                      {card.imagen ? <img src={card.imagen} alt="" aria-hidden="true" /> : null}
+                      <span className="gelato-destacado-copy">
+                        <strong>{card.titulo}</strong>
+                        {card.subtitulo ? <small>{card.subtitulo}</small> : null}
+                        {card.chip ? <em>{card.chip}</em> : null}
+                      </span>
+                      <span className="gelato-destacado-flecha" aria-hidden="true">›</span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
           <header className="gelato-tamanos-head">
             <span className="gelato-tamanos-kicker">
               Armá tu pedido
@@ -7348,7 +7426,7 @@ function TemplateMenuCollection({
                     !category.items.some((item) => item.pideEleccion),
                 )
                 .map((category) => (
-                  <div key={category.id} className="gelato-carta-categoria">
+                  <div key={category.id} id={`carta-${category.id}`} className="gelato-carta-categoria">
                     <div className="section-heading">
                       <h2>{category.label}</h2>
                     </div>
