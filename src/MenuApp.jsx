@@ -7335,6 +7335,49 @@ function TemplateMenuCollection({
               })}
             </div>
           ) : null}
+
+          {/* CARTA. Solo los locales que la prenden (heladeria.carta): el resto
+              de sus categorias, como lista de productos con precio. */}
+          {configHeladeria.carta
+            ? categories
+                .filter(
+                  (category) =>
+                    category?.items?.length &&
+                    !category.soloEleccion &&
+                    !slugify(category.label).includes('formato-tamano') &&
+                    !category.items.some((item) => item.pideEleccion),
+                )
+                .map((category) => (
+                  <div key={category.id} className="gelato-carta-categoria">
+                    <div className="section-heading">
+                      <h2>{category.label}</h2>
+                    </div>
+                    <div className="dish-list">
+                      {category.items.map((item) => (
+                        <article key={item.id} className="dish-card gelato-carta-item">
+                          <div className="dish-body">
+                            <button type="button" className="dish-main" onClick={() => onOpenDish(item)}>
+                              <h3>{item.name}</h3>
+                              {item.description ? <p>{item.description}</p> : null}
+                            </button>
+                            <div className="dish-footer">
+                              <strong>{item.price}</strong>
+                              <button
+                                type="button"
+                                className="add-button"
+                                onClick={() => onAddItem(item)}
+                                aria-label={`Agregar ${item.name}`}
+                              >
+                                <IconPlus />
+                              </button>
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                ))
+            : null}
         </section>
       )
     }
@@ -8148,6 +8191,7 @@ export default function MenuApp() {
   // codigo (kilo / conos y copas / promos), asi que una heladeria que solo
   // vende por peso mostraba dos tarjetas que llevaban a pantallas vacias.
   const gelatoFormats = getGelatoFormats().filter((formato) => {
+    if (formato.id === 'conos' && configuracionDeHeladeria(presentation.theme).carta) return false
     if (formato.id === 'conos') return categories.some((c) => /cono|copa/i.test(c.label || ''))
     if (formato.id === 'promos') return categories.some((c) => /promo|combo/i.test(c.label || ''))
     return true

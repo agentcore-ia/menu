@@ -133,6 +133,11 @@ export function configuracionDeHeladeria(theme) {
     // prometa algo distinto de lo que sale. No toca la cabecera ni los
     // carteles de promo: esos no son fotos de producto.
     sinFotos: config.sinFotos === true,
+    // Local que vende ademas otras cosas (una distribuidora: palitos, potes,
+    // congelados): el resto de las categorias se muestra como carta debajo de
+    // los tamanos y no aparece la tarjeta fija de "Conos y copas", que lleva
+    // al armado de potes y no a esos productos.
+    carta: config.carta === true,
     destacado: {
       id: destacadoId,
       nombre: destacadoNombre,
