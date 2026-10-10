@@ -7467,6 +7467,16 @@ function TemplateMenuCollection({
                     <div className="gelato-carta-lista">
                       {category.items.map((item) => (
                         <div key={item.id} className="gelato-carta-fila">
+                          {item.hasCustomImage ? (
+                            <button
+                              type="button"
+                              className="gelato-carta-foto"
+                              onClick={() => onOpenDish(item)}
+                              aria-label={item.name}
+                            >
+                              <img src={item.image} alt="" loading="lazy" />
+                            </button>
+                          ) : null}
                           <button type="button" className="gelato-carta-info" onClick={() => onOpenDish(item)}>
                             <strong>{item.name}</strong>
                             {item.description ? <small>{item.description}</small> : null}
