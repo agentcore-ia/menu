@@ -376,6 +376,17 @@ export class SupabaseMenuRepository {
       stockByProductId,
       Boolean(restaurant.stock_strict_mode),
     )
+    // Heladeria con carta propia (heladeria.carta): solo los envases y las
+    // promos preguntan los gustos. Las demas categorias con precio (palitos,
+    // potes, congelados) se piden tal cual: la regla de forma del catalogo las
+    // marca a todas como "piden eleccion" y cada una abria el selector de
+    // sabores.
+    if (presentationConfig?.theme?.heladeria?.carta === true) {
+      for (const category of allRegularCategories) {
+        if (/formato|tamano|tamaño|promo|oferta|combo/i.test(String(category?.label ?? ''))) continue
+        for (const item of category.items ?? []) item.pideEleccion = false
+      }
+    }
     // El "menu del dia" (especial/gourmet/saludable/diario) se sirve desde la
     // carga diaria por fecha (dailyMenuCategory, RPC). Los productos que quedan
     // en esas categorias en la tabla products son del dia anterior (stale), asi
