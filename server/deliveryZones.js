@@ -2,6 +2,14 @@ const DEFAULT_COUNTRY = 'Argentina'
 const EARTH_RADIUS_KM = 6371
 
 import { direccionDeGoogle, direccionDeNominatim, puntoValido } from '../shared/ubicacionCliente.js'
+import {
+  alturaDe,
+  alturasVecinas,
+  conLaAltura,
+  direccionConAltura,
+  esPuerta,
+  soloLaCalleEscrita,
+} from '../shared/direccionCandidatos.js'
 
 export function normalizeDeliveryZones(value) {
   if (!Array.isArray(value)) return []
@@ -119,6 +127,8 @@ function mapGeocodeCandidate(result, fallbackLabel) {
     lat: coordinates.lat,
     lng: coordinates.lng,
     label: coordinates.label,
+    // "house" es una puerta; "residential" es la calle entera.
+    calidad: String(result?.type || result?.class || ''),
   }
 }
 
@@ -175,46 +185,90 @@ export async function geocodeDeliveryCandidates({ address, neighborhood, city, p
     }
   }
 
-  const url = new URL('https://nominatim.openstreetmap.org/search')
-  url.searchParams.set('format', 'jsonv2')
-  url.searchParams.set('limit', String(Math.min(Math.max(Number(limit) || 5, 1), 8)))
-  url.searchParams.set('addressdetails', '1')
-  url.searchParams.set('countrycodes', 'ar')
-  url.searchParams.set('q', queryLabel)
+  const buscarEnNominatim = async (texto) => {
+    const url = new URL('https://nominatim.openstreetmap.org/search')
+    url.searchParams.set('format', 'jsonv2')
+    url.searchParams.set('limit', String(Math.min(Math.max(Number(limit) || 5, 1), 8)))
+    url.searchParams.set('addressdetails', '1')
+    url.searchParams.set('countrycodes', 'ar')
+    url.searchParams.set('q', texto)
 
-  if (origin) {
-    const delta = 0.35
-    url.searchParams.set(
-      'viewbox',
-      `${origin.lng - delta},${origin.lat + delta},${origin.lng + delta},${origin.lat - delta}`,
-    )
+    if (origin) {
+      const delta = 0.35
+      url.searchParams.set(
+        'viewbox',
+        `${origin.lng - delta},${origin.lat + delta},${origin.lng + delta},${origin.lat - delta}`,
+      )
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'capta-menu-delivery-zones/1.0',
+        Accept: 'application/json',
+      },
+    })
+
+    if (!response.ok) return []
+
+    const results = await response.json()
+
+    if (!Array.isArray(results)) return []
+
+    return results
+      .map((result) => {
+        const mapped = mapGeocodeCandidate(result, texto)
+        if (!mapped) return null
+        return { ...mapped, engine: 'nominatim' }
+      })
+      .filter(Boolean)
+      .map((candidate) => ({
+        ...candidate,
+        distanceKm: origin ? getDistanceKm(candidate, origin) : null,
+      }))
+      .sort((a, b) => (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY))
   }
 
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent': 'capta-menu-delivery-zones/1.0',
-      Accept: 'application/json',
-    },
-  })
+  const exactos = await buscarEnNominatim(queryLabel)
 
-  if (!response.ok) return []
+  // Con una puerta encontrada, solo las que nombran la calle que escribio el
+  // cliente: "jose leon suarez 927" mostraba tambien "Acceso Eva Duarte de
+  // Peron" y le pedia que eligiera.
+  if (exactos.some((c) => esPuerta(c.calidad))) {
+    return soloLaCalleEscrita(exactos, address)
+  }
 
-  const results = await response.json()
+  // El mapa no tiene ESA altura (OpenStreetMap carga solo algunas puertas de
+  // cada calle) y devuelve la calle entera, con un punto en el medio que puede
+  // caer en otra zona de envio. Se usa la puerta vecina mas cercana y se
+  // conserva la altura que escribio el cliente.
+  const altura = alturaDe(address)
+  if (altura) {
+    for (const oleada of alturasVecinas(altura)) {
+      const hallados = await Promise.all(
+        oleada.map(async (vecina) => {
+          const texto = [direccionConAltura(String(address || '').trim(), altura, vecina), neighborhood, city, province, DEFAULT_COUNTRY]
+            .map((part) => String(part || '').trim())
+            .filter(Boolean)
+            .join(', ')
+          const lista = await buscarEnNominatim(texto).catch(() => [])
+          return { vecina, lista: soloLaCalleEscrita(lista.filter((c) => esPuerta(c.calidad)), address) }
+        }),
+      )
+      const conResultado = hallados
+        .filter((h) => h.lista.length)
+        .sort((a, b) => Math.abs(a.vecina - altura) - Math.abs(b.vecina - altura))
+      if (conResultado.length) {
+        const mejor = conResultado[0]
+        return mejor.lista.map((c) => ({
+          ...c,
+          label: conLaAltura(c.label, mejor.vecina, altura),
+          engine: 'nominatim-altura-cercana',
+        }))
+      }
+    }
+  }
 
-  if (!Array.isArray(results)) return []
-
-  return results
-    .map((result) => {
-      const mapped = mapGeocodeCandidate(result, queryLabel)
-      if (!mapped) return null
-      return { ...mapped, engine: 'nominatim' }
-    })
-    .filter(Boolean)
-    .map((candidate) => ({
-      ...candidate,
-      distanceKm: origin ? getDistanceKm(candidate, origin) : null,
-    }))
-    .sort((a, b) => (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY))
+  return soloLaCalleEscrita(exactos, address)
 }
 
 export async function geocodeDeliveryAddress(input) {
@@ -380,6 +434,19 @@ export async function resolveDeliveryQuote({
         : null,
     }
   })
+
+  // Una sola direccion, o varias que cuestan lo mismo y estan todas adentro:
+  // no hay nada que decidir, y pedirle al cliente que "confirme" su propia
+  // direccion es una vuelta de mas.
+  const todasPermitidas = candidatesWithZones.every((c) => c.allowed)
+  const mismoEnvio = candidatesWithZones.every((c) => Math.round(c.fee) === Math.round(candidatesWithZones[0].fee))
+  if (!confirmed && (candidatesWithZones.length === 1 || (todasPermitidas && mismoEnvio))) {
+    return {
+      ...buildQuoteForCoordinates({ coordinates: candidates[0], settings }),
+      candidates: [],
+      needsConfirmation: false,
+    }
+  }
 
   if (!confirmed) {
     return {
