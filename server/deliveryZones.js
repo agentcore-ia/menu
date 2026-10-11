@@ -143,6 +143,8 @@ async function buscarEnPhoton(texto, origin, limit) {
   if (origin) {
     url.searchParams.set('lat', String(origin.lat))
     url.searchParams.set('lon', String(origin.lng))
+    // Solo los alrededores del local: sin esto traia la misma calle de otras ciudades.
+    url.searchParams.set('bbox', `${origin.lng - 0.35},${origin.lat - 0.35},${origin.lng + 0.35},${origin.lat + 0.35}`)
   }
   const res = await fetch(url, {
     headers: { 'User-Agent': 'capta-menu-delivery-zones/1.0', Accept: 'application/json' },
