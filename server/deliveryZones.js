@@ -261,7 +261,11 @@ async function geocodeDeliveryCandidatesOsm({ address, neighborhood, city, provi
     // cae entre la 1550 y la 1650, o siguiendo la calle mas alla de la ultima.
     const tramo = delaCalle.find((c) => Number.isFinite(c.lat))
     const nombreCalle = tramo ? nombreDeCalleDeEtiqueta(tramo.label) : null
-    if (tramo && nombreCalle) {
+    // En una calle numerada ("Calle 88 275") el 88 es parte del nombre: si el
+    // tramo que devolvio el mapa es otra ("Calle 94"), sus puertas no valen.
+    const numerosDelNombre = (String(address || '').match(/\d+/g) || []).filter((n) => Number(n) !== altura)
+    const tramoEsLaEscrita = !tramo || numerosDelNombre.every((n) => new RegExp(`(^|[^0-9])${n}([^0-9]|$)`).test(tramo.label))
+    if (tramo && nombreCalle && tramoEsLaEscrita) {
       const puertas = await puertasDeLaCalle(nombreCalle, { lat: tramo.lat, lng: tramo.lng })
       const punto = ubicarAltura(altura, puertas)
       if (punto) {
