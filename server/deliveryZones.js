@@ -2,6 +2,7 @@ const DEFAULT_COUNTRY = 'Argentina'
 const EARTH_RADIUS_KM = 6371
 
 import { direccionDeGoogle, direccionDeNominatim, puntoValido } from '../shared/ubicacionCliente.js'
+import { nombreDeCalleDeEtiqueta, puertasDeLaCalle, ubicarAltura } from '../shared/alturaOverpass.js'
 import {
   alturaDe,
   alturasVecinas,
@@ -244,6 +245,25 @@ export async function geocodeDeliveryCandidates({ address, neighborhood, city, p
   // conserva la altura que escribio el cliente.
   const altura = alturaDe(address)
   if (altura) {
+    // Primero, las puertas conocidas de ESA calle (una sola consulta): la 1600
+    // cae entre la 1550 y la 1650, o siguiendo la calle mas alla de la ultima.
+    const tramo = delaCalle.find((c) => Number.isFinite(c.lat))
+    const nombreCalle = tramo ? nombreDeCalleDeEtiqueta(tramo.label) : null
+    if (tramo && nombreCalle) {
+      const puertas = await puertasDeLaCalle(nombreCalle, { lat: tramo.lat, lng: tramo.lng })
+      const punto = ubicarAltura(altura, puertas)
+      if (punto) {
+        return [{
+          id: `${punto.lat},${punto.lng}`,
+          lat: punto.lat,
+          lng: punto.lng,
+          label: `${altura}, ${tramo.label}`,
+          engine: 'overpass-altura',
+          calidad: 'house',
+          distanceKm: origin ? getDistanceKm(punto, origin) : null,
+        }]
+      }
+    }
     for (const oleada of alturasVecinas(altura)) {
       const hallados = await Promise.all(
         oleada.map(async (vecina) => {
