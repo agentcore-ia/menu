@@ -10,7 +10,7 @@
 
 const GENERICAS = new Set([
   'av', 'avda', 'avenida', 'calle', 'pasaje', 'pje', 'pj', 'bv', 'blvd', 'boulevard',
-  'diagonal', 'diag', 'ruta', 'camino', 'acceso', 'autopista', 'de', 'del', 'la', 'las', 'los', 'el', 'y',
+  'diagonal', 'diag', 'ruta', 'camino', 'acceso', 'autopista', 'al', 'de', 'del', 'la', 'las', 'los', 'el', 'y',
 ])
 
 function plano(texto) {

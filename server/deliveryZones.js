@@ -233,8 +233,9 @@ export async function geocodeDeliveryCandidates({ address, neighborhood, city, p
   // Con una puerta encontrada, solo las que nombran la calle que escribio el
   // cliente: "jose leon suarez 927" mostraba tambien "Acceso Eva Duarte de
   // Peron" y le pedia que eligiera.
-  if (exactos.some((c) => esPuerta(c.calidad))) {
-    return soloLaCalleEscrita(exactos, address)
+  const delaCalle = soloLaCalleEscrita(exactos, address)
+  if (delaCalle.some((c) => esPuerta(c.calidad))) {
+    return delaCalle
   }
 
   // El mapa no tiene ESA altura (OpenStreetMap carga solo algunas puertas de
@@ -268,7 +269,7 @@ export async function geocodeDeliveryCandidates({ address, neighborhood, city, p
     }
   }
 
-  return soloLaCalleEscrita(exactos, address)
+  return delaCalle
 }
 
 export async function geocodeDeliveryAddress(input) {
