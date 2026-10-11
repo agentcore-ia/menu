@@ -8,6 +8,7 @@ import {
   alturasVecinas,
   conLaAltura,
   direccionConAltura,
+  coincideConLoEscrito,
   esPuerta,
   soloLaCalleEscrita,
 } from '../shared/direccionCandidatos.js'
@@ -432,7 +433,7 @@ export async function geocodeDeliveryCandidates(input) {
     () => buscarEnMapbox(queryLabel, origin),
   ]) {
     try {
-      const lista = (await buscar()).sort(
+      const lista = (await buscar()).filter((c) => coincideConLoEscrito(c.label, address)).sort(
         (a, b) => (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY),
       )
       if (lista.some(esPuertaDeMapa)) return lista

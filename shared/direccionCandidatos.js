@@ -78,3 +78,15 @@ export function soloLaCalleEscrita(candidatos, direccion) {
 export function esPuerta(calidad) {
   return ['house', 'building', 'place', 'yes'].includes(String(calidad ?? '').toLowerCase())
 }
+
+/**
+ * Si una direccion de un proveedor pago es realmente la que se escribio: con
+ * calle nombrada, todas sus palabras; sin nombre ("Calle 88 275"), la altura.
+ */
+export function coincideConLoEscrito(etiqueta, direccion) {
+  const palabras = palabrasDeCalle(direccion)
+  const e = plano(etiqueta)
+  if (palabras.length) return palabras.every((p) => e.includes(p))
+  const altura = alturaDe(direccion)
+  return altura ? new RegExp(`(^| )${altura}( |$)`).test(e) : true
+}
