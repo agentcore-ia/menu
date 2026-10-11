@@ -133,6 +133,48 @@ function mapGeocodeCandidate(result, fallbackLabel) {
   }
 }
 
+// Nominatim pide una consulta por segundo. Si contesta con error o no responde
+// se pregunta a Photon (otro buscador sobre los mismos datos) en vez de decirle
+// al cliente que la direccion no existe.
+async function buscarEnPhoton(texto, origin, limit) {
+  const url = new URL('https://photon.komoot.io/api/')
+  url.searchParams.set('q', texto)
+  url.searchParams.set('limit', String(limit))
+  url.searchParams.set('lang', 'es')
+  if (origin) {
+    url.searchParams.set('lat', String(origin.lat))
+    url.searchParams.set('lon', String(origin.lng))
+  }
+  const res = await fetch(url, {
+    headers: { 'User-Agent': 'capta-menu-delivery-zones/1.0', Accept: 'application/json' },
+    signal: AbortSignal.timeout(8000),
+  })
+  if (!res.ok) return []
+  const json = await res.json().catch(() => null)
+  return (json?.features || [])
+    .filter((f) => String(f?.properties?.countrycode || '').toUpperCase() === 'AR')
+    .map((f) => {
+      const [lng, lat] = f?.geometry?.coordinates || []
+      const pr = f?.properties || {}
+      const calle = String(pr.street || pr.name || '').trim()
+      const label = [pr.housenumber ? String(pr.housenumber) : null, calle, pr.city, pr.county, pr.state]
+        .filter(Boolean)
+        .join(', ')
+      if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng)) || !calle) return null
+      return {
+        id: String(pr.osm_id || `${lat},${lng}`),
+        lat: Number(lat),
+        lng: Number(lng),
+        label,
+        engine: 'photon',
+        calidad: pr.housenumber ? 'house' : String(pr.osm_value || 'street'),
+        distanceKm: origin ? getDistanceKm({ lat: Number(lat), lng: Number(lng) }, origin) : null,
+      }
+    })
+    .filter(Boolean)
+    .sort((a, b) => (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY))
+}
+
 export async function geocodeDeliveryCandidates({ address, neighborhood, city, province, originCoordinates, limit = 5 }) {
   const parts = [address, neighborhood, city, province, DEFAULT_COUNTRY]
     .map((part) => String(part || '').trim())
@@ -202,16 +244,25 @@ export async function geocodeDeliveryCandidates({ address, neighborhood, city, p
       )
     }
 
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'capta-menu-delivery-zones/1.0',
-        Accept: 'application/json',
-      },
-    })
+    let response = null
+    try {
+      response = await fetch(url, {
+        headers: {
+          'User-Agent': 'capta-menu-delivery-zones/1.0',
+          Accept: 'application/json',
+        },
+        signal: AbortSignal.timeout(8000),
+      })
+    } catch {
+      response = null
+    }
 
-    if (!response.ok) return []
+    // Nominatim caido, limitado o lento: Photon, no "no existe".
+    if (!response || !response.ok) {
+      return buscarEnPhoton(texto, origin, Math.min(Math.max(Number(limit) || 5, 1), 8)).catch(() => [])
+    }
 
-    const results = await response.json()
+    const results = await response.json().catch(() => null)
 
     if (!Array.isArray(results)) return []
 
@@ -266,7 +317,7 @@ export async function geocodeDeliveryCandidates({ address, neighborhood, city, p
     }
     for (const oleada of alturasVecinas(altura)) {
       const hallados = await Promise.all(
-        oleada.map(async (vecina) => {
+        oleada.slice(0, 2).map(async (vecina) => {
           const texto = [direccionConAltura(String(address || '').trim(), altura, vecina), neighborhood, city, province, DEFAULT_COUNTRY]
             .map((part) => String(part || '').trim())
             .filter(Boolean)
