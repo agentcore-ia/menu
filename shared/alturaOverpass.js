@@ -95,6 +95,9 @@ export async function puertasDeLaCalle(calle, centro, medioLadoGrados = 0.06) {
         const lng = Number(e.lon)
         if (digitos && n > 0 && Number.isFinite(lat) && Number.isFinite(lng)) puertas.push({ n, lat, lng })
       }
+      // Overpass sobrecargado contesta 200 con la lista vacia y un "remark":
+      // eso no es "la calle no tiene puertas". No se guarda ni se acepta.
+      if (!puertas.length) continue
       CACHE.set(clave, { at: Date.now(), puertas })
       return puertas
     } catch {
