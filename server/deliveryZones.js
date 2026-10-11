@@ -386,7 +386,11 @@ async function buscarEnMapbox(queryLabel, origin) {
   url.searchParams.set('limit', '5')
   url.searchParams.set('language', 'es')
   url.searchParams.set('access_token', key)
-  if (origin) url.searchParams.set('proximity', `${origin.lng},${origin.lat}`)
+  if (origin) {
+    url.searchParams.set('proximity', `${origin.lng},${origin.lat}`)
+    // Solo los alrededores del local: "Pellegrini 1600" devolvia la de Bragado.
+    url.searchParams.set('bbox', `${origin.lng - 0.35},${origin.lat - 0.35},${origin.lng + 0.35},${origin.lat + 0.35}`)
+  }
   const response = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
   if (!response.ok) return []
   const data = await response.json().catch(() => null)
