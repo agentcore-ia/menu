@@ -140,7 +140,6 @@ async function buscarEnPhoton(texto, origin, limit) {
   const url = new URL('https://photon.komoot.io/api/')
   url.searchParams.set('q', texto)
   url.searchParams.set('limit', String(limit))
-  url.searchParams.set('lang', 'es')
   if (origin) {
     url.searchParams.set('lat', String(origin.lat))
     url.searchParams.set('lon', String(origin.lng))
