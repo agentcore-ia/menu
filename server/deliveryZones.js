@@ -303,63 +303,140 @@ async function geocodeDeliveryCandidatesOsm({ address, neighborhood, city, provi
   return delaCalle
 }
 
-// Google Maps solo cuando OpenStreetMap no encontro la puerta: cada consulta a
-// Google se cobra y OSM resuelve casi todo. Sin GOOGLE_MAPS_API_KEY queda el
-// resultado de OSM.
+// Cuando OpenStreetMap no encuentra la puerta se prueba, en este orden, con los
+// proveedores que tengan clave cargada: Google Maps, HERE y Mapbox. Cada uno se
+// cobra o tiene cupo, asi que solo se consulta si el anterior no dio una puerta.
+// Sin ninguna clave queda el resultado de OSM.
+const esPuertaDeMapa = (c) =>
+  ['house', 'building', 'place', 'yes'].includes(String(c?.calidad || '').toLowerCase())
+
+async function buscarEnGoogle(queryLabel, address, origin) {
+  const key = process.env.GOOGLE_MAPS_API_KEY
+  if (!key) return []
+  const url = new URL('https://maps.googleapis.com/maps/api/geocode/json')
+  url.searchParams.set('address', queryLabel)
+  url.searchParams.set('key', key)
+  url.searchParams.set('components', 'country:AR')
+  if (origin) {
+    url.searchParams.set('location', `${origin.lat},${origin.lng}`)
+    url.searchParams.set('radius', '20000')
+  }
+  const response = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
+  if (!response.ok) return []
+  const data = await response.json()
+  if (data.status !== 'OK' || !Array.isArray(data.results)) return []
+  return data.results
+    .map((r) => {
+      const location = r.geometry?.location
+      const label = String(r.formatted_address || queryLabel)
+      if (/\d/.test(String(address)) && !/\d/.test(label)) return null
+      const coords = normalizeCoordinates({ lat: location?.lat, lng: location?.lng, label })
+      if (!coords) return null
+      return {
+        id: String(r.place_id || `${coords.lat},${coords.lng}`),
+        lat: coords.lat,
+        lng: coords.lng,
+        label: coords.label,
+        engine: 'google',
+        calidad: 'house',
+        distanceKm: origin ? getDistanceKm(coords, origin) : null,
+      }
+    })
+    .filter(Boolean)
+}
+
+async function buscarEnHere(queryLabel, origin) {
+  const key = process.env.HERE_API_KEY
+  if (!key) return []
+  const url = new URL('https://geocode.search.hereapi.com/v1/geocode')
+  url.searchParams.set('q', queryLabel)
+  url.searchParams.set('in', 'countryCode:ARG')
+  url.searchParams.set('limit', '5')
+  url.searchParams.set('lang', 'es')
+  url.searchParams.set('apiKey', key)
+  if (origin) url.searchParams.set('at', `${origin.lat},${origin.lng}`)
+  const response = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
+  if (!response.ok) return []
+  const data = await response.json().catch(() => null)
+  return (data?.items || [])
+    .map((it) => {
+      const lat = Number(it?.position?.lat)
+      const lng = Number(it?.position?.lng)
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+      return {
+        id: String(it?.id || `${lat},${lng}`),
+        lat,
+        lng,
+        label: String(it?.address?.label || it?.title || queryLabel),
+        engine: 'here',
+        // houseNumber = puerta (puntual o interpolada); street/locality = solo la calle o la zona.
+        calidad: it?.resultType === 'houseNumber' ? 'house' : String(it?.resultType || 'street'),
+        distanceKm: origin ? getDistanceKm({ lat, lng }, origin) : null,
+      }
+    })
+    .filter(Boolean)
+}
+
+async function buscarEnMapbox(queryLabel, origin) {
+  const key = process.env.MAPBOX_TOKEN
+  if (!key) return []
+  const url = new URL('https://api.mapbox.com/search/geocode/v6/forward')
+  url.searchParams.set('q', queryLabel)
+  url.searchParams.set('country', 'ar')
+  url.searchParams.set('limit', '5')
+  url.searchParams.set('language', 'es')
+  url.searchParams.set('access_token', key)
+  if (origin) url.searchParams.set('proximity', `${origin.lng},${origin.lat}`)
+  const response = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
+  if (!response.ok) return []
+  const data = await response.json().catch(() => null)
+  return (data?.features || [])
+    .map((f) => {
+      const [lng, lat] = f?.geometry?.coordinates || []
+      if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) return null
+      const pr = f?.properties || {}
+      return {
+        id: String(f?.id || `${lat},${lng}`),
+        lat: Number(lat),
+        lng: Number(lng),
+        label: String(pr.full_address || pr.name || queryLabel),
+        engine: 'mapbox',
+        calidad: pr.feature_type === 'address' ? 'house' : String(pr.feature_type || 'street'),
+        distanceKm: origin ? getDistanceKm({ lat: Number(lat), lng: Number(lng) }, origin) : null,
+      }
+    })
+    .filter(Boolean)
+}
+
 export async function geocodeDeliveryCandidates(input) {
   const osm = await geocodeDeliveryCandidatesOsm(input)
-  const hayPuerta = osm.some(
-    (c) => ['house', 'building', 'place', 'yes'].includes(String(c?.calidad || '').toLowerCase()) || c?.engine === 'google',
-  )
-  if (hayPuerta) return osm
+  if (osm.some(esPuertaDeMapa)) return osm
 
-  const googleApiKey = process.env.GOOGLE_MAPS_API_KEY
   const { address, neighborhood, city, province, originCoordinates } = input
-  if (!googleApiKey || String(address || '').trim().length < 4) return osm
+  const tieneClave = Boolean(process.env.GOOGLE_MAPS_API_KEY || process.env.HERE_API_KEY || process.env.MAPBOX_TOKEN)
+  if (!tieneClave || String(address || '').trim().length < 4) return osm
 
   const queryLabel = [address, neighborhood, city, province, DEFAULT_COUNTRY]
     .map((part) => String(part || '').trim())
     .filter(Boolean)
     .join(', ')
   const origin = normalizeCoordinates(originCoordinates)
-  const googleUrl = new URL('https://maps.googleapis.com/maps/api/geocode/json')
-  googleUrl.searchParams.set('address', queryLabel)
-  googleUrl.searchParams.set('key', googleApiKey)
-  googleUrl.searchParams.set('components', 'country:AR')
-  if (origin) {
-    googleUrl.searchParams.set('location', `${origin.lat},${origin.lng}`)
-    googleUrl.searchParams.set('radius', '20000')
-  }
 
-  try {
-    const response = await fetch(googleUrl, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
-    if (!response.ok) return osm
-    const data = await response.json()
-    if (data.status !== 'OK' || !Array.isArray(data.results)) return osm
-    const deGoogle = data.results
-      .map((r) => {
-        const location = r.geometry?.location
-        const label = String(r.formatted_address || queryLabel)
-        if (/\d/.test(String(address)) && !/\d/.test(label)) return null
-        const coords = normalizeCoordinates({ lat: location?.lat, lng: location?.lng, label })
-        if (!coords) return null
-        return {
-          id: String(r.place_id || `${coords.lat},${coords.lng}`),
-          lat: coords.lat,
-          lng: coords.lng,
-          label: coords.label,
-          engine: 'google',
-          calidad: 'house',
-          distanceKm: origin ? getDistanceKm(coords, origin) : null,
-        }
-      })
-      .filter(Boolean)
-      .sort((a, b) => (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY))
-    return deGoogle.length ? deGoogle : osm
-  } catch (err) {
-    console.warn('menu: Google Maps geocoding failed, using OpenStreetMap result', err)
-    return osm
+  for (const buscar of [
+    () => buscarEnGoogle(queryLabel, address, origin),
+    () => buscarEnHere(queryLabel, origin),
+    () => buscarEnMapbox(queryLabel, origin),
+  ]) {
+    try {
+      const lista = (await buscar()).sort(
+        (a, b) => (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY),
+      )
+      if (lista.some(esPuertaDeMapa)) return lista
+    } catch (err) {
+      console.warn('menu: proveedor de mapas fallo, se sigue con el siguiente', err)
+    }
   }
+  return osm
 }
 
 export async function geocodeDeliveryAddress(input) {
