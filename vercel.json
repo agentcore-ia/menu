@@ -181,6 +181,16 @@
       "has": [
         {
           "type": "host",
+          "value": "elcopetinensandwich.menu.net.ar"
+        }
+      ],
+      "destination": "/copetin-sandwich.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "kiosco9.menu.net.ar"
         }
       ],
