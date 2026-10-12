@@ -21017,3 +21017,104 @@ html:has(.menu-modo-kiosco) #root {
 .account-copetin-sandwich .pampa-hero-media .hero-image-slider {
   height: 100%;
 }
+
+/* El Copetin: pantalla de carga oscura con su sello terracota. */
+.loading-copetin {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.2rem, 5vw, 2rem);
+  background:
+    radial-gradient(circle at 50% 36%, rgba(226, 85, 59, 0.2), transparent 48%),
+    #0b0a08;
+}
+
+.loading-copetin::before,
+.loading-copetin::after {
+  display: none;
+}
+
+.copetin-loading {
+  width: min(100%, 17rem);
+  display: grid;
+  justify-items: center;
+  gap: clamp(1.2rem, 5vw, 1.8rem);
+  color: #f7efe2;
+  text-align: center;
+}
+
+.copetin-loading-sello {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(8rem, 40vw, 10rem);
+  aspect-ratio: 1;
+}
+
+.copetin-loading-arco {
+  position: absolute;
+  inset: 0;
+  border: 0.18rem solid rgba(226, 85, 59, 0.2);
+  border-top-color: #e2553b;
+  border-radius: 50%;
+  animation: kiosco-loading-girar 1.1s linear infinite;
+}
+
+.copetin-loading-sello img {
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  box-shadow: 0 0.9rem 1.8rem rgba(226, 85, 59, 0.3);
+  animation: kiosco-loading-latir 1.8s ease-in-out infinite;
+}
+
+.copetin-loading-marca {
+  display: grid;
+  gap: 0.4rem;
+  line-height: 1;
+}
+
+.copetin-loading-marca strong {
+  color: #f7efe2;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.9rem, 9vw, 2.4rem);
+  letter-spacing: 0.04em;
+}
+
+.copetin-loading-marca span {
+  color: #e2553b;
+  font: italic 700 1.05rem / 1 Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.1em;
+}
+
+.copetin-loading p {
+  margin: 0;
+  color: rgba(247, 239, 226, 0.6);
+  font: 700 0.9rem / 1 var(--font-body);
+  letter-spacing: 0.04em;
+}
+
+.copetin-loading-progress {
+  width: min(100%, 8.5rem);
+  height: 0.28rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(247, 239, 226, 0.12);
+}
+
+.copetin-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: #e2553b;
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copetin-loading-arco,
+  .copetin-loading-sello img,
+  .copetin-loading-progress span {
+    animation: none;
+  }
+}

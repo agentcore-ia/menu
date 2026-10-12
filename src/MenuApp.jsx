@@ -1028,6 +1028,7 @@ function getAccountFaviconHref(accountId) {
     // Cuentas nuevas: el favicon es el icono de 192 (nitido en pantallas de alta densidad).
     ['argenta', '/la-argenta/icono-192.png'],
     ['grupo-lea', '/grupo-lea/icono-192.png'],
+    ['copetin', '/copetin-sandwich/icono-192.png'],
     ['kiosco-9', '/kiosco-9-de-julio/icono-192.png'],
     ['waffle', '/punto-waffle/icono-192.png'],
     ['fratello', '/fratello/icono-192.png'],
@@ -1069,6 +1070,7 @@ function getAccountAppleTouchIconHref(accountId) {
     ['chicha', '/chicha/icono.png'],
     ['argenta', '/la-argenta/apple-touch-icon.png'],
     ['grupo-lea', '/grupo-lea/apple-touch-icon.png'],
+    ['copetin', '/copetin-sandwich/apple-touch-icon.png'],
     ['kiosco-9', '/kiosco-9-de-julio/apple-touch-icon.png'],
     ['waffle', '/punto-waffle/apple-touch-icon.png'],
     ['fratello', '/fratello/apple-touch-icon.png'],
@@ -1259,6 +1261,10 @@ function getLoadingTemplate(accountId) {
 
   if (key.includes('grupo-lea') || key === 'grupolea') {
     return 'grupo-lea'
+  }
+
+  if (key.includes('copetin')) {
+    return 'copetin'
   }
 
   if (key.includes('argenta')) {
@@ -4771,6 +4777,32 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menú</p>
 
             <div className="waffle-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'copetin') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-copetin">
+          <div className="copetin-loading" role="status" aria-live="polite" aria-label="Cargando menu de El Copetin">
+            <div className="copetin-loading-sello" aria-hidden="true">
+              <span className="copetin-loading-arco" />
+              <img src="/copetin-sandwich/icono.png" alt="" width="256" height="256" />
+            </div>
+
+            <div className="copetin-loading-marca">
+              <strong>El Copetín</strong>
+              <span>en sandwich</span>
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="copetin-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>
