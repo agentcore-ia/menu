@@ -21118,21 +21118,3 @@ html:has(.menu-modo-kiosco) #root {
     animation: none;
   }
 }
-
-/* El Copetin: fondo #384363 en toda la pagina (la plantilla trae negro). */
-.account-copetin-sandwich.template-sabor-pampa,
-.account-copetin-sandwich.template-sabor-pampa.phone-surface,
-.account-copetin-sandwich.template-sabor-pampa .content-panel,
-.account-copetin-sandwich .pampa-menu-head {
-  background: #384363;
-}
-
-.account-copetin-sandwich .hero-sabor-pampa {
-  background: #384363;
-}
-
-.loading-copetin {
-  background:
-    radial-gradient(circle at 50% 36%, rgba(226, 85, 59, 0.2), transparent 48%),
-    #384363;
-}
