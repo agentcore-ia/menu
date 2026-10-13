@@ -21122,83 +21122,83 @@ html:has(.menu-modo-kiosco) #root {
 /* === copetin-marca:inicio (generado por scripts/copetin-colores.cjs) === */
 .account-copetin-sandwich .detail-phone.template-sabor-pampa .pairing-card,
 .detail-phone.template-sabor-pampa.account-copetin-sandwich .pairing-card {
-  border-color: rgba(232, 165, 146, 0.24);
-  background: radial-gradient(circle at 94% 16%, rgba(232, 165, 146, 0.14), transparent 38%),
+  border-color: rgba(235, 229, 210, 0.24);
+  background: radial-gradient(circle at 94% 16%, rgba(235, 229, 210, 0.14), transparent 38%),
     linear-gradient(135deg, rgba(18, 17, 14, 0.96), rgba(5, 7, 6, 0.98));
 }
 
 .account-copetin-sandwich .detail-phone.template-sabor-pampa .pairing-card-copy small,
 .detail-phone.template-sabor-pampa.account-copetin-sandwich .pairing-card-copy small {
-  color: rgba(232, 165, 146, 0.82);
+  color: rgba(235, 229, 210, 0.82);
 }
 
 .account-copetin-sandwich .detail-phone.template-sabor-pampa .pairing-card-copy em,
 .detail-phone.template-sabor-pampa.account-copetin-sandwich .pairing-card-copy em {
-  color: #E8A592;
+  color: #EBE5D2;
 }
 
 .account-copetin-sandwich .detail-phone.template-sabor-pampa .pairing-card-plus,
 .detail-phone.template-sabor-pampa.account-copetin-sandwich .pairing-card-plus {
-  background: #E8A592;
+  background: #EBE5D2;
 }
 
 .account-copetin-sandwich .confirmation-card-sabor-pampa,
 .confirmation-card-sabor-pampa.account-copetin-sandwich {
-  background: radial-gradient(circle at 86% 6%, rgba(232, 165, 146, 0.12), transparent 28%),
-    linear-gradient(180deg, #393E50 0%, #44495C 100%);
-  border: 0.08rem solid rgba(232, 165, 146, 0.28);
+  background: radial-gradient(circle at 86% 6%, rgba(235, 229, 210, 0.12), transparent 28%),
+    linear-gradient(180deg, #3B3D4C 0%, #44495C 100%);
+  border: 0.08rem solid rgba(235, 229, 210, 0.28);
 }
 
 .account-copetin-sandwich .confirmation-burger-top,
 .confirmation-burger-top.account-copetin-sandwich {
   background: radial-gradient(circle at 76% 12%, rgba(255, 184, 49, 0.24), transparent 4.6rem),
-    linear-gradient(135deg, #393E50 0%, #44495C 100%);
+    linear-gradient(135deg, #3B3D4C 0%, #44495C 100%);
 }
 
 .account-copetin-sandwich .confirmation-pampa-top,
 .confirmation-pampa-top.account-copetin-sandwich {
-  border: 0.08rem solid rgba(232, 165, 146, 0.28);
-  background: radial-gradient(circle at 88% 10%, rgba(232, 165, 146, 0.18), transparent 4.8rem),
+  border: 0.08rem solid rgba(235, 229, 210, 0.28);
+  background: radial-gradient(circle at 88% 10%, rgba(235, 229, 210, 0.18), transparent 4.8rem),
     linear-gradient(135deg, rgba(18, 17, 14, 0.98), rgba(5, 7, 6, 0.98));
 }
 
 .account-copetin-sandwich .confirmation-pampa-top::after,
 .confirmation-pampa-top.account-copetin-sandwich::after {
-  border: 0.08rem solid rgba(232, 165, 146, 0.22);
+  border: 0.08rem solid rgba(235, 229, 210, 0.22);
 }
 
 .account-copetin-sandwich .confirmation-pampa-seal,
 .confirmation-pampa-seal.account-copetin-sandwich {
-  background: #E8A592;
-  box-shadow: 0 0.85rem 1.45rem rgba(232, 165, 146, 0.18);
+  background: #EBE5D2;
+  box-shadow: 0 0.85rem 1.45rem rgba(235, 229, 210, 0.18);
 }
 
 .account-copetin-sandwich .confirmation-pampa-top small,
 .confirmation-pampa-top.account-copetin-sandwich small {
-  color: #E8A592;
+  color: #EBE5D2;
 }
 
 .account-copetin-sandwich .confirmation-card-sabor-pampa .confirmation-kicker,
 .confirmation-card-sabor-pampa.account-copetin-sandwich .confirmation-kicker {
-  background: rgba(232, 165, 146, 0.13);
-  color: #E8A592;
+  background: rgba(235, 229, 210, 0.13);
+  color: #EBE5D2;
 }
 
 .account-copetin-sandwich .confirmation-card-sabor-pampa .confirmation-meta div,
 .confirmation-card-sabor-pampa.account-copetin-sandwich .confirmation-meta div {
-  border-color: rgba(232, 165, 146, 0.2);
+  border-color: rgba(235, 229, 210, 0.2);
 }
 
 .account-copetin-sandwich .confirmation-card-sabor-pampa .confirmation-step.active > span,
 .confirmation-card-sabor-pampa.account-copetin-sandwich .confirmation-step.active > span {
-  background: #E8A592;
-  box-shadow: 0 10px 18px rgba(232, 165, 146, 0.18);
+  background: #EBE5D2;
+  box-shadow: 0 10px 18px rgba(235, 229, 210, 0.18);
 }
 
 .account-copetin-sandwich .confirmation-card-sabor-pampa .confirmation-button,
 .confirmation-card-sabor-pampa.account-copetin-sandwich .confirmation-button {
-  background: #E8A592;
-  box-shadow: 0 16px 28px rgba(232, 165, 146, 0.18);
+  background: #EBE5D2;
+  box-shadow: 0 16px 28px rgba(235, 229, 210, 0.18);
 }
 
 .account-copetin-sandwich .template-sabor-pampa,
@@ -21208,7 +21208,7 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-copetin-sandwich .template-sabor-pampa.phone-surface,
 .template-sabor-pampa.phone-surface.account-copetin-sandwich {
-  border-color: rgba(232, 165, 146, 0.24);
+  border-color: rgba(235, 229, 210, 0.24);
   background: #44495C;
 }
 
@@ -21221,35 +21221,35 @@ html:has(.menu-modo-kiosco) #root {
 .template-sabor-pampa.account-copetin-sandwich .icon-button,
 .account-copetin-sandwich .template-sabor-pampa .cart-button,
 .template-sabor-pampa.account-copetin-sandwich .cart-button {
-  box-shadow: inset 0 0 0 0.08rem rgba(232, 165, 146, 0.08);
+  box-shadow: inset 0 0 0 0.08rem rgba(235, 229, 210, 0.08);
 }
 
 .account-copetin-sandwich .template-sabor-pampa .cart-badge,
 .template-sabor-pampa.account-copetin-sandwich .cart-badge {
-  background: #E8A592;
+  background: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-hero-placeholder,
 .pampa-hero-placeholder.account-copetin-sandwich {
-  background: radial-gradient(circle at 74% 34%, rgba(232, 165, 146, 0.18), transparent 24%),
-    linear-gradient(135deg, #34394A 0%, #44495C 58%, #393E50 100%);
+  background: radial-gradient(circle at 74% 34%, rgba(235, 229, 210, 0.18), transparent 24%),
+    linear-gradient(135deg, #3B3D4C 0%, #44495C 58%, #3B3D4C 100%);
 }
 
 .account-copetin-sandwich .pampa-hero-placeholder::before,
 .pampa-hero-placeholder.account-copetin-sandwich::before {
-  border: 0.08rem dashed rgba(232, 165, 146, 0.34);
-  background: radial-gradient(circle at 70% 58%, rgba(232, 165, 146, 0.16), transparent 36%),
+  border: 0.08rem dashed rgba(235, 229, 210, 0.34);
+  background: radial-gradient(circle at 70% 58%, rgba(235, 229, 210, 0.16), transparent 36%),
     rgba(3, 5, 5, 0.52);
 }
 
 .account-copetin-sandwich .pampa-hero-script,
 .pampa-hero-script.account-copetin-sandwich {
-  color: #E8A592;
+  color: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-feature-strip svg,
 .pampa-feature-strip.account-copetin-sandwich svg {
-  color: #E8A592 !important;
+  color: #EBE5D2 !important;
 }
 
 .account-copetin-sandwich .template-sabor-pampa .content-panel,
@@ -21261,68 +21261,68 @@ html:has(.menu-modo-kiosco) #root {
 .pampa-menu-title.account-copetin-sandwich span,
 .account-copetin-sandwich .pampa-section-heading span,
 .pampa-section-heading.account-copetin-sandwich span {
-  background: #E8A592;
+  background: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-search-button,
 .pampa-search-button.account-copetin-sandwich {
-  border: 0.08rem solid rgba(232, 165, 146, 0.45);
-  color: #E8A592;
-  background: rgba(232, 165, 146, 0.1);
+  border: 0.08rem solid rgba(235, 229, 210, 0.45);
+  color: #EBE5D2;
+  background: rgba(235, 229, 210, 0.1);
   box-shadow: inset 0 0.08rem 0 rgba(247, 239, 226, 0.08),
-    0 0 0 0.2rem rgba(232, 165, 146, 0.08);
+    0 0 0 0.2rem rgba(235, 229, 210, 0.08);
 }
 
 .account-copetin-sandwich .pampa-search-button svg,
 .pampa-search-button.account-copetin-sandwich svg {
-  stroke: #E8A592;
+  stroke: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-search-form,
 .pampa-search-form.account-copetin-sandwich {
-  border: 0.08rem solid rgba(232, 165, 146, 0.34);
+  border: 0.08rem solid rgba(235, 229, 210, 0.34);
 }
 
 .account-copetin-sandwich .pampa-search-form svg,
 .pampa-search-form.account-copetin-sandwich svg {
-  color: #E8A592;
+  color: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-search-clear,
 .pampa-search-clear.account-copetin-sandwich {
-  background: #E8A592;
+  background: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-category-icon,
 .pampa-category-icon.account-copetin-sandwich {
-  color: #E8A592;
+  color: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-category-pill.active .pampa-category-icon,
 .pampa-category-pill.active.account-copetin-sandwich .pampa-category-icon {
-  border-color: #E8A592;
-  background: #E8A592;
-  box-shadow: 0 0 0 0.22rem rgba(232, 165, 146, 0.14);
+  border-color: #EBE5D2;
+  background: #EBE5D2;
+  box-shadow: 0 0 0 0.22rem rgba(235, 229, 210, 0.14);
 }
 
 .account-copetin-sandwich .pampa-daily-filter-pill,
 .pampa-daily-filter-pill.account-copetin-sandwich {
-  border: 0.08rem solid #E8A592;
+  border: 0.08rem solid #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-daily-filter-pill.active,
 .pampa-daily-filter-pill.active.account-copetin-sandwich {
-  background: #E8A592;
+  background: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-featured-card,
 .pampa-featured-card.account-copetin-sandwich {
-  background: #393E50;
+  background: #3B3D4C;
 }
 
 .account-copetin-sandwich .pampa-featured-card.no-media,
 .pampa-featured-card.no-media.account-copetin-sandwich {
-  background: radial-gradient(circle at 86% 18%, rgba(232, 165, 146, 0.12), transparent 30%),
+  background: radial-gradient(circle at 86% 18%, rgba(235, 229, 210, 0.12), transparent 30%),
     linear-gradient(145deg, rgba(21, 19, 15, 0.98), rgba(5, 7, 6, 0.98));
 }
 
@@ -21330,96 +21330,96 @@ html:has(.menu-modo-kiosco) #root {
 .pampa-card-badge.account-copetin-sandwich,
 .account-copetin-sandwich .pampa-favorite-ribbon,
 .pampa-favorite-ribbon.account-copetin-sandwich {
-  background: #E8A592;
+  background: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-product-category,
 .pampa-product-category.account-copetin-sandwich {
-  color: #E8A592;
+  color: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-slider-dots .active,
 .pampa-slider-dots.account-copetin-sandwich .active {
-  background: #E8A592;
+  background: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-product-card,
 .pampa-product-card.account-copetin-sandwich {
-  background: #393E50;
+  background: #3B3D4C;
 }
 
 .account-copetin-sandwich .pampa-product-card.no-media,
 .pampa-product-card.no-media.account-copetin-sandwich {
-  background: #393E50;
+  background: #3B3D4C;
 }
 
 .account-copetin-sandwich .pampa-product-footer,
 .pampa-product-footer.account-copetin-sandwich {
-  border-top: 0.08rem dashed rgba(232, 165, 146, 0.62);
+  border-top: 0.08rem dashed rgba(235, 229, 210, 0.62);
 }
 
 .account-copetin-sandwich .pampa-product-footer strong,
 .pampa-product-footer.account-copetin-sandwich strong {
-  color: #E8A592;
+  color: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-add-button,
 .pampa-add-button.account-copetin-sandwich {
-  background: #E8A592;
+  background: #EBE5D2;
 }
 
 .account-copetin-sandwich .detail-phone.template-sabor-pampa .pampa-detail-bulk-actions button,
 .detail-phone.template-sabor-pampa.account-copetin-sandwich .pampa-detail-bulk-actions button {
-  border: 0.08rem solid rgba(232, 165, 146, 0.34);
-  background: radial-gradient(circle at 92% 18%, rgba(232, 165, 146, 0.16), transparent 42%),
+  border: 0.08rem solid rgba(235, 229, 210, 0.34);
+  background: radial-gradient(circle at 92% 18%, rgba(235, 229, 210, 0.16), transparent 42%),
     linear-gradient(135deg, rgba(18, 17, 14, 0.96), rgba(5, 7, 6, 0.98));
 }
 
 .account-copetin-sandwich .detail-phone.template-sabor-pampa .pampa-detail-bulk-actions strong,
 .detail-phone.template-sabor-pampa.account-copetin-sandwich .pampa-detail-bulk-actions strong {
-  background: #E8A592;
+  background: #EBE5D2;
 }
 
 .account-copetin-sandwich .loading-sabor-pampa,
 .loading-sabor-pampa.account-copetin-sandwich {
   --loading-bg: #44495C;
-  --loading-surface: #393E50;
-  --loading-primary: #E8A592;
-  --loading-border: rgba(232, 165, 146, 0.22);
+  --loading-surface: #3B3D4C;
+  --loading-primary: #EBE5D2;
+  --loading-border: rgba(235, 229, 210, 0.22);
 }
 
 .account-copetin-sandwich .loading-sabor-pampa-simple,
 .loading-sabor-pampa-simple.account-copetin-sandwich {
-  background: radial-gradient(circle at 50% 18%, rgba(232, 165, 146, 0.12), transparent 30%),
-    linear-gradient(180deg, #393E50 0%, #44495C 100%);
+  background: radial-gradient(circle at 50% 18%, rgba(235, 229, 210, 0.12), transparent 30%),
+    linear-gradient(180deg, #3B3D4C 0%, #44495C 100%);
 }
 
 .account-copetin-sandwich .pampa-loading-simple,
 .pampa-loading-simple.account-copetin-sandwich {
-  border: 0.08rem solid rgba(232, 165, 146, 0.24);
-  background: radial-gradient(circle at 86% 8%, rgba(232, 165, 146, 0.12), transparent 28%),
+  border: 0.08rem solid rgba(235, 229, 210, 0.24);
+  background: radial-gradient(circle at 86% 8%, rgba(235, 229, 210, 0.12), transparent 28%),
     rgba(17, 16, 13, 0.9);
 }
 
 .account-copetin-sandwich .pampa-loading-glow,
 .pampa-loading-glow.account-copetin-sandwich {
-  background: rgba(232, 165, 146, 0.16);
+  background: rgba(235, 229, 210, 0.16);
 }
 
 .account-copetin-sandwich .pampa-loading-icon,
 .pampa-loading-icon.account-copetin-sandwich {
-  background: #E8A592;
-  box-shadow: 0 0.85rem 1.6rem rgba(232, 165, 146, 0.2);
+  background: #EBE5D2;
+  box-shadow: 0 0.85rem 1.6rem rgba(235, 229, 210, 0.2);
 }
 
 .account-copetin-sandwich .pampa-loading-progress span,
 .pampa-loading-progress.account-copetin-sandwich span {
-  background: #E8A592;
+  background: #EBE5D2;
 }
 
 .account-copetin-sandwich .pampa-brand-texto strong,
 .pampa-brand-texto.account-copetin-sandwich strong {
-  color: var(--theme-primary, #E8A592);
+  color: var(--theme-primary, #EBE5D2);
 }
 
 .account-copetin-sandwich .loading-chicha,
@@ -21429,13 +21429,13 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-copetin-sandwich .chicha-loading-arco,
 .chicha-loading-arco.account-copetin-sandwich {
-  border-top-color: #E8A592;
-  border-right-color: rgba(232, 165, 146, 0.3);
+  border-top-color: #EBE5D2;
+  border-right-color: rgba(235, 229, 210, 0.3);
 }
 
 .account-copetin-sandwich .chicha-loading-progress,
 .chicha-loading-progress.account-copetin-sandwich {
-  background: rgba(232, 165, 146, 0.2);
+  background: rgba(235, 229, 210, 0.2);
 }
 
 .account-copetin-sandwich .loading-craft,
@@ -21445,34 +21445,34 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-copetin-sandwich .craft-loading-sello,
 .craft-loading-sello.account-copetin-sandwich {
-  border: 0.06rem solid rgba(232, 165, 146, 0.24);
-  background: radial-gradient(circle at 50% 42%, rgba(232, 165, 146, 0.16), rgba(232, 165, 146, 0.03) 72%);
+  border: 0.06rem solid rgba(235, 229, 210, 0.24);
+  background: radial-gradient(circle at 50% 42%, rgba(235, 229, 210, 0.16), rgba(235, 229, 210, 0.03) 72%);
 }
 
 .account-copetin-sandwich .craft-loading-arco,
 .craft-loading-arco.account-copetin-sandwich {
-  border-top-color: #E8A592;
-  border-right-color: rgba(232, 165, 146, 0.34);
+  border-top-color: #EBE5D2;
+  border-right-color: rgba(235, 229, 210, 0.34);
 }
 
 .account-copetin-sandwich .craft-loading-icono,
 .craft-loading-icono.account-copetin-sandwich {
-  color: #E8A592;
+  color: #EBE5D2;
 }
 
 .account-copetin-sandwich .craft-loading-marca span,
 .craft-loading-marca.account-copetin-sandwich span {
-  color: #E8A592;
+  color: #EBE5D2;
 }
 
 .account-copetin-sandwich .craft-loading-progress,
 .craft-loading-progress.account-copetin-sandwich {
-  background: rgba(232, 165, 146, 0.2);
+  background: rgba(235, 229, 210, 0.2);
 }
 
 .account-copetin-sandwich .craft-loading-progress span,
 .craft-loading-progress.account-copetin-sandwich span {
-  background: linear-gradient(90deg, #e0a329, #E8A592);
+  background: linear-gradient(90deg, #e0a329, #EBE5D2);
 }
 
 .account-copetin-sandwich .menu-modo-kiosco .kiosco-head,
