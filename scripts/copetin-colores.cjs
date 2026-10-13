@@ -33,13 +33,24 @@ const origen = fs.readFileSync(CSS, "utf8");
 const sinBloque = origen.includes(INI) ? origen.slice(0, origen.indexOf(INI)).trimEnd() + "\n" : origen;
 const raiz = postcss.parse(sinBloque);
 
+// La clase de la cuenta va pegada al primer elemento del selector, y antes de
+// un pseudo-elemento (::before no admite nada despues).
+function enElPrimero(s) {
+  const m = s.match(/^[^\s>+~]+/);
+  const primero = m ? m[0] : s;
+  const resto = s.slice(primero.length);
+  const corte = primero.search(/::|:(before|after)/);
+  const pegado = corte === -1 ? primero + ACCOUNT : primero.slice(0, corte) + ACCOUNT + primero.slice(corte);
+  return pegado + resto;
+}
+
 function prefijar(selector) {
   return selector
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean)
     // Los dos casos: la regla cuelga del contenedor, o apunta al propio contenedor.
-    .flatMap((s) => (s.startsWith(ACCOUNT) ? [s] : [`${ACCOUNT} ${s}`, `${s}${ACCOUNT}`]))
+    .flatMap((s) => (s.startsWith(ACCOUNT) ? [s] : [`${ACCOUNT} ${s}`, enElPrimero(s)]))
     .join(",\n");
 }
 
