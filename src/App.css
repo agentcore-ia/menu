@@ -21145,14 +21145,14 @@ html:has(.menu-modo-kiosco) #root {
 .account-copetin-sandwich .confirmation-card-sabor-pampa,
 .confirmation-card-sabor-pampa.account-copetin-sandwich {
   background: radial-gradient(circle at 86% 6%, rgba(232, 165, 146, 0.12), transparent 28%),
-    linear-gradient(180deg, #40475E 0%, #333945 100%);
+    linear-gradient(180deg, #393E50 0%, #44495C 100%);
   border: 0.08rem solid rgba(232, 165, 146, 0.28);
 }
 
 .account-copetin-sandwich .confirmation-burger-top,
 .confirmation-burger-top.account-copetin-sandwich {
   background: radial-gradient(circle at 76% 12%, rgba(255, 184, 49, 0.24), transparent 4.6rem),
-    linear-gradient(135deg, #40475E 0%, #333945 100%);
+    linear-gradient(135deg, #393E50 0%, #44495C 100%);
 }
 
 .account-copetin-sandwich .confirmation-pampa-top,
@@ -21203,18 +21203,18 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-copetin-sandwich .template-sabor-pampa,
 .template-sabor-pampa.account-copetin-sandwich {
-  background: #333945;
+  background: #44495C;
 }
 
 .account-copetin-sandwich .template-sabor-pampa.phone-surface,
 .template-sabor-pampa.phone-surface.account-copetin-sandwich {
   border-color: rgba(232, 165, 146, 0.24);
-  background: #333945;
+  background: #44495C;
 }
 
 .account-copetin-sandwich .template-sabor-pampa .hero-sabor-pampa,
 .template-sabor-pampa.account-copetin-sandwich .hero-sabor-pampa {
-  background: #333945;
+  background: #44495C;
 }
 
 .account-copetin-sandwich .template-sabor-pampa .icon-button,
@@ -21232,7 +21232,7 @@ html:has(.menu-modo-kiosco) #root {
 .account-copetin-sandwich .pampa-hero-placeholder,
 .pampa-hero-placeholder.account-copetin-sandwich {
   background: radial-gradient(circle at 74% 34%, rgba(232, 165, 146, 0.18), transparent 24%),
-    linear-gradient(135deg, #2B303B 0%, #333945 58%, #40475E 100%);
+    linear-gradient(135deg, #34394A 0%, #44495C 58%, #393E50 100%);
 }
 
 .account-copetin-sandwich .pampa-hero-placeholder::before,
@@ -21254,7 +21254,7 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-copetin-sandwich .template-sabor-pampa .content-panel,
 .template-sabor-pampa.account-copetin-sandwich .content-panel {
-  background: #333945;
+  background: #44495C;
 }
 
 .account-copetin-sandwich .pampa-menu-title span,
@@ -21317,7 +21317,7 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-copetin-sandwich .pampa-featured-card,
 .pampa-featured-card.account-copetin-sandwich {
-  background: #40475E;
+  background: #393E50;
 }
 
 .account-copetin-sandwich .pampa-featured-card.no-media,
@@ -21345,12 +21345,12 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-copetin-sandwich .pampa-product-card,
 .pampa-product-card.account-copetin-sandwich {
-  background: #40475E;
+  background: #393E50;
 }
 
 .account-copetin-sandwich .pampa-product-card.no-media,
 .pampa-product-card.no-media.account-copetin-sandwich {
-  background: #40475E;
+  background: #393E50;
 }
 
 .account-copetin-sandwich .pampa-product-footer,
@@ -21382,8 +21382,8 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-copetin-sandwich .loading-sabor-pampa,
 .loading-sabor-pampa.account-copetin-sandwich {
-  --loading-bg: #333945;
-  --loading-surface: #40475E;
+  --loading-bg: #44495C;
+  --loading-surface: #393E50;
   --loading-primary: #E8A592;
   --loading-border: rgba(232, 165, 146, 0.22);
 }
@@ -21391,7 +21391,7 @@ html:has(.menu-modo-kiosco) #root {
 .account-copetin-sandwich .loading-sabor-pampa-simple,
 .loading-sabor-pampa-simple.account-copetin-sandwich {
   background: radial-gradient(circle at 50% 18%, rgba(232, 165, 146, 0.12), transparent 30%),
-    linear-gradient(180deg, #40475E 0%, #333945 100%);
+    linear-gradient(180deg, #393E50 0%, #44495C 100%);
 }
 
 .account-copetin-sandwich .pampa-loading-simple,
@@ -21424,7 +21424,7 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-copetin-sandwich .loading-chicha,
 .loading-chicha.account-copetin-sandwich {
-  background: radial-gradient(circle at 50% 38%, #1c1207 0%, #0b0806 58%, #333945 100%);
+  background: radial-gradient(circle at 50% 38%, #1c1207 0%, #0b0806 58%, #44495C 100%);
 }
 
 .account-copetin-sandwich .chicha-loading-arco,
@@ -21440,7 +21440,7 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-copetin-sandwich .loading-craft,
 .loading-craft.account-copetin-sandwich {
-  background: radial-gradient(circle at 50% 34%, #1b1409 0%, #0b0a07 56%, #333945 100%);
+  background: radial-gradient(circle at 50% 34%, #1b1409 0%, #0b0a07 56%, #44495C 100%);
 }
 
 .account-copetin-sandwich .craft-loading-sello,
@@ -21477,7 +21477,7 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-copetin-sandwich .menu-modo-kiosco .kiosco-head,
 .menu-modo-kiosco.account-copetin-sandwich .kiosco-head {
-  background: #333945;
+  background: #44495C;
 }
 
 /* === copetin-marca:fin === */

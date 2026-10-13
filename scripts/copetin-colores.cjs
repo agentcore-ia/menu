@@ -4,7 +4,7 @@
 // Para cada regla de src/App.css que use esos colores, emite una copia
 // restringida a .account-copetin-sandwich con los colores de la marca:
 //   dorado  -> terracota claro (texto y filetes legibles sobre el azul)
-//   negros  -> azul de la fachada / azul Copetin
+//   negros  -> azul de fondo #44495C y tarjetas un tono mas oscuro
 // Se pega entre los marcadores al final de App.css (idempotente).
 const fs = require("fs");
 const path = require("path");
@@ -18,12 +18,12 @@ const ACCOUNT = ".account-copetin-sandwich";
 const REEMPLAZOS = [
   [/#f4b739/gi, "#E8A592"],
   [/rgba\(\s*244\s*,\s*183\s*,\s*57\s*,/gi, "rgba(232, 165, 146,"],
-  [/#050706/gi, "#333945"],
-  [/#030505/gi, "#333945"],
-  [/#11100d/gi, "#40475E"],
-  [/#0e0c08/gi, "#2B303B"],
-  [/#101918/gi, "#40475E"],
-  [/#0a0b09/gi, "#2B303B"],
+  [/#050706/gi, "#44495C"],
+  [/#030505/gi, "#44495C"],
+  [/#11100d/gi, "#393E50"],
+  [/#0e0c08/gi, "#34394A"],
+  [/#101918/gi, "#393E50"],
+  [/#0a0b09/gi, "#34394A"],
 ];
 
 const usaColores = (valor) => REEMPLAZOS.some(([re]) => { re.lastIndex = 0; return re.test(valor); });
