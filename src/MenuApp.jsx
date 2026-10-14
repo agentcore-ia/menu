@@ -1269,6 +1269,10 @@ function getLoadingTemplate(accountId) {
     return 'copetin'
   }
 
+  if (key.includes('yo-helados') || key === 'yohelados') {
+    return 'yo-helados'
+  }
+
   if (key.includes('argenta')) {
     return 'argenta'
   }
@@ -4805,6 +4809,32 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menú</p>
 
             <div className="copetin-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'yo-helados') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-yo-helados">
+          <div className="yo-loading" role="status" aria-live="polite" aria-label="Cargando menu de Yo Heladerias">
+            <div className="yo-loading-sello" aria-hidden="true">
+              <span className="yo-loading-arco" />
+              <img src="/yo-helados/logo.jpg" alt="" width="256" height="256" />
+            </div>
+
+            <div className="yo-loading-marca">
+              <strong>YO HELADERÍAS</strong>
+              <span>heladería</span>
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="yo-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>
