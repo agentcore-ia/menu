@@ -41,6 +41,7 @@ export default defineConfig({
         'la-argenta': resolve(__dirname, 'la-argenta.html'),
         'grupo-lea': resolve(__dirname, 'grupo-lea.html'),
         'copetin-sandwich': resolve(__dirname, 'copetin-sandwich.html'),
+        'yo-helados': resolve(__dirname, 'yo-helados.html'),
         fratello: resolve(__dirname, 'fratello.html'),
         'todo-empanadas': resolve(__dirname, 'todo-empanadas.html'),
         'kiosco-9-de-julio': resolve(__dirname, 'kiosco-9-de-julio.html'),

@@ -993,6 +993,7 @@ function normalizeAccountAlias(accountId) {
   if (key === 'kiosco9') return 'kiosco-9-de-julio'
   if (key === 'puntowaffle') return 'punto-waffle'
   if (key === 'todoempanadas') return 'todo-empanadas'
+  if (key === 'yohelados') return 'yo-helados'
 
   return accountId
 }

@@ -191,6 +191,16 @@
       "has": [
         {
           "type": "host",
+          "value": "yohelados.menu.net.ar"
+        }
+      ],
+      "destination": "/yo-helados.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "kiosco9.menu.net.ar"
         }
       ],
@@ -289,6 +299,14 @@
     {
       "source": "/copetin-sandwich/:path*",
       "destination": "/copetin-sandwich.html"
+    },
+    {
+      "source": "/yo-helados",
+      "destination": "/yo-helados.html"
+    },
+    {
+      "source": "/yo-helados/:path*",
+      "destination": "/yo-helados.html"
     },
     {
       "source": "/grupo-lea",
@@ -415,7 +433,7 @@
       "destination": "/chicha.html"
     },
     {
-      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|grupo-lea|copetin-sandwich|fratello|todo-empanadas|kiosco-9-de-julio|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha).*)",
+      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|grupo-lea|copetin-sandwich|fratello|todo-empanadas|kiosco-9-de-julio|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha|yo-helados).*)",
       "destination": "/host.html"
     }
   ]
