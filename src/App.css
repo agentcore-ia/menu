@@ -21119,6 +21119,10 @@ html:has(.menu-modo-kiosco) #root {
   }
 }
 
+/* Yo Heladerias: la foto de la portada llega de borde a borde (sin el margen
+   del panel) y conserva su esquina redondeada. */
+.account-yo-helados .gelato-portada { margin: -4px -1rem 8px; }
+
 /* YO HELADERIAS: pantalla de carga con su logo sobre el azul de la marca. */
 .loading-yo-helados {
   min-height: 100svh;
