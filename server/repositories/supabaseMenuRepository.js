@@ -549,7 +549,16 @@ export class SupabaseMenuRepository {
       ).catch(() => []),
       // Alcanza con saber si tiene algo cargado: un local con el menu vacio no
       // se muestra, porque el cliente entraria a una pantalla sin nada.
-      this.request(`/products?restaurant_id=${enLista}&available=eq.true&select=restaurant_id`).catch(() => []),
+      //
+      // Una consulta por local y con limit=1. Antes era UNA para todos y la
+      // base corta en 1000 filas: los locales con mas productos se comian el
+      // cupo y los demas (La Argenta) quedaban afuera de la vitrina como si no
+      // tuvieran menu.
+      Promise.all(
+        candidatos.map((r) =>
+          this.request(`/products?restaurant_id=eq.${r.id}&available=eq.true&select=restaurant_id&limit=1`).catch(() => []),
+        ),
+      ).then((filas) => filas.flat()),
       tiemposMedidos(this.config.dashboardUrl),
     ])
 
