@@ -1,0 +1,410 @@
+/* Menu unificado de Capta Delivery.
+ *
+ * Solo se aplica cuando el cliente entra al menu DESDE la vitrina
+ * (?vitrina=1): MenuApp pone template-capta en la raiz. Todas las clases de
+ * este archivo empiezan con cu- o cuelgan de .template-capta, asi que no tocan
+ * a ningun otro menu.
+ */
+
+.phone-surface.template-capta {
+  --cu-naranja: #f4511e;
+  --cu-tinta: #17181c;
+  --cu-gris: rgba(23, 24, 28, 0.62);
+  --cu-borde: rgba(23, 24, 28, 0.09);
+  --cu-fondo: #f6f6f8;
+  background: var(--cu-fondo);
+  color: var(--cu-tinta);
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+.template-capta .content-panel {
+  margin-top: 0;
+  padding: 0 0 7rem;
+  background: var(--cu-fondo);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* ---------- cabecera ---------- */
+
+.cu-cabecera {
+  position: relative;
+  background: #fff;
+  border-bottom: 1px solid var(--cu-borde);
+}
+
+.cu-portada {
+  position: relative;
+  height: 168px;
+  background: linear-gradient(135deg, #2b2d33 0%, #4a4d57 100%) center / cover no-repeat;
+}
+
+.cu-portada-velo {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0) 46%, rgba(0, 0, 0, 0.12) 100%);
+}
+
+.cu-barra {
+  position: absolute;
+  inset: 12px 12px auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cu-barra-derecha {
+  display: flex;
+  gap: 8px;
+}
+
+.cu-boton-redondo {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--cu-tinta);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.cu-boton-redondo svg {
+  width: 20px;
+  height: 20px;
+}
+
+.cu-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--cu-naranja);
+  color: #fff;
+  font: 800 11px / 1 'Manrope', system-ui, sans-serif;
+}
+
+.cu-ficha {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 0 16px 16px;
+}
+
+.cu-logo {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  margin-top: -30px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 3px solid #fff;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+}
+
+.cu-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cu-logo span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: var(--cu-naranja);
+  color: #fff;
+  font: 800 28px / 1 'Manrope', system-ui, sans-serif;
+}
+
+.cu-ficha-texto {
+  min-width: 0;
+  padding-top: 10px;
+}
+
+.cu-ficha-texto h1 {
+  margin: 0;
+  font: 800 22px / 1.15 'Manrope', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.cu-ficha-texto p {
+  margin: 4px 0 0;
+  color: var(--cu-gris);
+  font: 600 13px / 1.35 'Manrope', system-ui, sans-serif;
+}
+
+.cu-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font: 800 12px / 1 'Manrope', system-ui, sans-serif;
+}
+
+.cu-estado i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.cu-estado.abierto {
+  background: #e7f6ec;
+  color: #15803d;
+}
+
+.cu-estado.cerrado {
+  background: #f1f1f4;
+  color: #5b5e68;
+}
+
+/* ---------- categorias ---------- */
+
+.cu-nav {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  padding: 10px 12px;
+  background: rgba(246, 246, 248, 0.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--cu-borde);
+}
+
+.cu-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.cu-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.cu-chip,
+.cu-buscar {
+  flex: none;
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--cu-borde);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--cu-tinta);
+  font: 700 14px / 1 'Manrope', system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cu-buscar {
+  width: 38px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.cu-buscar svg {
+  width: 18px;
+  height: 18px;
+}
+
+.cu-chip.activo {
+  border-color: var(--cu-tinta);
+  background: var(--cu-tinta);
+  color: #fff;
+}
+
+.cu-busqueda {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--cu-borde);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.cu-busqueda svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--cu-gris);
+}
+
+.cu-busqueda input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--cu-tinta);
+  font: 600 15px / 1 'Manrope', system-ui, sans-serif;
+}
+
+.cu-busqueda button {
+  border: 0;
+  background: transparent;
+  color: var(--cu-gris);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* ---------- carta ---------- */
+
+.cu-seccion {
+  padding: 20px 12px 4px;
+  scroll-margin-top: 118px;
+}
+
+.cu-seccion h2 {
+  margin: 0 4px 12px;
+  font: 800 20px / 1.2 'Manrope', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.cu-fila {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 14px;
+  border: 1px solid var(--cu-borde);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.cu-fila.sin-stock {
+  opacity: 0.6;
+}
+
+.cu-fila-texto {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+
+.cu-fila-texto h3 {
+  margin: 0;
+  font: 800 16px / 1.25 'Manrope', system-ui, sans-serif;
+}
+
+.cu-fila-texto p {
+  margin: 4px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--cu-gris);
+  font: 500 13px / 1.4 'Manrope', system-ui, sans-serif;
+}
+
+.cu-fila-texto strong {
+  display: block;
+  margin-top: 8px;
+  font: 800 16px / 1 'Manrope', system-ui, sans-serif;
+}
+
+.cu-etiqueta {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: #fff1ec;
+  color: var(--cu-naranja);
+  font: 800 11px / 1 'Manrope', system-ui, sans-serif;
+  font-style: normal;
+}
+
+.cu-etiqueta.gris {
+  background: #f1f1f4;
+  color: #5b5e68;
+}
+
+.cu-fila-lado {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.cu-foto {
+  width: 96px;
+  height: 96px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 14px;
+  background: #f1f1f4;
+  cursor: pointer;
+}
+
+.cu-foto img,
+.cu-foto video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cu-agregar {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--cu-naranja);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(244, 81, 30, 0.32);
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.cu-agregar svg {
+  width: 20px;
+  height: 20px;
+}
+
+.cu-agregar.sobre-foto {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+}
+
+.cu-vacio {
+  margin: 28px 16px;
+  text-align: center;
+  color: var(--cu-gris);
+  font: 600 14px / 1.4 'Manrope', system-ui, sans-serif;
+}
+
+/* La barra de pedido y los carteles siguen siendo los de siempre, con los
+   colores de Capta (salen del tema). */
+.template-capta .order-bar-button {
+  background: var(--cu-naranja);
+  color: #fff;
+}

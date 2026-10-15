@@ -1,5 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
+import './capta-unificado.css'
 import { getBusinessOpenStatus } from '../shared/businessHours.js'
 import {
   configuracionDeHeladeria,
@@ -7812,6 +7813,224 @@ function TemplateMenuCollection({
   )
 }
 
+// ---------------------------------------------------------------------------
+// MENU UNIFICADO DE CAPTA DELIVERY
+//
+// Cuando el cliente entra al menu de un local DESDE la vitrina (?vitrina=1),
+// todos los menus se ven igual: la misma cabecera, las mismas categorias y las
+// mismas tarjetas. El local solo pone lo suyo: nombre, logo y portada.
+//
+// Si entra directo al link del menu, esto no se usa: cada local se ve como lo
+// armo. Los locales cuyo flujo depende de su plantilla (heladerias con armado
+// de pote, mesas, burger) tampoco pasan por aca: no se les toca como se pide
+// (PLANTILLAS_CON_FLUJO_PROPIO).
+// ---------------------------------------------------------------------------
+const PLANTILLAS_CON_FLUJO_PROPIO = ['gelato', 'kika', 'almendra', 'host', 'florian', 'burger', 'blue-burger']
+
+const TEMA_CAPTA = {
+  id: 'capta',
+  background: '#f6f6f8',
+  pageBackground: '#f6f6f8',
+  contentBackground: '#f6f6f8',
+  surface: '#ffffff',
+  surfaceAlt: '#f1f1f4',
+  text: '#17181c',
+  muted: 'rgba(23, 24, 28, 0.62)',
+  primary: '#f4511e',
+  primaryText: '#ffffff',
+  accent: '#f4511e',
+  border: 'rgba(23, 24, 28, 0.09)',
+  shadow: 'rgba(23, 24, 28, 0.08)',
+  displayFont: 'Manrope',
+  bodyFont: 'Manrope',
+  categoryActiveBackground: '#17181c',
+  categoryActiveText: '#ffffff',
+  categoryText: '#17181c',
+  cardBackground: '#ffffff',
+  cardText: '#17181c',
+  cardMuted: 'rgba(23, 24, 28, 0.62)',
+  cardPrice: '#17181c',
+  addButtonBackground: '#f4511e',
+  addButtonText: '#ffffff',
+  temaClaro: true,
+}
+
+/** La presentacion del local con el aspecto de Capta; marca y portada se conservan. */
+function presentacionDeCapta(base) {
+  return {
+    ...base,
+    template: 'capta',
+    layout: 'capta',
+    theme: { ...TEMA_CAPTA },
+    cards: { ...(base.cards || {}), style: 'capta' },
+  }
+}
+
+function CaptaCabecera({ nombre, logo, portada, ficha, abierto, estadoTexto, envioTexto, orderCount, onOpenSocial, onOpenCart }) {
+  const inicial = String(nombre || '?').trim().charAt(0).toUpperCase()
+  const datos = [ficha?.categoriaNombre, ficha?.tiempo, envioTexto].filter(Boolean)
+
+  return (
+    <header className="cu-cabecera" data-menu-hero>
+      <div className="cu-portada" style={portada ? { backgroundImage: `url("${portada}")` } : undefined}>
+        <div className="cu-portada-velo" />
+        <div className="cu-barra">
+          <a className="cu-boton-redondo" href="/pedi" aria-label="Volver a Capta Delivery">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
+              <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
+          <div className="cu-barra-derecha">
+            <button type="button" className="cu-boton-redondo" aria-label="Redes del negocio" onClick={onOpenSocial}>
+              <IconMenu />
+            </button>
+            <button type="button" className="cu-boton-redondo" aria-label="Ver pedido" onClick={onOpenCart}>
+              <IconCart />
+              {orderCount > 0 ? <span className="cu-badge">{orderCount}</span> : null}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="cu-ficha">
+        <div className="cu-logo" aria-hidden={logo ? undefined : 'true'}>
+          {logo ? <img src={logo} alt={nombre} /> : <span>{inicial}</span>}
+        </div>
+        <div className="cu-ficha-texto">
+          <h1>{nombre}</h1>
+          {datos.length ? <p>{datos.join(' · ')}</p> : null}
+          <span className={`cu-estado ${abierto ? 'abierto' : 'cerrado'}`}>
+            <i aria-hidden="true" />
+            {estadoTexto}
+          </span>
+        </div>
+      </div>
+    </header>
+  )
+}
+
+function CaptaFila({ item, onOpenDish, onAddItem, renderProductMedia }) {
+  const sinStock = item.availableForOrder === false
+  return (
+    <article className={`cu-fila ${sinStock ? 'sin-stock' : ''}`}>
+      <button type="button" className="cu-fila-texto" onClick={() => onOpenDish(item)}>
+        <h3>{item.name}</h3>
+        {item.description ? <p>{item.description}</p> : null}
+        <strong>{item.price}</strong>
+        {item.destacado ? <em className="cu-etiqueta">Más pedido</em> : null}
+        {sinStock ? <em className="cu-etiqueta gris">No disponible</em> : null}
+      </button>
+      <div className="cu-fila-lado">
+        {item.hasCustomImage ? (
+          <button type="button" className="cu-foto" onClick={() => onOpenDish(item)} aria-label={`Ver ${item.name}`}>
+            {renderProductMedia(item)}
+          </button>
+        ) : null}
+        {sinStock ? null : (
+          <button
+            type="button"
+            className={`cu-agregar ${item.hasCustomImage ? 'sobre-foto' : ''}`}
+            onClick={() => onAddItem(item)}
+            aria-label={`Agregar ${item.name}`}
+          >
+            <IconPlus />
+          </button>
+        )}
+      </div>
+    </article>
+  )
+}
+
+function CaptaCarta({
+  categories,
+  searchValue,
+  searchQuery,
+  isSearchActive,
+  onSearchQueryChange,
+  resultados,
+  onOpenDish,
+  onAddItem,
+  renderProductMedia,
+}) {
+  const secciones = categories.filter((c) => c?.items?.length)
+  const [activa, setActiva] = useState(secciones[0]?.id ?? '')
+  const [buscando, setBuscando] = useState(false)
+  const fila = { onOpenDish, onAddItem, renderProductMedia }
+
+  const irA = (id) => {
+    setActiva(id)
+    const el = document.getElementById(`cu-cat-${id}`)
+    if (el) {
+      const arriba = el.getBoundingClientRect().top + window.scrollY - 118
+      window.scrollTo({ top: arriba, behavior: 'smooth' })
+    }
+  }
+
+  return (
+    <div className="cu-carta">
+      <div className="cu-nav" data-menu-categories>
+        {buscando || searchValue ? (
+          <form className="cu-busqueda" role="search" onSubmit={(e) => e.preventDefault()}>
+            <IconSearch />
+            <input
+              type="search"
+              autoFocus
+              value={searchValue}
+              onChange={(e) => onSearchQueryChange?.(e.target.value)}
+              placeholder="Buscar en el menú"
+              aria-label="Buscar productos"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setBuscando(false)
+                onSearchQueryChange?.('')
+              }}
+              aria-label="Cerrar búsqueda"
+            >
+              ×
+            </button>
+          </form>
+        ) : (
+          <div className="cu-chips">
+            <button type="button" className="cu-buscar" onClick={() => setBuscando(true)} aria-label="Buscar">
+              <IconSearch />
+            </button>
+            {secciones.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                className={`cu-chip ${activa === c.id ? 'activo' : ''}`}
+                onClick={() => irA(c.id)}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {isSearchActive ? (
+        resultados.length ? (
+          <section className="cu-seccion">
+            <h2>Resultados</h2>
+            {resultados.map((item) => <CaptaFila key={item.id} item={item} {...fila} />)}
+          </section>
+        ) : (
+          <p className="cu-vacio">No encontramos nada con “{searchQuery}”.</p>
+        )
+      ) : (
+        secciones.map((c) => (
+          <section key={c.id} id={`cu-cat-${c.id}`} className="cu-seccion">
+            <h2>{c.label}</h2>
+            {c.items.map((item) => <CaptaFila key={item.id} item={item} {...fila} />)}
+          </section>
+        ))
+      )}
+    </div>
+  )
+}
+
 export default function MenuApp() {
   const [accountId] = useState(getInitialAccountId)
   const [qrLandingView, setQrLandingView] = useState('landing')
@@ -8219,7 +8438,46 @@ export default function MenuApp() {
     return () => window.clearTimeout(timeout)
   }, [orderingNotice])
 
-  const presentation = menu?.presentation ?? defaultPresentation
+  // Desde la vitrina de Capta Delivery el menu se ve con la plantilla unificada
+  // (CaptaCabecera / CaptaCarta). Entrando directo al link no pasa nada de esto.
+  // TEMPORAL (pruebas): hasta validar todos los locales solo se prende con
+  // ?unificado=1 ademas de venir de la vitrina.
+  const [desdeCapta] = useState(() => {
+    if (!vinoDeLaVitrina()) return false
+    try {
+      const q = new URLSearchParams(window.location.search)
+      if (q.get('unificado') === '1') window.sessionStorage?.setItem('capta-unificado-prueba', '1')
+      return window.sessionStorage?.getItem('capta-unificado-prueba') === '1'
+    } catch {
+      return false
+    }
+  })
+  const presentacionDelLocal = menu?.presentation ?? defaultPresentation
+  const plantillaDelLocal = presentacionDelLocal.template ?? presentacionDelLocal.layout ?? 'editorial'
+  const usaPlantillaCapta = Boolean(
+    desdeCapta
+    && menu
+    && !PLANTILLAS_CON_FLUJO_PROPIO.includes(plantillaDelLocal)
+    && !isHostLikeAccount(accountId, plantillaDelLocal),
+  )
+  const presentation = usaPlantillaCapta ? presentacionDeCapta(presentacionDelLocal) : presentacionDelLocal
+  // La ficha del local en la vitrina (portada, logo, rubro y tiempo): la misma
+  // que ve el cliente en la tarjeta, asi la cabecera es la misma foto.
+  const [fichaCapta, setFichaCapta] = useState(null)
+  useEffect(() => {
+    if (!usaPlantillaCapta) return undefined
+    let vivo = true
+    fetch('/api/delivery/locales')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((datos) => {
+        const local = (datos?.locales || []).find((l) => String(l.slug) === String(accountId))
+        if (vivo && local) setFichaCapta(local)
+      })
+      .catch(() => {})
+    return () => {
+      vivo = false
+    }
+  }, [usaPlantillaCapta, accountId])
   // Las palabras de la pantalla segun el tipo de negocio. Sin rubro cargado da
   // restaurante, que es lo que decia antes para todos.
   const textosRubro = textosDelMenu(menu?.rubro)
@@ -8361,6 +8619,8 @@ export default function MenuApp() {
     // La panaderia entra mostrando destacados y todas las secciones: con una
     // categoria ya elegida, el cliente aterrizaba viendo solo los panes.
     || templateId === 'panaderia'
+    // El menu unificado de Capta muestra todas las secciones una abajo de otra.
+    || templateId === 'capta'
     // Y cualquier local que lo pida: una carta larga no entra en una sola
     // categoria. Sin esto, aunque no haya categoria elegida se cae igual en la
     // primera de la lista.
@@ -10247,6 +10507,33 @@ export default function MenuApp() {
     <>
       <div className="app-shell">
         <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation, accountId)}>
+          {templateId === 'capta' ? (
+            <CaptaCabecera
+              nombre={presentacionDelLocal.branding?.wordmark ?? menu?.accountName ?? ''}
+              logo={fichaCapta?.logo || presentacionDelLocal.branding?.logo || presentacionDelLocal.branding?.logoBanda || ''}
+              portada={
+                fichaCapta?.portada
+                || (presentacionDelLocal.hero?.image && !String(presentacionDelLocal.hero.image).includes('/dishes/')
+                  ? presentacionDelLocal.hero.image
+                  : '')
+              }
+              ficha={fichaCapta}
+              abierto={!orderingBlocked && !cerradoAhora}
+              estadoTexto={
+                orderingBlocked || cerradoAhora
+                  ? (orderingStatus.nextOpenText || 'Cerrado ahora')
+                  : (orderingStatus.scheduleText ? `Abierto · ${orderingStatus.scheduleText}` : 'Abierto')
+              }
+              envioTexto={(() => {
+                const zonas = Array.isArray(menu?.deliveryZones) ? menu.deliveryZones.filter((z) => z?.active !== false && Number(z?.fee) > 0) : []
+                if (zonas.length) return `Envío desde ${formatPrice(Math.min(...zonas.map((z) => Number(z.fee))), currencySymbol)}`
+                return Number(menu?.deliveryFee) > 0 ? `Envío ${formatPrice(Number(menu.deliveryFee), currencySymbol)}` : ''
+              })()}
+              orderCount={orderCount}
+              onOpenSocial={() => setIsSocialMenuOpen(true)}
+              onOpenCart={() => setIsCartOpen(true)}
+            />
+          ) : (
           <header className={`hero hero-${templateId}`} data-menu-hero>
             <div className="hero-topbar">
               <button
@@ -10322,6 +10609,7 @@ export default function MenuApp() {
               />
             )}
           </header>
+          )}
 
           <main className="content-panel">
             {status === 'error' ? (
@@ -10388,7 +10676,8 @@ export default function MenuApp() {
                 templateId !== 'kika' &&
                 templateId !== 'almendra' &&
                 templateId !== 'florian' &&
-                templateId !== 'sabor-pampa' ? (
+                templateId !== 'sabor-pampa' &&
+                templateId !== 'capta' ? (
                   <section className="section-block" data-section="categories">
                     <div className="section-heading">
                       <h2>Categorias</h2>
@@ -10410,6 +10699,19 @@ export default function MenuApp() {
                   </p>
                 ) : null}
 
+                {templateId === 'capta' ? (
+                  <CaptaCarta
+                    categories={categories}
+                    searchValue={searchQuery}
+                    searchQuery={deferredSearchQuery}
+                    isSearchActive={isSearchActive}
+                    onSearchQueryChange={setSearchQuery}
+                    resultados={visibleCategoryItems}
+                    onOpenDish={handleOpenDish}
+                    onAddItem={handleAddItem}
+                    renderProductMedia={renderProductMedia}
+                  />
+                ) : (
                 <TemplateMenuCollection
                   accountId={accountId}
                   templateId={templateId}
@@ -10449,6 +10751,7 @@ export default function MenuApp() {
                   esFavorito={esFavorito}
                   alternarFavorito={alternarFavorito}
                 />
+                )}
               </>
             ) : null}
           </main>
