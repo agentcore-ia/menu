@@ -12002,23 +12002,9 @@ export default function MenuApp() {
               </>
             )}
 
-            {(!isHostDetail && !isKikaDetail && !isWeeklyPlanDetail && mostrarBarraDePedido) ? (
-              <footer className="detail-order-bar">
-                <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
-                  <div className="order-bar-copy">
-                    <span className="order-icon-wrap">
-                      <IconCart />
-                      {orderCount > 0 ? <span className="order-badge">{orderCount}</span> : null}
-                    </span>
-                    <span>Ver mi pedido</span>
-                  </div>
-                  <div className="order-bar-price">
-                    {orderTotalLabel}
-                    <span className="order-arrow">{'>'}</span>
-                  </div>
-                </button>
-              </footer>
-            ) : null}
+            {/* Sin la barra "Ver mi pedido" en la ficha del producto: quedaba encima
+                del boton "Agregar al pedido" cuando ya habia algo en el carrito. El
+                carrito se abre desde la lista, que es donde esta la barra. */}
 
             {isHostDetail ? (
               <footer className="detail-order-bar host-detail-order-bar">
