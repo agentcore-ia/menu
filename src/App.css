@@ -4632,9 +4632,13 @@
 
 .gelato-stepper {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Una columna por paso: con dos pasos (tamano y sabores) quedan centrados.
+     Antes eran siempre tres columnas y el segundo paso quedaba corrido. */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: 0.65rem;
-  margin-top: 1.6rem;
+  max-width: 21rem;
+  margin: 1.6rem auto 0;
 }
 
 .gelato-step {
