@@ -10882,7 +10882,13 @@ export default function MenuApp() {
           templateId !== 'kika' &&
           templateId !== 'almendra' &&
           templateId !== 'florian' &&
-          mostrarBarraDePedido ? (
+          mostrarBarraDePedido &&
+          // La barra "Ver mi pedido" no va encima de la ficha del producto, del
+          // carrito, del checkout ni del armado del pote: tapaba sus botones.
+          !selectedDish &&
+          !isCartOpen &&
+          !isCheckoutOpen &&
+          !gelatoBuilderOpen ? (
             <footer className="order-bar">
               <button type="button" className="order-bar-button" onClick={() => setIsCartOpen(true)}>
                 <div className="order-bar-copy">
@@ -10920,6 +10926,7 @@ export default function MenuApp() {
                 : ''
           } ${
             mostrarBarraDePedido &&
+            !selectedDish &&
             !['burger', 'blue-burger', 'host', 'kika', 'almendra', 'florian'].includes(templateId)
               ? 'cart-added-toast-sobre-barra'
               : ''
