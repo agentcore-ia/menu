@@ -440,3 +440,29 @@
 body.cu-activo .volver-a-vitrina {
   display: none;
 }
+
+/* Promos de las heladerias: el cartel entero es la promo. */
+.cu-promos {
+  display: grid;
+  gap: 10px;
+}
+
+.cu-promo {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--cu-borde);
+  border-radius: 18px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.cu-promo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cu-fila-texto:disabled {
+  cursor: default;
+}

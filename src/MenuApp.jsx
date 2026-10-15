@@ -7825,7 +7825,7 @@ function TemplateMenuCollection({
 // de pote, mesas, burger) tampoco pasan por aca: no se les toca como se pide
 // (PLANTILLAS_CON_FLUJO_PROPIO).
 // ---------------------------------------------------------------------------
-const PLANTILLAS_CON_FLUJO_PROPIO = ['gelato', 'kika', 'almendra', 'host', 'florian', 'burger', 'blue-burger']
+const PLANTILLAS_CON_FLUJO_PROPIO = ['kika', 'almendra', 'host', 'florian', 'burger', 'blue-burger']
 
 const TEMA_CAPTA = {
   id: 'capta',
@@ -7857,6 +7857,12 @@ const TEMA_CAPTA = {
 
 /** La presentacion del local con el aspecto de Capta; marca y portada se conservan. */
 function presentacionDeCapta(base) {
+  // Una heladeria conserva su plantilla (el armado del pote y el resumen del
+  // pedido dependen de ella) y su configuracion (theme.heladeria: carta, topes,
+  // grupos, promos): solo se le cambian los colores.
+  if ((base.template ?? base.layout) === 'gelato') {
+    return { ...base, theme: { ...(base.theme || {}), ...TEMA_CAPTA, id: base.theme?.id ?? 'capta' } }
+  }
   return {
     ...base,
     template: 'capta',
@@ -7864,6 +7870,88 @@ function presentacionDeCapta(base) {
     theme: { ...TEMA_CAPTA },
     cards: { ...(base.cards || {}), style: 'capta' },
   }
+}
+
+/** Lo que una heladeria pide ANTES de la carta: el tamano (o el tipo) y las promos. */
+function CaptaHeladeria({ gelatoFormats, gelatoSizeOptions, configHeladeria, onOpenGelatoBuilder, onAbrirPromo }) {
+  const unSoloTipo = gelatoFormats.length <= 1 && gelatoSizeOptions.length
+
+  return (
+    <>
+      <section className="cu-seccion">
+        <h2>{unSoloTipo ? 'Elegí tu tamaño' : 'Armá tu pedido'}</h2>
+        {unSoloTipo
+          ? gelatoSizeOptions.map((size) => {
+              const sello = selloDeTamano(size, configHeladeria)
+              return (
+                <article key={size.id} className="cu-fila">
+                  <button type="button" className="cu-fila-texto" onClick={() => onOpenGelatoBuilder('kilo', 3, size.id)}>
+                    <h3>{size.name}</h3>
+                    <p>Hasta {topeDeSabores(size, configHeladeria)} sabores</p>
+                    <strong>{size.price}</strong>
+                    {sello ? <em className="cu-etiqueta">{sello}</em> : null}
+                  </button>
+                  <div className="cu-fila-lado">
+                    <button
+                      type="button"
+                      className="cu-agregar"
+                      onClick={() => onOpenGelatoBuilder('kilo', 3, size.id)}
+                      aria-label={`Elegir ${size.name}`}
+                    >
+                      <IconPlus />
+                    </button>
+                  </div>
+                </article>
+              )
+            })
+          : gelatoFormats.map((format) => (
+              <article key={format.id} className={`cu-fila ${format.enabled ? '' : 'sin-stock'}`}>
+                <button
+                  type="button"
+                  className="cu-fila-texto"
+                  disabled={!format.enabled}
+                  onClick={() => format.enabled && onOpenGelatoBuilder(format.id, 2)}
+                >
+                  <h3>{format.title}</h3>
+                  {format.description ? <p>{format.description}</p> : null}
+                </button>
+                <div className="cu-fila-lado">
+                  {format.enabled ? (
+                    <button
+                      type="button"
+                      className="cu-agregar"
+                      onClick={() => onOpenGelatoBuilder(format.id, 2)}
+                      aria-label={`Elegir ${format.title}`}
+                    >
+                      <IconPlus />
+                    </button>
+                  ) : null}
+                </div>
+              </article>
+            ))}
+      </section>
+
+      {configHeladeria.promos.length ? (
+        <section className="cu-seccion">
+          <h2>Promos</h2>
+          <div className="cu-promos">
+            {configHeladeria.promos.map((promo) => {
+              const cartel = (
+                <img src={promo.imagen} alt={promo.alt} width={promo.ancho} height={promo.alto} />
+              )
+              return promoSePuedePedir(promo) ? (
+                <button key={promo.imagen} type="button" className="cu-promo" onClick={() => onAbrirPromo(promo)}>
+                  {cartel}
+                </button>
+              ) : (
+                <span key={promo.imagen} className="cu-promo">{cartel}</span>
+              )
+            })}
+          </div>
+        </section>
+      ) : null}
+    </>
+  )
 }
 
 function CaptaCabecera({ nombre, logo, portada, ficha, abierto, estadoTexto, envioTexto, orderCount, onOpenSocial, onOpenCart }) {
@@ -7943,6 +8031,7 @@ function CaptaFila({ item, onOpenDish, onAddItem, renderProductMedia }) {
 
 function CaptaCarta({
   categories,
+  bloqueSuperior = null,
   searchValue,
   searchQuery,
   isSearchActive,
@@ -7968,6 +8057,8 @@ function CaptaCarta({
 
   return (
     <div className="cu-carta">
+      {isSearchActive ? null : bloqueSuperior}
+      {!secciones.length && !isSearchActive ? null : (
       <div className="cu-nav" data-menu-categories>
         {buscando || searchValue ? (
           <form className="cu-busqueda" role="search" onSubmit={(e) => e.preventDefault()}>
@@ -8009,6 +8100,7 @@ function CaptaCarta({
           </div>
         )}
       </div>
+      )}
 
       {isSearchActive ? (
         resultados.length ? (
@@ -8441,15 +8533,27 @@ export default function MenuApp() {
   // Desde la vitrina de Capta Delivery el menu se ve con la plantilla unificada
   // (CaptaCabecera / CaptaCarta). Entrando directo al link no pasa nada de esto.
   const [desdeCapta] = useState(vinoDeLaVitrina)
+  const [pruebaHeladerias] = useState(() => {
+    try {
+      const q = new URLSearchParams(window.location.search)
+      if (q.get('unificado') === '1') window.sessionStorage?.setItem('capta-unificado-prueba', '1')
+      return window.sessionStorage?.getItem('capta-unificado-prueba') === '1'
+    } catch {
+      return false
+    }
+  })
   const presentacionDelLocal = menu?.presentation ?? defaultPresentation
   const plantillaDelLocal = presentacionDelLocal.template ?? presentacionDelLocal.layout ?? 'editorial'
   const usaPlantillaCapta = Boolean(
     desdeCapta
     && menu
     && !PLANTILLAS_CON_FLUJO_PROPIO.includes(plantillaDelLocal)
-    && !isHostLikeAccount(accountId, plantillaDelLocal),
+    && !isHostLikeAccount(accountId, plantillaDelLocal)
+    // TEMPORAL (pruebas de heladerias): solo con ?unificado=1.
+    && (plantillaDelLocal !== 'gelato' || pruebaHeladerias),
   )
   const presentation = usaPlantillaCapta ? presentacionDeCapta(presentacionDelLocal) : presentacionDelLocal
+  const vistaCapta = usaPlantillaCapta
   useEffect(() => {
     document.body.classList.toggle('cu-activo', usaPlantillaCapta)
     return () => document.body.classList.remove('cu-activo')
@@ -10384,6 +10488,7 @@ export default function MenuApp() {
     'menu-app',
     `account-${slugify(accountId)}`,
     `template-${templateId}`,
+    vistaCapta && templateId !== 'capta' ? 'template-capta' : '',
     `layout-${presentation.layout}`,
     `cards-${presentation.cards?.style ?? 'editorial-list'}`,
     `theme-${presentation.theme.id}`,
@@ -10500,7 +10605,7 @@ export default function MenuApp() {
     <>
       <div className="app-shell">
         <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation, accountId)}>
-          {templateId === 'capta' ? (
+          {vistaCapta ? (
             <CaptaCabecera
               nombre={fichaCapta?.nombre || menu?.accountName || presentacionDelLocal.branding?.wordmark || ''}
               logo={fichaCapta?.logo || presentacionDelLocal.branding?.logo || presentacionDelLocal.branding?.logoBanda || ''}
@@ -10670,7 +10775,7 @@ export default function MenuApp() {
                 templateId !== 'almendra' &&
                 templateId !== 'florian' &&
                 templateId !== 'sabor-pampa' &&
-                templateId !== 'capta' ? (
+                !vistaCapta ? (
                   <section className="section-block" data-section="categories">
                     <div className="section-heading">
                       <h2>Categorias</h2>
@@ -10692,9 +10797,32 @@ export default function MenuApp() {
                   </p>
                 ) : null}
 
-                {templateId === 'capta' ? (
+                {vistaCapta ? (
                   <CaptaCarta
-                    categories={categories}
+                    categories={
+                      templateId === 'gelato'
+                        ? (configHeladeria.carta
+                            ? categories.filter(
+                                (c) =>
+                                  c?.items?.length &&
+                                  !c.soloEleccion &&
+                                  !slugify(c.label).includes('formato-tamano') &&
+                                  !c.items.some((i) => i.pideEleccion),
+                              )
+                            : [])
+                        : categories
+                    }
+                    bloqueSuperior={
+                      templateId === 'gelato' ? (
+                        <CaptaHeladeria
+                          gelatoFormats={gelatoFormats}
+                          gelatoSizeOptions={gelatoSizeOptions}
+                          configHeladeria={configHeladeria}
+                          onOpenGelatoBuilder={handleOpenGelatoBuilder}
+                          onAbrirPromo={abrirPromo}
+                        />
+                      ) : null
+                    }
                     searchValue={searchQuery}
                     searchQuery={deferredSearchQuery}
                     isSearchActive={isSearchActive}
