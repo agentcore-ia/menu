@@ -84,6 +84,9 @@ function suelto(estilo) {
     ...estilo,
   })
   document.body.appendChild(el)
+  // Por si la animacion no llega a terminar (pestaña en segundo plano): no
+  // queda nada suelto en la pagina.
+  window.setTimeout(() => el.remove(), 2500)
   return el
 }
 
