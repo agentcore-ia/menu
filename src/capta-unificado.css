@@ -408,3 +408,14 @@
   background: var(--cu-naranja);
   color: #fff;
 }
+
+/* Los iconos del menu son trazos sin relleno: el color y el grosor los pone el
+   contenedor. Aca los de la cabecera y la carta. */
+.template-capta .cu-cabecera svg,
+.template-capta .cu-carta svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
