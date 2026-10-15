@@ -1759,7 +1759,12 @@
   border: 1px solid var(--theme-border);
   box-shadow: 0 20px 38px rgba(24, 21, 18, 0.18);
   transform: translateX(-50%);
-  animation: cart-toast-in 1.7s ease both;
+  animation: cart-toast-in 2.3s ease both;
+}
+
+/* Sobre la barra de pedido, no tapandola. */
+.cart-added-toast.cart-added-toast-sobre-barra {
+  bottom: calc(max(1.25rem, env(safe-area-inset-bottom)) + 4.9rem);
 }
 
 .cart-added-icon {
@@ -1978,13 +1983,20 @@
 }
 
 @keyframes cart-toast-in {
-  0% {
+  /* Espera a que la bolita llegue al carrito (~25%) y entra con un resorte. */
+  0%,
+  24% {
     opacity: 0;
-    transform: translate(-50%, 1.1rem) scale(0.96);
+    transform: translate(-50%, 1.4rem) scale(0.92);
   }
 
-  14%,
-  78% {
+  34% {
+    opacity: 1;
+    transform: translate(-50%, -0.3rem) scale(1.03);
+  }
+
+  42%,
+  86% {
     opacity: 1;
     transform: translate(-50%, 0) scale(1);
   }

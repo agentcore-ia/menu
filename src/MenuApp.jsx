@@ -13,6 +13,7 @@ import { textosDelMenu } from '../shared/rubros.js'
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../shared/celular.js'
 import { canjePosible, porQueNoEntraTodo } from '../shared/puntosCapta.js'
 import { vinoDeLaVitrina } from './vitrinaDelCliente.js'
+import { seguirToques, volarAlCarrito } from './animacionCarrito.js'
 import { turnosParaProgramar } from '../shared/pedidoProgramado.js'
 import { guardarUltimoPedido, rearmarCarrito, ultimoPedidoDe } from '../shared/volverAPedir.js'
 import { leerSesion } from './sesionCapta.js'
@@ -8498,14 +8499,23 @@ export default function MenuApp() {
     }
   }, [accountId])
 
+  // Animacion de agregado: anota los toques y, cada vez que se agrega algo,
+  // lanza la bolita al carrito (src/animacionCarrito.js). Igual en todos los menus.
+  useEffect(() => seguirToques(), [])
+  const idAnimacionCarrito = cartFeedback?.id
+  useEffect(() => {
+    if (idAnimacionCarrito) volarAlCarrito()
+  }, [idAnimacionCarrito])
+
   useEffect(() => {
     if (!cartFeedback) {
       return undefined
     }
 
+    // Mas tiempo que antes: el aviso espera a que la bolita llegue al carrito.
     const timeout = window.setTimeout(() => {
       setCartFeedback(null)
-    }, 1700)
+    }, 2300)
 
     return () => window.clearTimeout(timeout)
   }, [cartFeedback])
@@ -10908,6 +10918,11 @@ export default function MenuApp() {
               : templateId === 'kika'
                 ? 'cart-added-toast-kika'
                 : ''
+          } ${
+            mostrarBarraDePedido &&
+            !['burger', 'blue-burger', 'host', 'kika', 'almendra', 'florian'].includes(templateId)
+              ? 'cart-added-toast-sobre-barra'
+              : ''
           }`}
           role="status"
           aria-live="polite"
