@@ -8078,7 +8078,7 @@ export default function MenuApp() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [closeTopOverlay])
 
-  const [orderForm, setOrderForm] = useState(() => {
+  const [orderFormGuardado, setOrderForm] = useState(() => {
     let deliveryType = 'delivery'
     let esMesa = false
     if (typeof window !== 'undefined') {
@@ -8265,6 +8265,17 @@ export default function MenuApp() {
     [cart, idsSoloEfectivo],
   )
   const soloEfectivo = nombresSoloEfectivo.length > 0
+
+  // Hay locales que no ofrecen retiro en el menu (solo delivery).
+  const permiteRetiro = menu?.entrega?.retiro !== false
+  // El formulario se precarga con lo de la vez anterior: si eligio retiro y el
+  // local ya no lo ofrece, vale delivery.
+  const orderForm = useMemo(
+    () => (!permiteRetiro && orderFormGuardado.deliveryType === 'retiro'
+      ? { ...orderFormGuardado, deliveryType: 'delivery' }
+      : orderFormGuardado),
+    [permiteRetiro, orderFormGuardado],
+  )
 
   const formasDePago = useMemo(() => {
     const formas = [{ valor: 'cash', texto: 'Efectivo' }]
@@ -12063,7 +12074,7 @@ export default function MenuApp() {
                           onChange={(event) => updateOrderForm('deliveryType', event.target.value)}
                         >
                           <option value="delivery">Delivery</option>
-                          <option value="retiro">Retiro</option>
+                          {permiteRetiro ? <option value="retiro">Retiro</option> : null}
                         </select>
                       </label>
 

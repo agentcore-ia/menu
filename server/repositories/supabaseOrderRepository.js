@@ -66,6 +66,19 @@ export class SupabaseOrderRepository {
       throw error
     }
 
+    // Un local que no ofrece retiro en el menu (menuSinRetiro): la opcion no
+    // se dibuja, pero la regla va aca: un pedido armado a mano no la saltea.
+    if (
+      restaurant.horarios?._settings?.menuSinRetiro === true &&
+      payload.deliveryType === 'retiro' &&
+      !payload.mesa_id
+    ) {
+      const error = new Error('Este local no tiene retiro en el local: el pedido es solo con delivery.')
+      error.code = 'DELIVERY_TYPE_NOT_AVAILABLE'
+      error.statusCode = 422
+      throw error
+    }
+
     const orderingStatus = getBusinessOpenStatus(restaurant.horarios)
 
     // "Pedir para más tarde" (shared/pedidoProgramado.js). La hora que manda la

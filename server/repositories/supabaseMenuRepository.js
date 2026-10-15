@@ -486,6 +486,12 @@ export class SupabaseMenuRepository {
         // la que trae la public key para tokenizarla.
         tarjeta: tarjetaHabilitada === true && restaurant.horarios?._settings?.menuSinMercadoPago !== true,
       },
+      // Un local puede no ofrecer retiro en el menu: solo delivery
+      // (horarios._settings.menuSinRetiro, Bruder). El menu esconde la opcion y
+      // el pedido la rechaza igual (supabaseOrderRepository).
+      entrega: {
+        retiro: restaurant.horarios?._settings?.menuSinRetiro !== true,
+      },
       presentationConfig,
       categories,
       cartAddonItems,
