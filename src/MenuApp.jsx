@@ -8461,6 +8461,10 @@ export default function MenuApp() {
     && !isHostLikeAccount(accountId, plantillaDelLocal),
   )
   const presentation = usaPlantillaCapta ? presentacionDeCapta(presentacionDelLocal) : presentacionDelLocal
+  useEffect(() => {
+    document.body.classList.toggle('cu-activo', usaPlantillaCapta)
+    return () => document.body.classList.remove('cu-activo')
+  }, [usaPlantillaCapta])
   // La ficha del local en la vitrina (portada, logo, rubro y tiempo): la misma
   // que ve el cliente en la tarjeta, asi la cabecera es la misma foto.
   const [fichaCapta, setFichaCapta] = useState(null)

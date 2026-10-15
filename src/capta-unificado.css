@@ -101,6 +101,8 @@
 }
 
 .cu-logo {
+  position: relative;
+  z-index: 2;
   flex: none;
   width: 72px;
   height: 72px;
@@ -418,4 +420,23 @@
   stroke-width: 2.2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+/* El cartel de local cerrado, con los colores de Capta. */
+.template-capta .closed-order-banner {
+  margin: 12px;
+  border: 1px solid var(--cu-borde);
+  border-radius: 16px;
+  background: #fff;
+  color: var(--cu-tinta);
+}
+
+.template-capta .closed-order-banner span {
+  background: #fff1ec;
+  color: var(--cu-naranja);
+}
+
+/* El boton "Capta Delivery" flotante sobra: la cabecera ya trae la flecha. */
+body.cu-activo .volver-a-vitrina {
+  display: none;
 }
