@@ -31,6 +31,10 @@ const IMAGENES_DEL_REPO = {
   'la-argenta': { portada: '/la-argenta/portada.jpg', logo: '/la-argenta/icono-192.png' },
   fratello: { portada: '/fratello/portada.jpg', logo: '/fratello/logo.png' },
   'kiosco-9-de-julio': { portada: '/kiosco-9-de-julio/compartir.png', logo: '/kiosco-9-de-julio/icono-192.png' },
+  'grupo-lea': { portada: '/grupo-lea/portada.jpg', logo: '/grupo-lea/icono-192.png' },
+  'yo-helados': { portada: '/yo-helados/compartir.jpg', logo: '/yo-helados/icono-192.png' },
+  'todo-empanadas': { portada: '/todo-empanadas/compartir.png', logo: '/todo-empanadas/icono-192.png' },
+  'punto-waffle': { logo: '/punto-waffle/logo.png' },
 }
 
 function primera(...valores) {
