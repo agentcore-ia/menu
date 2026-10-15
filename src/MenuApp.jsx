@@ -8440,18 +8440,7 @@ export default function MenuApp() {
 
   // Desde la vitrina de Capta Delivery el menu se ve con la plantilla unificada
   // (CaptaCabecera / CaptaCarta). Entrando directo al link no pasa nada de esto.
-  // TEMPORAL (pruebas): hasta validar todos los locales solo se prende con
-  // ?unificado=1 ademas de venir de la vitrina.
-  const [desdeCapta] = useState(() => {
-    if (!vinoDeLaVitrina()) return false
-    try {
-      const q = new URLSearchParams(window.location.search)
-      if (q.get('unificado') === '1') window.sessionStorage?.setItem('capta-unificado-prueba', '1')
-      return window.sessionStorage?.getItem('capta-unificado-prueba') === '1'
-    } catch {
-      return false
-    }
-  })
+  const [desdeCapta] = useState(vinoDeLaVitrina)
   const presentacionDelLocal = menu?.presentation ?? defaultPresentation
   const plantillaDelLocal = presentacionDelLocal.template ?? presentacionDelLocal.layout ?? 'editorial'
   const usaPlantillaCapta = Boolean(
@@ -10513,7 +10502,7 @@ export default function MenuApp() {
         <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation, accountId)}>
           {templateId === 'capta' ? (
             <CaptaCabecera
-              nombre={presentacionDelLocal.branding?.wordmark ?? menu?.accountName ?? ''}
+              nombre={fichaCapta?.nombre || menu?.accountName || presentacionDelLocal.branding?.wordmark || ''}
               logo={fichaCapta?.logo || presentacionDelLocal.branding?.logo || presentacionDelLocal.branding?.logoBanda || ''}
               portada={
                 fichaCapta?.portada
