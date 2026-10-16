@@ -538,7 +538,7 @@ function IconoBarra({ nombre, activo }) {
   )
 }
 
-function BarraInferior({ vista, onVista, onPuntos, guardados }) {
+function BarraInferior({ vista, onVista, onPuntos, guardados, puntosAbierto = false }) {
   const items = [
     { id: 'inicio', texto: 'Inicio' },
     { id: 'pedidos', texto: 'Pedidos' },
@@ -547,13 +547,13 @@ function BarraInferior({ vista, onVista, onPuntos, guardados }) {
     { id: 'perfil', texto: 'Perfil' },
   ]
   // "Ver todos" y los cuadrados de categorias siguen siendo parte del inicio.
-  const activa = ['todos', 'grupo'].includes(vista) ? 'inicio' : vista
+  const activa = puntosAbierto ? 'puntos' : ['todos', 'grupo'].includes(vista) ? 'inicio' : vista
 
   return (
     <nav className="cd-barra-inferior" aria-label="Secciones">
       {items.map((item) =>
         item.id === 'puntos' ? (
-          <button key={item.id} type="button" className="cd-nav-puntos" onClick={onPuntos}>
+          <button key={item.id} type="button" className="cd-nav-puntos" onClick={onPuntos} aria-current={puntosAbierto ? 'page' : undefined}>
             <svg className="cd-nav-bulto" viewBox="0 0 156 31" aria-hidden="true"><path d="M0,30 C18,30 26,27 36,19 C47,10 60,2 78,2 C96,2 109,10 120,19 C130,27 138,30 156,30 L156,31 L0,31 Z" fill="#fff" /></svg>
             <span className="cd-nav-icono"><span className="cd-nav-puntos-boton"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8z" fill="#fff" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" /></svg></span></span>
             <span>{item.texto}</span>
@@ -1510,7 +1510,7 @@ export default function CaptaDeliveryApp() {
         </div>
       ) : null}
 
-      <BarraInferior vista={vista} guardados={favoritos.length} onVista={irA} onPuntos={() => setHoja('puntos')} />
+      <BarraInferior vista={vista} guardados={favoritos.length} onVista={irA} onPuntos={() => setHoja('puntos')} puntosAbierto={hoja === 'puntos'} />
 
       {hoja === 'ciudad' ? (
         <Hoja titulo="Elegí tu ciudad" onCerrar={() => setHoja(null)}>

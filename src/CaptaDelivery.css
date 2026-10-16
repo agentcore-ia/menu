@@ -2773,3 +2773,11 @@ body {
   margin-top: -3px;
   font-size: 13.5px;
 }
+
+.cd-barra-inferior button {
+  font-size: 13.5px;
+}
+
+.cd-barra-inferior .cd-nav-puntos > span:last-child {
+  font-size: 13px;
+}

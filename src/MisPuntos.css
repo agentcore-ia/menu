@@ -514,3 +514,28 @@
     font-size: 46px;
   }
 }
+
+/* Cabecera en una sola linea, aun en celulares angostos. */
+.cp-cabecera h1 {
+  font-size: 23px;
+  white-space: nowrap;
+}
+
+.cp-cabecera p {
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.cp-ayuda {
+  padding: 8px 10px;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.cp-avance {
+  width: 54%;
+}
+
+.cp-volver {
+  width: 30px;
+}
