@@ -14,6 +14,7 @@ import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../s
 import { canjePosible, porQueNoEntraTodo } from '../shared/puntosCapta.js'
 import { vinoDeLaVitrina } from './vitrinaDelCliente.js'
 import { seguirToques, volarAlCarrito } from './animacionCarrito.js'
+import BarraCapta from './BarraCapta.jsx'
 import { turnosParaProgramar } from '../shared/pedidoProgramado.js'
 import { guardarUltimoPedido, rearmarCarrito, ultimoPedidoDe } from '../shared/volverAPedir.js'
 import { leerSesion } from './sesionCapta.js'
@@ -8995,6 +8996,24 @@ export default function MenuApp() {
     return () => clearTimeout(t)
   }, [codigoDelCupon, hasOrderItems, cartTotal, selectedDeliveryFee, celularDelPedido, probarCupon])
 
+  // La barra de abajo de la app (Inicio, Pedidos, Guardados, Perfil) tambien se
+  // ve dentro de un menu cuando el cliente entro desde la vitrina. Se esconde
+  // en las pantallas que ocupan todo (ficha, carrito, checkout, armado del
+  // pote) y en las plantillas que ya traen su propia barra abajo.
+  const mostrarBarraCapta =
+    desdeLaVitrina &&
+    status === 'ready' &&
+    !isTableOrder &&
+    !selectedDish &&
+    !isCartOpen &&
+    !isCheckoutOpen &&
+    !gelatoBuilderOpen &&
+    !['burger', 'blue-burger', 'host', 'kika', 'almendra', 'florian'].includes(templateId)
+  useEffect(() => {
+    document.body.classList.toggle('cb-activo', mostrarBarraCapta)
+    return () => document.body.classList.remove('cb-activo')
+  }, [mostrarBarraCapta])
+
   const descuentoCupon = cuponAplicado?.pesos ?? 0
   const cuponEnEnvio = cuponAplicado?.tipo === 'envio_gratis' ? descuentoCupon : 0
   const cuponEnComida = descuentoCupon - cuponEnEnvio
@@ -11000,6 +11019,8 @@ export default function MenuApp() {
               </button>
             </footer>
           ) : null}
+
+          {mostrarBarraCapta ? <BarraCapta /> : null}
 
           <SocialMenuDrawer
             open={isSocialMenuOpen}

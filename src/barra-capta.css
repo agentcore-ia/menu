@@ -1,0 +1,91 @@
+/* La barra de Capta Delivery dentro de un menu (src/BarraCapta.jsx). Solo
+ * existe cuando el cliente entro desde la vitrina: MenuApp la dibuja y marca el
+ * body con cb-activo. Todo cuelga de .cb-barra o de body.cb-activo. */
+
+:root {
+  --cb-alto: 64px;
+}
+
+.cb-barra {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(23, 24, 28, 0.09);
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+.cb-barra a {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 0;
+  color: #78716c;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.cb-barra a:active {
+  color: #f4511e;
+}
+
+.cb-icono {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.cb-globo {
+  position: absolute;
+  top: -4px;
+  right: -9px;
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #f4511e;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* Con la barra puesta, lo que iba pegado abajo sube para no taparla. */
+body.cb-activo .order-bar {
+  bottom: calc(var(--cb-alto) + 0.7rem + env(safe-area-inset-bottom)) !important;
+}
+
+body.cb-activo .cart-added-toast {
+  bottom: calc(var(--cb-alto) + 6.2rem + env(safe-area-inset-bottom)) !important;
+}
+
+body.cb-activo .content-panel {
+  padding-bottom: calc(var(--cb-alto) + 8rem);
+}
+
+/* La flecha de la cabecera y esta barra ya llevan a la vitrina. */
+body.cb-activo .volver-a-vitrina {
+  display: none;
+}
+
+/* En pantallas grandes la barra es una pastilla centrada, como en la vitrina. */
+@media (min-width: 820px) {
+  .cb-barra {
+    left: 50%;
+    right: auto;
+    bottom: 16px;
+    width: min(520px, calc(100% - 32px));
+    transform: translateX(-50%);
+    border: 1px solid rgba(23, 24, 28, 0.09);
+    border-radius: 999px;
+  }
+}

@@ -1063,7 +1063,15 @@ export default function CaptaDeliveryApp() {
     return Array.isArray(guardados) ? guardados : []
   })
   // inicio · todos ("Ver todos") · grupo (un cuadrado) · pedidos · guardados · perfil
-  const [vista, setVista] = useState('inicio')
+  // La barra de abajo de un menu manda aca con ?vista=pedidos|guardados|perfil.
+  const [vista, setVista] = useState(() => {
+    try {
+      const pedida = new URLSearchParams(window.location.search).get('vista')
+      return ['pedidos', 'guardados', 'perfil'].includes(pedida) ? pedida : 'inicio'
+    } catch {
+      return 'inicio'
+    }
+  })
   const [grupoElegido, setGrupoElegido] = useState(null)
   const [subcategoria, setSubcategoria] = useState('todos')
   const [hoja, setHoja] = useState(null) // ciudad · categorias · puntos · datos · mandado
