@@ -201,7 +201,7 @@ export default function MisPuntos({
 
       {conSaldo ? (
         <>
-          <p className="cp-nota">Hasta {pesos(config.topePorPedido)} por pedido · el descuento lo paga Capta</p>
+          <p className="cp-nota">Hasta {pesos(config.topePorPedido)} de descuento por pedido</p>
 
           <h3 className="cp-subtitulo">Tu historial</h3>
           {consultado.movimientos?.length ? (
@@ -212,7 +212,7 @@ export default function MisPuntos({
                     {m.puntos < 0 ? '−' : '+'}
                   </span>
                   <div>
-                    <strong>{m.tipo === 'canje' ? 'Usaste puntos' : m.tipo === 'gana' ? 'Sumaste' : 'Ajuste'}</strong>
+                    <strong>{m.tipo === 'canje' ? 'Usaste puntos' : m.tipo === 'gana' ? 'Sumaste' : m.tipo === 'regalo' ? '¡Te regalamos puntos!' : 'Ajuste'}</strong>
                     <small>{m.detalle || ''}</small>
                   </div>
                   <b className={m.puntos < 0 ? 'cp-resta' : 'cp-suma'}>
