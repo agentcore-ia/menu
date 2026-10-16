@@ -2769,3 +2769,8 @@ body {
 .cd-barra-inferior button span {
   white-space: nowrap;
 }
+
+.cd-barra-inferior .cd-nav-puntos > span:last-child {
+  margin-top: -3px;
+  font-size: 13.5px;
+}

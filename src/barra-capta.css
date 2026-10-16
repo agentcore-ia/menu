@@ -195,3 +195,8 @@ body.cb-activo .gelato-builder-footer {
 .cb-barra a span {
   white-space: nowrap;
 }
+
+.cb-barra a.cb-puntos > span:last-child {
+  margin-top: -3px;
+  font-size: 10.5px;
+}
