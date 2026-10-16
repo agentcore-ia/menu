@@ -11,7 +11,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 40;
+  z-index: 60;
   display: flex;
   justify-content: space-around;
   padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
@@ -88,4 +88,10 @@ body.cb-activo .volver-a-vitrina {
     border: 1px solid rgba(23, 24, 28, 0.09);
     border-radius: 999px;
   }
+}
+
+/* Las pantallas que se abren encima (ficha, carrito, checkout, armado del pote)
+   dejan lugar abajo para la barra: el ultimo boton no queda tapado. */
+body.cb-activo .detail-phone {
+  padding-bottom: calc(var(--cb-alto) + 1.5rem);
 }

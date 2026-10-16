@@ -8997,17 +8997,13 @@ export default function MenuApp() {
   }, [codigoDelCupon, hasOrderItems, cartTotal, selectedDeliveryFee, celularDelPedido, probarCupon])
 
   // La barra de abajo de la app (Inicio, Pedidos, Guardados, Perfil) tambien se
-  // ve dentro de un menu cuando el cliente entro desde la vitrina. Se esconde
-  // en las pantallas que ocupan todo (ficha, carrito, checkout, armado del
-  // pote) y en las plantillas que ya traen su propia barra abajo.
+  // ve dentro de un menu cuando el cliente entro desde la vitrina, en TODAS sus
+  // pantallas: la lista, la ficha del producto, el carrito, el checkout y el
+  // armado del pote. Menos en las plantillas que ya traen su propia barra abajo.
   const mostrarBarraCapta =
     desdeLaVitrina &&
     status === 'ready' &&
     !isTableOrder &&
-    !selectedDish &&
-    !isCartOpen &&
-    !isCheckoutOpen &&
-    !gelatoBuilderOpen &&
     !['burger', 'blue-burger', 'host', 'kika', 'almendra', 'florian'].includes(templateId)
   useEffect(() => {
     document.body.classList.toggle('cb-activo', mostrarBarraCapta)
@@ -11020,8 +11016,6 @@ export default function MenuApp() {
             </footer>
           ) : null}
 
-          {mostrarBarraCapta ? <BarraCapta /> : null}
-
           <SocialMenuDrawer
             open={isSocialMenuOpen}
             links={socialLinks}
@@ -11030,6 +11024,10 @@ export default function MenuApp() {
           />
         </div>
       </div>
+
+      {/* Al mismo nivel que las pantallas que se abren encima (ficha, carrito,
+          checkout): la barra queda por encima de todas. */}
+      {mostrarBarraCapta ? <BarraCapta /> : null}
 
       {cartFeedback ? (
         <div
