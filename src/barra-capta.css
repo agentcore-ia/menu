@@ -124,8 +124,8 @@ body.cb-activo .gelato-builder-footer {
   z-index: 0;
   top: -41px;
   left: 50%;
-  width: 118px;
-  height: 118px;
+  width: 104px;
+  height: 104px;
   transform: translateX(-50%);
   border-radius: 50%;
   background: radial-gradient(circle at 50% 36%, #ffe6da 0%, #fff1ea 58%, #fff8f4 100%);
@@ -159,4 +159,17 @@ body.cb-activo .gelato-builder-footer {
 
 .cb-puntos-boton svg {
   filter: drop-shadow(0 2px 2px rgba(150, 40, 0, 0.35));
+}
+
+/* Los vecinos van por encima del bulto del centro. */
+.cb-barra a {
+  position: relative;
+  z-index: 2;
+}
+
+.cb-barra a.cb-puntos {
+}
+
+.cb-barra a.cb-puntos {
+  z-index: 1;
 }

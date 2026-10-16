@@ -80,7 +80,7 @@ export default function BarraCapta() {
             )}
             {item.id === 'guardados' && guardados ? <span className="cb-globo">{guardados}</span> : null}
           </span>
-          {item.texto}
+          <span>{item.texto}</span>
         </a>
       ))}
     </nav>

@@ -648,7 +648,7 @@ function BarraInferior({ vista, onVista, onPuntos, guardados }) {
         item.id === 'puntos' ? (
           <button key={item.id} type="button" className="cd-nav-puntos" onClick={onPuntos}>
             <span className="cd-nav-icono"><span className="cd-nav-puntos-boton"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8z" fill="#fff" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" /></svg></span></span>
-            {item.texto}
+            <span>{item.texto}</span>
           </button>
         ) : (
         <button
