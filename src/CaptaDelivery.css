@@ -2526,3 +2526,142 @@ body {
   font-size: 12px;
   font-weight: 600;
 }
+
+/* ---------- cupones y ofertas ---------- */
+
+.cd-cupon {
+  position: relative;
+  flex: none;
+  width: min(78vw, 300px);
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px;
+  border: 0;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--cd-marca, #16a34a), color-mix(in srgb, var(--cd-marca, #16a34a) 70%, #000));
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  scroll-snap-align: start;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+}
+
+.cd-cupon::after {
+  content: '';
+  position: absolute;
+  right: -26px;
+  bottom: -26px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.cd-cupon-texto {
+  display: grid;
+  gap: 3px;
+  align-content: start;
+  min-width: 0;
+}
+
+.cd-cupon-texto strong {
+  font: 800 26px / 1.05 'Manrope', system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.cd-cupon-texto small {
+  font: 700 13px / 1.25 'Manrope', system-ui, sans-serif;
+}
+
+.cd-cupon-texto i {
+  font: 600 11px / 1.3 'Manrope', system-ui, sans-serif;
+  font-style: normal;
+  opacity: 0.85;
+}
+
+.cd-cupon-tag {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  font: 800 10px / 1.4 'Manrope', system-ui, sans-serif;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cd-cupon-codigo {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: end;
+  justify-items: end;
+  gap: 5px;
+}
+
+.cd-cupon-codigo b {
+  padding: 5px 9px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.85);
+  border-radius: 10px;
+  font: 800 12px / 1 'Manrope', system-ui, sans-serif;
+  letter-spacing: 0.06em;
+}
+
+.cd-cupon-codigo u {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fff;
+  color: #17181c;
+  font: 800 11px / 1 'Manrope', system-ui, sans-serif;
+  text-decoration: none;
+}
+
+.cd-bienvenida {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  margin: 4px 0 12px;
+  padding: 12px 36px 12px 14px;
+  border-radius: 16px;
+  background: #e7f6ec;
+  color: #14532d;
+  font: 600 13px / 1.35 'Manrope', system-ui, sans-serif;
+}
+
+.cd-bienvenida strong {
+  font-weight: 800;
+}
+
+.cd-bienvenida button {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.cd-toast-cupon {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--cd-barra) + 18px);
+  z-index: 60;
+  max-width: calc(100% - 32px);
+  padding: 11px 16px;
+  border-radius: 14px;
+  background: #17181c;
+  color: #fff;
+  font: 700 13px / 1.3 'Manrope', system-ui, sans-serif;
+  transform: translateX(-50%);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+  animation: cd-toast-cupon-in 0.28s ease both;
+}
+
+@keyframes cd-toast-cupon-in {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}

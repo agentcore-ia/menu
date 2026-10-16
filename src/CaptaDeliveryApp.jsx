@@ -16,7 +16,7 @@ import { celularValido, normalizarCelular } from '../shared/celular.js'
 import { EntradaMandados, FormularioMandado } from './MandadoCapta.jsx'
 import { leerEnCurso } from './mandadoEnCurso.js'
 import { Ingresar, NombreDeLaCuenta } from './CuentaCapta.jsx'
-import { borrarSesion, leerSesion, pedirCuenta } from './sesionCapta.js'
+import { borrarSesion, leerSesion, pedirCuenta, tomarBienvenida } from './sesionCapta.js'
 import { leerUltimosPedidos, resumenDelPedido } from '../shared/volverAPedir.js'
 import { coincideConElRubro, normalizarTexto, palabrasDeLaBusqueda } from '../shared/busquedaProductos.js'
 import './CaptaDelivery.css'
@@ -270,6 +270,51 @@ function VolverAPedir({ pedidos }) {
               <em>{local.abierto ? 'Repetir pedido' : local.programable ? 'Programarlo de nuevo' : estadoCorto(local)}</em>
             </span>
           </a>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+/**
+ * Los cupones de Capta (los crea el admin): los de la cuenta primero, despues
+ * las ofertas a la vista. Tocar uno copia el codigo para usarlo al pedir.
+ */
+function OfertasParaVos({ cupones, onCopiar }) {
+  const lista = [
+    ...cupones.billetera.map((c) => ({ ...c, propio: true })),
+    ...cupones.ofertas.filter((o) => !cupones.billetera.some((b) => b.codigo === o.codigo)),
+  ]
+  if (!lista.length) return null
+
+  return (
+    <section className="cd-tira" aria-label="Ofertas para vos">
+      <div className="cd-titulo-seccion">
+        <h2>Ofertas para vos</h2>
+      </div>
+      <div className="cd-carrusel">
+        {lista.map((c) => (
+          <button
+            key={c.codigo}
+            type="button"
+            className="cd-cupon"
+            style={{ '--cd-marca': c.color || '#16a34a' }}
+            onClick={() => onCopiar(c)}
+          >
+            <span className="cd-cupon-texto">
+              {c.propio ? <em className="cd-cupon-tag">Tuyo</em> : null}
+              <strong>{c.texto}</strong>
+              <small>{c.titulo}</small>
+              <i>
+                {c.minimoCompra > 0 ? `Compra mínima $${c.minimoCompra.toLocaleString('es-AR')} · ` : ''}
+                {c.hasta ? `Hasta el ${new Date(c.hasta).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}` : 'Sin vencimiento'}
+              </i>
+            </span>
+            <span className="cd-cupon-codigo">
+              <b>{c.codigo}</b>
+              <u>Copiar</u>
+            </span>
+          </button>
         ))}
       </div>
     </section>
@@ -1031,6 +1076,47 @@ export default function CaptaDeliveryApp() {
 
   // La cuenta (entrar con el celular y un codigo por WhatsApp). null = sin entrar.
   const [sesion, setSesion] = useState(leerSesion)
+  // Los cupones del admin (Admin > Delivery > Cupones) y lo que se le regalo a
+  // una cuenta nueva.
+  const [cupones, setCupones] = useState({ ofertas: [], billetera: [] })
+  const [bienvenida, setBienvenida] = useState(() => tomarBienvenida())
+  const copiarCupon = (cupon) => {
+    try {
+      void navigator.clipboard?.writeText(cupon.codigo)
+    } catch {
+      // sin portapapeles: el codigo igual esta a la vista
+    }
+    setAvisoCupon(`Código ${cupon.codigo} copiado. Pegalo al hacer tu pedido.`)
+  }
+  const [avisoCupon, setAvisoCupon] = useState('')
+  useEffect(() => {
+    if (!avisoCupon) return undefined
+    const t = setTimeout(() => setAvisoCupon(''), 3200)
+    return () => clearTimeout(t)
+  }, [avisoCupon])
+  useEffect(() => {
+    let vivo = true
+    fetch('/api/delivery/cupones', {
+      headers: sesion?.token ? { Authorization: `Bearer ${sesion.token}` } : {},
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((datos) => {
+        if (vivo && datos) setCupones({ ofertas: datos.ofertas || [], billetera: datos.billetera || [] })
+      })
+      .catch(() => {})
+    return () => {
+      vivo = false
+    }
+  }, [sesion?.token])
+  useEffect(() => {
+    // Una cuenta que se acaba de abrir (desde el perfil): se muestra el regalo.
+    if (!sesion?.token) return undefined
+    const t = setTimeout(() => {
+      const lista = tomarBienvenida()
+      if (lista.length) setBienvenida(lista)
+    }, 0)
+    return () => clearTimeout(t)
+  }, [sesion?.token])
   // Sus pedidos de todos los locales; null mientras se cargan.
   const [pedidosCuenta, setPedidosCuenta] = useState(null)
 
@@ -1300,6 +1386,16 @@ export default function CaptaDeliveryApp() {
 
             <Categorias onElegir={abrirGrupo} onVerTodas={() => setHoja('categorias')} />
 
+            {bienvenida.length ? (
+              <div className="cd-bienvenida" role="status">
+                <strong>¡Bienvenido a Capta!</strong>
+                <span>Te regalamos: {bienvenida.map((b) => `${b.texto} (${b.codigo})`).join(' · ')}. Los usás al pedir.</span>
+                <button type="button" onClick={() => setBienvenida([])} aria-label="Cerrar">×</button>
+              </div>
+            ) : null}
+
+            <OfertasParaVos cupones={cupones} onCopiar={copiarCupon} />
+
             {/* Todos los comercios de la ciudad, abajo de las categorias: primero
                 los abiertos y despues "Abren más tarde". */}
             <section className="cd-seccion" aria-label="Comercios">
@@ -1474,6 +1570,12 @@ export default function CaptaDeliveryApp() {
 
         <p className="cd-pie">Los pedidos los toma cada local en su menú. Los reparte Capta Delivery.</p>
       </main>
+
+      {avisoCupon ? (
+        <div className="cd-toast-cupon" role="status">
+          {avisoCupon}
+        </div>
+      ) : null}
 
       <BarraInferior vista={vista} guardados={favoritos.length} onVista={irA} />
 

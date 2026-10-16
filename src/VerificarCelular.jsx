@@ -4,7 +4,7 @@
 // celular que el cliente ya escribio en el pedido.
 
 import { useEffect, useState } from 'react'
-import { guardarSesion, pedirCuenta } from './sesionCapta.js'
+import { guardarBienvenida, guardarSesion, pedirCuenta } from './sesionCapta.js'
 
 export function VerificarCelular({ telefono, onVerificado }) {
   const [paso, setPaso] = useState('inicio')
@@ -45,6 +45,8 @@ export function VerificarCelular({ telefono, onVerificado }) {
       const datos = await pedirCuenta('POST', { accion: 'verificar', telefono, codigo: valor })
       const sesion = { token: datos.token, cliente: datos.cliente }
       guardarSesion(sesion)
+      // Una cuenta nueva recibe los cupones de bienvenida: se avisa en la app.
+      if (Array.isArray(datos.bienvenida) && datos.bienvenida.length) guardarBienvenida(datos.bienvenida)
       onVerificado(sesion)
     } catch (e) {
       setError(e.message)

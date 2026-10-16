@@ -10,6 +10,7 @@ import { resolveDeliveryQuote } from '../deliveryZones.js'
 import { describirDias, diaDeHoyEnArgentina, diasDelTexto } from '../../shared/diasDisponibles.js'
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../../shared/celular.js'
 import { canjeElegido, configDePuntos } from '../../shared/puntosCapta.js'
+import { cuponParaElCliente, descuentoDelCupon, motivoNoAplica, normalizarCodigo } from '../../shared/cuponesCapta.js'
 import { aceptaTransferencia } from '../../shared/transferencia.js'
 import { leerHorarioMenuDelDia, menuDelDiaDisponible, textoHorarioMenuDelDia } from '../../shared/horarioMenuDelDia.js'
 import { aceptaProgramados, anticipoDelLocal, validarProgramado } from '../../shared/pedidoProgramado.js'
@@ -224,15 +225,33 @@ export class SupabaseOrderRepository {
 
     // Los puntos de Capta Delivery. Lo que el cliente pidio usar se valida
     // ACA de nuevo contra su saldo real: el navegador solo propone.
+    // El cupon de Capta (lo crea el admin y lo paga Capta). Se valida ACA otra
+    // vez: el navegador solo propone. Va antes de los puntos, que se calculan
+    // sobre lo que queda por pagar.
+    const cuponCapta = await this.aplicarCuponDeCapta({
+      codigo: payload.cuponCapta,
+      restaurant,
+      comida: discountedSubtotal,
+      envio: deliveryFee,
+      telefono: payload.customer?.phone,
+      sesionCapta: payload.sesionCapta,
+      desdeVitrina: payload.desdeVitrina === true,
+    })
+    const cuponEnEnvio = cuponCapta.tipo === 'envio_gratis' ? cuponCapta.pesos : 0
+    const cuponEnComida = cuponCapta.pesos - cuponEnEnvio
+
     const canjeCapta = await this.canjearPuntosDeCapta({
       telefono: payload.customer?.phone,
       pesosPedidos: payload.puntosCapta,
-      comida: discountedSubtotal,
-      envio: deliveryFee,
+      comida: Math.max(0, discountedSubtotal - cuponEnComida),
+      envio: Math.max(0, deliveryFee - cuponEnEnvio),
       desdeVitrina: payload.desdeVitrina === true,
     })
 
-    const total = Math.max(0, discountedSubtotal + deliveryFee + surchargeAmount - canjeCapta.pesos)
+    const total = Math.max(
+      0,
+      discountedSubtotal + deliveryFee + surchargeAmount - canjeCapta.pesos - cuponCapta.pesos,
+    )
 
     let resolvedTableId = null;
     let resolvedTableName = null;
@@ -333,7 +352,11 @@ export class SupabaseOrderRepository {
           desde_vitrina: payload.desdeVitrina === true,
           // Lo que se descontó con puntos de Capta. Va aparte de
           // discount_amount, que es el descuento del LOCAL.
-          descuento_puntos_capta: canjeCapta.pesos,
+          // TODO lo que puso Capta (puntos + cupon): de ahi sale la comision
+          // del envio (dashboard: solicitarEnvio). El detalle va aparte.
+          descuento_puntos_capta: canjeCapta.pesos + cuponCapta.pesos,
+          cupon_codigo: cuponCapta.pesos > 0 ? cuponCapta.codigo : null,
+          descuento_cupon_capta: cuponCapta.pesos,
           discount_amount: discountAmount,
           discount_percent: redemptionPreview?.discountPercent ?? null,
           discount_label: redemptionPreview?.discountLabel ?? null,
@@ -436,6 +459,7 @@ export class SupabaseOrderRepository {
     // items. Si algo hubiera fallado antes, el cliente no perdio nada.
     if (canjeCapta.pesos > 0) {
       await this.anotarCanjeDePuntos({ pedido, canje: canjeCapta })
+      await this.anotarUsoDeCupon({ pedido, cupon: cuponCapta, telefono: payload.customer?.phone, restaurantId: restaurant.id })
     }
 
     const mercadoPagoPreference = await this.createMercadoPagoPreferenceForOrder({
@@ -1621,6 +1645,147 @@ export class SupabaseOrderRepository {
     )
     if (canje.pesos <= 0) return vacio
     return { ...canje, cuentaId: cuenta.cuentaId, telefono: cuenta.telefono, saldoPrevio: cuenta.puntos }
+  }
+
+  // ---------------------------------------------------------------- cupones
+
+  async cuponDeCapta(codigoCrudo) {
+    const codigo = normalizarCodigo(codigoCrudo)
+    if (codigo.length < 3) return null
+    const filas = await this.request(`/capta_cupones?codigo=eq.${encodeURIComponent(codigo)}&select=*&limit=1`)
+    return filas?.[0] ?? null
+  }
+
+  async usosDeCupon(cuponId, telefono) {
+    const filas = await this.request(
+      `/capta_cupones_usos?cupon_id=eq.${cuponId}&telefono=eq.${telefono}&select=id&limit=100`,
+    )
+    return Array.isArray(filas) ? filas.length : 0
+  }
+
+  /** Es la primera vez que este celular pide desde la app (ningun pedido anterior). */
+  async esPrimerPedidoEnCapta(telefono) {
+    const filas = await this.request(
+      `/pedidos?desde_vitrina=eq.true&status=neq.cancelled&customer_phone=in.(${telefono},%2B${telefono})&select=id&limit=1`,
+    )
+    return !(Array.isArray(filas) && filas.length)
+  }
+
+  /**
+   * Valida un cupon para un pedido y dice cuanto descuenta.
+   * Devuelve { ok: true, cupon, pesos } o { ok: false, motivo }.
+   */
+  async evaluarCuponDeCapta({ codigo, restaurant, comida, envio, telefono, sesionCapta, desdeVitrina }) {
+    if (desdeVitrina !== true) {
+      return { ok: false, motivo: 'Los cupones valen en pedidos hechos desde Capta Delivery (delivery.capta.ar).' }
+    }
+    const cupon = await this.cuponDeCapta(codigo)
+    if (!cupon) return { ok: false, motivo: 'Ese cupón no existe.' }
+
+    const tel = normalizarCelular(telefono)
+    const verificado = sesionCapta ? await celularDeLaSesion(sesionCapta) : null
+    const cuentaVerificada = Boolean(verificado && tel && verificado === tel)
+
+    const [usosDelCliente, esPrimerPedido, billetera] = await Promise.all([
+      tel ? this.usosDeCupon(cupon.id, tel) : 0,
+      cupon.solo_primer_pedido && tel ? this.esPrimerPedidoEnCapta(tel) : true,
+      tel
+        ? this.request(`/capta_cupones_cuentas?cupon_id=eq.${cupon.id}&telefono=eq.${tel}&select=vence_at&limit=1`)
+        : [],
+    ])
+
+    // Un cupon que se le regalo a esta cuenta tiene su propio vencimiento.
+    const venceEnBilletera = billetera?.[0]?.vence_at
+    if (venceEnBilletera && Date.parse(venceEnBilletera) < Date.now()) {
+      return { ok: false, motivo: 'Tu cupón venció.' }
+    }
+
+    const motivo = motivoNoAplica(cupon, {
+      restaurantId: restaurant?.id,
+      comida,
+      envio,
+      usosDelCliente,
+      esPrimerPedido,
+      cuentaVerificada,
+    })
+    if (motivo) return { ok: false, motivo }
+    return { ok: true, cupon, pesos: descuentoDelCupon(cupon, { comida, envio }) }
+  }
+
+  /** Para crear el pedido: sin codigo no hay cupon; con codigo malo se rechaza. */
+  async aplicarCuponDeCapta(datos) {
+    const vacio = { pesos: 0, codigo: null, tipo: null, cuponId: null }
+    if (!normalizarCodigo(datos.codigo)) return vacio
+
+    const r = await this.evaluarCuponDeCapta(datos)
+    if (!r.ok) {
+      const error = new Error(r.motivo)
+      error.code = 'CUPON_INVALIDO'
+      error.statusCode = 422
+      throw error
+    }
+    return { pesos: r.pesos, codigo: r.cupon.codigo, tipo: r.cupon.tipo, cuponId: r.cupon.id }
+  }
+
+  /** Anota el uso (historial, tope total y, si lo tenia regalado, lo marca usado). */
+  async anotarUsoDeCupon({ pedido, cupon, telefono, restaurantId }) {
+    if (!cupon?.cuponId || !(cupon.pesos > 0)) return
+    const tel = normalizarCelular(telefono)
+    try {
+      await this.request('/capta_cupones_usos', {
+        method: 'POST',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify([
+          { cupon_id: cupon.cuponId, pedido_id: pedido.id, telefono: tel, restaurant_id: restaurantId, monto: cupon.pesos },
+        ]),
+      })
+      const filas = await this.request(`/capta_cupones?id=eq.${cupon.cuponId}&select=usos_total&limit=1`)
+      await this.request(`/capta_cupones?id=eq.${cupon.cuponId}`, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({ usos_total: (Number(filas?.[0]?.usos_total) || 0) + 1 }),
+      })
+      await this.request(`/capta_cupones_cuentas?cupon_id=eq.${cupon.cuponId}&telefono=eq.${tel}&usado_at=is.null`, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({ usado_at: new Date().toISOString() }),
+      })
+    } catch (error) {
+      // El pedido ya esta hecho con el descuento puesto: no se rompe por no
+      // poder anotar el uso, pero queda el aviso.
+      console.error('No se pudo anotar el uso del cupon de Capta:', error?.message)
+    }
+  }
+
+  /** Los cupones para la app: las ofertas a la vista y, con sesion, los de la cuenta. */
+  async cuponesParaLaApp({ sesionCapta }) {
+    const ahora = new Date().toISOString()
+    const vigentes = (cupon) =>
+      cupon.activo && (!cupon.desde || cupon.desde <= ahora) && (!cupon.hasta || cupon.hasta >= ahora) &&
+      (cupon.max_usos_total == null || Number(cupon.usos_total) < cupon.max_usos_total)
+
+    const ofertas = (
+      (await this.request('/capta_cupones?activo=eq.true&visible=eq.true&select=*&order=creado_at.desc&limit=30')) ?? []
+    )
+      .filter(vigentes)
+      .map((c) => cuponParaElCliente(c))
+
+    let billetera = []
+    const tel = sesionCapta ? await celularDeLaSesion(sesionCapta) : null
+    if (tel) {
+      const filas =
+        (await this.request(
+          `/capta_cupones_cuentas?telefono=eq.${tel}&usado_at=is.null&select=cupon_id,vence_at,origen&limit=50`,
+        )) ?? []
+      const ids = filas.filter((f) => !f.vence_at || f.vence_at >= ahora).map((f) => f.cupon_id)
+      if (ids.length) {
+        const cupones = (await this.request(`/capta_cupones?id=in.(${ids.join(',')})&select=*`)) ?? []
+        billetera = cupones
+          .filter(vigentes)
+          .map((c) => cuponParaElCliente(c, { venceEnTuCuenta: filas.find((f) => f.cupon_id === c.id)?.vence_at ?? null }))
+      }
+    }
+    return { ofertas, billetera }
   }
 
   /** Descuenta los puntos usados y lo deja anotado en el historial del cliente. */

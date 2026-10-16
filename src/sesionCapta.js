@@ -15,6 +15,29 @@ export function leerSesion() {
   }
 }
 
+const CLAVE_BIENVENIDA = 'capta-bienvenida-pendiente'
+
+/** Lo que se le regalo a una cuenta NUEVA: se muestra una vez y se olvida. */
+export function guardarBienvenida(lista) {
+  try {
+    window.sessionStorage?.setItem(CLAVE_BIENVENIDA, JSON.stringify(lista))
+  } catch {
+    // sin almacenamiento: simplemente no se muestra el aviso
+  }
+}
+
+export function tomarBienvenida() {
+  try {
+    const crudo = window.sessionStorage?.getItem(CLAVE_BIENVENIDA)
+    if (!crudo) return []
+    window.sessionStorage?.removeItem(CLAVE_BIENVENIDA)
+    const lista = JSON.parse(crudo)
+    return Array.isArray(lista) ? lista : []
+  } catch {
+    return []
+  }
+}
+
 export function guardarSesion(sesion) {
   try {
     almacenDelNavegador()?.setItem(CLAVE, JSON.stringify(sesion))

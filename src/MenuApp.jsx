@@ -8912,22 +8912,114 @@ export default function MenuApp() {
   // valer sin tener que limpiarlo a mano.
   const puntosCapta = puntosTraidos && puntosTraidos.telefono === celularDelPedido ? puntosTraidos : null
 
+  // ---------------------------------------- cupones de Capta Delivery
+  //
+  // Los crea el admin y los paga Capta. Solo valen si el cliente entro desde la
+  // app. El descuento lo calcula el SERVIDOR (/api/delivery/cupones/validar) y
+  // se vuelve a validar al crear el pedido.
+  const [cuponTexto, setCuponTexto] = useState('')
+  const [cuponAplicado, setCuponAplicado] = useState(null)
+  const [cuponMensaje, setCuponMensaje] = useState('')
+  const [cuponProbando, setCuponProbando] = useState(false)
+  const [cuponesAlAlcance, setCuponesAlAlcance] = useState([])
+
+  const probarCupon = useCallback(
+    async (codigo, { silencioso = false } = {}) => {
+      if (!codigo) return
+      if (!silencioso) {
+        setCuponProbando(true)
+        setCuponMensaje('')
+      }
+      try {
+        const respuesta = await fetch('/api/delivery/cupones/validar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            codigo,
+            slug: accountId,
+            comida: cartTotal,
+            envio: selectedDeliveryFee,
+            telefono: celularDelPedido,
+            sesionCapta: sesionCapta?.token,
+            desdeVitrina: true,
+          }),
+        })
+        const datos = await respuesta.json().catch(() => null)
+        if (datos?.ok) {
+          setCuponAplicado({ codigo: datos.codigo, titulo: datos.titulo, tipo: datos.tipo, pesos: datos.pesos })
+          setCuponTexto('')
+          setCuponMensaje('')
+        } else {
+          setCuponAplicado(null)
+          setCuponMensaje(datos?.motivo || 'No pudimos usar ese cupón.')
+        }
+      } catch {
+        if (!silencioso) setCuponMensaje('No pudimos revisar el cupón. Probá de nuevo.')
+      } finally {
+        if (!silencioso) setCuponProbando(false)
+      }
+    },
+    [accountId, cartTotal, selectedDeliveryFee, celularDelPedido, sesionCapta?.token],
+  )
+
+  // Los cupones al alcance: los de la cuenta (si entro) y las ofertas a la vista.
+  useEffect(() => {
+    if (!desdeLaVitrina) return undefined
+    let vivo = true
+    fetch('/api/delivery/cupones', {
+      headers: sesionCapta?.token ? { Authorization: `Bearer ${sesionCapta.token}` } : {},
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((datos) => {
+        if (!vivo || !datos) return
+        const propios = (datos.billetera || []).map((c) => ({ ...c, propio: true }))
+        const resto = (datos.ofertas || []).filter((o) => !propios.some((p) => p.codigo === o.codigo))
+        setCuponesAlAlcance([...propios, ...resto])
+      })
+      .catch(() => {})
+    return () => {
+      vivo = false
+    }
+  }, [desdeLaVitrina, sesionCapta?.token])
+
+  // Si cambia el pedido (productos, envio, celular), el descuento se vuelve a
+  // pedir al servidor: un cupon puede dejar de valer o valer otra cantidad.
+  const codigoDelCupon = cuponAplicado?.codigo || ''
+  useEffect(() => {
+    if (!codigoDelCupon) return undefined
+    const t = setTimeout(() => {
+      // Sin productos no hay nada que descontar: el cupon se suelta.
+      if (!hasOrderItems) setCuponAplicado(null)
+      else void probarCupon(codigoDelCupon, { silencioso: true })
+    }, 350)
+    return () => clearTimeout(t)
+  }, [codigoDelCupon, hasOrderItems, cartTotal, selectedDeliveryFee, celularDelPedido, probarCupon])
+
+  const descuentoCupon = cuponAplicado?.pesos ?? 0
+  const cuponEnEnvio = cuponAplicado?.tipo === 'envio_gratis' ? descuentoCupon : 0
+  const cuponEnComida = descuentoCupon - cuponEnEnvio
+
   // Cuanto puede usar en ESTE pedido: lo miran las dos puntas con la misma
   // cuenta (shared/puntosCapta.js) para que no le ofrezcamos algo que el
-  // servidor despues le rechaza.
+  // servidor despues le rechaza. Los puntos se calculan sobre lo que queda
+  // despues del cupon.
   const canjeCapta = useMemo(() => {
     if (!puntosCapta || !hasOrderItems) return { pesos: 0, puntos: 0, motivo: '' }
     return canjePosible(
-      { puntos: puntosCapta.puntos, comida: cartTotal, envio: selectedDeliveryFee },
+      {
+        puntos: puntosCapta.puntos,
+        comida: Math.max(0, cartTotal - cuponEnComida),
+        envio: Math.max(0, selectedDeliveryFee - cuponEnEnvio),
+      },
       puntosCapta.config,
     )
-  }, [puntosCapta, hasOrderItems, cartTotal, selectedDeliveryFee])
+  }, [puntosCapta, hasOrderItems, cartTotal, selectedDeliveryFee, cuponEnComida, cuponEnEnvio])
 
   const celularVerificado = Boolean(celularDelPedido && sesionCapta?.cliente?.telefono === celularDelPedido)
   const descuentoCapta = usarPuntosCapta && celularVerificado ? canjeCapta.pesos : 0
   const orderTotal = Math.max(
     0,
-    cartTotal + selectedDeliveryFee + paymentSurchargeAmount - descuentoCapta,
+    cartTotal + selectedDeliveryFee + paymentSurchargeAmount - descuentoCapta - descuentoCupon,
   )
   const orderTotalLabel = orderTotal > 0
     ? formatPrice(orderTotal, currencySymbol)
@@ -10274,8 +10366,11 @@ export default function MenuApp() {
       // Lo que quiere usar de sus puntos, en pesos. El servidor lo vuelve a
       // validar contra su saldo real.
       puntosCapta: descuentoCapta,
-      // La sesion verificada: sin ella el servidor no deja usar los puntos.
-      sesionCapta: descuentoCapta > 0 ? sesionCapta?.token : undefined,
+      // El cupon de Capta (el servidor lo vuelve a validar y calcula el descuento).
+      cuponCapta: cuponAplicado?.codigo,
+      // La sesion verificada: sin ella el servidor no deja usar los puntos ni
+      // los cupones que piden cuenta.
+      sesionCapta: descuentoCapta > 0 || cuponAplicado ? sesionCapta?.token : undefined,
     }
 
     try {
@@ -12377,6 +12472,9 @@ export default function MenuApp() {
                         {formatPrice(paymentSurchargeAmount, currencySymbol)}
                       </small>
                     ) : null}
+                    {descuentoCupon > 0 ? (
+                      <small>Cupón {cuponAplicado?.codigo}: -{formatPrice(descuentoCupon, currencySymbol)}</small>
+                    ) : null}
                     {descuentoCapta > 0 ? (
                       <small>Puntos Capta: -{formatPrice(descuentoCapta, currencySymbol)}</small>
                     ) : null}
@@ -12436,6 +12534,67 @@ export default function MenuApp() {
                     required
                   />
                 </label>
+
+                {/* El cupon de Capta (lo crea el admin y lo paga Capta). Solo si el
+                    cliente entro desde la app. */}
+                {desdeLaVitrina && !isTableOrder && hasOrderItems ? (
+                  <div className="capta-cupon-checkout">
+                    <div className="capta-cupon-cabecera">
+                      <span>Cupón de Capta</span>
+                    </div>
+                    {cuponAplicado ? (
+                      <div className="capta-cupon-aplicado">
+                        <span>
+                          <strong>{cuponAplicado.codigo}</strong>
+                          <small>
+                            {cuponAplicado.titulo} · -{formatPrice(cuponAplicado.pesos, currencySymbol)}
+                          </small>
+                        </span>
+                        <button type="button" onClick={() => setCuponAplicado(null)}>
+                          Quitar
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="capta-cupon-fila">
+                          <input
+                            value={cuponTexto}
+                            onChange={(event) => setCuponTexto(event.target.value.toUpperCase())}
+                            placeholder="Tengo un cupón"
+                            maxLength={24}
+                            autoCapitalize="characters"
+                            autoComplete="off"
+                            aria-label="Código del cupón"
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter') {
+                                event.preventDefault()
+                                void probarCupon(cuponTexto.trim())
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            disabled={!cuponTexto.trim() || cuponProbando}
+                            onClick={() => void probarCupon(cuponTexto.trim())}
+                          >
+                            {cuponProbando ? '…' : 'Aplicar'}
+                          </button>
+                        </div>
+                        {cuponMensaje ? <p className="capta-cupon-error">{cuponMensaje}</p> : null}
+                        {cuponesAlAlcance.length ? (
+                          <div className="capta-cupon-chips">
+                            {cuponesAlAlcance.map((c) => (
+                              <button key={c.codigo} type="button" onClick={() => void probarCupon(c.codigo)}>
+                                <b>{c.texto}</b>
+                                <span>{c.propio ? 'Tuyo · ' : ''}{c.codigo}</span>
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
+                      </>
+                    )}
+                  </div>
+                ) : null}
 
                 {/* Los puntos de Capta Delivery. Aparecen solo si el cliente
                     entro desde la app y tiene algo para usar. */}
