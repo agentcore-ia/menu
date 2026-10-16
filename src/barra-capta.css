@@ -3,7 +3,7 @@
  * body con cb-activo. Todo cuelga de .cb-barra o de body.cb-activo. */
 
 :root {
-  --cb-alto: 64px;
+  --cb-alto: 70px;
 }
 
 .cb-barra {
