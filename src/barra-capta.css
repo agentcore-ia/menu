@@ -191,3 +191,7 @@ body.cb-activo .gelato-builder-footer {
     border-radius: 999px;
   }
 }
+
+.cb-barra a span {
+  white-space: nowrap;
+}

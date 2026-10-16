@@ -2765,3 +2765,7 @@ body {
 .cd-barra-inferior button {
   font-size: 14px;
 }
+
+.cd-barra-inferior button span {
+  white-space: nowrap;
+}
