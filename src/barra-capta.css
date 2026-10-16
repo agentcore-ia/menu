@@ -95,3 +95,8 @@ body.cb-activo .volver-a-vitrina {
 body.cb-activo .detail-phone {
   padding-bottom: calc(var(--cb-alto) + 1.5rem);
 }
+
+/* El pie pegado del armado del pote (heladerias) sube por encima de la barra. */
+body.cb-activo .gelato-builder-footer {
+  bottom: calc(var(--cb-alto) + env(safe-area-inset-bottom));
+}
