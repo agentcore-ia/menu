@@ -2749,3 +2749,7 @@ body {
 .cd-barra-inferior .cd-nav-puntos {
   z-index: 1;
 }
+
+.cd-barra-inferior button {
+  font-size: 14px;
+}
