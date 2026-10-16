@@ -292,7 +292,7 @@ function OfertasParaVos({ cupones, onCopiar }) {
       <div className="cd-titulo-seccion">
         <h2>Ofertas para vos</h2>
       </div>
-      <div className="cd-carrusel">
+      <div className="cd-carrusel cd-carrusel-cupones">
         {lista.map((c) => (
           <button
             key={c.codigo}
