@@ -631,10 +631,11 @@ function IconoBarra({ nombre, activo }) {
   )
 }
 
-function BarraInferior({ vista, onVista, guardados }) {
+function BarraInferior({ vista, onVista, onPuntos, guardados }) {
   const items = [
     { id: 'inicio', texto: 'Inicio' },
     { id: 'pedidos', texto: 'Pedidos' },
+    { id: 'puntos', texto: 'Mis puntos' },
     { id: 'guardados', texto: 'Guardados', globo: guardados || 0 },
     { id: 'perfil', texto: 'Perfil' },
   ]
@@ -643,7 +644,13 @@ function BarraInferior({ vista, onVista, guardados }) {
 
   return (
     <nav className="cd-barra-inferior" aria-label="Secciones">
-      {items.map((item) => (
+      {items.map((item) =>
+        item.id === 'puntos' ? (
+          <button key={item.id} type="button" className="cd-nav-puntos" onClick={onPuntos}>
+            <span className="cd-nav-puntos-boton"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8z" fill="#fff" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" /></svg></span>
+            {item.texto}
+          </button>
+        ) : (
         <button
           key={item.id}
           type="button"
@@ -657,7 +664,8 @@ function BarraInferior({ vista, onVista, guardados }) {
           </span>
           {item.texto}
         </button>
-      ))}
+        ),
+      )}
     </nav>
   )
 }
@@ -1074,7 +1082,14 @@ export default function CaptaDeliveryApp() {
   })
   const [grupoElegido, setGrupoElegido] = useState(null)
   const [subcategoria, setSubcategoria] = useState('todos')
-  const [hoja, setHoja] = useState(null) // ciudad · categorias · puntos · datos · mandado
+  const [hoja, setHoja] = useState(() => {
+    try {
+      // La barra de abajo de un menu manda aca con ?hoja=puntos.
+      return new URLSearchParams(window.location.search).get('hoja') === 'puntos' ? 'puntos' : null
+    } catch {
+      return null
+    }
+  }) // ciudad · categorias · puntos · datos · mandado
   const [dondeDelMandado, setDondeDelMandado] = useState('')
   // Los ultimos pedidos de este telefono, para "Volver a pedir" y "Pedidos".
   const [ultimosPedidos] = useState(() => leerUltimosPedidos(almacenDelNavegador()))
@@ -1585,7 +1600,7 @@ export default function CaptaDeliveryApp() {
         </div>
       ) : null}
 
-      <BarraInferior vista={vista} guardados={favoritos.length} onVista={irA} />
+      <BarraInferior vista={vista} guardados={favoritos.length} onVista={irA} onPuntos={() => setHoja('puntos')} />
 
       {hoja === 'ciudad' ? (
         <Hoja titulo="Elegí tu ciudad" onCerrar={() => setHoja(null)}>

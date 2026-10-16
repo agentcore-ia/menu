@@ -56,6 +56,7 @@ function cuantosGuardados() {
 const ITEMS = [
   { id: 'inicio', texto: 'Inicio', href: '/pedi' },
   { id: 'pedidos', texto: 'Pedidos', href: '/pedi?vista=pedidos' },
+  { id: 'puntos', texto: 'Mis puntos', href: '/pedi?hoja=puntos' },
   { id: 'guardados', texto: 'Guardados', href: '/pedi?vista=guardados' },
   { id: 'perfil', texto: 'Perfil', href: '/pedi?vista=perfil' },
 ]
@@ -66,9 +67,17 @@ export default function BarraCapta() {
   return (
     <nav className="cb-barra" aria-label="Capta Delivery">
       {ITEMS.map((item) => (
-        <a key={item.id} href={item.href}>
+        <a key={item.id} href={item.href} className={item.id === 'puntos' ? 'cb-puntos' : undefined}>
           <span className="cb-icono">
-            <Icono nombre={item.id} />
+            {item.id === 'puntos' ? (
+              <span className="cb-puntos-boton">
+                <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+                  <path d="M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8z" fill="#fff" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" />
+                </svg>
+              </span>
+            ) : (
+              <Icono nombre={item.id} />
+            )}
             {item.id === 'guardados' && guardados ? <span className="cb-globo">{guardados}</span> : null}
           </span>
           {item.texto}

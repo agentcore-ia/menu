@@ -100,3 +100,25 @@ body.cb-activo .detail-phone {
 body.cb-activo .gelato-builder-footer {
   bottom: calc(var(--cb-alto) + env(safe-area-inset-bottom));
 }
+
+/* El centro: "Mis puntos", boton naranja que sobresale de la barra. */
+.cb-barra {
+  overflow: visible;
+}
+
+.cb-barra a.cb-puntos {
+  justify-content: flex-end;
+  color: #f4511e;
+  font-weight: 800;
+}
+
+.cb-puntos-boton {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin-top: -28px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ff7a3d, #f4511e);
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.97), 0 6px 14px rgba(244, 81, 30, 0.38);
+}
