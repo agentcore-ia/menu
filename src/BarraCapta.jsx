@@ -68,6 +68,9 @@ export default function BarraCapta() {
     <nav className="cb-barra" aria-label="Capta Delivery">
       {ITEMS.map((item) => (
         <a key={item.id} href={item.href} className={item.id === 'puntos' ? 'cb-puntos' : undefined}>
+          {item.id === 'puntos' ? (
+            <svg className="cb-bulto" viewBox="0 0 156 31" aria-hidden="true"><path d="M0,30 C18,30 26,27 36,19 C47,10 60,2 78,2 C96,2 109,10 120,19 C130,27 138,30 156,30 L156,31 L0,31 Z" fill="#fff" /></svg>
+          ) : null}
           <span className="cb-icono">
             {item.id === 'puntos' ? (
               <span className="cb-puntos-boton">
