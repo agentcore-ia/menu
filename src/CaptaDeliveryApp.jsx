@@ -491,7 +491,6 @@ function MisPuntosHoja({ onCerrar }) {
 
   return (
     <MisPuntos
-      Hoja={Hoja}
       onCerrar={onCerrar}
       pesos={pesos}
       celularInicial={celularInicial}
@@ -1223,6 +1222,8 @@ export default function CaptaDeliveryApp() {
   )
 
   const irA = (siguiente) => {
+    // Con "Mis puntos" abierta, tocar otro boton de la barra la cierra.
+    setHoja((actual) => (actual === 'puntos' ? null : actual))
     setVista(siguiente)
     setBusqueda('')
     if (siguiente !== 'grupo') setGrupoElegido(null)

@@ -1,180 +1,197 @@
-/* "Mis puntos" de Capta Delivery (src/MisPuntos.jsx). */
+/* "Mis puntos" de Capta Delivery (src/MisPuntos.jsx): pagina completa. */
 
-.cd-hoja.cd-hoja-puntos {
-  max-height: 92vh;
-  padding: 0 16px calc(24px + env(safe-area-inset-bottom));
-  background: #fff8f4;
+.cp-pagina {
+  position: fixed;
+  inset: 0;
+  /* Debajo de la barra de abajo (z-index 30): sigue a la vista. */
+  z-index: 25;
+  overflow-y: auto;
+  padding: calc(14px + env(safe-area-inset-top)) 16px calc(130px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #fffaf6 0%, #fff6ef 100%);
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: #1c1917;
+  animation: cp-entrar 0.2s ease-out;
 }
 
-/* El titulo va dentro de la tarjeta naranja: aca solo queda la cruz de cerrar. */
-.cd-hoja-puntos .cd-hoja-barra {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 3;
-  padding: 14px 14px 0 0;
+@keyframes cp-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.cp-pagina > * {
+  width: min(560px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- cabecera ---------- */
+
+.cp-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.cp-volver {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 0;
   background: transparent;
+  color: #1c1917;
+  cursor: pointer;
 }
 
-.cd-hoja-puntos .cd-hoja-barra h2 {
-  display: none;
+.cp-cabecera-texto {
+  flex: 1;
+  min-width: 0;
 }
 
-.cd-hoja-puntos .cd-hoja-barra button {
-  background: rgba(255, 255, 255, 0.25);
-  color: #fff;
+.cp-cabecera h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
-.cd-hoja.cd-hoja-puntos {
-  position: relative;
-  padding-top: 16px;
+.cp-cabecera p {
+  margin: 2px 0 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #78716c;
 }
+
+.cp-ayuda {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #ffeadb;
+  color: #f4511e;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cp-ayuda-panel {
+  display: grid;
+  gap: 8px;
+  margin-top: 0;
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  list-style: none;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(40, 25, 10, 0.07);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cp-ayuda-panel li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cp-ayuda-panel svg {
+  flex: none;
+  color: #f4511e;
+}
+
+/* ---------- tarjeta de saldo ---------- */
 
 .cp-hero {
   position: relative;
   display: grid;
-  justify-items: center;
-  gap: 6px;
-  margin-top: 6px;
-  padding: 30px 20px 24px;
+  align-content: start;
+  gap: 10px;
+  min-height: 218px;
+  padding: 18px 18px 16px;
   overflow: hidden;
   border-radius: 28px;
-  background: linear-gradient(150deg, #ff8a4c 0%, #f4511e 62%, #e0400f 100%);
+  background: #f4511e url('/capta/mis-puntos.webp') right center / cover no-repeat;
   color: #fff;
-  text-align: center;
   box-shadow: 0 16px 30px rgba(244, 81, 30, 0.3);
 }
 
-.cp-brillo {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  pointer-events: none;
-}
-
-.cp-brillo-1 {
-  top: -60px;
-  left: -50px;
-  width: 190px;
-  height: 190px;
-}
-
-.cp-brillo-2 {
-  right: -70px;
-  bottom: -80px;
-  width: 220px;
-  height: 220px;
-}
-
-.cp-chispa {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: #fff;
-  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
-  opacity: 0.85;
-  animation: cp-titilar 2.4s ease-in-out infinite;
-}
-
-.cp-chispa-1 {
-  top: 30px;
-  right: 36px;
-}
-
-.cp-chispa-2 {
-  bottom: 56px;
-  left: 30px;
-  width: 9px;
-  height: 9px;
-  animation-delay: 1.1s;
-}
-
-@keyframes cp-titilar {
-  50% {
-    opacity: 0.2;
-    transform: scale(0.6);
-  }
+.cp-hero-saldo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .cp-medalla {
-  position: relative;
   display: grid;
   place-items: center;
-  width: 68px;
-  height: 68px;
+  flex: none;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   background: #fff;
   color: #f4511e;
-  box-shadow: 0 8px 16px rgba(120, 30, 0, 0.28), 0 0 0 7px rgba(255, 255, 255, 0.22);
-  animation: cp-medalla 3s ease-in-out infinite;
-}
-
-@keyframes cp-medalla {
-  50% {
-    transform: translateY(-3px) rotate(-4deg);
-  }
-}
-
-.cp-titulo {
-  position: relative;
-  margin: 8px 0 4px;
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  box-shadow: 0 6px 14px rgba(120, 30, 0, 0.25);
 }
 
 .cp-etiqueta {
-  position: relative;
-  margin: 8px 0 0;
+  margin: 0;
   font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  opacity: 0.92;
 }
 
 .cp-numero {
-  position: relative;
   margin: 0;
-  font-size: 76px;
+  font-size: 54px;
   font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.04em;
-  text-shadow: 0 4px 12px rgba(120, 30, 0, 0.3);
+  letter-spacing: -0.03em;
+  text-shadow: 0 3px 10px rgba(120, 30, 0, 0.25);
 }
 
 .cp-pesos {
-  position: relative;
-  margin: 4px 0 0;
-  padding: 7px 16px;
+  justify-self: start;
+  margin: 0;
+  padding: 7px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.22);
-  font-size: 16px;
+  background: rgba(255, 255, 255, 0.24);
+  font-size: 14px;
   font-weight: 800;
 }
 
 .cp-avance {
-  position: relative;
   display: grid;
   gap: 6px;
-  width: min(280px, 100%);
-  margin-top: 10px;
+  align-self: end;
+  width: 62%;
+  margin-top: auto;
+  padding-top: 14px;
 }
 
 .cp-avance-barra {
-  height: 12px;
+  height: 14px;
   overflow: hidden;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .cp-avance-barra span {
   display: block;
   height: 100%;
-  min-width: 12px;
+  min-width: 14px;
   border-radius: 999px;
-  background: #fff;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  background: linear-gradient(90deg, #ffb066, #fff);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
   transition: width 0.9s ease-out;
 }
 
@@ -184,13 +201,13 @@
 }
 
 .cp-listo {
-  position: relative;
-  margin: 10px 0 0;
-  padding: 9px 18px;
+  margin: 0;
+  justify-self: start;
+  padding: 9px 16px;
   border-radius: 999px;
   background: #fff;
   color: #f4511e;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   animation: cp-latido 1.6s ease-in-out infinite;
 }
@@ -201,32 +218,18 @@
   }
 }
 
-.cp-cambiar {
-  position: relative;
-  margin-top: 8px;
-  padding: 4px 10px;
-  border: 0;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.85);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
-  text-decoration: underline;
-  cursor: pointer;
-}
+/* ---------- celular ---------- */
 
 .cp-form {
-  position: relative;
   display: grid;
   gap: 10px;
-  width: 100%;
-  margin-top: 6px;
+  margin-top: 14px;
 }
 
 .cp-form input {
-  height: 50px;
+  height: 52px;
   padding: 0 16px;
-  border: 0;
+  border: 2px solid #ffd9c4;
   border-radius: 16px;
   background: #fff;
   color: #1c1917;
@@ -237,15 +240,20 @@
   outline: 0;
 }
 
+.cp-form input:focus {
+  border-color: #f4511e;
+}
+
 .cp-form button {
-  height: 50px;
+  height: 52px;
   border: 0;
   border-radius: 16px;
-  background: #1c1917;
+  background: #f4511e;
   color: #fff;
   font: inherit;
   font-size: 15px;
   font-weight: 800;
+  box-shadow: 0 8px 16px rgba(244, 81, 30, 0.3);
   cursor: pointer;
 }
 
@@ -254,77 +262,137 @@
 }
 
 .cp-error {
-  position: relative;
-  margin: 2px 0 0;
+  margin: 0;
   padding: 8px 12px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.95);
+  background: #fee2e2;
   color: #b91c1c;
   font-size: 13px;
   font-weight: 700;
 }
 
-/* Tres pasos con iconos. */
+/* ---------- tres pasos ---------- */
+
 .cp-pasos {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  margin: 18px 0 0;
+  margin-top: 14px;
+  margin-bottom: 0;
   padding: 0;
   list-style: none;
 }
 
 .cp-pasos li {
+  position: relative;
   display: grid;
-  justify-items: center;
+  justify-items: start;
   gap: 2px;
-  padding: 14px 6px 12px;
-  border-radius: 20px;
+  padding: 14px 12px 14px;
+  border-radius: 22px;
   background: #fff;
-  box-shadow: 0 4px 14px rgba(40, 25, 10, 0.07);
-  text-align: center;
+  box-shadow: 0 4px 16px rgba(40, 25, 10, 0.07);
 }
 
 .cp-paso-icono {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 4px;
-  border-radius: 16px;
-  background: #ffeadf;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: #ffeadb;
   color: #f4511e;
 }
 
 .cp-pasos strong {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
-  color: #1c1917;
 }
 
 .cp-pasos small {
+  padding-right: 14px;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.25;
   color: #78716c;
 }
 
-.cp-nota {
-  margin: 12px 0 0;
-  padding: 10px 14px;
-  border-radius: 14px;
-  background: #fff1e8;
-  color: #9a3a12;
-  font-size: 12.5px;
-  font-weight: 700;
-  text-align: center;
+.cp-flecha {
+  position: absolute;
+  right: 8px;
+  bottom: 12px;
+  display: grid;
+  color: #f4511e;
 }
 
-.cp-subtitulo {
-  margin: 22px 2px 8px;
+/* ---------- tope ---------- */
+
+.cp-tope {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+  margin-bottom: 0;
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: linear-gradient(100deg, #ffe7d6, #fff1e6);
+  box-shadow: 0 4px 14px rgba(244, 81, 30, 0.1);
+}
+
+.cp-tope-icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ff8a4c, #f4511e);
+  color: #fff;
+  box-shadow: 0 6px 12px rgba(244, 81, 30, 0.32);
+}
+
+.cp-tope strong {
   font-size: 17px;
   font-weight: 800;
-  color: #1c1917;
+  line-height: 1.25;
+}
+
+/* ---------- historial ---------- */
+
+.cp-historial {
+  margin-top: 14px;
+  margin-bottom: 0;
+  padding: 16px;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(40, 25, 10, 0.07);
+}
+
+.cp-historial-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.cp-historial-cabecera h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.cp-historial-cabecera button {
+  border: 0;
+  background: transparent;
+  color: #f4511e;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .cp-movimientos {
@@ -339,10 +407,9 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 14px;
+  padding: 10px 12px;
   border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 3px 10px rgba(40, 25, 10, 0.05);
+  background: #fff7f2;
 }
 
 .cp-movimientos li > div {
@@ -370,9 +437,9 @@
   display: grid;
   place-items: center;
   flex: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   font-size: 22px;
   font-weight: 800;
   line-height: 1;
@@ -403,12 +470,47 @@
 }
 
 .cp-vacio {
-  margin: 12px 0 0;
-  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  padding: 14px;
   border-radius: 18px;
-  background: #fff;
-  color: #78716c;
-  font-size: 14px;
+  background: #fff7f2;
+  color: #57534e;
+  font-size: 14.5px;
   font-weight: 700;
-  text-align: center;
+  line-height: 1.35;
+}
+
+.cp-vacio-icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ffe2cf;
+  color: #f4511e;
+}
+
+.cp-cambiar {
+  display: block;
+  margin: 12px auto 0;
+  padding: 4px 10px;
+  border: 0;
+  background: transparent;
+  color: #a8a29e;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* El texto del saldo queda a la izquierda; la mascota ocupa el costado derecho. */
+@media (max-width: 380px) {
+  .cp-numero {
+    font-size: 46px;
+  }
 }
