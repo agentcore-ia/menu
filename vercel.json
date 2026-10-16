@@ -409,6 +409,10 @@
       "destination": "/api/accounts/capta/orders?ruta=cuenta"
     },
     {
+      "source": "/api/delivery/cupones",
+      "destination": "/api/accounts/capta/orders?ruta=cupones"
+    },
+    {
       "source": "/api/accounts/:accountId/pay-card",
       "destination": "/api/accounts/:accountId/orders?accion=pagar-con-tarjeta"
     },

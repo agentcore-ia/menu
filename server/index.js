@@ -11,6 +11,7 @@ import { createMenuManifest } from './pwaManifest.js'
 import { resolveDeliveryQuote } from './deliveryZones.js'
 import { mandados } from './mandados.js'
 import { cuenta } from './cuenta.js'
+import { cupones } from './cupones.js'
 
 const config = getServerConfig()
 const repository = createMenuRepository(config)
@@ -121,44 +122,8 @@ app.get('/api/delivery/puntos', async (req, res) => {
   }
 })
 
-// Los cupones de Capta Delivery. Los crea el admin en el dashboard; aca se leen
-// las ofertas a la vista (y los de la cuenta, con sesion) y se prueba un codigo
-// contra un pedido antes de pedir. El descuento real lo vuelve a validar el
-// servidor al crear el pedido.
-app.get('/api/delivery/cupones', async (req, res) => {
-  res.setHeader('Cache-Control', 'no-store, max-age=0')
-  try {
-    const auth = String(req.headers?.authorization || '')
-    const token = /^Bearer\s+[a-f0-9]{64}$/i.test(auth) ? auth.replace(/^Bearer\s+/i, '') : ''
-    res.json(await orderRepository.cuponesParaLaApp({ sesionCapta: token }))
-  } catch (error) {
-    res.status(500).json({ message: 'No se pudieron cargar los cupones.', detail: error instanceof Error ? error.message : '' })
-  }
-})
-
-app.post('/api/delivery/cupones/validar', async (req, res) => {
-  res.setHeader('Cache-Control', 'no-store, max-age=0')
-  try {
-    const b = req.body ?? {}
-    const restaurant = await orderRepository.fetchRestaurant?.(String(b.slug || ''))
-    if (!restaurant) {
-      res.status(404).json({ ok: false, motivo: 'No encontramos el local.' })
-      return
-    }
-    const r = await orderRepository.evaluarCuponDeCapta({
-      codigo: b.codigo,
-      restaurant,
-      comida: Number(b.comida) || 0,
-      envio: Number(b.envio) || 0,
-      telefono: b.telefono,
-      sesionCapta: b.sesionCapta,
-      desdeVitrina: b.desdeVitrina === true,
-    })
-    res.json(r.ok ? { ok: true, codigo: r.cupon.codigo, titulo: r.cupon.titulo, tipo: r.cupon.tipo, pesos: r.pesos } : { ok: false, motivo: r.motivo })
-  } catch (error) {
-    res.status(500).json({ ok: false, motivo: 'No pudimos revisar el cupón. Probá de nuevo.' })
-  }
-})
+// Los cupones de Capta Delivery (server/cupones.js): los crea el admin en el dashboard.
+app.all('/api/delivery/cupones', cupones)
 
 // Los mandados de Capta Delivery (server/mandados.js): los arma el dashboard.
 app.all('/api/delivery/mandados', mandados)

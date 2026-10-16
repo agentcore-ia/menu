@@ -8931,7 +8931,7 @@ export default function MenuApp() {
         setCuponMensaje('')
       }
       try {
-        const respuesta = await fetch('/api/delivery/cupones/validar', {
+        const respuesta = await fetch('/api/delivery/cupones', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
