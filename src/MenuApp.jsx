@@ -76,6 +76,13 @@ const defaultPresentation = {
   },
 }
 
+
+/** Un adicional sin costo ("$0") se lee mejor como "Sin costo". */
+function textoDePrecio(precio) {
+  const numero = Number(String(precio ?? '').replace(/[^\d.,-]/g, '').replace(/\./g, '').replace(',', '.'))
+  return String(precio ?? '').trim() !== '' && numero === 0 ? 'Sin costo' : precio
+}
+
 function getOrderingClosedMessage(orderingStatus) {
   const baseMessage =
     orderingStatus?.message ||
@@ -12097,7 +12104,7 @@ export default function MenuApp() {
                             <h4>{item.name}</h4>
                             {item.categoryLabel ? <p className="mini-card-category">{item.categoryLabel}</p> : null}
                             <div className="mini-card-footer">
-                              <strong>{item.price}</strong>
+                              <strong>{textoDePrecio(item.price)}</strong>
                               <button
                                 type="button"
                                 className="mini-add"
@@ -12271,7 +12278,7 @@ export default function MenuApp() {
                               <h4>{item.name}</h4>
                               {item.categoryLabel ? <p className="mini-card-category">{item.categoryLabel}</p> : null}
                               <div className="mini-card-footer">
-                                <strong>{item.price}</strong>
+                                <strong>{textoDePrecio(item.price)}</strong>
                                 <button
                                   type="button"
                                   className="mini-add"
@@ -12307,7 +12314,7 @@ export default function MenuApp() {
                                 <h4>{product.name || label}</h4>
                                 {product.categoryLabel ? <p className="mini-card-category">{product.categoryLabel}</p> : null}
                                 <div className="mini-card-footer">
-                                  <strong>{product.price}</strong>
+                                  <strong>{textoDePrecio(product.price)}</strong>
                                   <button
                                     type="button"
                                     className="mini-add"
