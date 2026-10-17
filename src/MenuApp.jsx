@@ -9595,6 +9595,25 @@ export default function MenuApp() {
     })
   }
 
+  // Al pasar de un paso del armador al siguiente se vuelve al principio: la
+  // pantalla conservaba el scroll del paso anterior (el de los gustos es muy
+  // largo) y el siguiente arrancaba por el final.
+  useEffect(() => {
+    if (!gelatoBuilderOpen) return
+    const alPrincipio = () => {
+      let nodo = document.querySelector('.gelato-builder')
+      while (nodo) {
+        if (nodo.scrollTop > 0) nodo.scrollTop = 0
+        nodo = nodo.parentElement
+      }
+      window.scrollTo(0, 0)
+    }
+    alPrincipio()
+    // Despues del dibujado: el paso nuevo puede cambiar el alto del contenido.
+    const cuadro = window.requestAnimationFrame(alPrincipio)
+    return () => window.cancelAnimationFrame(cuadro)
+  }, [gelatoStep, gelatoBuilderOpen])
+
   function handleOpenGelatoBuilder(formatId = 'kilo', initialStep = 1, sizeId = '') {
     if (orderingBlocked) {
       showOrderingClosedNotice()
