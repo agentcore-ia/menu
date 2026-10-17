@@ -21864,3 +21864,91 @@ button.gelato-adicional-salsa {
 .gelato-flavor-card.con-fotos-propias small {
   display: none;
 }
+
+/* ============ GUSTOS CON FOTO PROPIA: tarjetas del armador ============
+   Foto arriba a todo el ancho, nombre y descripcion alineados a la izquierda,
+   el "+" sobre la foto y un aro del color de la marca al elegir. Todas del
+   mismo alto de foto, con o sin imagen. Solo para los locales que la prenden
+   (heladeria.saboresConFotoPropia). */
+.gelato-flavor-card.con-fotos-propias,
+.gelato-flavor-card.con-fotos-propias.sin-foto {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-content: normal;
+  min-height: 0;
+  padding: 0.5rem 0.5rem 0.9rem;
+  border: 2px solid transparent;
+  border-radius: 1.3rem;
+  background: #fff;
+  text-align: left;
+  box-shadow: 0 6px 18px rgba(40, 25, 10, 0.08);
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+}
+
+.gelato-flavor-card.con-fotos-propias:active {
+  transform: scale(0.98);
+}
+
+.gelato-flavor-card.con-fotos-propias.selected {
+  border-color: var(--theme-primary, #9dd373);
+  background: color-mix(in srgb, var(--theme-primary, #9dd373) 12%, #fff);
+  box-shadow: 0 8px 20px rgba(40, 25, 10, 0.1);
+}
+
+.con-fotos-propias .gelato-flavor-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin: 0;
+  border-radius: 0.95rem;
+  object-fit: cover;
+}
+
+.gelato-flavor-vacia {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 0.95rem;
+  background: color-mix(in srgb, var(--theme-primary, #9dd373) 20%, #fff);
+  color: color-mix(in srgb, var(--theme-primary, #9dd373) 55%, #7d6f63);
+}
+
+.gelato-flavor-vacia svg {
+  width: 2.2rem;
+  height: 2.2rem;
+  opacity: 0.8;
+}
+
+.con-fotos-propias .gelato-flavor-plus {
+  top: 0.9rem;
+  right: 0.9rem;
+  z-index: 2;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 0;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(40, 25, 10, 0.25);
+  font-size: 1.15rem;
+  color: var(--theme-text, #2e2018);
+}
+
+.con-fotos-propias.selected .gelato-flavor-plus {
+  background: var(--theme-primary, #9dd373);
+}
+
+.con-fotos-propias strong {
+  margin: 0.75rem 0.4rem 0;
+  font-size: 1.02rem;
+  line-height: 1.2;
+}
+
+.con-fotos-propias p {
+  display: -webkit-box;
+  margin: 0.3rem 0.4rem 0;
+  overflow: hidden;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}

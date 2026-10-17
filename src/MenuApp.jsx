@@ -11452,8 +11452,14 @@ export default function MenuApp() {
                           {/* flavor.image la resuelve el servidor: respeta la
                               foto propia del local si la cargo, y usa el mismo
                               mapeo por nombre que el resto del menu. */}
-                          {configHeladeria.sinFotos ||
-                          (configHeladeria.saboresConFotoPropia && !flavor.hasCustomImage) ? null : (
+                          {configHeladeria.sinFotos ? null : configHeladeria.saboresConFotoPropia && !flavor.hasCustomImage ? (
+                            // Sin foto propia no se inventa una: un recuadro neutro mantiene
+                            // la grilla pareja.
+                            <span className="gelato-flavor-vacia" aria-hidden="true">
+                              <IconCucurucho />
+                            </span>
+                          ) : (
+
                             <img
                               className="gelato-flavor-image"
                               src={flavor.image || getGelatoFlavorAsset(flavor.name)}
