@@ -438,6 +438,11 @@ export class SupabaseMenuRepository {
     }
     const cartAddonItems = findCategoryItems((key) => key.includes('adicional'))
     const cartBeverageItems = findCategoryItems((key) => key.includes('bebida'))
+    // Los EXTRAS DE UN HELADO (salsas, cucurucho extra, tacita...): categoria
+    // "Extras del helado". No van al carrito ni a la carta: se ofrecen en un paso
+    // propio del armador. Cada uno es un producto del panel, asi que se apaga con
+    // su interruptor (por stock) y deja de ofrecerse.
+    const adicionalesDeHelado = findCategoryItems((key) => key.includes('extras del helado'))
 
     const businessLocation = normalizeBusinessLocation(restaurant.horarios)
 
@@ -496,6 +501,7 @@ export class SupabaseMenuRepository {
       categories,
       cartAddonItems,
       cartBeverageItems,
+      adicionalesDeHelado,
       dailyMenu: usaMenuDelDia ? dailyMenu : null,
       loyalty,
       businessHours: restaurant.horarios ?? null,

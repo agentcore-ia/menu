@@ -8301,6 +8301,8 @@ export default function MenuApp() {
   const [gelatoSizeId, setGelatoSizeId] = useState('')
   const [gelatoFlavorFilter, setGelatoFlavorFilter] = useState('Todos')
   const [gelatoSelectedFlavors, setGelatoSelectedFlavors] = useState([])
+  // Los extras que va eligiendo en el paso de adicionales: { idDelProducto: cantidad }.
+  const [gelatoAdicionales, setGelatoAdicionales] = useState({})
   // Promo que se esta armando: de que promo se trata, que pote va y que gustos
   // se eligieron en los anteriores.
   const [promoEnCurso, setPromoEnCurso] = useState(null)
@@ -8711,6 +8713,15 @@ export default function MenuApp() {
     const raw = Array.isArray(menu?.cartAddonItems) ? menu.cartAddonItems : []
     return raw.map((item) => ({ ...item, categoryLabel: item.categoryLabel || 'Adicionales' }))
   }, [menu])
+  // Los extras de un helado (categoria "Extras del helado"): paso propio del armador.
+  const adicionalesHelado = useMemo(
+    () => (Array.isArray(menu?.adicionalesDeHelado) ? menu.adicionalesDeHelado : []),
+    [menu],
+  )
+  const idsAdicionalesHelado = useMemo(
+    () => new Set(adicionalesHelado.map((item) => item.id)),
+    [adicionalesHelado],
+  )
   const bebidasItems = useMemo(() => {
     const raw = Array.isArray(menu?.cartBeverageItems) ? menu.cartBeverageItems : []
     return raw.map((item) => ({ ...item, categoryLabel: item.categoryLabel || 'Bebidas' }))
@@ -9068,8 +9079,8 @@ export default function MenuApp() {
   // invitar a algo que despues no se deja hacer. Las promos tampoco: se piden
   // tocando su cartel, que es lo unico que sabe de cuantos potes son.
   const itemsQueSeVenden = useMemo(
-    () => allItems.filter((item) => !item?.soloEleccion && !idsDePromos.has(item?.id)),
-    [allItems, idsDePromos],
+    () => allItems.filter((item) => !item?.soloEleccion && !idsDePromos.has(item?.id) && !idsAdicionalesHelado.has(item?.id)),
+    [allItems, idsDePromos, idsAdicionalesHelado],
   )
   const cartRecommendations = buildCartRecommendations(cartItems, itemsQueSeVenden)
   const cartPairings = buildCartPairingSuggestions(cartItems, itemsQueSeVenden)
@@ -9546,6 +9557,7 @@ export default function MenuApp() {
       return
     }
 
+    setGelatoAdicionales({})
     setGelatoFormat(formatId)
     setGelatoStep(initialStep)
     setGelatoPasoDeEntrada(initialStep)
@@ -9647,6 +9659,13 @@ export default function MenuApp() {
       },
     )
 
+    // Los extras elegidos entran como lineas aparte, justo despues del helado:
+    // cada uno es un producto del panel (con su precio, su stock y su comanda).
+    for (const extra of adicionalesHelado) {
+      const cantidad = Number(gelatoAdicionales[extra.id] || 0)
+      if (cantidad > 0) handleAddItem({ ...extra, categoryLabel: 'Adicionales' }, cantidad)
+    }
+
     cerrarArmador()
     setGelatoStep(1)
     setGelatoSelectedFlavors([])
@@ -9667,6 +9686,7 @@ export default function MenuApp() {
 
   function cerrarArmador() {
     setGelatoBuilderOpen(false)
+    setGelatoAdicionales({})
     // Salir a mitad de una promo no deja medio pedido armado: se descarta.
     setPromoEnCurso(null)
     if (volverAlCarrito) {
@@ -11212,6 +11232,7 @@ export default function MenuApp() {
                   ...(gelatoFormats.length > 1 ? [[1, 'Elegí tipo']] : []),
                   [2, 'Elegí tamaño'],
                   [3, 'Elegí sabores'],
+                  ...(adicionalesHelado.length && !promoEnCurso ? [[4, 'Adicionales']] : []),
                 ]
                 if (pasos.length < 2) return null
 
@@ -11420,18 +11441,102 @@ export default function MenuApp() {
                     <button
                       type="button"
                       className="primary-action gelato-continue"
-                      onClick={handleAddGelatoOrder}
+                      onClick={() => {
+                        // Con extras para ofrecer, antes de agregar se pasa por el paso 4.
+                        if (adicionalesHelado.length && !promoEnCurso) {
+                          setGelatoStep(4)
+                          return
+                        }
+                        handleAddGelatoOrder()
+                      }}
                       disabled={!gelatoSelectedFlavors.length}
                     >
                       <span>
                         {promoEnCurso && promoEnCurso.pote < promoEnCurso.promo.potes
                           ? `Seguir con el pote ${promoEnCurso.pote + 1}`
-                          : 'Agregar al pedido'}
+                          : adicionalesHelado.length && !promoEnCurso
+                            ? 'Continuar'
+                            : 'Agregar al pedido'}
                       </span>
                       <strong>
                         {promoEnCurso
                           ? (promoEnCurso.pote < promoEnCurso.promo.potes ? '' : promoEnCurso.producto.price ?? '')
                           : selectedGelatoSize?.price ?? ''}
+                      </strong>
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {gelatoStep === 4 ? (
+                <div className="gelato-builder-section">
+                  <div className="gelato-builder-copy">
+                    <span className="gelato-builder-icon" aria-hidden="true" />
+                    <h2>¿Querés algún adicional?</h2>
+                    <p>Es opcional. Si no querés ninguno, tocá <strong>Agregar al pedido</strong>.</p>
+                  </div>
+
+                  {(() => {
+                    // Las salsas van juntas y de a una; el resto, con cantidad.
+                    const esSalsa = (item) => /^salsa/i.test(String(item.name || '').trim())
+                    const grupos = [
+                      ['Salsas', adicionalesHelado.filter(esSalsa)],
+                      ['Extras', adicionalesHelado.filter((item) => !esSalsa(item))],
+                    ].filter(([, items]) => items.length)
+
+                    return grupos.map(([titulo, items]) => (
+                      <div key={titulo} className="gelato-adicionales-grupo">
+                        <h3>{titulo}</h3>
+                        <div className="gelato-adicionales-lista">
+                          {items.map((item) => {
+                            const cantidad = Number(gelatoAdicionales[item.id] || 0)
+                            const maximo = titulo === 'Salsas' ? 1 : 10
+                            const cambiar = (delta) =>
+                              setGelatoAdicionales((actual) => {
+                                const siguiente = Math.max(0, Math.min(maximo, Number(actual[item.id] || 0) + delta))
+                                const copia = { ...actual }
+                                if (siguiente) copia[item.id] = siguiente
+                                else delete copia[item.id]
+                                return copia
+                              })
+
+                            return (
+                              <div key={item.id} className={`gelato-adicional ${cantidad ? 'elegido' : ''}`}>
+                                <div className="gelato-adicional-texto">
+                                  <strong>{item.name}</strong>
+                                  <span>{textoDePrecio(item.price)}</span>
+                                </div>
+                                {cantidad ? (
+                                  <div className="gelato-adicional-cantidad">
+                                    <button type="button" onClick={() => cambiar(-1)} aria-label={`Quitar ${item.name}`}>−</button>
+                                    <b>{cantidad}</b>
+                                    <button type="button" onClick={() => cambiar(1)} disabled={cantidad >= maximo} aria-label={`Sumar ${item.name}`}>+</button>
+                                  </div>
+                                ) : (
+                                  <button type="button" className="gelato-adicional-agregar" onClick={() => cambiar(1)} aria-label={`Agregar ${item.name}`}>+</button>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))
+                  })()}
+
+                  <div className="gelato-builder-footer">
+                    <span>
+                      {Object.values(gelatoAdicionales).reduce((total, cantidad) => total + Number(cantidad || 0), 0)} adicionales
+                    </span>
+                    <button type="button" className="primary-action gelato-continue" onClick={handleAddGelatoOrder}>
+                      <span>Agregar al pedido</span>
+                      <strong>
+                        {formatPrice(
+                          toNumericPrice(selectedGelatoSize?.price) +
+                            adicionalesHelado.reduce(
+                              (total, item) => total + toNumericPrice(item.price) * Number(gelatoAdicionales[item.id] || 0),
+                              0,
+                            ),
+                        )}
                       </strong>
                     </button>
                   </div>

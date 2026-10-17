@@ -21721,3 +21721,89 @@ html:has(.menu-modo-kiosco) #root {
 }
 
 /* === copetin-marca:fin === */
+
+
+/* Paso "Adicionales" del armador de helado (salsas, cucurucho extra, tacita). */
+.gelato-adicionales-grupo {
+  margin-top: 18px;
+}
+
+.gelato-adicionales-grupo h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--theme-text, #2e2018);
+}
+
+.gelato-adicionales-lista {
+  display: grid;
+  gap: 8px;
+}
+
+.gelato-adicional {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 2px solid var(--theme-border, rgba(46, 32, 24, 0.1));
+  border-radius: 16px;
+  background: var(--custom-card-bg, #fff);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.gelato-adicional.elegido {
+  border-color: var(--theme-primary, #9dd373);
+  background: color-mix(in srgb, var(--theme-primary, #9dd373) 14%, #fff);
+}
+
+.gelato-adicional-texto {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.gelato-adicional-texto strong {
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+
+.gelato-adicional-texto span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--theme-accent, #4f8c31);
+}
+
+.gelato-adicional-agregar,
+.gelato-adicional-cantidad button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--theme-primary, #9dd373);
+  color: var(--theme-primary-text, #2e2018);
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.gelato-adicional-cantidad {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gelato-adicional-cantidad b {
+  min-width: 18px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.gelato-adicional-cantidad button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
