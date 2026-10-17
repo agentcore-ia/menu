@@ -325,7 +325,10 @@ export class SupabaseOrderRepository {
     }
     const ubicacionCliente =
       payload.deliveryType === 'delivery' && !payload.mesa_id
-        ? puntoDelCliente(payload.ubicacion) ?? puntoDelCliente(deliveryQuote?.coordinates)
+        ? puntoDelCliente(payload.ubicacion) ??
+          // Un punto "aproximado" es el centro del pueblo que devolvio el mapa
+          // cuando no encontro la calle: no es donde vive el cliente.
+          (deliveryQuote?.aproximada ? null : puntoDelCliente(deliveryQuote?.coordinates))
         : null
     const precisionCliente = Number(payload.ubicacion?.precision)
 

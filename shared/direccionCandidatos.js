@@ -80,6 +80,22 @@ export function esPuerta(calidad) {
 }
 
 /**
+ * Un resultado que es una CIUDAD o un barrio, no la direccion escrita.
+ *
+ * Cuando el mapa no tiene la calle, Nominatim contesta con el pueblo entero y
+ * el punto cae en el centro de la ciudad: la misma coordenada para decenas de
+ * direcciones distintas. Sirve para estimar la zona de envio, pero NO para
+ * guardarlo como la ubicacion del cliente: el repartidor y el mapa lo verian
+ * en un lugar donde no esta.
+ */
+export function esPuntoAproximado(calidad) {
+  return [
+    'city', 'town', 'village', 'hamlet', 'suburb', 'neighbourhood', 'neighborhood', 'quarter',
+    'administrative', 'county', 'state', 'region', 'locality', 'municipality', 'district', 'boundary',
+  ].includes(String(calidad ?? '').toLowerCase())
+}
+
+/**
  * Si una direccion de un proveedor pago es realmente la que se escribio: con
  * calle nombrada, todas sus palabras; sin nombre ("Calle 88 275"), la altura.
  */

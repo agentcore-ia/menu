@@ -10,6 +10,7 @@ import {
   direccionConAltura,
   coincideConLoEscrito,
   esPuerta,
+  esPuntoAproximado,
   soloLaCalleEscrita,
 } from '../shared/direccionCandidatos.js'
 
@@ -505,7 +506,10 @@ export async function reverseGeocodeDelivery(coordinates) {
   }
 }
 
-function buildQuoteForCoordinates({ coordinates, settings }) {
+// `aproximada`: el mapa no encontro la direccion y devolvio el pueblo o el
+// barrio. La zona y el envio se calculan igual, pero ese punto no es donde vive
+// el cliente y no se guarda como su ubicacion.
+function buildQuoteForCoordinates({ coordinates, settings, aproximada = false }) {
   const zone = findDeliveryZone(coordinates, settings.zones)
 
   if (!zone) {
@@ -515,6 +519,7 @@ function buildQuoteForCoordinates({ coordinates, settings }) {
       fee: 0,
       zone: null,
       coordinates,
+      ...(aproximada ? { aproximada: true } : {}),
       message: 'La direccion esta fuera del area de entrega del local.',
     }
   }
@@ -529,6 +534,7 @@ function buildQuoteForCoordinates({ coordinates, settings }) {
       fee: zone.fee,
     },
     coordinates,
+    ...(aproximada ? { aproximada: true } : {}),
     message: `Zona de entrega: ${zone.name}.`,
   }
 }
@@ -619,7 +625,11 @@ export async function resolveDeliveryQuote({
   const mismoEnvio = candidatesWithZones.every((c) => Math.round(c.fee) === Math.round(candidatesWithZones[0].fee))
   if (!confirmed && (candidatesWithZones.length === 1 || (todasPermitidas && mismoEnvio))) {
     return {
-      ...buildQuoteForCoordinates({ coordinates: candidates[0], settings }),
+      ...buildQuoteForCoordinates({
+        coordinates: candidates[0],
+        settings,
+        aproximada: esPuntoAproximado(candidates[0].calidad),
+      }),
       candidates: [],
       needsConfirmation: false,
     }
@@ -638,5 +648,9 @@ export async function resolveDeliveryQuote({
     }
   }
 
-  return buildQuoteForCoordinates({ coordinates: candidates[0], settings })
+  return buildQuoteForCoordinates({
+    coordinates: candidates[0],
+    settings,
+    aproximada: esPuntoAproximado(candidates[0].calidad),
+  })
 }

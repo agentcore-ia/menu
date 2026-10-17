@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  alturaDe, alturasVecinas, conLaAltura, direccionConAltura, palabrasDeCalle, soloLaCalleEscrita, esPuerta,
+  alturaDe, alturasVecinas, conLaAltura, direccionConAltura, palabrasDeCalle, soloLaCalleEscrita, esPuerta, esPuntoAproximado,
 } from './direccionCandidatos.js'
 
 test('lee la altura', () => {
@@ -41,4 +41,15 @@ test('si ninguna nombra la calle (tipeo), quedan todas', () => {
 test('puerta o calle', () => {
   assert.equal(esPuerta('house'), true)
   assert.equal(esPuerta('residential'), false)
+})
+
+test('el pueblo o el barrio no son una direccion: el punto es aproximado', () => {
+  // Cuando el mapa no tiene la calle devuelve la ciudad, con el mismo punto
+  // para decenas de direcciones distintas.
+  for (const c of ['city', 'town', 'village', 'suburb', 'neighbourhood', 'administrative', 'locality', 'CITY']) {
+    assert.equal(esPuntoAproximado(c), true, c)
+  }
+  for (const c of ['house', 'building', 'residential', 'street', 'secondary', 'primary', 'yes', '', null, undefined]) {
+    assert.equal(esPuntoAproximado(c), false, String(c))
+  }
 })
