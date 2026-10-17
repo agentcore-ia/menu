@@ -9663,7 +9663,9 @@ export default function MenuApp() {
     // cada uno es un producto del panel (con su precio, su stock y su comanda).
     for (const extra of adicionalesHelado) {
       const cantidad = Number(gelatoAdicionales[extra.id] || 0)
-      if (cantidad > 0) handleAddItem({ ...extra, categoryLabel: 'Adicionales' }, cantidad)
+      // pideEleccion en falso: el catalogo marca todo lo que tiene precio como "pide
+      // sabores" y abriria el armador en vez de sumar el extra.
+      if (cantidad > 0) handleAddItem({ ...extra, pideEleccion: false, soloEleccion: false, categoryLabel: 'Adicionales' }, cantidad)
     }
 
     cerrarArmador()

@@ -442,7 +442,12 @@ export class SupabaseMenuRepository {
     // "Extras del helado". No van al carrito ni a la carta: se ofrecen en un paso
     // propio del armador. Cada uno es un producto del panel, asi que se apaga con
     // su interruptor (por stock) y deja de ofrecerse.
-    const adicionalesDeHelado = findCategoryItems((key) => key.includes('extras del helado'))
+    const adicionalesDeHelado = findCategoryItems((key) => key.includes('extras del helado')).map((item) => ({
+      ...item,
+      // Se suman al pedido tal cual: no piden sabores ni son sabores.
+      pideEleccion: false,
+      soloEleccion: false,
+    }))
 
     const businessLocation = normalizeBusinessLocation(restaurant.horarios)
 
