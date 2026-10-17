@@ -6,6 +6,8 @@ import assert from 'node:assert/strict'
 import {
   direccionDeGoogle,
   direccionDeNominatim,
+  esElCentroPorDefecto,
+  CENTRO_POR_DEFECTO,
   puntoValido,
   ubicacionParaPedido,
 } from './ubicacionCliente.js'
@@ -61,4 +63,16 @@ test('lo que viaja en el pedido: punto, precision redondeada y fuente', () => {
     lat: -34.9, lng: -60.01, precision: null, fuente: 'mapa',
   })
   assert.equal(ubicacionParaPedido({ lat: 0, lng: 0 }), null)
+})
+
+test('el punto de arranque del mapa no es una direccion', () => {
+  // Quien confirma el pin sin moverlo manda este punto: no es la puerta de nadie.
+  assert.equal(esElCentroPorDefecto(CENTRO_POR_DEFECTO), true)
+  assert.equal(esElCentroPorDefecto({ lat: -34.89481, lng: -60.00649 }), true)
+  assert.equal(esElCentroPorDefecto({ lat: '-34.8948', lng: '-60.0065' }), true)
+  // Una calle al lado sigue siendo una ubicacion de verdad.
+  assert.equal(esElCentroPorDefecto({ lat: -34.8970, lng: -60.0190 }), false)
+  assert.equal(esElCentroPorDefecto({ lat: -34.9045, lng: -60.0175 }), false)
+  assert.equal(esElCentroPorDefecto(null), false)
+  assert.equal(esElCentroPorDefecto({}), false)
 })

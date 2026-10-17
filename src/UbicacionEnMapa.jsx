@@ -10,10 +10,9 @@
 // una espera despues de soltar el mapa: OpenStreetMap no admite una consulta
 // por cada movimiento.
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { puntoValido } from '../shared/ubicacionCliente.js'
+import { CENTRO_POR_DEFECTO, puntoValido } from '../shared/ubicacionCliente.js'
 
-/** Sin ubicacion del local ni del cliente, el mapa arranca en Chivilcoy. */
-const CENTRO_POR_DEFECTO = { lat: -34.8948, lng: -60.0065 }
+/* Sin ubicacion del local ni del cliente, el mapa arranca en Chivilcoy (CENTRO_POR_DEFECTO). */
 const ZOOM_CERCA = 17
 const MS_ANTES_DE_BUSCAR = 700
 
@@ -78,6 +77,10 @@ export default function UbicacionEnMapa({ accountId, inicial, centroLocal, detec
   const [direccion, setDireccion] = useState({ texto: '', etiqueta: '', buscando: false })
   const [precision, setPrecision] = useState(null)
   const [fuente, setFuente] = useState('mapa')
+  // El pin arranca en un punto que NO es de nadie (el centro del mapa). Hasta que
+  // el cliente lo mueve, o el GPS lo ubica, no se puede confirmar: si no, quien
+  // toca "Confirmar" de entrada manda el punto de arranque como su puerta.
+  const [colocado, setColocado] = useState(() => Boolean(puntoValido(inicial)))
 
   const buscarDireccion = useCallback(async (punto) => {
     const numero = ++ultimaBusqueda.current
@@ -116,6 +119,7 @@ export default function UbicacionEnMapa({ accountId, inicial, centroLocal, detec
         const L = window.L
         setPrecision(Number.isFinite(exactitud) ? exactitud : null)
         setFuente('gps')
+        setColocado(true)
         if (m && L) {
           m.setView([punto.lat, punto.lng], ZOOM_CERCA)
           if (circulo.current) circulo.current.remove()
@@ -175,7 +179,12 @@ export default function UbicacionEnMapa({ accountId, inicial, centroLocal, detec
         }
         m.on('moveend', alMover)
         // Si lo mueve con el dedo, el punto ya no es el del GPS.
-        m.on('dragstart', () => setFuente('mapa'))
+        m.on('dragstart', () => {
+          setFuente('mapa')
+          setColocado(true)
+        })
+        // Acercar o alejar con los dedos o la rueda tambien es "buscar el lugar".
+        m.on('zoomstart', () => setColocado(true))
 
         // Leaflet mide el contenedor al crearse: si el modal se estaba
         // acomodando, las piezas quedan corridas.
@@ -221,7 +230,7 @@ export default function UbicacionEnMapa({ accountId, inicial, centroLocal, detec
 
   const confirmar = () => {
     const punto = puntoValido(centro)
-    if (!punto) return
+    if (!punto || !colocado) return
     onConfirmar({
       lat: punto.lat,
       lng: punto.lng,
@@ -234,7 +243,9 @@ export default function UbicacionEnMapa({ accountId, inicial, centroLocal, detec
 
   const textoDireccion = direccion.buscando
     ? 'Buscando la dirección…'
-    : direccion.texto || direccion.etiqueta || (centro ? 'Punto marcado en el mapa' : '')
+    : !colocado
+      ? 'Todavía no marcaste tu puerta'
+      : direccion.texto || direccion.etiqueta || (centro ? 'Punto marcado en el mapa' : '')
 
   return (
     <div className="mapa-ubicacion-fondo" role="dialog" aria-modal="true" aria-label="Marcá dónde entregar el pedido">
@@ -276,9 +287,9 @@ export default function UbicacionEnMapa({ accountId, inicial, centroLocal, detec
             type="button"
             className="mapa-ubicacion-confirmar"
             onClick={confirmar}
-            disabled={!centro || estado === 'error' || estado === 'cargando'}
+            disabled={!centro || !colocado || estado === 'error' || estado === 'cargando'}
           >
-            Confirmar ubicación
+            {colocado ? 'Confirmar ubicación' : 'Mové el mapa hasta tu puerta'}
           </button>
         </div>
       </div>

@@ -10,6 +10,20 @@
 //
 //   node --test shared/ubicacionCliente.test.js
 
+/**
+ * Donde arranca el mapa del menu cuando no hay ubicacion del local ni del
+ * cliente. NO es la direccion de nadie: si un pedido llega con este punto es
+ * porque se confirmo el pin sin moverlo.
+ */
+export const CENTRO_POR_DEFECTO = { lat: -34.8948, lng: -60.0065 }
+
+/** Si el punto es el de arranque del mapa (con unos 30 m de margen). */
+export function esElCentroPorDefecto(punto) {
+  const p = puntoValido(punto)
+  if (!p) return false
+  return Math.abs(p.lat - CENTRO_POR_DEFECTO.lat) < 0.0003 && Math.abs(p.lng - CENTRO_POR_DEFECTO.lng) < 0.0003
+}
+
 /** El punto, redondeado a 6 decimales (unos 10 cm), o null si no sirve. */
 export function puntoValido(valor) {
   if (!valor || typeof valor !== 'object') return null

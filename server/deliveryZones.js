@@ -1,7 +1,7 @@
 const DEFAULT_COUNTRY = 'Argentina'
 const EARTH_RADIUS_KM = 6371
 
-import { direccionDeGoogle, direccionDeNominatim, puntoValido } from '../shared/ubicacionCliente.js'
+import { direccionDeGoogle, direccionDeNominatim, esElCentroPorDefecto, puntoValido } from '../shared/ubicacionCliente.js'
 import { nombreDeCalleDeEtiqueta, puertasDeLaCalle, ubicarAltura } from '../shared/alturaOverpass.js'
 import {
   alturaDe,
@@ -566,7 +566,10 @@ export async function resolveDeliveryQuote({
     }
   }
 
-  const selectedCoordinates = normalizeCoordinates(coordinates)
+  // El punto de arranque del mapa no es la puerta de nadie: llega cuando el
+  // cliente confirma el pin sin moverlo. Se ignora y se busca la direccion
+  // escrita, que es lo unico que dijo de verdad.
+  const selectedCoordinates = esElCentroPorDefecto(coordinates) ? null : normalizeCoordinates(coordinates)
 
   if (selectedCoordinates) {
     return buildQuoteForCoordinates({ coordinates: selectedCoordinates, settings })

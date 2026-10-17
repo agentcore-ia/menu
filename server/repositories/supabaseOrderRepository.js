@@ -6,6 +6,7 @@ import {
   parseInteger,
 } from './loyaltyUtils.js'
 import { getBusinessOpenStatus } from '../../shared/businessHours.js'
+import { esElCentroPorDefecto } from '../../shared/ubicacionCliente.js'
 import { resolveDeliveryQuote } from '../deliveryZones.js'
 import { describirDias, diaDeHoyEnArgentina, diasDelTexto } from '../../shared/diasDisponibles.js'
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../../shared/celular.js'
@@ -325,7 +326,7 @@ export class SupabaseOrderRepository {
     }
     const ubicacionCliente =
       payload.deliveryType === 'delivery' && !payload.mesa_id
-        ? puntoDelCliente(payload.ubicacion) ??
+        ? (esElCentroPorDefecto(payload.ubicacion) ? null : puntoDelCliente(payload.ubicacion)) ??
           // Un punto "aproximado" es el centro del pueblo que devolvio el mapa
           // cuando no encontro la calle: no es donde vive el cliente.
           (deliveryQuote?.aproximada ? null : puntoDelCliente(deliveryQuote?.coordinates))
