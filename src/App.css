@@ -5344,6 +5344,15 @@
   background: rgba(19, 20, 18, 0.36);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  /* El scroll de esta pantalla no se le pasa a la de atras al llegar al borde. */
+  overscroll-behavior: contain;
+}
+
+/* Con una pantalla encima, la pagina de atras queda quieta. */
+html.menu-pantalla-encima,
+html.menu-pantalla-encima body {
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .detail-phone {

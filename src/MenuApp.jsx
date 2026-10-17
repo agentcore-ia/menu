@@ -9595,6 +9595,18 @@ export default function MenuApp() {
     })
   }
 
+  // Con una pantalla encima (carrito, checkout, ficha, armador...) la pagina de
+  // atras NO se mueve: sin esto, a veces el gesto de scroll se iba al fondo (el
+  // inicio del menu) y la pantalla de arriba no respondia.
+  const hayPantallaEncima = Boolean(
+    isCartOpen || isCheckoutOpen || selectedDish || gelatoBuilderOpen || saborPicker || isCommunityOpen || isLoyaltyOpen,
+  )
+  useEffect(() => {
+    const raiz = document.documentElement
+    raiz.classList.toggle('menu-pantalla-encima', hayPantallaEncima)
+    return () => raiz.classList.remove('menu-pantalla-encima')
+  }, [hayPantallaEncima])
+
   // Al pasar de un paso del armador al siguiente se vuelve al principio: la
   // pantalla conservaba el scroll del paso anterior (el de los gustos es muy
   // largo) y el siguiente arrancaba por el final.
