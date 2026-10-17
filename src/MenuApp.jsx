@@ -11445,7 +11445,7 @@ export default function MenuApp() {
                           type="button"
                           className={`gelato-flavor-card ${isSelected ? 'selected' : ''} ${
                             !configHeladeria.sinFotos && configHeladeria.saboresConFotoPropia && !flavor.hasCustomImage ? 'sin-foto' : ''
-                          }`}
+                          } ${configHeladeria.saboresConFotoPropia ? 'con-fotos-propias' : ''}`}
                           onClick={() => handleToggleGelatoFlavor(flavor.id)}
                         >
                           <span className="gelato-flavor-plus">{isSelected ? '' : '+'}</span>

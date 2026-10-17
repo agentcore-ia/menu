@@ -21858,3 +21858,9 @@ button.gelato-adicional-salsa {
   gap: 0.2rem;
   padding-top: 1rem;
 }
+
+/* Con las fotos y descripciones propias del local, la categoria ya esta en el
+   filtro de arriba: repetirla en cada tarjeta es ruido. */
+.gelato-flavor-card.con-fotos-propias small {
+  display: none;
+}
