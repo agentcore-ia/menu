@@ -349,6 +349,14 @@
       "destination": "/troka.html"
     },
     {
+      "source": "/ipplis",
+      "destination": "/ipplis.html"
+    },
+    {
+      "source": "/ipplis/:path*",
+      "destination": "/ipplis.html"
+    },
+    {
       "source": "/panacea",
       "destination": "/panacea.html"
     },
@@ -437,7 +445,7 @@
       "destination": "/chicha.html"
     },
     {
-      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|grupo-lea|copetin-sandwich|fratello|todo-empanadas|kiosco-9-de-julio|troka|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha|yo-helados).*)",
+      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|grupo-lea|copetin-sandwich|fratello|todo-empanadas|kiosco-9-de-julio|troka|ipplis|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha|yo-helados).*)",
       "destination": "/host.html"
     }
   ]
