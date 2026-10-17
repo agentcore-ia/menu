@@ -77,6 +77,26 @@ const defaultPresentation = {
 }
 
 
+/**
+ * El nombre de una salsa dentro de su grupo: el titulo ya dice "Salsas", asi que
+ * "Salsa de dulce de leche" se muestra como "Dulce de leche". En el carrito y la
+ * comanda sigue el nombre completo.
+ */
+function nombreCortoDeSalsa(nombre) {
+  const corto = String(nombre ?? '').trim().replace(/^salsa\s+(?:de\s+la\s+|de\s+los\s+|de\s+las\s+|del\s+|de\s+)?/i, '')
+  return corto ? corto.charAt(0).toUpperCase() + corto.slice(1) : String(nombre ?? '')
+}
+
+/** Una salsa de helado: va arriba del helado, no se vende como producto. */
+function esSalsaDeHelado(item) {
+  return /^salsa/i.test(String(item?.name ?? '').trim())
+}
+
+/** El precio de un adicional, o nada si es sin costo: no se muestra "$0". */
+function precioDeAdicional(precio) {
+  return toNumericPrice(precio) > 0 ? precio : ''
+}
+
 /** Un adicional sin costo ("$0") se lee mejor como "Sin costo". */
 function textoDePrecio(precio) {
   const numero = Number(String(precio ?? '').replace(/[^\d.,-]/g, '').replace(/\./g, '').replace(',', '.'))
@@ -9648,6 +9668,15 @@ export default function MenuApp() {
       return
     }
 
+    // La salsa va ARRIBA del helado: no es un producto aparte, viaja en la nota
+    // del mismo pedido ("... | Salsa: Chocolate").
+    const salsaElegida = adicionalesHelado.find(
+      (extra) => esSalsaDeHelado(extra) && Number(gelatoAdicionales[extra.id] || 0) > 0,
+    )
+    const resumenDelHelado =
+      `Formato: ${gelatoFormat} | Sabores: ${selectedFlavorNames.join(', ')}` +
+      (salsaElegida ? ` | Salsa: ${nombreCortoDeSalsa(salsaElegida.name)}` : '')
+
     handleAddItem(
       {
         ...selectedGelatoSize,
@@ -9655,13 +9684,14 @@ export default function MenuApp() {
       },
       1,
       {
-        summary: `Formato: ${gelatoFormat} | Sabores: ${selectedFlavorNames.join(', ')}`,
+        summary: resumenDelHelado,
       },
     )
 
     // Los extras elegidos entran como lineas aparte, justo despues del helado:
     // cada uno es un producto del panel (con su precio, su stock y su comanda).
     for (const extra of adicionalesHelado) {
+      if (esSalsaDeHelado(extra)) continue
       const cantidad = Number(gelatoAdicionales[extra.id] || 0)
       // pideEleccion en falso: el catalogo marca todo lo que tiene precio como "pide
       // sabores" y abriria el armador en vez de sumar el extra.
@@ -11480,49 +11510,85 @@ export default function MenuApp() {
 
                   {(() => {
                     // Las salsas van juntas y de a una; el resto, con cantidad.
-                    const esSalsa = (item) => /^salsa/i.test(String(item.name || '').trim())
+                    const esSalsa = esSalsaDeHelado
                     const grupos = [
                       ['Salsas', adicionalesHelado.filter(esSalsa)],
                       ['Extras', adicionalesHelado.filter((item) => !esSalsa(item))],
                     ].filter(([, items]) => items.length)
 
-                    return grupos.map(([titulo, items]) => (
-                      <div key={titulo} className="gelato-adicionales-grupo">
-                        <h3>{titulo}</h3>
-                        <div className="gelato-adicionales-lista">
-                          {items.map((item) => {
-                            const cantidad = Number(gelatoAdicionales[item.id] || 0)
-                            const maximo = titulo === 'Salsas' ? 1 : 10
-                            const cambiar = (delta) =>
-                              setGelatoAdicionales((actual) => {
-                                const siguiente = Math.max(0, Math.min(maximo, Number(actual[item.id] || 0) + delta))
-                                const copia = { ...actual }
-                                if (siguiente) copia[item.id] = siguiente
-                                else delete copia[item.id]
-                                return copia
-                              })
+                    return grupos.map(([titulo, items]) => {
+                      const esGrupoDeSalsas = titulo === 'Salsas'
 
-                            return (
-                              <div key={item.id} className={`gelato-adicional ${cantidad ? 'elegido' : ''}`}>
-                                <div className="gelato-adicional-texto">
-                                  <strong>{item.name}</strong>
-                                  <span>{textoDePrecio(item.price)}</span>
-                                </div>
-                                {cantidad ? (
-                                  <div className="gelato-adicional-cantidad">
-                                    <button type="button" onClick={() => cambiar(-1)} aria-label={`Quitar ${item.name}`}>−</button>
-                                    <b>{cantidad}</b>
-                                    <button type="button" onClick={() => cambiar(1)} disabled={cantidad >= maximo} aria-label={`Sumar ${item.name}`}>+</button>
+                      return (
+                        <div key={titulo} className="gelato-adicionales-grupo">
+                          <h3>{titulo}</h3>
+                          {esGrupoDeSalsas ? <p className="gelato-adicionales-ayuda">Elegí una por pote.</p> : null}
+                          <div className="gelato-adicionales-lista">
+                            {items.map((item) => {
+                              const cantidad = Number(gelatoAdicionales[item.id] || 0)
+                              const precio = precioDeAdicional(item.price)
+
+                              // Las salsas: UNA sola por pote. Elegir otra cambia la
+                              // elegida; tocar la misma la saca.
+                              if (esGrupoDeSalsas) {
+                                const idsDeSalsas = items.map((otra) => otra.id)
+                                const elegirSalsa = () =>
+                                  setGelatoAdicionales((actual) => {
+                                    const copia = { ...actual }
+                                    for (const id of idsDeSalsas) delete copia[id]
+                                    if (!cantidad) copia[item.id] = 1
+                                    return copia
+                                  })
+
+                                return (
+                                  <button
+                                    key={item.id}
+                                    type="button"
+                                    className={`gelato-adicional gelato-adicional-salsa ${cantidad ? 'elegido' : ''}`}
+                                    onClick={elegirSalsa}
+                                    aria-pressed={Boolean(cantidad)}
+                                  >
+                                    <div className="gelato-adicional-texto">
+                                      <strong>{nombreCortoDeSalsa(item.name)}</strong>
+                                      {precio ? <span>{precio}</span> : null}
+                                    </div>
+                                    <span className="gelato-adicional-marca" aria-hidden="true">{cantidad ? '✓' : '+'}</span>
+                                  </button>
+                                )
+                              }
+
+                              const maximo = 10
+                              const cambiar = (delta) =>
+                                setGelatoAdicionales((actual) => {
+                                  const siguiente = Math.max(0, Math.min(maximo, Number(actual[item.id] || 0) + delta))
+                                  const copia = { ...actual }
+                                  if (siguiente) copia[item.id] = siguiente
+                                  else delete copia[item.id]
+                                  return copia
+                                })
+
+                              return (
+                                <div key={item.id} className={`gelato-adicional ${cantidad ? 'elegido' : ''}`}>
+                                  <div className="gelato-adicional-texto">
+                                    <strong>{item.name}</strong>
+                                    {precio ? <span>{precio}</span> : null}
                                   </div>
-                                ) : (
-                                  <button type="button" className="gelato-adicional-agregar" onClick={() => cambiar(1)} aria-label={`Agregar ${item.name}`}>+</button>
-                                )}
-                              </div>
-                            )
-                          })}
+                                  {cantidad ? (
+                                    <div className="gelato-adicional-cantidad">
+                                      <button type="button" onClick={() => cambiar(-1)} aria-label={`Quitar ${item.name}`}>−</button>
+                                      <b>{cantidad}</b>
+                                      <button type="button" onClick={() => cambiar(1)} disabled={cantidad >= maximo} aria-label={`Sumar ${item.name}`}>+</button>
+                                    </div>
+                                  ) : (
+                                    <button type="button" className="gelato-adicional-agregar" onClick={() => cambiar(1)} aria-label={`Agregar ${item.name}`}>+</button>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      )
+                    })
                   })()}
 
                   <div className="gelato-builder-footer">
@@ -12309,7 +12375,7 @@ export default function MenuApp() {
                       <div key={item.lineId} className="checkout-item">
                         <div>
                           <strong>{item.name}</strong>
-                          <span>{formatPrice(item.unitPrice, currencySymbol)} c/u</span>
+                          <span>{Number(item.unitPrice) > 0 ? `${formatPrice(item.unitPrice, currencySymbol)} c/u` : 'Sin cargo'}</span>
                           {item.notes ? <span className="checkout-item-notes">{item.notes}</span> : null}
                         </div>
                         <div className="checkout-item-controls">
@@ -12533,7 +12599,7 @@ export default function MenuApp() {
                   <div key={item.lineId} className="checkout-item">
                     <div>
                       <strong>{item.name}</strong>
-                      <span>{formatPrice(item.unitPrice, currencySymbol)} c/u</span>
+                      <span>{Number(item.unitPrice) > 0 ? `${formatPrice(item.unitPrice, currencySymbol)} c/u` : 'Sin cargo'}</span>
                       {item.notes ? <span className="checkout-item-notes">{item.notes}</span> : null}
                     </div>
                     <div className="checkout-item-controls">

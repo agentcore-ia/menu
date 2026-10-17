@@ -21807,3 +21807,38 @@ html:has(.menu-modo-kiosco) #root {
   opacity: 0.35;
   cursor: default;
 }
+
+
+/* Salsas del armador: se elige UNA por pote, asi que se leen como opciones. */
+.gelato-adicionales-ayuda {
+  margin: -4px 0 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--theme-muted, #7d6f63);
+}
+
+button.gelato-adicional-salsa {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.gelato-adicional-marca {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--theme-primary, #9dd373) 30%, #fff);
+  color: var(--theme-primary-text, #2e2018);
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.gelato-adicional-salsa.elegido .gelato-adicional-marca {
+  background: var(--theme-primary, #9dd373);
+}
