@@ -7491,7 +7491,7 @@ function TemplateMenuCollection({
                       {sello}
                     </span>
                   ) : null}
-                  {configHeladeria.sinFotos ? null : (
+                  {configHeladeria.sinFotos || configHeladeria.sinFotosTamanos ? null : (
                     <div className="gelato-size-visual">
                       <img src={size.image} alt="" aria-hidden="true" />
                     </div>
@@ -10663,6 +10663,7 @@ export default function MenuApp() {
     // Sin fotos de producto las tarjetas cambian de forma: la del envase deja
     // de reservar la columna de la foto y la del gusto deja de ser alta.
     configHeladeria.sinFotos ? 'sin-fotos' : '',
+    configHeladeria.sinFotosTamanos && !configHeladeria.sinFotos ? 'sin-fotos-tamanos' : '',
     // Algunas plantillas se dibujaron oscuras y tienen los negros y el acento
     // escritos en el CSS, fuera del alcance de los colores del local. Este
     // flag prende la version clara de esa plantilla.
@@ -11442,14 +11443,17 @@ export default function MenuApp() {
                         <button
                           key={flavor.id}
                           type="button"
-                          className={`gelato-flavor-card ${isSelected ? 'selected' : ''}`}
+                          className={`gelato-flavor-card ${isSelected ? 'selected' : ''} ${
+                            !configHeladeria.sinFotos && configHeladeria.saboresConFotoPropia && !flavor.hasCustomImage ? 'sin-foto' : ''
+                          }`}
                           onClick={() => handleToggleGelatoFlavor(flavor.id)}
                         >
                           <span className="gelato-flavor-plus">{isSelected ? '' : '+'}</span>
                           {/* flavor.image la resuelve el servidor: respeta la
                               foto propia del local si la cargo, y usa el mismo
                               mapeo por nombre que el resto del menu. */}
-                          {configHeladeria.sinFotos ? null : (
+                          {configHeladeria.sinFotos ||
+                          (configHeladeria.saboresConFotoPropia && !flavor.hasCustomImage) ? null : (
                             <img
                               className="gelato-flavor-image"
                               src={flavor.image || getGelatoFlavorAsset(flavor.name)}

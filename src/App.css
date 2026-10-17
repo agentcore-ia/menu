@@ -21842,3 +21842,19 @@ button.gelato-adicional-salsa {
 .gelato-adicional-salsa.elegido .gelato-adicional-marca {
   background: var(--theme-primary, #9dd373);
 }
+
+
+/* Solo los tamanos sin foto (los gustos conservan la suya). */
+.sin-fotos-tamanos .gelato-size-list-entrada .gelato-size-card {
+  grid-template-columns: minmax(0, 1fr) 3rem;
+  padding: 1.1rem 1rem;
+}
+
+/* Un gusto sin foto propia, en un menu que muestra las que cargo el local: no
+   queda un hueco donde iria la imagen, y el "+" sigue en la esquina. */
+.gelato-flavor-card.sin-foto {
+  min-height: 0;
+  align-content: start;
+  gap: 0.2rem;
+  padding-top: 1rem;
+}
