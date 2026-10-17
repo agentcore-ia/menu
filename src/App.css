@@ -21952,3 +21952,82 @@ button.gelato-adicional-salsa {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
+
+
+/* IPPLIS: pantalla de carga con su logo sobre el crema de la marca. */
+.loading-ipplis {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.2rem, 5vw, 2rem);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(192, 170, 120, 0.22), transparent 55%),
+    #fbf8f2;
+}
+
+.loading-ipplis::before,
+.loading-ipplis::after {
+  display: none;
+}
+
+.ipplis-loading {
+  width: min(100%, 18rem);
+  display: grid;
+  justify-items: center;
+  gap: clamp(1.1rem, 5vw, 1.6rem);
+  text-align: center;
+}
+
+.ipplis-loading-logo {
+  width: min(100%, 15.5rem);
+  height: auto;
+  animation: ipplis-latir 2s ease-in-out infinite;
+}
+
+.ipplis-loading p {
+  margin: 0;
+  color: #85733f;
+  font: 700 0.78rem / 1 var(--font-body);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.ipplis-loading-progress {
+  width: min(100%, 11rem);
+  height: 0.28rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(192, 170, 120, 0.25);
+}
+
+.ipplis-loading-progress span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: #c0aa78;
+  animation: ipplis-barra 1.3s ease-in-out infinite;
+}
+
+@keyframes ipplis-latir {
+  50% {
+    opacity: 0.78;
+    transform: scale(0.985);
+  }
+}
+
+@keyframes ipplis-barra {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(260%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ipplis-loading-logo,
+  .ipplis-loading-progress span {
+    animation: none;
+  }
+}

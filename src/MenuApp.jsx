@@ -1064,6 +1064,7 @@ function getAccountFaviconHref(accountId) {
     ['copetin', '/copetin-sandwich/icono-192.png'],
     ['yo-helados', '/yo-helados/icono-192.png'],
     ['yohelados', '/yo-helados/icono-192.png'],
+    ['ipplis', '/ipplis/icono-192.png'],
     ['kiosco-9', '/kiosco-9-de-julio/icono-192.png'],
     ['waffle', '/punto-waffle/icono-192.png'],
     ['fratello', '/fratello/icono-192.png'],
@@ -1108,6 +1109,7 @@ function getAccountAppleTouchIconHref(accountId) {
     ['copetin', '/copetin-sandwich/apple-touch-icon.png'],
     ['yo-helados', '/yo-helados/apple-touch-icon.png'],
     ['yohelados', '/yo-helados/apple-touch-icon.png'],
+    ['ipplis', '/ipplis/apple-touch-icon.png'],
     ['kiosco-9', '/kiosco-9-de-julio/apple-touch-icon.png'],
     ['waffle', '/punto-waffle/apple-touch-icon.png'],
     ['fratello', '/fratello/apple-touch-icon.png'],
@@ -1306,6 +1308,10 @@ function getLoadingTemplate(accountId) {
 
   if (key.includes('yo-helados') || key === 'yohelados') {
     return 'yo-helados'
+  }
+
+  if (key.includes('ipplis')) {
+    return 'ipplis'
   }
 
   if (key.includes('argenta')) {
@@ -4844,6 +4850,24 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menú</p>
 
             <div className="copetin-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'ipplis') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-ipplis">
+          <div className="ipplis-loading" role="status" aria-live="polite" aria-label="Cargando menu de Ipplis">
+            <img className="ipplis-loading-logo" src="/ipplis/logo.png" alt="" width="520" height="296" />
+
+            <p>Cargando menú</p>
+
+            <div className="ipplis-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>

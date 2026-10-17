@@ -201,6 +201,16 @@
       "has": [
         {
           "type": "host",
+          "value": "ipplis.menu.net.ar"
+        }
+      ],
+      "destination": "/ipplis.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "kiosco9.menu.net.ar"
         }
       ],
