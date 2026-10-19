@@ -1515,7 +1515,8 @@ body {
 
 .cd-slide {
   flex: 0 0 100%;
-  aspect-ratio: 777 / 355;
+  /* La proporcion de los banners (1400 x 550): se ven enteros, sin recortar el texto. */
+  aspect-ratio: 1400 / 550;
   overflow: hidden;
   scroll-snap-align: start;
   background: #1c1917;
