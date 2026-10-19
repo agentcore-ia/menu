@@ -9,6 +9,7 @@ import { getBusinessOpenStatus } from '../../shared/businessHours.js'
 import { esElCentroPorDefecto } from '../../shared/ubicacionCliente.js'
 import { resolveDeliveryQuote } from '../deliveryZones.js'
 import { describirDias, diaDeHoyEnArgentina, diasDelTexto } from '../../shared/diasDisponibles.js'
+import { describirVigencia, normalizarPromociones, promoVigente } from '../../shared/promociones.js'
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../../shared/celular.js'
 import { canjeElegido, configDePuntos } from '../../shared/puntosCapta.js'
 import { cuponParaElCliente, descuentoDelCupon, motivoNoAplica, normalizarCodigo } from '../../shared/cuponesCapta.js'
@@ -147,6 +148,7 @@ export class SupabaseOrderRepository {
 
     await this.validateCashOnlyItems(Array.isArray(payload.items) ? payload.items : [], payload)
     await this.validateDayRestrictedItems(Array.isArray(payload.items) ? payload.items : [])
+    await this.validatePromoSchedule(restaurant.id, Array.isArray(payload.items) ? payload.items : [])
     await this.validateDailyMenuHorario(restaurant, Array.isArray(payload.items) ? payload.items : [])
 
     const loyaltySettings = await this.fetchLoyaltySettings(restaurant.id)
@@ -1147,6 +1149,39 @@ export class SupabaseOrderRepository {
     const detalle = fuera.map(({ row, dias }) => `${row.name} es solo ${describirDias(dias)}`).join('. ')
     const error = new Error(`${detalle}. Sacalo del carrito para hacer el pedido.`)
     error.code = 'ITEM_NOT_AVAILABLE_TODAY'
+    error.statusCode = 422
+    throw error
+  }
+
+  // Promos con dias y horario propios (Menu > Promociones del panel). El menu ya
+  // las esconde fuera de su momento; esto frena la pestaña que quedo abierta o
+  // el pedido armado a mano.
+  async validatePromoSchedule(restaurantId, orderProducts) {
+    const ids = new Set(
+      orderProducts.map((item) => String(item?.productId || '')).filter(Boolean),
+    )
+    if (!ids.size || !restaurantId) return
+    let promos
+    try {
+      const rows = await this.request(
+        `/restaurant_menu_presentations?restaurant_id=eq.${restaurantId}&select=theme_overrides&limit=1`,
+      )
+      promos = normalizarPromociones(rows?.[0]?.theme_overrides?.promociones)
+    } catch {
+      // Sin poder leer la configuracion no se frena un pedido comun.
+      return
+    }
+    const fuera = promos.filter((promo) => ids.has(promo.productoId) && !promoVigente(promo))
+    if (!fuera.length) return
+
+    const nombres = new Map(
+      orderProducts.map((item) => [String(item?.productId || ''), item?.name]).filter(([id]) => id),
+    )
+    const detalle = fuera
+      .map((promo) => `${nombres.get(promo.productoId) || 'La promo'} se vende ${describirVigencia(promo)}`)
+      .join('. ')
+    const error = new Error(`${detalle}. Sacala del carrito para hacer el pedido.`)
+    error.code = 'PROMO_OUT_OF_SCHEDULE'
     error.statusCode = 422
     throw error
   }
