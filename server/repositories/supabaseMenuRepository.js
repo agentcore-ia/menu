@@ -7,7 +7,7 @@ import { getBusinessOpenStatus } from '../../shared/businessHours.js'
 import { rubroDelMenu } from '../../shared/rubros.js'
 import { formaDelCatalogo } from '../../shared/formaDelCatalogo.js'
 import { productoDisponibleHoy } from '../../shared/diasDisponibles.js'
-import { normalizarPromociones, promoVigente } from '../../shared/promociones.js'
+import { normalizarPromociones, promoVigente as promoEnHorario } from '../../shared/promociones.js'
 import { normalizeBusinessLocation, normalizeDeliveryZones } from '../deliveryZones.js'
 import {
   ajustesDelLocal,
@@ -364,7 +364,7 @@ export class SupabaseMenuRepository {
     // Promos con dias y horario propios (Menu > Promociones del panel): fuera de
     // su momento no aparecen. El pedido igual lo frena el servidor.
     for (const promo of normalizarPromociones(presentationConfig?.theme?.promociones)) {
-      if (!promoVigente(promo)) fueraDeDia.add(promo.productoId)
+      if (!promoEnHorario(promo)) fueraDeDia.add(promo.productoId)
     }
     const promosHeladeria = presentationConfig?.theme?.heladeria?.promos
     if (fueraDeDia.size && Array.isArray(promosHeladeria)) {
