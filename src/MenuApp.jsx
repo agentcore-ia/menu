@@ -8832,8 +8832,14 @@ export default function MenuApp() {
   )
   // Armando una promo mandan sus reglas: cuantos gustos entran en cada pote y,
   // si la promo los limita, cuales.
+  // Una promo en cuartos esta ANCLADA al cuarto: cada pote lleva los gustos que
+  // entran en un cuarto (los que el local configuro para ese tamano), salvo que
+  // la promo fije su propio tope.
+  const tamanoCuarto = gelatoSizeOptions.find((item) => /(^|[^\d])1\s*\/\s*4|(^|[^a-z])cuarto([^a-z]|$)/i.test(String(item.name || '')))
+  const esPromoDeCuartos = Boolean(promoEnCurso && /cuarto/i.test(String(promoEnCurso.producto?.name || '')))
   const gelatoFlavorLimit = promoEnCurso
-    ? promoEnCurso.promo.topePorPote || topeDeSabores(selectedGelatoSize, configHeladeria)
+    ? promoEnCurso.promo.topePorPote
+      || topeDeSabores(esPromoDeCuartos && tamanoCuarto ? tamanoCuarto : selectedGelatoSize, configHeladeria)
     : topeDeSabores(selectedGelatoSize, configHeladeria)
   const { sabores: todosLosSabores, chips: chipsDeTodos } = useMemo(
     () => saboresAgrupados(categories.find((category) => category.soloEleccion)?.items, configHeladeria),
@@ -9709,7 +9715,9 @@ export default function MenuApp() {
         // "SOLO EFECTIVO" viaja en la nota a proposito: el menu cobra con
         // tarjeta y la promo no, asi que quien atiende tiene que verlo en la
         // comanda y no enterarse cuando el cliente llega a pagar.
-        summary: `${detalle} | SOLO EFECTIVO`,
+        summary: esSoloEfectivo(promoEnCurso.producto?.description) || esSoloEfectivo(promoEnCurso.producto?.name)
+          ? `${detalle} | SOLO EFECTIVO`
+          : detalle,
       })
 
       setPromoEnCurso(null)
