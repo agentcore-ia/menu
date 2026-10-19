@@ -452,9 +452,9 @@ function Banner({ ciudad }) {
     return (
       <section className="cd-banner cd-banner-imagen">
         <picture>
-          <source srcSet={`/capta/banner-${clave}.webp`} type="image/webp" />
+          <source srcSet={`/capta/banner-${clave}.webp?v=2`} type="image/webp" />
           <img
-            src={`/capta/banner-${clave}.png`}
+            src={`/capta/banner-${clave}.png?v=2`}
             alt={`Capta Delivery en ${ciudad}: tus sabores favoritos, mas cerca`}
             onError={() => setSinImagen(true)}
           />
@@ -599,8 +599,8 @@ function Carrusel({ ciudad, promos }) {
   const slides = useMemo(() => {
     const lista = []
     if (clave) {
-      lista.push({ id: `hero-${clave}`, tipo: 'imagen', src: `/capta/hero-${clave}.webp` })
-      lista.push({ id: `banner-${clave}`, tipo: 'imagen', src: `/capta/banner-${clave}.webp` })
+      lista.push({ id: `hero-${clave}`, tipo: 'imagen', src: `/capta/hero-${clave}.webp?v=2` })
+      lista.push({ id: `banner-${clave}`, tipo: 'imagen', src: `/capta/banner-${clave}.webp?v=2` })
     }
     for (const local of promos.slice(0, 3)) lista.push({ id: `promo-${local.slug}`, tipo: 'promo', local })
     const sanas = lista.filter((s) => !rotas.includes(s.id))
