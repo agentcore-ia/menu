@@ -35,6 +35,8 @@ const IMAGENES_DEL_REPO = {
   'yo-helados': { portada: '/yo-helados/compartir.jpg', logo: '/yo-helados/icono-192.png' },
   'todo-empanadas': { portada: '/todo-empanadas/compartir.png', logo: '/todo-empanadas/icono-192.png' },
   'punto-waffle': { logo: '/punto-waffle/logo.png' },
+  ipplis: { portada: '/ipplis/compartir.jpg', logo: '/ipplis/icono-192.png' },
+  'copetin-sandwich': { portada: '/copetin-sandwich/portada.jpg', logo: '/copetin-sandwich/icono-192.png' },
 }
 
 function primera(...valores) {
