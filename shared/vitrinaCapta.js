@@ -39,12 +39,12 @@ const CATEGORIAS = [
  */
 const GRUPOS = [
   { id: 'comida', label: 'Comida', categorias: ['comida', 'hamburgueseria', 'pizzeria', 'rotiseria', 'cafeteria'], fondo: '#fdebde', circulo: '#fde9d9' },
-  { id: 'farmacia', label: 'Farmacia', categorias: ['farmacia'], fondo: '#fbe9e9', circulo: '#e6edfb', mandado: 'La farmacia más cercana' },
   { id: 'super', label: 'Súper', categorias: ['super', 'dietetica'], fondo: '#fde8d4', circulo: '#e5f2e1', mandado: 'El supermercado más cercano' },
-  { id: 'licores', label: 'Licores', categorias: ['licoreria'], fondo: '#fdebdc', circulo: '#fbe8e6', mandado: 'La licorería más cercana' },
   { id: 'helados', label: 'Helados', categorias: ['heladeria'], fondo: '#fbdfd6', circulo: '#fde3e7' },
   { id: 'panaderia', label: 'Panadería', categorias: ['panaderia'], fondo: '#fce4c8', circulo: '#fdf0d9', mandado: 'La panadería más cercana' },
   { id: 'kioscos', label: 'Kioscos', categorias: ['kiosco'], fondo: '#fce7cd', circulo: '#fcebd2', mandado: 'El kiosco más cercano' },
+  { id: 'farmacia', label: 'Farmacia', categorias: ['farmacia'], fondo: '#fbe9e9', circulo: '#e6edfb', mandado: 'La farmacia más cercana' },
+  { id: 'licores', label: 'Bebidas', categorias: ['licoreria'], fondo: '#fdebdc', circulo: '#fbe8e6', mandado: 'La licorería más cercana' },
   { id: 'mascotas', label: 'Mascotas', categorias: ['mascotas'], fondo: '#fdebd1', circulo: '#fdeed6', mandado: 'El pet shop más cercano' },
 ]
 
