@@ -675,27 +675,39 @@ function Carrusel({ ciudad, promos }) {
   )
 }
 
-/** Los cuadrados de "Categorías" (shared/vitrinaCapta.js, GRUPOS). */
+/**
+ * La barra de "Categorías" del inicio: una tarjeta con una fila de circulos que
+ * se desliza (shared/vitrinaCapta.js, GRUPOS). La categoria elegida queda con el
+ * nombre en negrita y subrayado naranja; arranca en la primera.
+ *
+ * Las imagenes de cada circulo son /capta/categorias/<id>.webp.
+ */
 function Categorias({ onElegir, onVerTodas }) {
+  const [activo, setActivo] = useState(GRUPOS[0].id)
   return (
-    <section className="cd-seccion" aria-label="Categorías">
-      <div className="cd-seccion-cabeza">
+    <section className="cd-cats" aria-label="Categorías">
+      <div className="cd-cats-cabeza">
         <h2>Categorías</h2>
         <button type="button" onClick={onVerTodas}>
-          Ver todas <Icono nombre="chevron_right" />
+          Ver todas <Icono nombre="arrow_forward" />
         </button>
       </div>
-      <div className="cd-cuadros">
+      <div className="cd-cats-fila">
         {GRUPOS.map((grupo) => (
           <button
             key={grupo.id}
             type="button"
-            className="cd-cuadro"
-            style={{ background: grupo.fondo }}
-            onClick={() => onElegir(grupo.id)}
+            className={`cd-cat${grupo.id === activo ? ' cd-cat-activa' : ''}`}
+            aria-pressed={grupo.id === activo}
+            onClick={() => {
+              setActivo(grupo.id)
+              onElegir(grupo.id)
+            }}
           >
-            <img src={`/capta/categorias/${grupo.id}.webp`} alt="" width="135" height="118" decoding="async" />
-            <span>{grupo.label}</span>
+            <span className="cd-cat-circulo" style={{ background: grupo.circulo || grupo.fondo }}>
+              <img src={`/capta/categorias/${grupo.id}.webp`} alt="" width="135" height="118" decoding="async" />
+            </span>
+            <span className="cd-cat-nombre">{grupo.label}</span>
           </button>
         ))}
       </div>

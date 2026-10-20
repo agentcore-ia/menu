@@ -1645,42 +1645,127 @@ body {
   font-weight: 700;
 }
 
-/* ---------- cuadrados de categorias ---------- */
-.cd-cuadros {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+/* ---------- categorias: tarjeta con una fila de circulos ---------- */
+.cd-cats {
+  margin-top: 22px;
+  padding: 18px 0 16px;
+  border-radius: 26px;
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(28, 25, 23, 0.07);
 }
 
-.cd-cuadro {
+.cd-cats-cabeza {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  aspect-ratio: 178 / 176;
-  padding: 2% 0 9%;
+  gap: 12px;
+  padding: 0 18px;
+  margin-bottom: 14px;
+}
+
+.cd-cats-cabeza h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.cd-cats-cabeza button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
   border: 0;
-  border-radius: 18px;
+  background: none;
+  color: var(--cd-naranja);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cd-cats-cabeza button .cd-icono {
+  font-size: 20px;
+}
+
+.cd-cats-fila {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 2px 18px 2px;
+  scroll-padding-inline: 18px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.cd-cats-fila::-webkit-scrollbar {
+  display: none;
+}
+
+.cd-cat {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 72px;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--cd-tinta);
   font: inherit;
   cursor: pointer;
+  scroll-snap-align: start;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cd-cat-circulo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  overflow: hidden;
+  border-radius: 50%;
   transition: transform 0.15s;
 }
 
-.cd-cuadro:active {
-  transform: scale(0.96);
+.cd-cat:active .cd-cat-circulo {
+  transform: scale(0.94);
 }
 
-.cd-cuadro img {
-  width: 76%;
-  height: auto;
-  aspect-ratio: 135 / 118;
+.cd-cat-circulo img {
+  width: 84%;
+  height: 84%;
   object-fit: contain;
 }
 
-.cd-cuadro span {
-  font-size: clamp(12.5px, 3.9vw, 16px);
+.cd-cat-nombre {
+  padding-bottom: 6px;
+  border-bottom: 2.5px solid transparent;
+  font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.cd-cat-activa .cd-cat-nombre {
+  border-bottom-color: var(--cd-naranja);
+  font-weight: 700;
+}
+
+@media (min-width: 520px) {
+  .cd-cat {
+    width: 82px;
+  }
+
+  .cd-cat-circulo {
+    width: 76px;
+    height: 76px;
+  }
+
+  .cd-cats-fila {
+    gap: 14px;
+  }
 }
 
 /* ---------- cerca de ti ---------- */
@@ -2055,9 +2140,6 @@ body {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .cd-cuadro span {
-    font-size: 16px;
-  }
 }
 
 .cd-carrusel {
