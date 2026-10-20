@@ -497,7 +497,13 @@ export class SupabaseMenuRepository {
         // transferencias que le entran) y aun asi no querer cobrar por Mercado
         // Pago en el menu: horarios._settings.menuSinMercadoPago. Apaga las dos
         // puertas, Mercado Pago y tarjeta, que son el mismo cobro.
-        mercadoPago: mercadoPagoHabilitado === true && restaurant.horarios?._settings?.menuSinMercadoPago !== true,
+        // horarios._settings.menuSinBotonMercadoPago apaga SOLO el boton "Mercado
+        // Pago" y deja la tarjeta cobrada dentro del menu (Copetin: efectivo,
+        // transferencia o tarjeta).
+        mercadoPago:
+          mercadoPagoHabilitado === true &&
+          restaurant.horarios?._settings?.menuSinMercadoPago !== true &&
+          restaurant.horarios?._settings?.menuSinBotonMercadoPago !== true,
         // Tarjeta cobrada dentro del menu: solo con la cuenta vinculada, que es
         // la que trae la public key para tokenizarla.
         tarjeta: tarjetaHabilitada === true && restaurant.horarios?._settings?.menuSinMercadoPago !== true,

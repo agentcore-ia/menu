@@ -69,6 +69,18 @@ export class SupabaseOrderRepository {
       throw error
     }
 
+    // Sin el boton "Mercado Pago" (menuSinBotonMercadoPago): la tarjeta dentro del
+    // menu sigue valiendo, el pago por Mercado Pago no.
+    if (
+      restaurant.horarios?._settings?.menuSinBotonMercadoPago === true &&
+      payload.paymentMethod === 'mercado_pago'
+    ) {
+      const error = new Error('Este local no cobra por Mercado Pago. Elegí efectivo, transferencia o tarjeta.')
+      error.code = 'PAYMENT_METHOD_NOT_AVAILABLE'
+      error.statusCode = 422
+      throw error
+    }
+
     // Un local que no ofrece retiro en el menu (menuSinRetiro): la opcion no
     // se dibuja, pero la regla va aca: un pedido armado a mano no la saltea.
     if (
