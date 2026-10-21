@@ -277,9 +277,50 @@ function VolverAPedir({ pedidos }) {
   )
 }
 
+/** El dibujo de la derecha del cupon: moto de reparto, porcentaje o pesos. */
+function DibujoCupon({ tipo }) {
+  const trazo = { fill: 'none', stroke: '#fff', strokeWidth: 3, strokeLinecap: 'round', strokeLinejoin: 'round' }
+  if (tipo === 'envio_gratis') {
+    return (
+      <svg className="cd-cupon-dibujo" viewBox="0 0 76 60" aria-hidden="true">
+        <path d="M3 22h13M0 31h15M6 40h10" {...trazo} strokeWidth="2.6" />
+        <rect x="24" y="10" width="19" height="15" rx="3.5" fill="#fff" />
+        <circle cx="53" cy="9" r="4.6" fill="#fff" />
+        <path d="M52 15 47 31M52 17l9 7" {...trazo} />
+        <path d="M31 47h19l4-9" {...trazo} />
+        <path d="M46 31l-8 16M57 24l6 22" {...trazo} />
+        <circle cx="27" cy="48" r="7" {...trazo} />
+        <circle cx="64" cy="48" r="7" {...trazo} />
+      </svg>
+    )
+  }
+  if (tipo === 'monto') {
+    return (
+      <svg className="cd-cupon-dibujo" viewBox="0 0 76 60" aria-hidden="true">
+        <path d="M44 6l4 9M54 3l-1 10M63 8l-6 8" {...trazo} strokeWidth="2.6" />
+        <text x="22" y="52" fill="#fff" fontSize="52" fontWeight="800" fontFamily="Manrope, system-ui, sans-serif">$</text>
+      </svg>
+    )
+  }
+  return (
+    <svg className="cd-cupon-dibujo" viewBox="0 0 76 60" aria-hidden="true">
+      <path d="M44 6l4 9M54 3l-1 10M63 8l-6 8" {...trazo} strokeWidth="2.6" />
+      <circle cx="31" cy="22" r="7.5" {...trazo} strokeWidth="5.5" />
+      <circle cx="58" cy="47" r="7.5" {...trazo} strokeWidth="5.5" />
+      <path d="M62 15 27 54" {...trazo} strokeWidth="5.5" />
+    </svg>
+  )
+}
+
+const quitarAcentos = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim()
+
 /**
  * Los cupones de Capta (los crea el admin): los de la cuenta primero, despues
  * las ofertas a la vista. Tocar uno copia el codigo para usarlo al pedir.
+ *
+ * Tarjeta con forma de ticket: etiqueta arriba, el beneficio grande con su
+ * dibujo, y abajo el codigo con el boton de copiar. Las muescas a los costados
+ * son parte del diseno (ver .cd-cupon en el css).
  */
 function OfertasParaVos({ cupones, onCopiar }) {
   const lista = [
@@ -294,29 +335,42 @@ function OfertasParaVos({ cupones, onCopiar }) {
         <h2>Ofertas para vos</h2>
       </div>
       <div className="cd-carrusel cd-carrusel-cupones">
-        {lista.map((c) => (
-          <button
-            key={c.codigo}
-            type="button"
-            className="cd-cupon"
-            style={{ '--cd-marca': c.color || '#16a34a' }}
-            onClick={() => onCopiar(c)}
-          >
-            <span className="cd-cupon-texto">
-              {c.propio ? <em className="cd-cupon-tag">Tuyo</em> : null}
-              <strong>{c.texto}</strong>
-              <small>{c.titulo}</small>
-              <i>
-                {c.minimoCompra > 0 ? `Compra mínima $${c.minimoCompra.toLocaleString('es-AR')} · ` : ''}
-                {c.hasta ? `Hasta el ${new Date(c.hasta).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}` : 'Sin vencimiento'}
-              </i>
-            </span>
-            <span className="cd-cupon-codigo">
-              <b>{c.codigo}</b>
-              <u>Copiar</u>
-            </span>
-          </button>
-        ))}
+        {lista.map((c) => {
+          // El titulo se muestra solo si dice algo mas que el cartel grande.
+          const subtitulo = quitarAcentos(c.titulo) !== quitarAcentos(c.texto) ? c.titulo : ''
+          return (
+            <button
+              key={c.codigo}
+              type="button"
+              className="cd-cupon"
+              style={{ '--cd-marca': c.color || '#16a34a' }}
+              onClick={() => onCopiar(c)}
+            >
+              <em className="cd-cupon-tag">{c.propio ? 'Tuyo' : c.tipo === 'envio_gratis' ? 'Envío' : 'Descuento'}</em>
+              <span className="cd-cupon-cuerpo">
+                <span className="cd-cupon-texto">
+                  <strong>{c.texto}</strong>
+                  {subtitulo ? <small>{subtitulo}</small> : null}
+                  <i>
+                    {c.minimoCompra > 0 ? `Compra mínima $${c.minimoCompra.toLocaleString('es-AR')} · ` : ''}
+                    {c.hasta ? `Hasta el ${new Date(c.hasta).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}` : 'Sin vencimiento'}
+                  </i>
+                </span>
+                <DibujoCupon tipo={c.tipo} />
+              </span>
+              <span className="cd-cupon-codigo">
+                <b>{c.codigo}</b>
+                <u>
+                  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="9" y="9" width="11" height="11" rx="2.5" />
+                    <path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9" />
+                  </svg>
+                  Copiar
+                </u>
+              </span>
+            </button>
+          )
+        })}
       </div>
     </section>
   )
