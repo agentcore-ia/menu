@@ -1805,12 +1805,22 @@ body {
 .cd-cerca-foto {
   position: relative;
   display: block;
+  /* Sin el flex: 0 0 auto, la tarjeta mas alta de la fila estira la foto. */
+  flex: 0 0 auto;
   aspect-ratio: 380 / 207;
+  overflow: hidden;
   background: #f1ece5;
 }
 
+/* La portada llena el marco SIN decidir su alto: con el alto de la imagen
+   (una foto cuadrada, un banner) las tarjetas quedaban de distinto tamano. Todas
+   miden lo mismo que la de Ipplis, y la foto se recorta al marco. */
 .cd-cerca-foto .cd-portada {
+  position: absolute;
+  inset: 0;
+  width: 100%;
   height: 100%;
+  object-fit: cover;
 }
 
 .cd-cerca-cerrado .cd-cerca-foto .cd-portada {
