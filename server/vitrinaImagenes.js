@@ -36,6 +36,7 @@ const IMAGENES_DEL_REPO = {
   'todo-empanadas': { portada: '/todo-empanadas/compartir.png', logo: '/todo-empanadas/icono-192.png' },
   'punto-waffle': { logo: '/punto-waffle/logo.png' },
   ipplis: { portada: '/ipplis/compartir.jpg', logo: '/ipplis/icono-192.png' },
+  dallys: { portada: '/dallys/compartir.jpg', logo: '/dallys/icono-192.png' },
   'copetin-sandwich': { portada: '/copetin-sandwich/portada.jpg', logo: '/copetin-sandwich/icono-192.png' },
 }
 

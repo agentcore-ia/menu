@@ -47,6 +47,7 @@ export default defineConfig({
         'kiosco-9-de-julio': resolve(__dirname, 'kiosco-9-de-julio.html'),
         troka: resolve(__dirname, 'troka.html'),
         ipplis: resolve(__dirname, 'ipplis.html'),
+        dallys: resolve(__dirname, 'dallys.html'),
         panacea: resolve(__dirname, 'panacea.html'),
         racing: resolve(__dirname, 'racing.html'),
         boutiquecian: resolve(__dirname, 'boutique-cian.html'),
