@@ -1808,7 +1808,8 @@ body {
   /* Sin el flex: 0 0 auto, la tarjeta mas alta de la fila estira la foto. */
   flex: 0 0 auto;
   aspect-ratio: 380 / 207;
-  overflow: hidden;
+  /* SIN overflow: hidden: el logo cuelga por debajo de la foto (bottom: -18px) y
+     el recorte lo taparia. La foto se recorta ella misma, ver abajo. */
   background: #f1ece5;
 }
 
@@ -1821,6 +1822,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 18px 18px 0 0;
 }
 
 .cd-cerca-cerrado .cd-cerca-foto .cd-portada {
