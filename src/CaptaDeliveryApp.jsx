@@ -555,7 +555,13 @@ function BarraInferior({ vista, onVista, onPuntos, guardados, puntosAbierto = fa
         item.id === 'puntos' ? (
           <button key={item.id} type="button" className="cd-nav-puntos" onClick={onPuntos} aria-current={puntosAbierto ? 'page' : undefined}>
             <svg className="cd-nav-bulto" viewBox="0 0 156 31" aria-hidden="true"><path d="M0,30 C18,30 26,27 36,19 C47,10 60,2 78,2 C96,2 109,10 120,19 C130,27 138,30 156,30 L156,31 L0,31 Z" fill="#fff" /></svg>
-            <span className="cd-nav-icono"><span className="cd-nav-puntos-boton"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8z" fill="#fff" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" /></svg></span></span>
+            <span className="cd-nav-icono"><span className="cd-nav-puntos-boton"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3.4" y="8.3" width="17.2" height="3.4" rx="1.4" />
+              <path d="M5.2 11.7v7.2a2.1 2.1 0 0 0 2.1 2.1h9.4a2.1 2.1 0 0 0 2.1-2.1v-7.2" />
+              <path d="M12 8.3V21" />
+              <path d="M12 8.3C9.6 8.3 7.2 7.5 7.2 5.8 7.2 4.5 8.4 3.8 9.6 4.1 11.1 4.5 12 6.3 12 8.3Z" />
+              <path d="M12 8.3c2.4 0 4.8-.8 4.8-2.5 0-1.3-1.2-2-2.4-1.7C12.9 4.5 12 6.3 12 8.3Z" />
+            </svg></span></span>
             <span>{item.texto}</span>
           </button>
         ) : (
