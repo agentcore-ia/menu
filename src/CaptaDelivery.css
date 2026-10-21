@@ -2625,7 +2625,9 @@ body {
 /* ---------- cupones y ofertas ---------- */
 
 .cd-cupon {
+  --cd-corte: calc(100% - 46px);
   position: relative;
+  isolation: isolate;
   flex: none;
   width: clamp(184px, 48.5vw, 228px);
   display: flex;
@@ -2633,37 +2635,34 @@ body {
   gap: 4px;
   padding: 12px 10px;
   border: 0;
-  border-radius: 22px;
-  /* Un solo color de marca, con un brillo suave en la esquina de abajo. */
-  background:
-    radial-gradient(circle at 88% 78%, rgba(255, 255, 255, 0.14) 0, rgba(255, 255, 255, 0.14) 42px, transparent 43px),
-    linear-gradient(150deg, var(--cd-marca, #16a34a), color-mix(in srgb, var(--cd-marca, #16a34a) 82%, #000));
+  background: none;
   color: #fff;
   text-align: left;
   cursor: pointer;
   scroll-snap-align: start;
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--cd-marca, #16a34a) 30%, transparent);
+  /* La sombra va con filter y no con box-shadow: asi sigue la forma recortada
+     del fondo (con las muescas) en vez de dibujar un rectangulo entero. */
+  filter: drop-shadow(0 8px 10px color-mix(in srgb, var(--cd-marca, #16a34a) 32%, transparent));
 }
 
-/* Las muescas del ticket: dos medios circulos del color de la pagina, a la
-   altura de la linea punteada que separa el beneficio del codigo. */
-.cd-cupon::before,
-.cd-cupon::after {
+/* El fondo del ticket va aparte para poder recortarle las muescas: dos medios
+   circulos TRANSPARENTES en los costados, a la altura de la linea punteada que
+   separa el beneficio del codigo. Se ve lo que hay detras, sea lo que sea. */
+.cd-cupon::before {
   content: '';
   position: absolute;
-  bottom: 40px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--cd-fondo, #fbf7f2);
-}
-
-.cd-cupon::before {
-  left: -8px;
-}
-
-.cd-cupon::after {
-  right: -8px;
+  inset: 0;
+  z-index: -1;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 88% 78%, rgba(255, 255, 255, 0.14) 0, rgba(255, 255, 255, 0.14) 42px, transparent 43px),
+    linear-gradient(150deg, var(--cd-marca, #16a34a), color-mix(in srgb, var(--cd-marca, #16a34a) 82%, #000));
+  -webkit-mask:
+    radial-gradient(circle 8px at 0 var(--cd-corte), #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 8px at 100% var(--cd-corte), #0000 97%, #000) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle 8px at 0 var(--cd-corte), #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 8px at 100% var(--cd-corte), #0000 97%, #000) right / 51% 100% no-repeat;
 }
 
 .cd-cupon-tag {
@@ -2719,6 +2718,10 @@ body {
   height: auto;
   align-self: center;
   opacity: 0.96;
+}
+
+.cd-cupon-dibujo-moto {
+  width: 58px;
 }
 
 .cd-cupon-codigo {

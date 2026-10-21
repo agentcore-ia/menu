@@ -281,16 +281,24 @@ function VolverAPedir({ pedidos }) {
 function DibujoCupon({ tipo }) {
   const trazo = { fill: 'none', stroke: '#fff', strokeWidth: 3, strokeLinecap: 'round', strokeLinejoin: 'round' }
   if (tipo === 'envio_gratis') {
+    // Un repartidor en moto con la caja de reparto atras y lineas de velocidad.
+    const fino = { fill: 'none', stroke: '#fff', strokeLinecap: 'round', strokeLinejoin: 'round' }
     return (
-      <svg className="cd-cupon-dibujo" viewBox="0 0 76 60" aria-hidden="true">
-        <path d="M3 22h13M0 31h15M6 40h10" {...trazo} strokeWidth="2.6" />
-        <rect x="24" y="10" width="19" height="15" rx="3.5" fill="#fff" />
-        <circle cx="53" cy="9" r="4.6" fill="#fff" />
-        <path d="M52 15 47 31M52 17l9 7" {...trazo} />
-        <path d="M31 47h19l4-9" {...trazo} />
-        <path d="M46 31l-8 16M57 24l6 22" {...trazo} />
-        <circle cx="27" cy="48" r="7" {...trazo} />
-        <circle cx="64" cy="48" r="7" {...trazo} />
+      <svg className="cd-cupon-dibujo cd-cupon-dibujo-moto" viewBox="0 0 92 64" aria-hidden="true">
+        <path d="M3 22h10M0 31h12M5 40h8" {...fino} strokeWidth="2.8" />
+        <g transform="translate(14 0)">
+          <circle cx="16" cy="51" r="7.5" {...fino} strokeWidth="3.6" />
+          <circle cx="62" cy="51" r="7.5" {...fino} strokeWidth="3.6" />
+          <path d="M16 51c0-6 4-9 10-9h26" {...fino} strokeWidth="3.6" />
+          <path d="M52 42l8-20M62 51l-3-14" {...fino} strokeWidth="3.4" />
+          <path d="M55 21h10" {...fino} strokeWidth="3.6" />
+          <path d="M40 17l-5 20" {...fino} strokeWidth="7" />
+          <path d="M43 22l12-1" {...fino} strokeWidth="3.4" />
+          <path d="M35 37l9 6h7" {...fino} strokeWidth="3.6" />
+          <circle cx="41" cy="9.5" r="5.8" fill="#fff" />
+        </g>
+        <rect x="16" y="14" width="25" height="19" rx="4" fill="#fff" />
+        <path d="M16 23h25" stroke="rgba(0,0,0,0.16)" strokeWidth="2" />
       </svg>
     )
   }
