@@ -2627,11 +2627,11 @@ body {
 .cd-cupon {
   position: relative;
   flex: none;
-  width: clamp(176px, 47vw, 228px);
+  width: clamp(184px, 48.5vw, 228px);
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 12px 12px 12px;
+  padding: 12px 10px;
   border: 0;
   border-radius: 22px;
   /* Un solo color de marca, con un brillo suave en la esquina de abajo. */
@@ -2687,8 +2687,8 @@ body {
   min-height: 70px;
   padding-bottom: 10px;
   border-bottom: 1.5px dashed rgba(255, 255, 255, 0.28);
-  margin: 2px -12px 0;
-  padding-inline: 12px;
+  margin: 2px -10px 0;
+  padding-inline: 10px;
 }
 
 .cd-cupon-texto {
@@ -2727,7 +2727,7 @@ body {
   justify-content: space-between;
   gap: 6px;
   margin-top: 6px;
-  padding: 3px 3px 3px 10px;
+  padding: 3px 3px 3px 9px;
   border: 1.5px dashed rgba(255, 255, 255, 0.7);
   border-radius: 12px;
 }
@@ -2735,8 +2735,8 @@ body {
 .cd-cupon-codigo b {
   min-width: 0;
   overflow: hidden;
-  font: 800 11.5px / 1 'Manrope', system-ui, sans-serif;
-  letter-spacing: 0.04em;
+  font: 800 10.5px / 1 'Manrope', system-ui, sans-serif;
+  letter-spacing: 0.02em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2745,12 +2745,12 @@ body {
   display: inline-flex;
   flex: none;
   align-items: center;
-  gap: 4px;
-  padding: 6px 9px;
+  gap: 3px;
+  padding: 6px 7px;
   border-radius: 9px;
   background: #fff;
   color: var(--cd-marca, #16a34a);
-  font: 800 11px / 1 'Manrope', system-ui, sans-serif;
+  font: 800 10.5px / 1 'Manrope', system-ui, sans-serif;
   text-decoration: none;
 }
 

@@ -361,7 +361,7 @@ function OfertasParaVos({ cupones, onCopiar }) {
               <span className="cd-cupon-codigo">
                 <b>{c.codigo}</b>
                 <u>
-                  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="9" y="9" width="11" height="11" rx="2.5" />
                     <path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9" />
                   </svg>
