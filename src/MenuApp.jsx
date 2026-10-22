@@ -1351,6 +1351,10 @@ function getLoadingTemplate(accountId) {
     return 'babson'
   }
 
+  if (key.includes('dallys')) {
+    return 'dallys'
+  }
+
   if (key.includes('racing')) {
     return 'racing'
   }
@@ -5052,6 +5056,28 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menú</p>
 
             <div className="babson-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'dallys') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-dallys">
+          <div className="dallys-loading" role="status" aria-live="polite" aria-label="Cargando menu de Dally's Pizza">
+            {/* Repite la cabecera del menu (banda azul con la curva abajo y el
+                logo en su version clara), igual que la de Babson. */}
+            <div className="dallys-loading-banda">
+              <img src="/dallys/logo-claro.webp" alt="Dally's Pizza" width="900" height="322" />
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="dallys-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>

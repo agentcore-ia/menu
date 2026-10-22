@@ -22054,3 +22054,99 @@ button.gelato-adicional-salsa {
   height: auto;
   opacity: 0.95;
 }
+
+
+/* ---------------------------------------------------------------------------
+   Pantalla de carga de Dally's: la banda azul con la curva abajo y el logo en
+   su version clara (naranja y blanco), sobre el azul de la marca. Igual que la
+   de Babson, con sus colores.
+   --------------------------------------------------------------------------- */
+.loading-dallys {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #0a3d91;
+}
+
+.loading-dallys::before,
+.loading-dallys::after {
+  display: none;
+}
+
+.dallys-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6rem;
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.dallys-loading-banda {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 21rem);
+  padding: 2.4rem 1.6rem 2.8rem;
+  background: #174a9c;
+  border-radius: 0 0 50% 50% / 0 0 2.8rem 2.8rem;
+}
+
+.dallys-loading-banda img {
+  width: min(82%, 15.5rem);
+  /* La proporcion del logo reserva el alto antes de que baje la imagen. */
+  aspect-ratio: 900 / 322;
+  height: auto;
+  object-fit: contain;
+  animation: dallys-loading-latir 1.9s ease-in-out infinite;
+}
+
+.dallys-loading p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+  text-transform: uppercase;
+}
+
+.dallys-loading-progress {
+  width: min(100%, 8.5rem);
+  height: 0.28rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dallys-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: #f2520c;
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@keyframes dallys-loading-latir {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.88;
+    transform: scale(0.975);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dallys-loading-banda img,
+  .dallys-loading-progress span {
+    animation: none;
+  }
+}
