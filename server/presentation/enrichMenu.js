@@ -158,6 +158,13 @@ export function enrichMenu(menu) {
   })
   const presentation = presentationConfig ? mergeDeep(preset, presentationConfig) : preset
 
+  // theme.ocultarBajadaHero: el local no quiere frase debajo del titulo. Un texto
+  // vacio no pisa al del preset (los vacios se descartan arriba), asi que se
+  // fuerza aca, despues de mezclar ("Sabor que te hace volver" en la pizzeria).
+  if (menu.presentationConfig?.theme?.ocultarBajadaHero === true && presentation?.hero) {
+    presentation.hero = { ...presentation.hero, accent: '' }
+  }
+
   return {
     ...menu,
     presentation,
