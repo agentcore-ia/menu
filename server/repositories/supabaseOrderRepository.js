@@ -325,6 +325,16 @@ export class SupabaseOrderRepository {
     // por aca: siguen como siempre.
     const esperaPago = payload.paymentMethod === 'mercado_pago' && !payload.mesa_id
 
+    // EL LOCAL ACEPTA ANTES DE PREPARAR (dashboard > Ajustes > "Aceptar los
+    // pedidos del menu digital"). El pedido nace "por_aceptar": suena en el
+    // panel pero no se imprime ni va a cocina. Al aceptarlo, el local pone la
+    // demora y el dashboard le manda al cliente ESTA confirmacion con la demora
+    // adentro (dashboard: lib/pedidosPorAceptar.ts). Quedan afuera los que
+    // esperan el pago de Mercado Pago (ya reciben su confirmacion con el link),
+    // las mesas y los programados.
+    const requiereAceptacion =
+      restaurant.horarios?._settings?.aceptarPedidosMenu === true && !esperaPago && !payload.mesa_id && !programado
+
     // Donde marco el cliente la entrega en el mapa del menu o, si no lo marco,
     // el punto de la direccion que confirmo de la lista. Va a las columnas del
     // pedido: con eso el repartidor de Capta llega a la puerta sin volver a
@@ -357,7 +367,7 @@ export class SupabaseOrderRepository {
           restaurant_id: restaurant.id,
           cliente_id: customer.id,
           conversacion_id: conversation.id,
-          status: esperaPago ? 'pendiente_pago' : 'new',
+          status: esperaPago ? 'pendiente_pago' : requiereAceptacion ? 'por_aceptar' : 'new',
           delivery_type: payload.deliveryType,
           payment_method: payload.paymentMethod,
           address: payload.customer.address || null,
@@ -545,10 +555,25 @@ export class SupabaseOrderRepository {
         })
       : ''
 
-    const whatsappMessage = shouldNotifyCustomer
+    // Por aceptar: la confirmacion NO sale ahora. Se guarda en el pedido y la
+    // manda el dashboard cuando el local lo acepta, con la demora.
+    const esperaAceptacion = pedido.status === 'por_aceptar'
+    if (esperaAceptacion && confirmationMessage) {
+      await this.request(`/pedidos?id=eq.${pedido.id}`, {
+        method: 'PATCH',
+        headers: {
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify({
+          transcription: { ...(pedido.transcription || {}), confirmacionPendiente: confirmationMessage },
+        }),
+      }).catch(() => null)
+    }
+
+    const whatsappMessage = shouldNotifyCustomer && !esperaAceptacion
       ? await this.createOutgoingWhatsappMessage(conversation.id, confirmationMessage)
       : null
-    const whatsappDispatch = shouldNotifyCustomer
+    const whatsappDispatch = shouldNotifyCustomer && !esperaAceptacion
       ? await this.dispatchWhatsappWebhook({
           restaurant,
           customer,
@@ -566,7 +591,7 @@ export class SupabaseOrderRepository {
         })
       : {
           status: 'skipped',
-          reason: 'CUSTOMER_PHONE_NOT_PROVIDED',
+          reason: esperaAceptacion ? 'WAITING_FOR_RESTAURANT_ACCEPTANCE' : 'CUSTOMER_PHONE_NOT_PROVIDED',
         }
     await this.touchConversation(conversation.id)
 
