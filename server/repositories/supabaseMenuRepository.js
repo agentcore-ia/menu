@@ -1151,7 +1151,10 @@ export class SupabaseMenuRepository {
         images: headerImages.length ? headerImages : undefined,
         video: themeOverrides.heroVideo || undefined,
         title: config.hero_title || undefined,
-        accent: config.hero_accent || undefined,
+        // theme.ocultarBajadaHero: el local no quiere frase debajo del titulo. Un
+        // texto vacio pisa la del preset ("Sabor que te hace volver" en la
+        // pizzeria); sin esto, vaciar hero_accent la hacia volver sola.
+        accent: themeOverrides.ocultarBajadaHero === true ? '' : config.hero_accent || undefined,
         description: config.hero_description || undefined,
         // Los tres sellos de la cabecera de panaderia. Sin esto son los de la
         // panaderia para la que se dibujo la plantilla ("Masa madre"), y un
