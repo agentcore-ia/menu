@@ -13672,12 +13672,16 @@ export default function MenuApp() {
                       : 'Pedido enviado'}
             </span>
             <h3>
-              {templateId === 'kika' || templateId === 'almendra'
+              {templateId === 'kika' || templateId === 'almendra' || lastOrder.status === 'por_aceptar'
                 ? `Pedido #${lastOrder.orderNumber} recibido`
                 : `Pedido #${lastOrder.orderNumber} confirmado`}
             </h3>
             <p>
-              {templateId === 'sabor-pampa'
+              {/* El local tiene que aceptarlo: la confirmacion con la demora le
+                  llega por WhatsApp cuando lo acepta. */}
+              {lastOrder.status === 'por_aceptar'
+                ? 'El local está revisando tu pedido. En unos minutos te confirmamos por WhatsApp con la demora.'
+                : templateId === 'sabor-pampa'
                 ? (presentation.theme?.modoKiosco
                     ? 'Ya recibimos tu pedido. Te avisamos por WhatsApp cuando esté listo.'
                     : marcaConfirmacionPropia
