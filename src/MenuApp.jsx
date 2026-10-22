@@ -7400,6 +7400,15 @@ function TemplateMenuCollection({
             </div>
           </article>
         ) : null}
+
+        {/* Un dibujo de la marca que cierra la carta (theme.ilustracion, una
+            direccion de imagen). Solo si el local lo cargo; va al final para no
+            empujar los productos hacia abajo. */}
+        {presentation?.theme?.ilustracion && !isSearchActive ? (
+          <div className="pizzeria-ilustracion" aria-hidden="true">
+            <img src={presentation.theme.ilustracion} alt="" loading="lazy" decoding="async" />
+          </div>
+        ) : null}
       </>
     )
   }

@@ -22040,3 +22040,17 @@ button.gelato-adicional-salsa {
     animation: none;
   }
 }
+
+
+/* El dibujo de la marca al final de la carta de una pizzeria (theme.ilustracion). */
+.pizzeria-ilustracion {
+  display: grid;
+  place-items: center;
+  padding: 26px 16px 44px;
+}
+
+.pizzeria-ilustracion img {
+  width: min(74%, 280px);
+  height: auto;
+  opacity: 0.95;
+}
