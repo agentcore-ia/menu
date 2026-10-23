@@ -265,14 +265,6 @@ function IconLeafMark() {
   )
 }
 
-function IconStar() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  )
-}
-
 function IconServe() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -6038,7 +6030,6 @@ function TemplateMenuCollection({
   esFavorito = () => false,
   alternarFavorito = () => {},
 }) {
-  const [dailyMenuFilter, setDailyMenuFilter] = useState('all')
   const [activeFeaturedIndex, setActiveFeaturedIndex] = useState(0)
   if (templateId === 'panaderia') {
     // Destacados: los que tienen FOTO propia.
@@ -6596,16 +6587,10 @@ function TemplateMenuCollection({
         categoryLabel: item.categoryLabel ?? category.label,
       }))
     const dailyMenuCategories = orderedCategories.filter((category) => isDailyMenuCategory(category))
-    let dailyMenuItems = dailyMenuCategories.flatMap(cat => getItemsWithCategoryLabel(cat))
+    // Sin los botones "Menu gourmet / saludable / especial" (se sacaron a
+    // pedido de Sabor a Pampa): el menu del dia se muestra entero.
+    const dailyMenuItems = dailyMenuCategories.flatMap(cat => getItemsWithCategoryLabel(cat))
     const hasAnyDailyMenuItems = dailyMenuItems.length > 0
-    
-    if (dailyMenuFilter !== 'all') {
-      dailyMenuItems = dailyMenuItems.filter(item => {
-        const catLabel = slugify(item.categoryLabel ?? '')
-        const badge = slugify(item.badge ?? '')
-        return catLabel.includes(dailyMenuFilter) || badge.includes(dailyMenuFilter)
-      })
-    }
 
     const selectedCategoryItems = selectedCategory ? getItemsWithCategoryLabel(selectedCategory) : []
     const homeCategorySections = orderedCategories
@@ -6782,35 +6767,6 @@ function TemplateMenuCollection({
               <h2>{featuredTitle}</h2>
               <span aria-hidden="true" />
             </div>
-
-            {hasAnyDailyMenuItems && (
-              <div className="pampa-daily-filter-row">
-                <button
-                  type="button"
-                  className={`pampa-daily-filter-pill ${dailyMenuFilter === 'gourmet' ? 'active' : ''}`}
-                  onClick={() => setDailyMenuFilter(dailyMenuFilter === 'gourmet' ? 'all' : 'gourmet')}
-                >
-                  <IconChefHat />
-                  <span>Menú gourmet</span>
-                </button>
-                <button
-                  type="button"
-                  className={`pampa-daily-filter-pill ${dailyMenuFilter === 'saludable' ? 'active' : ''}`}
-                  onClick={() => setDailyMenuFilter(dailyMenuFilter === 'saludable' ? 'all' : 'saludable')}
-                >
-                  <IconLeafMark />
-                  <span>Menú saludable</span>
-                </button>
-                <button
-                  type="button"
-                  className={`pampa-daily-filter-pill ${dailyMenuFilter === 'especial' ? 'active' : ''}`}
-                  onClick={() => setDailyMenuFilter(dailyMenuFilter === 'especial' ? 'all' : 'especial')}
-                >
-                  <IconStar />
-                  <span>Menú especial</span>
-                </button>
-              </div>
-            )}
 
             <div 
               className="pampa-featured-row"
