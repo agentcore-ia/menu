@@ -221,6 +221,26 @@
       "has": [
         {
           "type": "host",
+          "value": "deliverykiosco.capta.ar"
+        }
+      ],
+      "destination": "/delivery-de-kiosco.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "deliverykiosco.menu.net.ar"
+        }
+      ],
+      "destination": "/delivery-de-kiosco.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "kiosco9.menu.net.ar"
         }
       ],

@@ -951,9 +951,16 @@ function IconPlay() {
   )
 }
 
+// Dominios propios de una cuenta (fuera de menu.net.ar): el dominio ES la cuenta.
+const CUENTA_POR_DOMINIO = {
+  'deliverykiosco.capta.ar': 'delivery-de-kiosco',
+}
+
 function getInitialAccountId() {
   const hostname = window.location.hostname.toLowerCase()
   const domainSuffix = '.menu.net.ar'
+
+  if (CUENTA_POR_DOMINIO[hostname]) return CUENTA_POR_DOMINIO[hostname]
 
   if (hostname.endsWith(domainSuffix)) {
     const subdomain = hostname.slice(0, -domainSuffix.length).split('.').filter(Boolean).at(-1)
@@ -1013,6 +1020,7 @@ function normalizeAccountAlias(accountId) {
   if (key === 'copetinsandwich') return 'copetin-sandwich'
   if (key === 'elcopetinensandwich') return 'copetin-sandwich'
   if (key === 'kiosco9') return 'kiosco-9-de-julio'
+  if (key === 'deliverykiosco') return 'delivery-de-kiosco'
   if (key === 'puntowaffle') return 'punto-waffle'
   if (key === 'todoempanadas') return 'todo-empanadas'
   if (key === 'yohelados') return 'yo-helados'
