@@ -22285,3 +22285,46 @@ button.gelato-adicional-salsa {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Boton para volver arriba (theme.botonSubir). Va a la derecha, encima de la
+   barra "Ver mi pedido", alineado con su borde.
+   --------------------------------------------------------------------------- */
+.boton-subir {
+  position: fixed;
+  right: max(0.9rem, calc((100% - 26rem) / 2 + 0.5rem));
+  bottom: calc(8.4rem + env(safe-area-inset-bottom));
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  padding: 0;
+  border: 1px solid rgba(23, 24, 28, 0.08);
+  border-radius: 50%;
+  background: #ffffff;
+  color: #17181c;
+  box-shadow: 0 0.4rem 1.1rem rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(0.6rem) scale(0.9);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.boton-subir.visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.boton-subir:active {
+  transform: scale(0.94);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boton-subir {
+    transition: none;
+  }
+}

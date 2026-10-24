@@ -8058,6 +8058,41 @@ function CaptaHeladeria({ gelatoFormats, gelatoSizeOptions, configHeladeria, onO
   )
 }
 
+/**
+ * Flecha para volver al principio de la carta. Aparece al bajar un buen rato y se
+ * prende por local (theme.botonSubir): en una carta de cientos de productos, como la
+ * de un kiosco, volver a las categorias a mano es una paliza.
+ */
+function BotonSubir() {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const alScrollear = () => setVisible(window.scrollY > 700)
+    alScrollear()
+    window.addEventListener('scroll', alScrollear, { passive: true })
+    return () => window.removeEventListener('scroll', alScrollear)
+  }, [])
+
+  const subir = () => {
+    const sinAnimacion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    window.scrollTo({ top: 0, behavior: sinAnimacion ? 'auto' : 'smooth' })
+  }
+
+  return (
+    <button
+      type="button"
+      className={`boton-subir${visible ? ' visible' : ''}`}
+      onClick={subir}
+      aria-label="Volver arriba"
+      tabIndex={visible ? 0 : -1}
+    >
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </button>
+  )
+}
+
 function CaptaCabecera({ nombre, logo, portada, ficha, conVolver = true, abierto, estadoTexto, envioTexto, orderCount, onOpenSocial, onOpenCart }) {
   const inicial = String(nombre || '?').trim().charAt(0).toUpperCase()
   const datos = [ficha?.categoriaNombre, ficha?.tiempo, envioTexto].filter(Boolean)
@@ -11193,6 +11228,14 @@ export default function MenuApp() {
                 </div>
               </button>
             </footer>
+          ) : null}
+
+          {presentacionDelLocal.theme?.botonSubir === true &&
+          !selectedDish &&
+          !isCartOpen &&
+          !isCheckoutOpen &&
+          !gelatoBuilderOpen ? (
+            <BotonSubir />
           ) : null}
 
           <SocialMenuDrawer
