@@ -241,6 +241,26 @@
       "has": [
         {
           "type": "host",
+          "value": "ambrosia.capta.ar"
+        }
+      ],
+      "destination": "/ambrosia.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "ambrosia.menu.net.ar"
+        }
+      ],
+      "destination": "/ambrosia.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "kiosco9.menu.net.ar"
         }
       ],

@@ -954,6 +954,7 @@ function IconPlay() {
 // Dominios propios de una cuenta (fuera de menu.net.ar): el dominio ES la cuenta.
 const CUENTA_POR_DOMINIO = {
   'deliverykiosco.capta.ar': 'delivery-de-kiosco',
+  'ambrosia.capta.ar': 'ambrosia',
 }
 
 function getInitialAccountId() {
