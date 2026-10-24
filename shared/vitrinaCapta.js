@@ -17,6 +17,7 @@
  */
 const CATEGORIAS = [
   { id: 'comida', label: 'Casas de comida', singular: 'Casa de comida' },
+  { id: 'restobar', label: 'Resto bares', singular: 'Resto bar' },
   { id: 'hamburgueseria', label: 'Hamburgueserías', singular: 'Hamburguesería' },
   { id: 'pizzeria', label: 'Pizzerías', singular: 'Pizzería' },
   { id: 'rotiseria', label: 'Rotiserías', singular: 'Rotisería' },
@@ -39,6 +40,7 @@ const CATEGORIAS = [
  */
 const GRUPOS = [
   { id: 'comida', label: 'Comida', categorias: ['comida', 'hamburgueseria', 'pizzeria', 'rotiseria', 'cafeteria'], fondo: '#fdebde', circulo: '#fde9d9' },
+  { id: 'restobar', label: 'Resto bar', categorias: ['restobar'], fondo: '#fbecd0', circulo: '#fdf0d6' },
   { id: 'super', label: 'Súper', categorias: ['super', 'dietetica'], fondo: '#fde8d4', circulo: '#e5f2e1', mandado: 'El supermercado más cercano' },
   { id: 'helados', label: 'Helados', categorias: ['heladeria'], fondo: '#fbdfd6', circulo: '#fde3e7' },
   { id: 'panaderia', label: 'Panadería', categorias: ['panaderia'], fondo: '#fce4c8', circulo: '#fdf0d9', mandado: 'La panadería más cercana' },
@@ -68,6 +70,9 @@ const POR_RUBRO = {
   rotiseria: 'rotiseria',
   pizzeria: 'pizzeria',
   hamburgueseria: 'hamburgueseria',
+  restobar: 'restobar',
+  'resto bar': 'restobar',
+  'resto-bar': 'restobar',
   comercio: 'kiosco',
   super: 'super',
   supermercado: 'super',

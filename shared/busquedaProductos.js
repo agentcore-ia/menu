@@ -32,6 +32,7 @@ export function palabrasDeLaBusqueda(q) {
  */
 export const PALABRAS_DEL_RUBRO = {
   comida: ['comida', 'almuerzo', 'cena', 'vianda'],
+  restobar: ['resto', 'restobar', 'bar', 'trago', 'cerveza', 'cena'],
   hamburgueseria: ['hamburguesa', 'burger', 'hamburgueseria'],
   pizzeria: ['pizza', 'pizzeria', 'empanada'],
   rotiseria: ['rotiseria', 'comida', 'pollo', 'vianda'],
