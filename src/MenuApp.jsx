@@ -3065,6 +3065,12 @@ function buildSelectionSummary(groups, selections) {
     .join(' | ')
 }
 
+// Lo que una opcion le cambia al precio. Puede restar: la milanesa Junior sale
+// $3.500 menos que la XL, que es el precio del producto.
+function formatearDiferencia(precio, currencySymbol) {
+  return precio < 0 ? `-${formatPrice(-precio, currencySymbol)}` : formatPrice(precio, currencySymbol)
+}
+
 function getOptionPrice(group, optionLabel) {
   const option = group.options.map(normalizeOptionEntry).find((entry) => entry.value === optionLabel)
 
@@ -12112,8 +12118,8 @@ export default function MenuApp() {
                               {option.subtitle && optionKind === 'drink' ? (
                                 <small className="host-option-subtitle">{option.subtitle}</small>
                               ) : null}
-                              {Number(option.price || 0) > 0 ? (
-                                <small>{formatPrice(Number(option.price || 0), currencySymbol)}</small>
+                              {Number(option.price || 0) !== 0 ? (
+                                <small>{formatearDiferencia(Number(option.price || 0), currencySymbol)}</small>
                               ) : null}
                               {isSelected ? <span className="host-option-check">✓</span> : null}
                             </button>
@@ -12257,9 +12263,9 @@ export default function MenuApp() {
                                     currencySymbol,
                                   )}
                                 </small>
-                              ) : Number(option.price || 0) > 0 ? (
+                              ) : Number(option.price || 0) !== 0 ? (
                                 <small className="option-price">
-                                  {formatPrice(Number(option.price || 0), currencySymbol)}
+                                  {formatearDiferencia(Number(option.price || 0), currencySymbol)}
                                 </small>
                               ) : null}
                             </button>
