@@ -1349,6 +1349,10 @@ function getLoadingTemplate(accountId) {
     return 'dallys'
   }
 
+  if (key.includes('ambrosia')) {
+    return 'ambrosia'
+  }
+
   if (key.includes('racing')) {
     return 'racing'
   }
@@ -5072,6 +5076,28 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menú</p>
 
             <div className="dallys-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'ambrosia') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-ambrosia">
+          <div className="ambrosia-loading" role="status" aria-live="polite" aria-label="Cargando menu de Ambrosia">
+            {/* Repite la cabecera del menu: banda verde con la curva abajo y el
+                logo en su version clara (aro y letras blancos). */}
+            <div className="ambrosia-loading-banda">
+              <img src="/ambrosia/logo-claro.webp" alt="Ambrosia" width="500" height="500" />
+            </div>
+
+            <p>Cargando menú</p>
+
+            <div className="ambrosia-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>
