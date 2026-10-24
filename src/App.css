@@ -22202,3 +22202,86 @@ button.gelato-adicional-salsa {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Pantalla de carga de Delivery de Kiosco: su logo (rojo anaranjado) latiendo
+   sobre el color de la marca. Aparte de la de Kiosco 9 de Julio, que es otra cuenta.
+   --------------------------------------------------------------------------- */
+.loading-delivery-kiosco {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #fd393b;
+}
+
+.loading-delivery-kiosco::before,
+.loading-delivery-kiosco::after {
+  display: none;
+}
+
+.dk-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6rem;
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.dk-loading img {
+  width: min(58%, 12rem);
+  aspect-ratio: 1 / 1;
+  height: auto;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 0.6rem 2rem rgba(0, 0, 0, 0.25);
+  animation: dk-loading-latir 1.9s ease-in-out infinite;
+}
+
+.dk-loading p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+  text-transform: uppercase;
+}
+
+.dk-loading-progress {
+  width: min(100%, 8.5rem);
+  height: 0.28rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.dk-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: #ffffff;
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@keyframes dk-loading-latir {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dk-loading img,
+  .dk-loading-progress span {
+    animation: none;
+  }
+}

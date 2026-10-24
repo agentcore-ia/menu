@@ -1059,6 +1059,7 @@ function getAccountFaviconHref(accountId) {
     ['ipplis', '/ipplis/icono-192.png'],
     ['dallys', '/dallys/icono-192.png'],
     ['ambrosia', '/ambrosia/icono-192.png'],
+    ['delivery-de-kiosco', '/delivery-de-kiosco/icono-192.png'],
     ['kiosco-9', '/kiosco-9-de-julio/icono-192.png'],
     ['waffle', '/punto-waffle/icono-192.png'],
     ['fratello', '/fratello/icono-192.png'],
@@ -1106,6 +1107,7 @@ function getAccountAppleTouchIconHref(accountId) {
     ['ipplis', '/ipplis/apple-touch-icon.png'],
     ['dallys', '/dallys/apple-touch-icon.png'],
     ['ambrosia', '/ambrosia/apple-touch-icon.png'],
+    ['delivery-de-kiosco', '/delivery-de-kiosco/apple-touch-icon.png'],
     ['kiosco-9', '/kiosco-9-de-julio/apple-touch-icon.png'],
     ['waffle', '/punto-waffle/apple-touch-icon.png'],
     ['fratello', '/fratello/apple-touch-icon.png'],
@@ -1282,6 +1284,10 @@ function getLoadingTemplate(accountId) {
 
   if (key.includes('sabor') && key.includes('pampa')) {
     return 'sabor-pampa'
+  }
+
+  if (key.includes('delivery-de-kiosco')) {
+    return 'delivery-de-kiosco'
   }
 
   if (key.includes('kiosco')) {
@@ -4958,6 +4964,24 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menú</p>
 
             <div className="argenta-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'delivery-de-kiosco') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-delivery-kiosco">
+          <div className="dk-loading" role="status" aria-live="polite" aria-label="Cargando catalogo de Delivery de Kiosco">
+            <img src="/delivery-de-kiosco/logo.webp" alt="Delivery de Kiosco" width="600" height="600" />
+
+            <p>Cargando productos</p>
+
+            <div className="dk-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>

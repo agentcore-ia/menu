@@ -49,6 +49,7 @@ export default defineConfig({
         ipplis: resolve(__dirname, 'ipplis.html'),
         dallys: resolve(__dirname, 'dallys.html'),
         ambrosia: resolve(__dirname, 'ambrosia.html'),
+        'delivery-de-kiosco': resolve(__dirname, 'delivery-de-kiosco.html'),
         panacea: resolve(__dirname, 'panacea.html'),
         racing: resolve(__dirname, 'racing.html'),
         boutiquecian: resolve(__dirname, 'boutique-cian.html'),
