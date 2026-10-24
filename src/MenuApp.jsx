@@ -8034,7 +8034,7 @@ function CaptaHeladeria({ gelatoFormats, gelatoSizeOptions, configHeladeria, onO
   )
 }
 
-function CaptaCabecera({ nombre, logo, portada, ficha, abierto, estadoTexto, envioTexto, orderCount, onOpenSocial, onOpenCart }) {
+function CaptaCabecera({ nombre, logo, portada, ficha, conVolver = true, abierto, estadoTexto, envioTexto, orderCount, onOpenSocial, onOpenCart }) {
   const inicial = String(nombre || '?').trim().charAt(0).toUpperCase()
   const datos = [ficha?.categoriaNombre, ficha?.tiempo, envioTexto].filter(Boolean)
 
@@ -8043,11 +8043,14 @@ function CaptaCabecera({ nombre, logo, portada, ficha, abierto, estadoTexto, env
       <div className="cu-portada" style={portada ? { backgroundImage: `url("${portada}")` } : undefined}>
         <div className="cu-portada-velo" />
         <div className="cu-barra">
-          <a className="cu-boton-redondo" href="/pedi" aria-label="Volver a Capta Delivery">
-            <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
-              <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
+          {/* El boton de volver lleva a la vitrina: solo tiene sentido si se vino de ella. */}
+          {conVolver ? (
+            <a className="cu-boton-redondo" href="/pedi" aria-label="Volver a Capta Delivery">
+              <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
+                <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+          ) : <span aria-hidden="true" />}
           <div className="cu-barra-derecha">
             <button type="button" className="cu-boton-redondo" aria-label="Redes del negocio" onClick={onOpenSocial}>
               <IconMenu />
@@ -8622,12 +8625,13 @@ export default function MenuApp() {
   }, [orderingNotice])
 
   // Desde la vitrina de Capta Delivery el menu se ve con la plantilla unificada
-  // (CaptaCabecera / CaptaCarta). Entrando directo al link no pasa nada de esto.
+  // (CaptaCabecera / CaptaCarta). Entrando directo al link no pasa nada de esto,
+  // salvo que el local lo pida (theme.plantillaCapta): ahi se ve asi siempre.
   const [desdeCapta] = useState(vinoDeLaVitrina)
   const presentacionDelLocal = menu?.presentation ?? defaultPresentation
   const plantillaDelLocal = presentacionDelLocal.template ?? presentacionDelLocal.layout ?? 'editorial'
   const usaPlantillaCapta = Boolean(
-    desdeCapta
+    (desdeCapta || presentacionDelLocal.theme?.plantillaCapta === true)
     && menu
     && !PLANTILLAS_CON_FLUJO_PROPIO.includes(plantillaDelLocal)
     && !isHostLikeAccount(accountId, plantillaDelLocal),
@@ -10875,6 +10879,7 @@ export default function MenuApp() {
                   : '')
               }
               ficha={fichaCapta}
+              conVolver={desdeCapta}
               abierto={!orderingBlocked && !cerradoAhora}
               estadoTexto={
                 orderingBlocked || cerradoAhora
