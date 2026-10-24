@@ -48,6 +48,7 @@ export default defineConfig({
         troka: resolve(__dirname, 'troka.html'),
         ipplis: resolve(__dirname, 'ipplis.html'),
         dallys: resolve(__dirname, 'dallys.html'),
+        ambrosia: resolve(__dirname, 'ambrosia.html'),
         panacea: resolve(__dirname, 'panacea.html'),
         racing: resolve(__dirname, 'racing.html'),
         boutiquecian: resolve(__dirname, 'boutique-cian.html'),
