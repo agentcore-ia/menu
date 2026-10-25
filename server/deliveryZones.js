@@ -3,6 +3,8 @@ const EARTH_RADIUS_KM = 6371
 
 import { direccionDeGoogle, direccionDeNominatim, esElCentroPorDefecto, puntoValido } from '../shared/ubicacionCliente.js'
 import { nombreDeCalleDeEtiqueta, puertasDeLaCalle, ubicarAltura } from '../shared/alturaOverpass.js'
+import { CALIDAD_MANUAL, calleConNombre, claveDireccion, laMasCercana, partirCalleYAltura } from '../shared/direccionesAprendidas.js'
+import { getServerConfig } from './config.js'
 import {
   alturaDe,
   alturasVecinas,
@@ -539,6 +541,38 @@ function buildQuoteForCoordinates({ coordinates, settings, aproximada = false })
   }
 }
 
+// La direccion marcada a mano en el panel (o una de la misma cuadra). Null si
+// no hay o si no se puede consultar: ahi sigue la busqueda de siempre.
+async function buscarDireccionAprendida(address, city) {
+  const dir = String(address || '').trim()
+  if (dir.length < 4) return null
+  const config = getServerConfig()
+  const key = config.supabaseWriteApiKey || config.supabaseApiKey
+  if (!config.supabaseUrl || !key) return null
+  const pedir = async (filtro) => {
+    const url = `${config.supabaseUrl}/rest/v1/geocodificaciones?select=lat,lng,direccion,clave&calidad=eq.${CALIDAD_MANUAL}&${filtro}`
+    const res = await fetch(url, { headers: { apikey: key, Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(4000) })
+    if (!res.ok) return []
+    const filas = await res.json().catch(() => [])
+    return Array.isArray(filas) ? filas.filter((f) => f && f.lat !== null && f.lng !== null) : []
+  }
+  try {
+    const [exacta] = await pedir(`clave=eq.${encodeURIComponent(claveDireccion(dir, city))}&limit=1`)
+    if (exacta) return { lat: Number(exacta.lat), lng: Number(exacta.lng), direccion: String(exacta.direccion || dir), exacta: true }
+
+    const { calle, altura } = partirCalleYAltura(dir)
+    if (altura === null || !calleConNombre(calle)) return null
+    const ciudadClave = claveDireccion('', city)
+    const patron = ciudadClave ? `${calle} *|${ciudadClave}` : `${calle} *`
+    const deLaCalle = (await pedir(`clave=like.${encodeURIComponent(patron)}&limit=50`))
+      .filter((f) => (ciudadClave ? true : !String(f.clave).includes('|')) && partirCalleYAltura(String(f.direccion || '')).calle === calle)
+    const cercana = laMasCercana(deLaCalle, altura)
+    return cercana ? { lat: Number(cercana.lat), lng: Number(cercana.lng), direccion: String(cercana.direccion), exacta: false } : null
+  } catch {
+    return null
+  }
+}
+
 export async function resolveDeliveryQuote({
   horarios,
   fallbackFee,
@@ -573,6 +607,13 @@ export async function resolveDeliveryQuote({
 
   if (selectedCoordinates) {
     return buildQuoteForCoordinates({ coordinates: selectedCoordinates, settings })
+  }
+
+  // Una calle que ningun mapa conoce y el local ya marco en el panel.
+  const aprendida = await buscarDireccionAprendida(address, city)
+  if (aprendida) {
+    const punto = normalizeCoordinates({ lat: aprendida.lat, lng: aprendida.lng, label: address })
+    if (punto) return { ...buildQuoteForCoordinates({ coordinates: punto, settings }), aprendida }
   }
 
   const candidates = await geocodeDeliveryCandidates({
