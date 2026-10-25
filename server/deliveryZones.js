@@ -422,7 +422,10 @@ async function buscarEnMapbox(queryLabel, origin) {
 
 export async function geocodeDeliveryCandidates(input) {
   const osm = await geocodeDeliveryCandidatesOsm(input)
-  if (osm.some(esPuertaDeMapa)) return osm
+  // Solo la puerta EXACTA evita preguntarle a Google: la "altura vecina" o la
+  // interpolada por la calle es una aproximacion y puede caer en otra zona
+  // (Padre Zacarias 1908: OpenStreetMap no tiene esa altura, Google si).
+  if (osm.some((c) => esPuertaDeMapa(c) && !String(c.engine || '').includes('altura'))) return osm
 
   const { address, neighborhood, city, province, originCoordinates } = input
   const tieneClave = Boolean(process.env.GOOGLE_MAPS_API_KEY || process.env.HERE_API_KEY || process.env.MAPBOX_TOKEN)
