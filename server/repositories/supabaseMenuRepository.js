@@ -687,8 +687,8 @@ export class SupabaseMenuRepository {
       }
       const ids = [...localPorId.keys()]
       const productos = ids.length
-        ? await this.request(
-            `/products?restaurant_id=in.(${ids.map((id) => `"${id}"`).join(',')})&available=eq.true&select=id,restaurant_id,name,description,price,category,image_url,aliases&limit=5000`,
+        ? await this.requestAll(
+            `/products?restaurant_id=in.(${ids.map((id) => `"${id}"`).join(',')})&available=eq.true&select=id,restaurant_id,name,description,price,category,image_url,aliases&order=id.asc`,
           )
         : []
       const vendibles = (Array.isArray(productos) ? productos : []).filter(
@@ -754,8 +754,11 @@ export class SupabaseMenuRepository {
   }
 
   async fetchProducts(restaurantId) {
-    return this.request(
-      `/products?restaurant_id=eq.${restaurantId}&available=eq.true&select=*&order=category.asc,name.asc`,
+    // De a paginas: la base corta en 1000 filas por consulta y un local con mas productos (Moli
+    // express: 2.830) mostraba solo los primeros 1000. El `id` final desempata para que las paginas no
+    // repitan ni se salteen filas.
+    return this.requestAll(
+      `/products?restaurant_id=eq.${restaurantId}&available=eq.true&select=*&order=category.asc,name.asc,id.asc`,
     )
   }
 
@@ -1180,6 +1183,18 @@ export class SupabaseMenuRepository {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
+  }
+
+  /** Como request(), pero trae TODAS las filas pidiendo de a paginas de 1000 (el maximo de la base). */
+  async requestAll(path, pageSize = 1000, tope = 50000) {
+    const filas = []
+    for (let offset = 0; filas.length < tope; offset += pageSize) {
+      const lote = await this.request(`${path}&limit=${pageSize}&offset=${offset}`)
+      if (!Array.isArray(lote)) return lote
+      filas.push(...lote)
+      if (lote.length < pageSize) break
+    }
+    return filas
   }
 
   async request(path) {
