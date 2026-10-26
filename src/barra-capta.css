@@ -59,17 +59,39 @@
   text-align: center;
 }
 
-/* Con la barra puesta, lo que iba pegado abajo sube para no taparla. */
-body.cb-activo .order-bar {
-  bottom: calc(var(--cb-alto) + 0.7rem + env(safe-area-inset-bottom)) !important;
+/* Con la barra puesta, lo que iba pegado abajo sube para no taparla.
+ *
+ * Arriba de la barra sobresale el "bulto" del centro (el boton "Mis puntos"): 31px mas. "Ver mi pedido"
+ * tiene que apoyarse POR ENCIMA de eso, no de la barra a secas (se montaba sobre el boton), y el boton
+ * de volver arriba y el aviso de "agregado" siguen subiendo con "Ver mi pedido".
+ *   --cb-sobre: lo que ocupa la barra con su bulto (70px de la barra + 3.2rem) mas el respiro.
+ * En pantallas grandes la barra es una pastilla a 16px del borde: se suman esos 16px. */
+:root {
+  --cb-sobre: calc(var(--cb-alto) + 3.2rem);
+  --cb-pastilla: 0px;
 }
 
+@media (min-width: 820px) {
+  :root {
+    --cb-pastilla: 16px;
+  }
+}
+
+body.cb-activo .order-bar {
+  bottom: calc(var(--cb-sobre) + var(--cb-pastilla) + env(safe-area-inset-bottom)) !important;
+}
+
+/* "Ver mi pedido" mide ~84px: el aviso y la flecha para volver arriba quedan encima de el. */
 body.cb-activo .cart-added-toast {
-  bottom: calc(var(--cb-alto) + 6.2rem + env(safe-area-inset-bottom)) !important;
+  bottom: calc(var(--cb-sobre) + var(--cb-pastilla) + 5.5rem + env(safe-area-inset-bottom)) !important;
+}
+
+body.cb-activo .boton-subir {
+  bottom: calc(var(--cb-sobre) + var(--cb-pastilla) + 5.9rem + env(safe-area-inset-bottom));
 }
 
 body.cb-activo .content-panel {
-  padding-bottom: calc(var(--cb-alto) + 8rem);
+  padding-bottom: calc(var(--cb-alto) + 10.5rem);
 }
 
 /* La flecha de la cabecera y esta barra ya llevan a la vitrina. */
