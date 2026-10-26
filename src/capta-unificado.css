@@ -397,6 +397,23 @@
   bottom: -6px;
 }
 
+.cu-ver-mas {
+  display: block;
+  width: 100%;
+  margin: 2px 0 10px;
+  padding: 13px 14px;
+  border: 1px solid var(--cu-borde);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--cu-naranja);
+  font: 800 14px / 1.2 'Manrope', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.cu-ver-mas:active {
+  background: #fff4ef;
+}
+
 .cu-vacio {
   margin: 28px 16px;
   text-align: center;

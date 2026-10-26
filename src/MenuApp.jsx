@@ -1022,6 +1022,7 @@ function normalizeAccountAlias(accountId) {
   if (key === 'elcopetinensandwich') return 'copetin-sandwich'
   if (key === 'kiosco9') return 'kiosco-9-de-julio'
   if (key === 'deliverykiosco') return 'delivery-de-kiosco'
+  if (key === 'moliexpress') return 'moli-express'
   if (key === 'puntowaffle') return 'punto-waffle'
   if (key === 'todoempanadas') return 'todo-empanadas'
   if (key === 'yohelados') return 'yo-helados'
@@ -1069,6 +1070,7 @@ function getAccountFaviconHref(accountId) {
     ['dallys', '/dallys/icono-192.png'],
     ['ambrosia', '/ambrosia/icono-192.png'],
     ['delivery-de-kiosco', '/delivery-de-kiosco/icono-192.png'],
+    ['moli-express', '/moli-express/icono-192.png'],
     ['kiosco-9', '/kiosco-9-de-julio/icono-192.png'],
     ['waffle', '/punto-waffle/icono-192.png'],
     ['fratello', '/fratello/icono-192.png'],
@@ -1117,6 +1119,7 @@ function getAccountAppleTouchIconHref(accountId) {
     ['dallys', '/dallys/apple-touch-icon.png'],
     ['ambrosia', '/ambrosia/apple-touch-icon.png'],
     ['delivery-de-kiosco', '/delivery-de-kiosco/apple-touch-icon.png'],
+    ['moli-express', '/moli-express/apple-touch-icon.png'],
     ['kiosco-9', '/kiosco-9-de-julio/apple-touch-icon.png'],
     ['waffle', '/punto-waffle/apple-touch-icon.png'],
     ['fratello', '/fratello/apple-touch-icon.png'],
@@ -1297,6 +1300,10 @@ function getLoadingTemplate(accountId) {
 
   if (key.includes('delivery-de-kiosco')) {
     return 'delivery-de-kiosco'
+  }
+
+  if (key.includes('moli-express')) {
+    return 'moli-express'
   }
 
   if (key.includes('kiosco')) {
@@ -4999,6 +5006,24 @@ function MenuLoadingScreen({ accountId }) {
     )
   }
 
+  if (loadingTemplate === 'moli-express') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-moli-express">
+          <div className="dk-loading" role="status" aria-live="polite" aria-label="Cargando catalogo de Moli express">
+            <img src="/moli-express/logo.webp" alt="Moli express" width="600" height="600" />
+
+            <p>Cargando productos</p>
+
+            <div className="dk-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (loadingTemplate === 'kiosco') {
     return (
       <div className="app-shell">
@@ -8180,6 +8205,12 @@ function CaptaFila({ item, onOpenDish, onAddItem, renderProductMedia }) {
   )
 }
 
+// Un catalogo muy grande (un almacen con miles de productos) no se dibuja entero de una vez: el celular
+// se traba. Pasado este total, cada categoria muestra los primeros y un boton para ver el resto.
+const CATALOGO_GRANDE = 300
+const FILAS_POR_CATEGORIA = 40
+const FILAS_EN_BUSQUEDA = 80
+
 function CaptaCarta({
   categories,
   bloqueSuperior = null,
@@ -8195,7 +8226,9 @@ function CaptaCarta({
   const secciones = categories.filter((c) => c?.items?.length)
   const [activa, setActiva] = useState(secciones[0]?.id ?? '')
   const [buscando, setBuscando] = useState(false)
+  const [abiertas, setAbiertas] = useState({})
   const fila = { onOpenDish, onAddItem, renderProductMedia }
+  const esGrande = secciones.reduce((total, c) => total + c.items.length, 0) > CATALOGO_GRANDE
 
   const irA = (id) => {
     setActiva(id)
@@ -8257,7 +8290,10 @@ function CaptaCarta({
         resultados.length ? (
           <section className="cu-seccion">
             <h2>Resultados</h2>
-            {resultados.map((item) => <CaptaFila key={item.id} item={item} {...fila} />)}
+            {(esGrande ? resultados.slice(0, FILAS_EN_BUSQUEDA) : resultados).map((item) => <CaptaFila key={item.id} item={item} {...fila} />)}
+            {esGrande && resultados.length > FILAS_EN_BUSQUEDA ? (
+              <p className="cu-vacio">Mostramos {FILAS_EN_BUSQUEDA} de {resultados.length}. Escribí más para afinar la búsqueda.</p>
+            ) : null}
           </section>
         ) : (
           <p className="cu-vacio">No encontramos nada con “{searchQuery}”.</p>
@@ -8266,7 +8302,14 @@ function CaptaCarta({
         secciones.map((c) => (
           <section key={c.id} id={`cu-cat-${c.id}`} className="cu-seccion">
             <h2>{c.label}</h2>
-            {c.items.map((item) => <CaptaFila key={item.id} item={item} {...fila} />)}
+            {(esGrande && !abiertas[c.id] ? c.items.slice(0, FILAS_POR_CATEGORIA) : c.items).map((item) => (
+              <CaptaFila key={item.id} item={item} {...fila} />
+            ))}
+            {esGrande && !abiertas[c.id] && c.items.length > FILAS_POR_CATEGORIA ? (
+              <button type="button" className="cu-ver-mas" onClick={() => setAbiertas((previo) => ({ ...previo, [c.id]: true }))}>
+                Ver los {c.items.length - FILAS_POR_CATEGORIA} productos restantes
+              </button>
+            ) : null}
           </section>
         ))
       )}

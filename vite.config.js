@@ -50,6 +50,7 @@ export default defineConfig({
         dallys: resolve(__dirname, 'dallys.html'),
         ambrosia: resolve(__dirname, 'ambrosia.html'),
         'delivery-de-kiosco': resolve(__dirname, 'delivery-de-kiosco.html'),
+        'moli-express': resolve(__dirname, 'moli-express.html'),
         panacea: resolve(__dirname, 'panacea.html'),
         racing: resolve(__dirname, 'racing.html'),
         boutiquecian: resolve(__dirname, 'boutique-cian.html'),

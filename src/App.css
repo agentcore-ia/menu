@@ -22207,6 +22207,18 @@ button.gelato-adicional-salsa {
    Pantalla de carga de Delivery de Kiosco: su logo (rojo anaranjado) latiendo
    sobre el color de la marca. Aparte de la de Kiosco 9 de Julio, que es otra cuenta.
    --------------------------------------------------------------------------- */
+.loading-moli-express {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #0e9f6e;
+}
+
+.loading-moli-express::before,
+.loading-moli-express::after {
+  display: none;
+}
+
 .loading-delivery-kiosco {
   display: grid;
   place-items: center;
