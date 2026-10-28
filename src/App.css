@@ -20635,6 +20635,20 @@ html:has(.menu-modo-kiosco) #root {
   height: 100%;
 }
 
+/* El logo del banner esta arriba a la izquierda: el boton del menu lo tapaba.
+   Los dos botones van juntos a la derecha y mas chicos. */
+.account-punto-waffle .hero-topbar {
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0;
+}
+
+.account-punto-waffle .hero-topbar .icon-button,
+.account-punto-waffle .hero-topbar .cart-button {
+  width: clamp(2.75rem, 11.5vw, 4.4rem);
+  height: clamp(2.75rem, 11.5vw, 4.4rem);
+}
+
 /* Bruder con la plantilla de Chicha: su portada (1536x1024) ya trae el logo y el
    mensaje, como la de Chicha, asi que entra completa y sin el texto ni la tira
    de beneficios de la plantilla. */
