@@ -20614,8 +20614,8 @@ html:has(.menu-modo-kiosco) #root {
   display: none;
 }
 
-/* Punto Waffle, como Chicha: el banner (1536x600) ya trae el logo arriba al
-   medio y las fotos abajo, entra completo y no lleva el texto de la plantilla. */
+/* Punto Waffle, como Chicha: el banner (1774x887) ya trae el logo y las fotos,
+   entra completo y no lleva el texto de la plantilla. */
 .account-punto-waffle .pampa-hero-copy,
 .account-punto-waffle .pampa-hero-placeholder::before {
   display: none;
@@ -20623,7 +20623,7 @@ html:has(.menu-modo-kiosco) #root {
 
 .account-punto-waffle .hero-sabor-pampa {
   height: auto;
-  aspect-ratio: 1536 / 600;
+  aspect-ratio: 1774 / 887;
   border-radius: 0;
 }
 
