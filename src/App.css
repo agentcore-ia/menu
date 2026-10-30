@@ -22354,3 +22354,83 @@ button.gelato-adicional-salsa {
     transition: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Pantalla de carga de Florian: su logo sobre fondo blanco (el logo trae el
+   blanco de fondo, asi no se ve ningun recorte) con una barra en el rojo de la marca.
+   --------------------------------------------------------------------------- */
+.loading-florian-logo {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #ffffff;
+}
+
+.loading-florian-logo::before,
+.loading-florian-logo::after {
+  display: none;
+}
+
+.fl-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.fl-loading img {
+  width: min(78%, 17rem);
+  aspect-ratio: 1 / 1;
+  height: auto;
+  animation: fl-loading-latir 1.9s ease-in-out infinite;
+}
+
+.fl-loading p {
+  margin: -2.4rem 0 0;
+  color: #ea5038;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  text-transform: uppercase;
+}
+
+.fl-loading-progress {
+  width: min(100%, 8.5rem);
+  height: 0.28rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: rgba(234, 80, 56, 0.18);
+}
+
+.fl-loading-progress span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: #ea5038;
+  animation: pampa-loading-progress 1.25s ease-in-out infinite;
+}
+
+@keyframes fl-loading-latir {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fl-loading img,
+  .fl-loading-progress span {
+    animation: none;
+  }
+}

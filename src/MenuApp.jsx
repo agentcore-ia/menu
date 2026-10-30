@@ -1070,6 +1070,7 @@ function getAccountFaviconHref(accountId) {
     ['dallys', '/dallys/icono-192.png'],
     ['ambrosia', '/ambrosia/icono-192.png'],
     ['delivery-de-kiosco', '/delivery-de-kiosco/icono-192.png'],
+    ['florian', '/florian/icono-192.png'],
     ['moli-express', '/moli-express/icono-192.png'],
     ['kiosco-9', '/kiosco-9-de-julio/icono-192.png'],
     ['waffle', '/punto-waffle/icono-192.png'],
@@ -1119,6 +1120,7 @@ function getAccountAppleTouchIconHref(accountId) {
     ['dallys', '/dallys/apple-touch-icon.png'],
     ['ambrosia', '/ambrosia/apple-touch-icon.png'],
     ['delivery-de-kiosco', '/delivery-de-kiosco/apple-touch-icon.png'],
+    ['florian', '/florian/apple-touch-icon.png'],
     ['moli-express', '/moli-express/apple-touch-icon.png'],
     ['kiosco-9', '/kiosco-9-de-julio/apple-touch-icon.png'],
     ['waffle', '/punto-waffle/apple-touch-icon.png'],
@@ -4980,6 +4982,24 @@ function MenuLoadingScreen({ accountId }) {
             <p>Cargando menú</p>
 
             <div className="argenta-loading-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadingTemplate === 'florian') {
+    return (
+      <div className="app-shell">
+        <div className="phone-surface menu-loading-screen loading-florian-logo">
+          <div className="fl-loading" role="status" aria-live="polite" aria-label="Cargando menu de Florian">
+            <img src="/florian/logo.png" alt="Florian, café de especialidad" width="512" height="512" />
+
+            <p>Cargando menú</p>
+
+            <div className="fl-loading-progress" aria-hidden="true">
               <span />
             </div>
           </div>
