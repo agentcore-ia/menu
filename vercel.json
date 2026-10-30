@@ -261,6 +261,16 @@
       "has": [
         {
           "type": "host",
+          "value": "florian.capta.ar"
+        }
+      ],
+      "destination": "/florian.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "ambrosia.menu.net.ar"
         }
       ],

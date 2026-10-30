@@ -955,6 +955,7 @@ function IconPlay() {
 const CUENTA_POR_DOMINIO = {
   'deliverykiosco.capta.ar': 'delivery-de-kiosco',
   'ambrosia.capta.ar': 'ambrosia',
+  'florian.capta.ar': 'florian',
 }
 
 function getInitialAccountId() {
