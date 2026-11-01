@@ -9425,6 +9425,9 @@ export default function MenuApp() {
       params.set('lng', String(form.coordinates.lng))
       params.set('confirmed', 'true')
       if (form.coordinates.label) params.set('label', String(form.coordinates.label))
+      // Una opcion de la lista que no es la puerta exacta trae su duda: el
+      // envio se cobra igual que como se mostro.
+      if (Number(form.coordinates.radio) > 0) params.set('radio', String(form.coordinates.radio))
     }
     const response = await fetch(
       `/api/accounts/${encodeURIComponent(accountId)}/delivery-zone?${params.toString()}`,
@@ -13235,6 +13238,16 @@ export default function MenuApp() {
                                 ? 'El pedido esta dentro del area de entrega.'
                                 : 'Si queda fuera de zona, podes elegir retiro por el local.'}
                             </span>
+                            {deliveryQuote?.allowed && deliveryQuote?.zonaDudosa && !ubicacionElegida ? (
+                              <span className="delivery-zone-duda">
+                                No encontramos tu altura exacta en el mapa: puede ser{' '}
+                                {(deliveryQuote.zonaDudosa.posibles || []).map((z) => z.name).join(' o ')}.{' '}
+                                <button type="button" onClick={() => setMapaUbicacion({ detectar: true })}>
+                                  Marcá tu puerta en el mapa
+                                </button>{' '}
+                                para pagar el envío justo.
+                              </span>
+                            ) : null}
                             {deliveryQuote?.needsConfirmation && Array.isArray(deliveryQuote.candidates) && deliveryQuote.candidates.length > 0 ? (
                               <div className="delivery-address-options">
                                 {deliveryQuote.candidates.map((candidate) => (

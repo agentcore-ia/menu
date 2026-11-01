@@ -3,8 +3,14 @@
 //
 //   node --test shared/alturaOverpass.test.mjs
 
-/** Cuantos numeros mas alla de la ultima puerta se sigue la calle. */
-const MAX_EXTRAPOLACION = 400
+/**
+ * Cuantos numeros mas alla de la ultima puerta se sigue la calle. Eran 400:
+ * cuatro cuadras siguiendo una recta caian en cualquier lado si la calle dobla.
+ */
+const MAX_EXTRAPOLACION = 250
+
+// `brecha`: cuantos numeros hay entre las puertas usadas (o hasta la ultima).
+// Mide la duda del punto (shared/precisionDireccion.js).
 
 export function ubicarAltura(altura, puertas) {
   const validas = (puertas || []).filter(
@@ -26,7 +32,7 @@ export function ubicarAltura(altura, puertas) {
     .sort((a, b) => a.n - b.n)
 
   const exacta = puntos.find((p) => p.n === altura)
-  if (exacta) return { lat: exacta.lat, lng: exacta.lng, tipo: 'exacta' }
+  if (exacta) return { lat: exacta.lat, lng: exacta.lng, tipo: 'exacta', brecha: 0 }
 
   const debajo = [...puntos].reverse().find((p) => p.n < altura)
   const encima = puntos.find((p) => p.n > altura)
@@ -37,6 +43,7 @@ export function ubicarAltura(altura, puertas) {
       lat: debajo.lat + (encima.lat - debajo.lat) * t,
       lng: debajo.lng + (encima.lng - debajo.lng) * t,
       tipo: 'interpolada',
+      brecha: encima.n - debajo.n,
     }
   }
 
@@ -50,6 +57,7 @@ export function ubicarAltura(altura, puertas) {
     lat: extremo.lat + (extremo.lat - referencia.lat) * k,
     lng: extremo.lng + (extremo.lng - referencia.lng) * k,
     tipo: 'extrapolada',
+    brecha: Math.abs(altura - extremo.n),
   }
 }
 
