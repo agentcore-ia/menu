@@ -6,7 +6,15 @@ import { nombreDeCalleDeEtiqueta, puertasDeLaCalle, ubicarAltura } from '../shar
 import { CALIDAD_MANUAL, calleConNombre, claveDireccion, laMasCercana, partirCalleYAltura } from '../shared/direccionesAprendidas.js'
 import { getServerConfig } from './config.js'
 import {
-  alturaDe,
+  RADIO_CALLE_M,
+  alturaEscrita,
+  avisoDeZonaDudosa,
+  radioDeAlturaUbicada,
+  radioPorDiferencia,
+  verificarPuertas,
+  zonaConDuda,
+} from '../shared/precisionDireccion.js'
+import {
   alturasVecinas,
   conLaAltura,
   direccionConAltura,
@@ -111,10 +119,14 @@ function normalizeCoordinates(value) {
     return null
   }
 
+  // `radio`: metros de duda del punto (shared/precisionDireccion.js). Viaja con
+  // la opcion que elige el cliente, asi el pedido se cobra con la misma duda.
+  const radio = Number(value?.radio)
   return {
     lat,
     lng,
     label: value?.label || '',
+    ...(Number.isFinite(radio) && radio > 0 ? { radio: Math.round(radio) } : {}),
   }
 }
 
@@ -134,6 +146,8 @@ function mapGeocodeCandidate(result, fallbackLabel) {
     label: coordinates.label,
     // "house" es una puerta; "residential" es la calle entera.
     calidad: String(result?.type || result?.class || ''),
+    // El numero de esa puerta, para compararlo con el que escribio el cliente.
+    numero: result?.address?.house_number ?? null,
   }
 }
 
@@ -173,6 +187,9 @@ async function buscarEnPhoton(texto, origin, limit) {
         label,
         engine: 'photon',
         calidad: pr.housenumber ? 'house' : String(pr.osm_value || 'street'),
+        // Photon contesta con la puerta mas parecida que tenga, aunque sea otro
+        // numero ("Padre Zacarias 1400" -> la 400): se compara con lo escrito.
+        numero: pr.housenumber ? String(pr.housenumber) : null,
         distanceKm: origin ? getDistanceKm({ lat: Number(lat), lng: Number(lng) }, origin) : null,
       }
     })
@@ -244,25 +261,35 @@ async function geocodeDeliveryCandidatesOsm({ address, neighborhood, city, provi
       .sort((a, b) => (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY))
   }
 
-  const exactos = await buscarEnNominatim(queryLabel)
+  // Las puertas de OTRA altura se descartan y las de la misma cuadra quedan
+  // como aproximadas, cada una con su radio de duda.
+  const crudos = await buscarEnNominatim(queryLabel)
+  const exactos = verificarPuertas(crudos, address)
 
   // Con una puerta encontrada, solo las que nombran la calle que escribio el
   // cliente: "jose leon suarez 927" mostraba tambien "Acceso Eva Duarte de
   // Peron" y le pedia que eligiera.
   const delaCalle = soloLaCalleEscrita(exactos, address)
-  if (delaCalle.some((c) => esPuerta(c.calidad))) {
+  if (delaCalle.some((c) => esPuerta(c.calidad) && c.precision === 'exacta')) {
     return delaCalle
   }
+  // Puertas de la misma cuadra (950 por 955): sirven, pero antes se prueba si
+  // las puertas de la calle dan un punto mas seguro.
+  const cercanas = delaCalle.filter((c) => esPuerta(c.calidad))
+  const dudaCercanas = cercanas.length ? Math.min(...cercanas.map((c) => c.radioM)) : Number.POSITIVE_INFINITY
 
   // El mapa no tiene ESA altura (OpenStreetMap carga solo algunas puertas de
   // cada calle) y devuelve la calle entera, con un punto en el medio que puede
   // caer en otra zona de envio. Se usa la puerta vecina mas cercana y se
   // conserva la altura que escribio el cliente.
-  const altura = alturaDe(address)
+  const altura = alturaEscrita(address)
   if (altura) {
     // Primero, las puertas conocidas de ESA calle (una sola consulta): la 1600
     // cae entre la 1550 y la 1650, o siguiendo la calle mas alla de la ultima.
+    // Una puerta descartada (la 400 por la 1400) igual dice que la calle existe
+    // y donde esta: sirve para traer sus puertas.
     const tramo = delaCalle.find((c) => Number.isFinite(c.lat))
+      || soloLaCalleEscrita(crudos, address).find((c) => Number.isFinite(c.lat) && coincideConLoEscrito(c.label, address))
     const nombreCalle = tramo ? nombreDeCalleDeEtiqueta(tramo.label) : null
     // En una calle numerada ("Calle 88 275") el 88 es parte del nombre: si el
     // tramo que devolvio el mapa es otra ("Calle 94"), sus puertas no valen.
@@ -272,6 +299,8 @@ async function geocodeDeliveryCandidatesOsm({ address, neighborhood, city, provi
       const puertas = await puertasDeLaCalle(nombreCalle, { lat: tramo.lat, lng: tramo.lng })
       const punto = ubicarAltura(altura, puertas)
       if (punto) {
+        const radioM = radioDeAlturaUbicada(punto.tipo, punto.brecha)
+        if (radioM >= dudaCercanas) return cercanas
         return [{
           id: `${punto.lat},${punto.lng}`,
           lat: punto.lat,
@@ -280,9 +309,12 @@ async function geocodeDeliveryCandidatesOsm({ address, neighborhood, city, provi
           engine: 'overpass-altura',
           calidad: 'house',
           distanceKm: origin ? getDistanceKm(punto, origin) : null,
+          radioM,
+          precision: punto.tipo,
         }]
       }
     }
+    if (cercanas.length) return cercanas
     for (const oleada of alturasVecinas(altura)) {
       const hallados = await Promise.all(
         oleada.slice(0, 2).map(async (vecina) => {
@@ -291,7 +323,10 @@ async function geocodeDeliveryCandidatesOsm({ address, neighborhood, city, provi
             .filter(Boolean)
             .join(', ')
           const lista = await buscarEnNominatim(texto).catch(() => [])
-          return { vecina, lista: soloLaCalleEscrita(lista.filter((c) => esPuerta(c.calidad)), address) }
+          // La vecina tiene que ser ESA vecina: el buscador tambien puede contestar con otra puerta.
+          const deEsaAltura = verificarPuertas(lista, direccionConAltura(String(address || '').trim(), altura, vecina))
+            .filter((c) => esPuerta(c.calidad) && c.precision === 'exacta')
+          return { vecina, lista: soloLaCalleEscrita(deEsaAltura, address) }
         }),
       )
       const conResultado = hallados
@@ -303,12 +338,14 @@ async function geocodeDeliveryCandidatesOsm({ address, neighborhood, city, provi
           ...c,
           label: conLaAltura(c.label, mejor.vecina, altura),
           engine: 'nominatim-altura-cercana',
+          radioM: radioPorDiferencia(mejor.vecina - altura),
+          precision: 'cercana',
         }))
       }
     }
   }
 
-  return delaCalle
+  return cercanas.length ? cercanas : delaCalle
 }
 
 // Cuando OpenStreetMap no encuentra la puerta se prueba, en este orden, con los
@@ -340,13 +377,19 @@ async function buscarEnGoogle(queryLabel, address, origin) {
       if (/\d/.test(String(address)) && !/\d/.test(label)) return null
       const coords = normalizeCoordinates({ lat: location?.lat, lng: location?.lng, label })
       if (!coords) return null
+      // Google contesta la calle entera (GEOMETRIC_CENTER) o el pueblo
+      // (APPROXIMATE) cuando no tiene la altura: eso no es la puerta.
+      const numero = (r.address_components || []).find((c) => c.types?.includes('street_number'))?.long_name ?? null
+      const tipo = String(r.geometry?.location_type || '')
       return {
         id: String(r.place_id || `${coords.lat},${coords.lng}`),
         lat: coords.lat,
         lng: coords.lng,
         label: coords.label,
         engine: 'google',
-        calidad: 'house',
+        calidad: numero && (tipo === 'ROOFTOP' || tipo === 'RANGE_INTERPOLATED') ? 'house' : 'street',
+        numero,
+        interpolada: tipo === 'RANGE_INTERPOLATED',
         distanceKm: origin ? getDistanceKm(coords, origin) : null,
       }
     })
@@ -379,6 +422,8 @@ async function buscarEnHere(queryLabel, origin) {
         engine: 'here',
         // houseNumber = puerta (puntual o interpolada); street/locality = solo la calle o la zona.
         calidad: it?.resultType === 'houseNumber' ? 'house' : String(it?.resultType || 'street'),
+        numero: it?.address?.houseNumber ? String(it.address.houseNumber) : null,
+        interpolada: it?.houseNumberType === 'interpolated',
         distanceKm: origin ? getDistanceKm({ lat, lng }, origin) : null,
       }
     })
@@ -414,6 +459,12 @@ async function buscarEnMapbox(queryLabel, origin) {
         label: String(pr.full_address || pr.name || queryLabel),
         engine: 'mapbox',
         calidad: pr.feature_type === 'address' ? 'house' : String(pr.feature_type || 'street'),
+        // Mapbox, si no tiene esa altura, devuelve OTRA puerta de la calle
+        // (match_code "unmatched"): el numero real se compara con lo escrito.
+        numero: pr.context?.address?.address_number
+          ? String(pr.context.address.address_number)
+          : pr.address_number ? String(pr.address_number) : null,
+        interpolada: ['inferred', 'plausible'].includes(String(pr.match_code?.address_number || '')),
         distanceKm: origin ? getDistanceKm({ lat: Number(lat), lng: Number(lng) }, origin) : null,
       }
     })
@@ -421,11 +472,14 @@ async function buscarEnMapbox(queryLabel, origin) {
 }
 
 export async function geocodeDeliveryCandidates(input) {
-  const osm = await geocodeDeliveryCandidatesOsm(input)
+  // Lo que queda sin radio (la calle entera) se califica aca.
+  const osm = (await geocodeDeliveryCandidatesOsm(input)).map((c) =>
+    c.radioM === undefined ? verificarPuertas([c], input.address)[0] || c : c,
+  )
   // Solo la puerta EXACTA evita preguntarle a Google: la "altura vecina" o la
   // interpolada por la calle es una aproximacion y puede caer en otra zona
   // (Padre Zacarias 1908: OpenStreetMap no tiene esa altura, Google si).
-  if (osm.some((c) => esPuertaDeMapa(c) && !String(c.engine || '').includes('altura'))) return osm
+  if (osm.some((c) => esPuertaDeMapa(c) && c.precision === 'exacta' && !String(c.engine || '').includes('altura'))) return osm
 
   const { address, neighborhood, city, province, originCoordinates } = input
   const tieneClave = Boolean(process.env.GOOGLE_MAPS_API_KEY || process.env.HERE_API_KEY || process.env.MAPBOX_TOKEN)
@@ -437,21 +491,31 @@ export async function geocodeDeliveryCandidates(input) {
     .join(', ')
   const origin = normalizeCoordinates(originCoordinates)
 
+  // Si ninguno tiene la puerta exacta, gana la aproximacion con menos duda.
+  const duda = (lista) =>
+    lista.length ? Math.min(...lista.map((c) => (c.radioM === undefined ? Number.POSITIVE_INFINITY : c.radioM))) : Number.POSITIVE_INFINITY
+  let mejor = osm
   for (const buscar of [
     () => buscarEnGoogle(queryLabel, address, origin),
     () => buscarEnHere(queryLabel, origin),
     () => buscarEnMapbox(queryLabel, origin),
   ]) {
     try {
-      const lista = (await buscar()).filter((c) => coincideConLoEscrito(c.label, address)).sort(
-        (a, b) => (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY),
+      // Solo la calle escrita y solo con ESE numero: si el proveedor no tiene
+      // la altura, devuelve otra puerta de la calle.
+      const lista = verificarPuertas(
+        (await buscar()).filter((c) => coincideConLoEscrito(c.label, address)).sort(
+          (a, b) => (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY),
+        ),
+        address,
       )
-      if (lista.some(esPuertaDeMapa)) return lista
+      if (lista.some((c) => esPuertaDeMapa(c) && (c.precision === 'exacta' || c.precision === 'interpolada'))) return lista
+      if (duda(lista) < duda(mejor)) mejor = lista
     } catch (err) {
       console.warn('menu: proveedor de mapas fallo, se sigue con el siguiente', err)
     }
   }
-  return osm
+  return mejor
 }
 
 export async function geocodeDeliveryAddress(input) {
@@ -515,7 +579,21 @@ export async function reverseGeocodeDelivery(coordinates) {
 // barrio. La zona y el envio se calculan igual, pero ese punto no es donde vive
 // el cliente y no se guarda como su ubicacion.
 function buildQuoteForCoordinates({ coordinates, settings, aproximada = false }) {
-  const zone = findDeliveryZone(coordinates, settings.zones)
+  // Con duda (el punto no es la puerta exacta): si en el radio entran dos
+  // zonas se cobra la mas cara y se avisa (shared/precisionDireccion.js). El
+  // cliente que marca su puerta en el mapa paga la zona justa.
+  const radio = Number(coordinates?.radio) || 0
+  const conDuda = zonaConDuda(coordinates, radio, (p) => findDeliveryZone(p, settings.zones))
+  const zone = conDuda.zona
+  const zonaDudosa = conDuda.dudosa
+    ? {
+        posibles: conDuda.posibles.map((z) => ({ id: z.id, name: z.name, fee: z.fee })),
+        aviso: avisoDeZonaDudosa(conDuda.posibles, zone),
+      }
+    : null
+  // `aproximada` (no se guarda como la ubicacion del cliente) sigue siendo el
+  // pueblo, el barrio o el medio de la calle; un punto a una cuadra sirve igual.
+  aproximada = aproximada || radio >= RADIO_CALLE_M
 
   if (!zone) {
     return {
@@ -540,6 +618,7 @@ function buildQuoteForCoordinates({ coordinates, settings, aproximada = false })
     },
     coordinates,
     ...(aproximada ? { aproximada: true } : {}),
+    ...(zonaDudosa ? { zonaDudosa } : {}),
     message: `Zona de entrega: ${zone.name}.`,
   }
 }
@@ -615,7 +694,11 @@ export async function resolveDeliveryQuote({
   // Una calle que ningun mapa conoce y el local ya marco en el panel.
   const aprendida = await buscarDireccionAprendida(address, city)
   if (aprendida) {
-    const punto = normalizeCoordinates({ lat: aprendida.lat, lng: aprendida.lng, label: address })
+    // Marcada para otra altura de la cuadra: el punto tiene duda.
+    const diferencia = aprendida.exacta
+      ? 0
+      : Math.abs((alturaEscrita(aprendida.direccion) ?? 0) - (alturaEscrita(String(address || '')) ?? 0))
+    const punto = normalizeCoordinates({ lat: aprendida.lat, lng: aprendida.lng, label: address, radio: radioPorDiferencia(diferencia) })
     if (punto) return { ...buildQuoteForCoordinates({ coordinates: punto, settings }), aprendida }
   }
 
@@ -642,17 +725,22 @@ export async function resolveDeliveryQuote({
   }
 
   const candidatesWithZones = candidates.map((candidate) => {
-    const zone = findDeliveryZone(candidate, settings.zones)
+    // El radio de duda viaja con el punto: si el cliente elige esta opcion, el
+    // pedido se cobra con la misma duda.
+    const radio = Math.max(0, Math.round(Number(candidate.radioM) || 0))
+    const coordinates = { lat: candidate.lat, lng: candidate.lng, label: candidate.label, ...(radio > 0 ? { radio } : {}) }
+    const conDuda = zonaConDuda(coordinates, radio, (p) => findDeliveryZone(p, settings.zones))
+    const zone = conDuda.zona
     return {
       id: candidate.id,
       label: candidate.label,
       distanceKm: candidate.distanceKm,
       engine: candidate.engine || 'unknown',
-      coordinates: {
-        lat: candidate.lat,
-        lng: candidate.lng,
-        label: candidate.label,
-      },
+      coordinates,
+      aproximada: radio >= RADIO_CALLE_M || esPuntoAproximado(candidate.calidad),
+      zonaDudosa: conDuda.dudosa
+        ? { posibles: conDuda.posibles.map((z) => ({ id: z.id, name: z.name, fee: z.fee })), aviso: avisoDeZonaDudosa(conDuda.posibles, zone) }
+        : null,
       allowed: Boolean(zone),
       fee: zone?.fee ?? 0,
       zone: zone
@@ -673,7 +761,7 @@ export async function resolveDeliveryQuote({
   if (!confirmed && (candidatesWithZones.length === 1 || (todasPermitidas && mismoEnvio))) {
     return {
       ...buildQuoteForCoordinates({
-        coordinates: candidates[0],
+        coordinates: candidatesWithZones[0].coordinates,
         settings,
         aproximada: esPuntoAproximado(candidates[0].calidad),
       }),
@@ -696,7 +784,7 @@ export async function resolveDeliveryQuote({
   }
 
   return buildQuoteForCoordinates({
-    coordinates: candidates[0],
+    coordinates: candidatesWithZones[0].coordinates,
     settings,
     aproximada: esPuntoAproximado(candidates[0].calidad),
   })

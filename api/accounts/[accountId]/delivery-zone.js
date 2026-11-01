@@ -63,6 +63,7 @@ export default async function handler(req, res) {
               lat: req.query.lat,
               lng: req.query.lng,
               label: req.query.label,
+              radio: req.query.radio,
             }
           : null,
     })

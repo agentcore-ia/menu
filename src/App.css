@@ -6196,6 +6196,25 @@ html.menu-pantalla-encima body {
   border: 1px solid rgba(153, 27, 27, 0.16);
 }
 
+/* No se encontro la altura exacta: se cobra la zona mas cara y se invita a
+   marcar la puerta en el mapa para pagar la justa. */
+.delivery-zone-feedback .delivery-zone-duda {
+  opacity: 1;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.delivery-zone-duda button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .delivery-address-options {
   display: grid;
   gap: 0.55rem;

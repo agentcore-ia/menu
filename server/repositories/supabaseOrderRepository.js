@@ -394,7 +394,13 @@ export class SupabaseOrderRepository {
           // tiene que leer en la comanda.
           notes: resolvedTableName
             ? `Pedido de ${resolvedTableName}`
-            : [programado ? `PROGRAMADO PARA ${programado.texto.toUpperCase()}` : null, payload.notes || null]
+            : [
+                programado ? `PROGRAMADO PARA ${programado.texto.toUpperCase()}` : null,
+                // Dos zonas posibles (no se encontro la altura exacta): se cobro
+                // la mas cara y el local lo ve para bajarla si corresponde.
+                shouldChargeDelivery ? deliveryQuote?.zonaDudosa?.aviso || null : null,
+                payload.notes || null,
+              ]
                 .filter(Boolean)
                 .join(' · ') || null,
           // Programado: entra al local en su hora (el panel no muestra, no
