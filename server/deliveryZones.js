@@ -5,6 +5,7 @@ import { direccionDeGoogle, direccionDeNominatim, esElCentroPorDefecto, puntoVal
 import { nombreDeCalleDeEtiqueta, puertasDeLaCalle, ubicarAltura } from '../shared/alturaOverpass.js'
 import { CALIDAD_MANUAL, calleConNombre, claveDireccion, laMasCercana, partirCalleYAltura } from '../shared/direccionesAprendidas.js'
 import { getServerConfig } from './config.js'
+import { puntoDelLocal } from '../shared/ubicacionLocal.js'
 import {
   RADIO_CALLE_M,
   alturaEscrita,
@@ -87,7 +88,10 @@ export function findDeliveryZone(point, zones) {
 export function normalizeBusinessLocation(horarios) {
   const settings = horarios && typeof horarios === 'object' ? horarios._settings : null
   const location = settings?.businessLocation || {}
-  const coordinates = normalizeCoordinates(location)
+  // Solo un punto de Argentina (shared/ubicacionLocal.js): sin ubicacion cargada
+  // quedaba el (0,0), y Photon y Mapbox buscaban alrededor de ese punto del mar.
+  const punto = puntoDelLocal(location)
+  const coordinates = punto ? { ...punto, label: location.label || '' } : null
 
   return {
     province: String(location.province || '').trim(),
@@ -112,10 +116,15 @@ function getDistanceKm(a, b) {
 }
 
 function normalizeCoordinates(value) {
-  const lat = Number(value?.lat)
-  const lng = Number(value?.lng ?? value?.lon)
+  const rawLat = value?.lat
+  const rawLng = value?.lng ?? value?.lon
+  // null o "" NO son 0: Number(null) da 0 y el punto terminaba en el (0,0).
+  if (rawLat === null || rawLat === undefined || rawLat === '' || rawLng === null || rawLng === undefined || rawLng === '') return null
+  const lat = Number(rawLat)
+  const lng = Number(rawLng)
 
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+  // El (0,0) es el medio del Atlantico: nunca es una direccion.
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) {
     return null
   }
 
