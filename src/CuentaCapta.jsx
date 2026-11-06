@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { almacenDelNavegador, leerDatos } from '../shared/datosDelCliente.js'
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../shared/celular.js'
 import { celularLindo, guardarSesion, pedirCuenta } from './sesionCapta.js'
+import { leerInvitacion, registrarResultadoDeInvitacion } from './invitacionCapta.js'
 
 function Icono({ nombre }) {
   return (
@@ -63,9 +64,11 @@ export function Ingresar({ onListo, titulo = 'Entrá con tu celular' }) {
     setError('')
     setTrabajando(true)
     try {
-      const datos = await pedirCuenta('POST', { accion: 'verificar', telefono: celular, codigo: limpio })
+      const datos = await pedirCuenta('POST', { accion: 'verificar', telefono: celular, codigo: limpio, invitacion: leerInvitacion() || undefined })
       const sesion = { token: datos.token, cliente: datos.cliente }
       guardarSesion(sesion)
+      // Si entro por un link de invitacion: lo que le toco (solo cuentas nuevas).
+      registrarResultadoDeInvitacion(datos)
       onListo(sesion, Boolean(datos.nuevo))
     } catch (e) {
       setError(e.message)

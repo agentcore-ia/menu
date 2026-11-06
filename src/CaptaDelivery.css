@@ -2919,3 +2919,25 @@ body {
 .cd-barra-inferior .cd-nav-puntos > span:last-child {
   font-size: 13px;
 }
+
+/* Invitacion: el aviso de "creá tu cuenta" y el premio que le toco. */
+.cd-invitacion {
+  background: #fff3e6;
+  color: #7c2d12;
+}
+
+.cd-regalo {
+  background: #ede9fe;
+  color: #4c1d95;
+}
+
+.cd-bienvenida .cd-invitacion-boton {
+  position: static;
+  justify-self: start;
+  margin-top: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: #f4511e;
+  color: #fff;
+  font: 800 13px / 1 'Manrope', system-ui, sans-serif;
+}

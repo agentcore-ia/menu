@@ -4,7 +4,7 @@
 // real lo vuelve a validar el servidor al crear el pedido.
 //
 //   GET  (Authorization: Bearer <token> opcional) -> { ofertas, billetera }
-//   POST { codigo, slug, comida, envio, telefono, sesionCapta, desdeVitrina }
+//   POST { codigo, slug, comida, envio, items, telefono, sesionCapta, desdeVitrina }
 //        -> { ok: true, codigo, titulo, tipo, pesos } | { ok: false, motivo }
 //
 // Una sola ruta para los dos: en Vercel entra por orders.js con un rewrite (el
@@ -48,6 +48,11 @@ export async function cupones(req, res) {
       restaurant,
       comida: Number(b.comida) || 0,
       envio: Number(b.envio) || 0,
+      // Los productos del pedido, para los cupones de producto gratis.
+      items: (Array.isArray(b.items) ? b.items : []).slice(0, 100).map((i) => ({
+        productId: i?.productId ? String(i.productId) : null,
+        unitPrice: Number(i?.unitPrice) || 0,
+      })),
       telefono: b.telefono,
       sesionCapta: b.sesionCapta,
       desdeVitrina: b.desdeVitrina === true,

@@ -21,7 +21,7 @@ export function normalizarCodigo(crudo) {
 }
 
 /** Cuantos pesos descuenta este cupon en este pedido (entero, nunca mas que el pedido). */
-export function descuentoDelCupon(cupon, { comida, envio }) {
+export function descuentoDelCupon(cupon, { comida, envio, items }) {
   const c = Math.max(0, num(comida))
   const e = Math.max(0, num(envio))
   const total = c + e
@@ -30,6 +30,11 @@ export function descuentoDelCupon(cupon, { comida, envio }) {
   if (cupon.tipo === 'porcentaje') pesos = Math.round((c * num(cupon.valor)) / 100)
   else if (cupon.tipo === 'monto') pesos = Math.round(num(cupon.valor))
   else if (cupon.tipo === 'envio_gratis') pesos = e
+  else if (cupon.tipo === 'producto') {
+    // Una unidad del producto: lo que cuesta en este pedido. Sin el producto, nada.
+    const linea = (items || []).find((i) => cupon.producto_id && String(i.productId || '') === String(cupon.producto_id))
+    pesos = linea ? Math.round(Math.max(0, num(linea.unitPrice))) : 0
+  }
 
   const tope = cupon.tope_descuento == null ? null : Math.round(num(cupon.tope_descuento))
   if (tope !== null && tope >= 0) pesos = Math.min(pesos, tope)
@@ -54,7 +59,10 @@ export function motivoNoAplica(cupon, ctx) {
   if (num(ctx.comida) < num(cupon.minimo_compra)) {
     return `Sumá más productos: el cupón pide una compra mínima de $${Math.round(num(cupon.minimo_compra)).toLocaleString('es-AR')}.`
   }
-  if (descuentoDelCupon(cupon, { comida: ctx.comida, envio: ctx.envio }) <= 0) return 'Este cupón no descuenta nada en este pedido.'
+  if (cupon.tipo === 'producto' && descuentoDelCupon(cupon, { comida: ctx.comida, envio: ctx.envio, items: ctx.items }) <= 0) {
+    return `Para usar este cupón agregá ${cupon.producto_nombre || 'el producto'} a tu pedido.`
+  }
+  if (descuentoDelCupon(cupon, { comida: ctx.comida, envio: ctx.envio, items: ctx.items }) <= 0) return 'Este cupón no descuenta nada en este pedido.'
   return null
 }
 
@@ -62,6 +70,7 @@ export function motivoNoAplica(cupon, ctx) {
 export function textoDelCupon(cupon) {
   if (cupon.tipo === 'porcentaje') return `${Math.round(num(cupon.valor))}% OFF`
   if (cupon.tipo === 'monto') return `$${Math.round(num(cupon.valor)).toLocaleString('es-AR')} OFF`
+  if (cupon.tipo === 'producto') return `${cupon.producto_nombre || 'Producto'} gratis`
   return 'Envío gratis'
 }
 

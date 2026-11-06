@@ -18,6 +18,7 @@ import { EntradaMandados, FormularioMandado } from './MandadoCapta.jsx'
 import { leerEnCurso } from './mandadoEnCurso.js'
 import { Ingresar, NombreDeLaCuenta } from './CuentaCapta.jsx'
 import { borrarSesion, leerSesion, pedirCuenta, tomarBienvenida } from './sesionCapta.js'
+import { capturarInvitacion, tomarRegalo } from './invitacionCapta.js'
 import { leerUltimosPedidos, resumenDelPedido } from '../shared/volverAPedir.js'
 import { coincideConElRubro, normalizarTexto, palabrasDeLaBusqueda } from '../shared/busquedaProductos.js'
 import './CaptaDelivery.css'
@@ -1091,6 +1092,23 @@ export default function CaptaDeliveryApp() {
   // una cuenta nueva.
   const [cupones, setCupones] = useState({ ofertas: [], billetera: [] })
   const [bienvenida, setBienvenida] = useState(() => tomarBienvenida())
+  // La invitacion por la que llego (delivery.capta.ar/?invitacion=CODIGO): lo que ofrece, mientras no
+  // tenga cuenta; y lo que le toco al crearla.
+  const [invitacionLink] = useState(() => capturarInvitacion())
+  const [ofertaDeInvitacion, setOfertaDeInvitacion] = useState(null)
+  const [regalo, setRegalo] = useState(() => tomarRegalo())
+  useEffect(() => {
+    if (!invitacionLink || sesion?.token) return undefined
+    let vivo = true
+    pedirCuenta('POST', { accion: 'invitacion', codigo: invitacionLink })
+      .then((datos) => {
+        if (vivo) setOfertaDeInvitacion(datos?.ok ? datos : null)
+      })
+      .catch(() => {})
+    return () => {
+      vivo = false
+    }
+  }, [invitacionLink, sesion?.token])
   const copiarCupon = (cupon) => {
     try {
       void navigator.clipboard?.writeText(cupon.codigo)
@@ -1125,6 +1143,8 @@ export default function CaptaDeliveryApp() {
     const t = setTimeout(() => {
       const lista = tomarBienvenida()
       if (lista.length) setBienvenida(lista)
+      const premio = tomarRegalo()
+      if (premio) setRegalo(premio)
     }, 0)
     return () => clearTimeout(t)
   }, [sesion?.token])
@@ -1398,6 +1418,31 @@ export default function CaptaDeliveryApp() {
             <Carrusel key={ciudad} ciudad={ciudad} promos={conPromo} />
 
             <Categorias onElegir={abrirGrupo} onVerTodas={() => setHoja('categorias')} />
+
+            {regalo ? (
+              <div className="cd-bienvenida cd-regalo" role="status">
+                <strong>{regalo.aleatorio ? '¡Te tocó un premio!' : '¡Bienvenido a Capta!'}</strong>
+                <span>
+                  {regalo.aleatorio ? 'Ganaste: ' : 'Te regalamos: '}
+                  {regalo.premios.map((b) => `${b.texto} (${b.codigo})`).join(' · ')}. Lo usás al pedir.
+                </span>
+                <button type="button" onClick={() => setRegalo(null)} aria-label="Cerrar">×</button>
+              </div>
+            ) : null}
+
+            {ofertaDeInvitacion && !sesion?.token ? (
+              <div className="cd-bienvenida cd-invitacion" role="status">
+                <strong>{ofertaDeInvitacion.mensaje || 'Te invitaron a Capta Delivery'}</strong>
+                <span>
+                  {ofertaDeInvitacion.aleatorio
+                    ? 'Creá tu cuenta y descubrí tu premio sorpresa.'
+                    : `Creá tu cuenta y llevate: ${ofertaDeInvitacion.beneficios.join(' · ')}.`}
+                </span>
+                <button type="button" className="cd-invitacion-boton" onClick={() => irA('perfil')}>
+                  Crear mi cuenta
+                </button>
+              </div>
+            ) : null}
 
             {bienvenida.length ? (
               <div className="cd-bienvenida" role="status">

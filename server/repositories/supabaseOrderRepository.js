@@ -248,6 +248,8 @@ export class SupabaseOrderRepository {
       restaurant,
       comida: discountedSubtotal,
       envio: deliveryFee,
+      // Lo que lleva el pedido: el cupon de "producto gratis" necesita ver el producto.
+      items: orderProducts,
       telefono: payload.customer?.phone,
       sesionCapta: payload.sesionCapta,
       desdeVitrina: payload.desdeVitrina === true,
@@ -1757,7 +1759,7 @@ export class SupabaseOrderRepository {
    * Valida un cupon para un pedido y dice cuanto descuenta.
    * Devuelve { ok: true, cupon, pesos } o { ok: false, motivo }.
    */
-  async evaluarCuponDeCapta({ codigo, restaurant, comida, envio, telefono, sesionCapta, desdeVitrina }) {
+  async evaluarCuponDeCapta({ codigo, restaurant, comida, envio, items, telefono, sesionCapta, desdeVitrina }) {
     if (desdeVitrina !== true) {
       return { ok: false, motivo: 'Los cupones valen en pedidos hechos desde Capta Delivery (delivery.capta.ar).' }
     }
@@ -1786,12 +1788,13 @@ export class SupabaseOrderRepository {
       restaurantId: restaurant?.id,
       comida,
       envio,
+      items,
       usosDelCliente,
       esPrimerPedido,
       cuentaVerificada,
     })
     if (motivo) return { ok: false, motivo }
-    return { ok: true, cupon, pesos: descuentoDelCupon(cupon, { comida, envio }) }
+    return { ok: true, cupon, pesos: descuentoDelCupon(cupon, { comida, envio, items }) }
   }
 
   /** Para crear el pedido: sin codigo no hay cupon; con codigo malo se rechaza. */

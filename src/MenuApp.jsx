@@ -9171,6 +9171,8 @@ export default function MenuApp() {
             slug: accountId,
             comida: cartTotal,
             envio: selectedDeliveryFee,
+            // Para el cupon de "producto gratis": que lleva el pedido.
+            items: cart.map((line) => ({ productId: line.productId || null, unitPrice: line.unitPrice })),
             telefono: celularDelPedido,
             sesionCapta: sesionCapta?.token,
             desdeVitrina: true,
@@ -9191,7 +9193,7 @@ export default function MenuApp() {
         if (!silencioso) setCuponProbando(false)
       }
     },
-    [accountId, cartTotal, selectedDeliveryFee, celularDelPedido, sesionCapta?.token],
+    [accountId, cartTotal, cart, selectedDeliveryFee, celularDelPedido, sesionCapta?.token],
   )
 
   // Los cupones al alcance: los de la cuenta (si entro) y las ofertas a la vista.

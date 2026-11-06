@@ -3,12 +3,13 @@
 // el codigo por WhatsApp, verifica y lleva las sesiones.
 //
 //   POST { accion: "pedir_codigo", telefono }
-//   POST { accion: "verificar", telefono, codigo }   -> { token, cliente }
+//   POST { accion: "verificar", telefono, codigo, invitacion? }   -> { token, cliente, invitacion }
+//   POST { accion: "invitacion", codigo }   -> lo que ofrece un link de invitacion
 //   GET  (Authorization: Bearer <token>)              -> { cliente, pedidos }
 //   POST { accion: "actualizar" | "salir" } (con token)
 import { getServerConfig } from './config.js'
 
-const ACCIONES = new Set(['pedir_codigo', 'verificar', 'actualizar', 'salir'])
+const ACCIONES = new Set(['pedir_codigo', 'verificar', 'invitacion', 'actualizar', 'salir'])
 
 export async function cuenta(req, res) {
   res.setHeader('Cache-Control', 'no-store')
@@ -34,6 +35,7 @@ export async function cuenta(req, res) {
       accion: b.accion,
       telefono: b.telefono,
       codigo: b.codigo,
+      ...(b.accion === 'verificar' ? { invitacion: b.invitacion } : {}),
       ...(b.accion === 'actualizar'
         ? Object.fromEntries(['nombre', 'direccion', 'barrio', 'ciudad'].filter((k) => k in b).map((k) => [k, b[k]]))
         : {}),

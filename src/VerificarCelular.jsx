@@ -5,6 +5,7 @@
 
 import { useEffect, useState } from 'react'
 import { guardarBienvenida, guardarSesion, pedirCuenta } from './sesionCapta.js'
+import { leerInvitacion, registrarResultadoDeInvitacion } from './invitacionCapta.js'
 
 export function VerificarCelular({ telefono, onVerificado }) {
   const [paso, setPaso] = useState('inicio')
@@ -42,11 +43,12 @@ export function VerificarCelular({ telefono, onVerificado }) {
     setError('')
     setTrabajando(true)
     try {
-      const datos = await pedirCuenta('POST', { accion: 'verificar', telefono, codigo: valor })
+      const datos = await pedirCuenta('POST', { accion: 'verificar', telefono, codigo: valor, invitacion: leerInvitacion() || undefined })
       const sesion = { token: datos.token, cliente: datos.cliente }
       guardarSesion(sesion)
       // Una cuenta nueva recibe los cupones de bienvenida: se avisa en la app.
       if (Array.isArray(datos.bienvenida) && datos.bienvenida.length) guardarBienvenida(datos.bienvenida)
+      registrarResultadoDeInvitacion(datos)
       onVerificado(sesion)
     } catch (e) {
       setError(e.message)
