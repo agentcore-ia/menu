@@ -2,7 +2,7 @@ const DEFAULT_COUNTRY = 'Argentina'
 const EARTH_RADIUS_KM = 6371
 
 import { direccionDeGoogle, direccionDeNominatim, esElCentroPorDefecto, puntoValido } from '../shared/ubicacionCliente.js'
-import { nombreDeCalleDeEtiqueta, puertasDeLaCalle, ubicarAltura } from '../shared/alturaOverpass.js'
+import { nombreDeCalleDeEtiqueta, puertasDeLaCalle, puertasDeLaCalleEscrita, ubicarAltura } from '../shared/alturaOverpass.js'
 import { CALIDAD_MANUAL, calleConNombre, claveDireccion, laMasCercana, partirCalleYAltura } from '../shared/direccionesAprendidas.js'
 import { getServerConfig } from './config.js'
 import { puntoDelLocal } from '../shared/ubicacionLocal.js'
@@ -10,6 +10,7 @@ import {
   RADIO_CALLE_M,
   alturaEscrita,
   avisoDeZonaDudosa,
+  coherenciaConLaCalle,
   radioDeAlturaUbicada,
   radioPorDiferencia,
   verificarPuertas,
@@ -21,6 +22,7 @@ import {
   direccionConAltura,
   coincideConLoEscrito,
   esPuerta,
+  palabrasDeCalle,
   esPuntoAproximado,
   soloLaCalleEscrita,
 } from '../shared/direccionCandidatos.js'
@@ -480,6 +482,21 @@ async function buscarEnMapbox(queryLabel, origin) {
     .filter(Boolean)
 }
 
+/**
+ * Un punto de un proveedor pago contra las puertas que OpenStreetMap conoce de
+ * esa calle (shared/precisionDireccion.js). Sin altura escrita, sin puertas o si
+ * Overpass no contesta a tiempo, no hay con que decir que esta mal.
+ */
+async function revisarConLaCalle(punto, direccion) {
+  const altura = alturaEscrita(direccion)
+  if (!altura) return { coherente: true, esperado: null, motivo: null }
+  const puertas = await Promise.race([
+    puertasDeLaCalleEscrita(palabrasDeCalle(direccion), punto).catch(() => []),
+    new Promise((resolve) => setTimeout(() => resolve([]), 9000)),
+  ])
+  return coherenciaConLaCalle(punto, altura, puertas, ubicarAltura)
+}
+
 export async function geocodeDeliveryCandidates(input) {
   // Lo que queda sin radio (la calle entera) se califica aca.
   const osm = (await geocodeDeliveryCandidatesOsm(input)).map((c) =>
@@ -518,7 +535,30 @@ export async function geocodeDeliveryCandidates(input) {
         ),
         address,
       )
-      if (lista.some((c) => esPuertaDeMapa(c) && (c.precision === 'exacta' || c.precision === 'interpolada'))) return lista
+      const puerta = lista.find((c) => esPuertaDeMapa(c) && (c.precision === 'exacta' || c.precision === 'interpolada'))
+      if (puerta) {
+        // El numero coincide, pero ¿el PUNTO cuadra con las puertas que se
+        // conocen de la calle? "Lavalle 1338" venia con el numero justo y el
+        // punto de la 400 (rangos de numeros mal cargados en el proveedor).
+        const revision = await revisarConLaCalle(puerta, address)
+        if (revision.coherente) return lista
+        console.warn(`menu: "${address}": ${puerta.engine} ${revision.motivo}; no se usa`)
+        if (revision.esperado) {
+          const segunLaCalle = {
+            id: `${revision.esperado.lat},${revision.esperado.lng}`,
+            lat: revision.esperado.lat,
+            lng: revision.esperado.lng,
+            label: puerta.label,
+            engine: 'overpass-altura',
+            calidad: 'house',
+            radioM: revision.esperado.radioM,
+            precision: revision.esperado.radioM === 0 ? 'exacta' : 'interpolada',
+            distanceKm: origin ? getDistanceKm(revision.esperado, origin) : null,
+          }
+          if (duda([segunLaCalle]) < duda(mejor)) mejor = [segunLaCalle]
+        }
+        continue
+      }
       if (duda(lista) < duda(mejor)) mejor = lista
     } catch (err) {
       console.warn('menu: proveedor de mapas fallo, se sigue con el siguiente', err)

@@ -111,3 +111,16 @@ test("los puntos de alrededor estan a la distancia pedida", () => {
   const metros = (este.lng - centro.lng) * 111_320 * Math.cos((centro.lat * Math.PI) / 180);
   assert.ok(Math.abs(metros - 100) < 1, String(metros));
 });
+
+// "Lavalle 1338": el proveedor da el numero justo pero el punto esta en la 400.
+test('Lavalle 1338 dibujado en la 400: no cuadra con las puertas de la calle', async () => {
+  const { coherenciaConLaCalle, metrosEntre } = await import('./precisionDireccion.js')
+  const { ubicarAltura } = await import('./alturaOverpass.js')
+  const lng = (n) => -60.02 + (n / 100) * 0.0012
+  const LAVALLE = [300, 350, 400, 450, 900, 1000, 1250, 1500].map((n) => ({ n, lat: -34.9, lng: lng(n) }))
+  const mal = coherenciaConLaCalle({ lat: -34.9, lng: lng(405) }, 1338, LAVALLE, ubicarAltura)
+  assert.equal(mal.coherente, false)
+  assert.ok(metrosEntre(mal.esperado, { lat: -34.9, lng: lng(1338) }) < 30)
+  assert.equal(coherenciaConLaCalle({ lat: -34.9, lng: lng(1335) }, 1338, LAVALLE, ubicarAltura).coherente, true)
+  assert.equal(coherenciaConLaCalle({ lat: -34.9, lng: lng(405) }, 1338, [], ubicarAltura).coherente, true)
+})

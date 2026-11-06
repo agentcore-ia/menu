@@ -76,6 +76,66 @@ const SERVIDORES = [
 const CACHE = new Map()
 const CACHE_MS = 24 * 3600 * 1000
 
+/** Minusculas, sin tildes ni signos: "Padre Zacarías" -> "padre zacarias". */
+function plano(texto) {
+  return String(texto ?? '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')
+    .replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+/** Una palabra como regex de Overpass que acepta tildes: "zacarias" -> "z[aá]c[aá]r[ií][aá]s". */
+function regexConTildes(palabra) {
+  const variantes = { a: '[aá]', e: '[eé]', i: '[ií]', o: '[oó]', u: '[uúü]', n: '[nñ]' }
+  return [...plano(palabra).replace(/[^a-z0-9]/g, '')].map((c) => variantes[c] || c).join('')
+}
+
+const CACHE_ESCRITA = new Map()
+
+/**
+ * Las puertas con numero de la calle que ESCRIBIO el cliente (sus palabras:
+ * "lavalle", "padre zacarias"), alrededor de un punto. Sirve sin saber como la
+ * nombra OpenStreetMap ("General Lavalle", "Lavalle"). Nunca tira.
+ */
+export async function puertasDeLaCalleEscrita(palabras, centro, medioLadoGrados = 0.06) {
+  const limpias = (palabras || []).map(plano).filter((p) => p.length >= 3 && !/^\d+$/.test(p))
+  if (!limpias.length) return []
+  const larga = [...limpias].sort((a, b) => b.length - a.length)[0]
+  const clave = `${limpias.join(' ')}|${centro.lat.toFixed(2)}|${centro.lng.toFixed(2)}`
+  const guardada = CACHE_ESCRITA.get(clave)
+  if (guardada && Date.now() - guardada.at < CACHE_MS) return guardada.puertas
+
+  const caja = `${centro.lat - medioLadoGrados},${centro.lng - medioLadoGrados},${centro.lat + medioLadoGrados},${centro.lng + medioLadoGrados}`
+  const consulta = `[out:json][timeout:15];node["addr:street"~"${regexConTildes(larga)}",i]["addr:housenumber"](${caja});out;`
+  for (const servidor of SERVIDORES) {
+    try {
+      const res = await fetch(`${servidor}?data=${encodeURIComponent(consulta)}`, {
+        headers: { 'User-Agent': 'Capta/1.0 (menu; soporte@capta.ar)', Accept: 'application/json' },
+        signal: AbortSignal.timeout(8000),
+      })
+      if (!res.ok) continue
+      const json = await res.json().catch(() => null)
+      if (!json) continue
+      const puertas = []
+      for (const e of json.elements || []) {
+        // Todas las palabras escritas en el nombre de la calle de esa puerta.
+        const calle = plano(e?.tags?.['addr:street'])
+        if (!limpias.every((p) => calle.includes(p))) continue
+        const digitos = String(e?.tags?.['addr:housenumber'] || '').replace(/\D/g, '')
+        const n = Number(digitos)
+        const lat = Number(e.lat)
+        const lng = Number(e.lon)
+        if (digitos && n > 0 && Number.isFinite(lat) && Number.isFinite(lng)) puertas.push({ n, lat, lng })
+      }
+      // Lista vacia: Overpass sobrecargado o la calle sin puertas. No se guarda.
+      if (!json.elements?.length) continue
+      CACHE_ESCRITA.set(clave, { at: Date.now(), puertas })
+      return puertas
+    } catch {
+      /* siguiente servidor */
+    }
+  }
+  return []
+}
+
 /** Las puertas con numero de esa calle, alrededor de un punto. Nunca tira. */
 export async function puertasDeLaCalle(calle, centro, medioLadoGrados = 0.06) {
   const nombre = String(calle || '').replace(/[\\"]/g, '').trim()

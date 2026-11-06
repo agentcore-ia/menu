@@ -141,6 +141,55 @@ export function verificarPuertas(lista, direccion) {
 }
 
 // ---------------------------------------------------------------------------
+// Un punto de un proveedor pago, contra las puertas que se conocen de la calle
+// ---------------------------------------------------------------------------
+
+/** Metros entre dos puntos (suficiente para distancias de una ciudad). */
+export function metrosEntre(a, b) {
+  const dLat = (b.lat - a.lat) * 111_320
+  const dLng = (b.lng - a.lng) * 111_320 * Math.cos((((a.lat + b.lat) / 2) * Math.PI) / 180)
+  return Math.hypot(dLat, dLng)
+}
+
+/** Cien numeros son al menos esto: aunque la calle doble, no se juntan. */
+const METROS_MINIMOS_POR_NUMERO = 0.35
+/** Desde esta diferencia de numeracion se exige que esten lejos. */
+const DIFERENCIA_PARA_EXIGIR_DISTANCIA = 300
+
+/**
+ * Si un punto que da un proveedor para "Calle N" cuadra con las puertas que
+ * OpenStreetMap conoce de esa calle. "Lavalle 1338": el proveedor contestaba
+ * con el numero justo pero el punto de la 400 (rangos de numeros mal cargados):
+ * se cobraba la zona de la 400. `ubicar` es ubicarAltura (shared/alturaOverpass.js).
+ */
+export function coherenciaConLaCalle(punto, altura, puertas, ubicar) {
+  const validas = (puertas || []).filter((p) => p.n > 0 && Number.isFinite(p.lat) && Number.isFinite(p.lng))
+  if (!validas.length) return { coherente: true, esperado: null, motivo: null }
+
+  const ubicado = ubicar(altura, validas)
+  const esperado = ubicado ? { lat: ubicado.lat, lng: ubicado.lng, radioM: radioDeAlturaUbicada(ubicado.tipo, ubicado.brecha) } : null
+
+  // Una puerta MUY lejos en numeracion que queda pegada al punto: imposible.
+  for (const p of validas) {
+    const diferencia = Math.abs(p.n - altura)
+    if (diferencia < DIFERENCIA_PARA_EXIGIR_DISTANCIA) continue
+    const metros = metrosEntre(punto, p)
+    if (metros < diferencia * METROS_MINIMOS_POR_NUMERO) {
+      return { coherente: false, esperado, motivo: `queda a ${Math.round(metros)} m de la ${p.n}` }
+    }
+  }
+  // Lejos de donde la ubican las puertas de la calle.
+  if (esperado) {
+    const tolerancia = 150 + esperado.radioM * 1.5
+    const metros = metrosEntre(punto, esperado)
+    if (metros > tolerancia) {
+      return { coherente: false, esperado, motivo: `queda a ${Math.round(metros)} m de donde la ubican las puertas de la calle` }
+    }
+  }
+  return { coherente: true, esperado, motivo: null }
+}
+
+// ---------------------------------------------------------------------------
 // La zona con duda
 // ---------------------------------------------------------------------------
 
