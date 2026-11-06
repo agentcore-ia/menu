@@ -19,6 +19,7 @@ import { leerEnCurso } from './mandadoEnCurso.js'
 import { Ingresar, NombreDeLaCuenta } from './CuentaCapta.jsx'
 import { borrarSesion, leerSesion, pedirCuenta, tomarBienvenida } from './sesionCapta.js'
 import { capturarInvitacion, tomarRegalo } from './invitacionCapta.js'
+import { RegaloInvitacion } from './RegaloInvitacion.jsx'
 import { leerUltimosPedidos, resumenDelPedido } from '../shared/volverAPedir.js'
 import { coincideConElRubro, normalizarTexto, palabrasDeLaBusqueda } from '../shared/busquedaProductos.js'
 import './CaptaDelivery.css'
@@ -1419,17 +1420,6 @@ export default function CaptaDeliveryApp() {
 
             <Categorias onElegir={abrirGrupo} onVerTodas={() => setHoja('categorias')} />
 
-            {regalo ? (
-              <div className="cd-bienvenida cd-regalo" role="status">
-                <strong>{regalo.aleatorio ? '¡Te tocó un premio!' : '¡Bienvenido a Capta!'}</strong>
-                <span>
-                  {regalo.aleatorio ? 'Ganaste: ' : 'Te regalamos: '}
-                  {regalo.premios.map((b) => `${b.texto} (${b.codigo})`).join(' · ')}. Lo usás al pedir.
-                </span>
-                <button type="button" onClick={() => setRegalo(null)} aria-label="Cerrar">×</button>
-              </div>
-            ) : null}
-
             {ofertaDeInvitacion && !sesion?.token ? (
               <div className="cd-bienvenida cd-invitacion" role="status">
                 <strong>{ofertaDeInvitacion.mensaje || 'Te invitaron a Capta Delivery'}</strong>
@@ -1628,6 +1618,15 @@ export default function CaptaDeliveryApp() {
 
         <p className="cd-pie">Los pedidos los toma cada local en su menú. Los reparte Capta Delivery.</p>
       </main>
+
+      <RegaloInvitacion
+        regalo={regalo}
+        onCerrar={() => setRegalo(null)}
+        onUsar={() => {
+          setRegalo(null)
+          irA('inicio')
+        }}
+      />
 
       {avisoCupon ? (
         <div className="cd-toast-cupon" role="status">

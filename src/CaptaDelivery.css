@@ -2941,3 +2941,104 @@ body {
   color: #fff;
   font: 800 13px / 1 'Manrope', system-ui, sans-serif;
 }
+
+/* Popup del premio al registrarse por una invitacion. */
+.cd-regalo-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(20, 12, 8, 0.62);
+}
+
+.cd-regalo-caja {
+  width: 100%;
+  max-width: 380px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 26px 22px 20px;
+  border-radius: 26px;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+.cd-regalo-emoji {
+  display: block;
+  font-size: 46px;
+  line-height: 1;
+}
+
+.cd-regalo-caja h2 {
+  margin: 10px 0 4px;
+  color: #1c1410;
+  font: 800 22px / 1.2 'Manrope', system-ui, sans-serif;
+}
+
+.cd-regalo-intro {
+  margin: 0 0 14px;
+  color: #6b5d55;
+  font: 600 14px / 1.4 'Manrope', system-ui, sans-serif;
+}
+
+.cd-regalo-lista {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.cd-regalo-lista li {
+  display: grid;
+  gap: 3px;
+  padding: 14px;
+  border: 2px dashed #f4511e;
+  border-radius: 18px;
+  background: #fff6ef;
+}
+
+.cd-regalo-lista strong {
+  color: #c2410c;
+  font: 800 26px / 1.15 'Manrope', system-ui, sans-serif;
+}
+
+.cd-regalo-titulo {
+  color: #1c1410;
+  font: 700 14px / 1.3 'Manrope', system-ui, sans-serif;
+}
+
+.cd-regalo-lista small {
+  color: #6b5d55;
+  font: 600 12px / 1.4 'Manrope', system-ui, sans-serif;
+}
+
+.cd-regalo-guardado {
+  margin: 0 0 16px;
+  color: #3d2f28;
+  font: 600 13px / 1.45 'Manrope', system-ui, sans-serif;
+}
+
+.cd-regalo-boton {
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #f4511e;
+  color: #fff;
+  font: 800 15px / 1 'Manrope', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.cd-regalo-cerrar {
+  margin-top: 8px;
+  border: 0;
+  background: transparent;
+  color: #6b5d55;
+  font: 700 13px / 1 'Manrope', system-ui, sans-serif;
+  cursor: pointer;
+}
