@@ -6164,8 +6164,12 @@ function TemplateMenuCollection({
         ? [{ ...currentCategory, items: categoryItems }]
         : todas
 
-    const Tarjeta = ({ item, ancha }) => (
-      <article className={`pan-card ${ancha ? 'ancha' : ''} ${item.hasCustomImage ? '' : 'sin-foto'}`}>
+    // Un producto agotado (stock estricto) se ve asi en la lista: apagado, con su cartel, y sin boton de agregar.
+    // Antes la tarjeta se veia igual que las demas y recien al tocar "+" avisaba que no habia.
+    const Tarjeta = ({ item, ancha }) => {
+      const sinStock = item.availableForOrder === false && !item.fueraDeHorario
+      return (
+      <article className={`pan-card ${ancha ? 'ancha' : ''} ${item.hasCustomImage ? '' : 'sin-foto'} ${sinStock ? 'sin-stock' : ''}`}>
         {item.hasCustomImage ? (
           <button type="button" className="pan-card-foto" onClick={() => onOpenDish(item)} aria-label={`Ver ${item.name}`}>
             {renderProductMedia(item)}
@@ -6178,18 +6182,23 @@ function TemplateMenuCollection({
           </button>
           <div className="pan-card-pie">
             <strong>{item.price}</strong>
-            <button
-              type="button"
-              className="pan-add"
-              onClick={() => onAddItem(item)}
-              aria-label={`Agregar ${item.name}`}
-            >
-              <span aria-hidden="true">+</span>
-            </button>
+            {sinStock ? (
+              <span className="pan-sin-stock" role="status">Sin stock</span>
+            ) : (
+              <button
+                type="button"
+                className="pan-add"
+                onClick={() => onAddItem(item)}
+                aria-label={`Agregar ${item.name}`}
+              >
+                <span aria-hidden="true">+</span>
+              </button>
+            )}
           </div>
         </div>
       </article>
-    )
+      )
+    }
 
     return (
       <section className={`pan-collection ${orderCount > 0 ? 'con-pedido' : ''}`}>
@@ -8203,7 +8212,7 @@ function CaptaFila({ item, onOpenDish, onAddItem, renderProductMedia }) {
         {item.description ? <p>{item.description}</p> : null}
         <strong>{item.price}</strong>
         {item.destacado ? <em className="cu-etiqueta">Más pedido</em> : null}
-        {sinStock ? <em className="cu-etiqueta gris">No disponible</em> : null}
+        {sinStock ? <em className="cu-etiqueta gris">Sin stock</em> : null}
       </button>
       <div className="cu-fila-lado">
         {item.hasCustomImage ? (
@@ -8714,6 +8723,38 @@ export default function MenuApp() {
       cancelled = true
     }
   }, [accountId])
+
+  // El stock cambia mientras el cliente mira el menu (otro pedido se lleva la ultima unidad): el menu se
+  // carga una sola vez, asi que un producto que se agoto seguia viendose disponible hasta recargar. Si el
+  // local controla el stock (modo estricto), se vuelve a pedir el menu cada minuto y al volver a la pestana.
+  const controlaStock = Boolean(
+    menu?.categories?.some((categoria) => categoria?.items?.some((item) => item?.stock?.strict === true)),
+  )
+  useEffect(() => {
+    if (status !== 'ready' || !controlaStock) return undefined
+    let cancelado = false
+    const refrescar = async () => {
+      if (document.visibilityState !== 'visible') return
+      try {
+        const respuesta = await fetch(`/api/accounts/${accountId}/menu`, { cache: 'no-store' })
+        if (!respuesta.ok) return
+        const datos = await respuesta.json()
+        if (!cancelado && datos?.categories) setMenu(datos)
+      } catch {
+        // sin conexion: se sigue con lo que ya estaba
+      }
+    }
+    const cada = window.setInterval(() => void refrescar(), 60000)
+    const alVolver = () => {
+      if (document.visibilityState === 'visible') void refrescar()
+    }
+    document.addEventListener('visibilitychange', alVolver)
+    return () => {
+      cancelado = true
+      window.clearInterval(cada)
+      document.removeEventListener('visibilitychange', alVolver)
+    }
+  }, [accountId, status, controlaStock])
 
   // Animacion de agregado: anota los toques y, cada vez que se agrega algo,
   // lanza la bolita al carrito (src/animacionCarrito.js). Igual en todos los menus.

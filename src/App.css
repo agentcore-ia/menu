@@ -22453,3 +22453,24 @@ button.gelato-adicional-salsa {
     animation: none;
   }
 }
+
+/* Panaderia: producto agotado (stock estricto). */
+.pan-card.sin-stock {
+  opacity: 0.62;
+}
+
+.pan-card.sin-stock .pan-card-foto img,
+.pan-card.sin-stock .pan-card-foto video {
+  filter: grayscale(1);
+}
+
+.pan-sin-stock {
+  flex: none;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: #e7e2dc;
+  color: #5c4d45;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
