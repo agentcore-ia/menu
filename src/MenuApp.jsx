@@ -6153,7 +6153,8 @@ function TemplateMenuCollection({
     // foto si la elige el local: subirle una a un producto es exactamente
     // decir "este quiero mostrar".
     const todas = categories.filter((c) => c?.items?.length)
-    const conFoto = todas.flatMap((c) => c.items).filter((i) => i?.hasCustomImage)
+    // Los agotados no van de destacados: arriba de todo tiene que haber algo que se pueda pedir.
+    const conFoto = todas.flatMap((c) => c.items).filter((i) => i?.hasCustomImage && i?.availableForOrder !== false)
     const destacados = isSearchActive || currentCategory
       ? []
       : (conFoto.length ? conFoto : todas.flatMap((c) => c.items.slice(0, 1))).slice(0, 6)
