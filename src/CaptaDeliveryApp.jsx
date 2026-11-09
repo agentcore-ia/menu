@@ -603,6 +603,16 @@ function IconoBarra({ nombre, activo }) {
   )
 }
 
+/**
+ * Sube al principio. En el celular la pagina no scrollea: scrollea #root (ver el CSS de la barra de abajo),
+ * en la compu scrollea la ventana. Se mueven las dos y la que no scrollea no hace nada.
+ */
+function subirAlInicio(suave) {
+  const opciones = { top: 0, behavior: suave ? 'smooth' : 'auto' }
+  window.scrollTo(opciones)
+  document.getElementById('root')?.scrollTo(opciones)
+}
+
 function BarraInferior({ vista, onVista, onPuntos, guardados, puntosAbierto = false }) {
   const items = [
     { id: 'inicio', texto: 'Inicio' },
@@ -1329,7 +1339,7 @@ export default function CaptaDeliveryApp() {
     setVista(siguiente)
     setBusqueda('')
     if (siguiente !== 'grupo') setGrupoElegido(null)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    subirAlInicio(true)
   }
 
   const abrirGrupo = (id) => {
@@ -1338,7 +1348,7 @@ export default function CaptaDeliveryApp() {
     setHoja(null)
     setVista('grupo')
     setBusqueda('')
-    window.scrollTo({ top: 0 })
+    subirAlInicio(false)
   }
 
   const pedirMandado = (donde = '') => {

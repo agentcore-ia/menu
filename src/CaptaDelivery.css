@@ -3098,3 +3098,24 @@ body {
     will-change: transform;
   }
 }
+
+/* iPhone (Safari): la barra de abajo se despegaba del borde cuando el navegador achicaba/agrandaba su
+ * barra en pleno scroll (la barra fija seguia al viewport viejo). Ahora, en el celular, la PAGINA no
+ * scrollea: scrollea #root, que ocupa toda la pantalla. Sin scroll de pagina el navegador no mueve sus
+ * barras y el borde de abajo no cambia, asi que la barra queda siempre pegada. */
+@media (max-width: 719px) {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #root {
+    position: fixed;
+    inset: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+}
