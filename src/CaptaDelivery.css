@@ -3084,3 +3084,16 @@ body {
   width: 100%;
   border: 0;
 }
+
+/* iPhone (Safari): al subir y bajar rapido con el scroll, la barra de abajo a veces quedaba a mitad de
+ * pantalla, porque el navegador achica/agranda su propia barra y la barra fija no se reubicaba. Darle su
+ * propia capa (la GPU la mueve aparte del scroll) hace que acompane siempre el borde de abajo. */
+@media (max-width: 719px) {
+  .cd-barra-inferior {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+}
