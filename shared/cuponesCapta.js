@@ -2,7 +2,7 @@
 //
 // Los crea el admin de Capta (dashboard: Admin > Delivery > Cupones) y los paga
 // CAPTA: el cliente paga menos y el local cobra lo mismo, igual que con los
-// puntos. Solo valen en pedidos que entran desde la app (delivery.capta.ar).
+// puntos. Solo valen en pedidos que entran desde la app (capta.ar).
 //
 // GEMELO de `lib/cuponesCapta.ts` del dashboard. Si se cambia una cuenta, se
 // cambia en los dos lados.

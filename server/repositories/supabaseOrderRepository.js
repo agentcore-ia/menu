@@ -1760,7 +1760,7 @@ export class SupabaseOrderRepository {
    */
   async evaluarCuponDeCapta({ codigo, restaurant, comida, envio, items, telefono, sesionCapta, desdeVitrina }) {
     if (desdeVitrina !== true) {
-      return { ok: false, motivo: 'Los cupones valen en pedidos hechos desde Capta Delivery (delivery.capta.ar).' }
+      return { ok: false, motivo: 'Los cupones valen en pedidos hechos desde Capta Delivery (capta.ar).' }
     }
     const cupon = await this.cuponDeCapta(codigo)
     if (!cupon) return { ok: false, motivo: 'Ese cupón no existe.' }

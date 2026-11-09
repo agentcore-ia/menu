@@ -1,4 +1,4 @@
-// La invitacion por la que llego el cliente a Capta Delivery (delivery.capta.ar/?invitacion=CODIGO).
+// La invitacion por la que llego el cliente a Capta Delivery (capta.ar/?invitacion=CODIGO).
 //
 // El link trae el codigo. Se guarda en este telefono hasta que crea su cuenta: si abre el link, mira la app
 // y se registra mas tarde, igual recibe lo prometido. Lo que regala lo decide el dashboard al verificar

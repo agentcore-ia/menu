@@ -1104,7 +1104,7 @@ export default function CaptaDeliveryApp() {
   // una cuenta nueva.
   const [cupones, setCupones] = useState({ ofertas: [], billetera: [] })
   const [bienvenida, setBienvenida] = useState(() => tomarBienvenida())
-  // La invitacion por la que llego (delivery.capta.ar/?invitacion=CODIGO): lo que ofrece, mientras no
+  // La invitacion por la que llego (capta.ar/?invitacion=CODIGO): lo que ofrece, mientras no
   // tenga cuenta; y lo que le toco al crearla.
   const [invitacionLink] = useState(() => capturarInvitacion())
   const [ofertaDeInvitacion, setOfertaDeInvitacion] = useState(null)
