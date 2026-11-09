@@ -8,6 +8,11 @@
     },
     {
       "source": "/",
+      "has": [{ "type": "host", "value": "capta.ar" }],
+      "destination": "/pedi.html"
+    },
+    {
+      "source": "/",
       "has": [
         {
           "type": "host",
