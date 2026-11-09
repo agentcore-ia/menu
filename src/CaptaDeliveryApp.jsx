@@ -280,12 +280,12 @@ function VolverAPedir({ pedidos }) {
   )
 }
 
-/** El dibujo de la derecha del cupon: moto de reparto, porcentaje o pesos. */
+/** Cada beneficio tiene un ícono para distinguirlo de un vistazo. */
 function DibujoCupon({ tipo }) {
-  const trazo = { fill: 'none', stroke: '#fff', strokeWidth: 3, strokeLinecap: 'round', strokeLinejoin: 'round' }
+  const trazo = { fill: 'none', stroke: 'currentColor', strokeWidth: 3, strokeLinecap: 'round', strokeLinejoin: 'round' }
   if (tipo === 'envio_gratis') {
     // Un repartidor en moto con la caja de reparto atras y lineas de velocidad.
-    const fino = { fill: 'none', stroke: '#fff', strokeLinecap: 'round', strokeLinejoin: 'round' }
+    const fino = { fill: 'none', stroke: 'currentColor', strokeLinecap: 'round', strokeLinejoin: 'round' }
     return (
       <svg className="cd-cupon-dibujo cd-cupon-dibujo-moto" viewBox="0 0 92 64" aria-hidden="true">
         <path d="M3 22h10M0 31h12M5 40h8" {...fino} strokeWidth="2.8" />
@@ -298,18 +298,21 @@ function DibujoCupon({ tipo }) {
           <path d="M40 17l-5 20" {...fino} strokeWidth="7" />
           <path d="M43 22l12-1" {...fino} strokeWidth="3.4" />
           <path d="M35 37l9 6h7" {...fino} strokeWidth="3.6" />
-          <circle cx="41" cy="9.5" r="5.8" fill="#fff" />
+          <circle cx="41" cy="9.5" r="5.8" fill="currentColor" />
         </g>
-        <rect x="16" y="14" width="25" height="19" rx="4" fill="#fff" />
-        <path d="M16 23h25" stroke="rgba(0,0,0,0.16)" strokeWidth="2" />
+        <rect x="16" y="14" width="25" height="19" rx="4" {...trazo} />
+        <path d="M17 23h23" {...trazo} />
       </svg>
     )
+  }
+  if (tipo === 'producto') {
+    return <Icono nombre="redeem" />
   }
   if (tipo === 'monto') {
     return (
       <svg className="cd-cupon-dibujo" viewBox="0 0 76 60" aria-hidden="true">
         <path d="M44 6l4 9M54 3l-1 10M63 8l-6 8" {...trazo} strokeWidth="2.6" />
-        <text x="22" y="52" fill="#fff" fontSize="52" fontWeight="800" fontFamily="Manrope, system-ui, sans-serif">$</text>
+        <text x="22" y="52" fill="currentColor" fontSize="52" fontWeight="800" fontFamily="Manrope, system-ui, sans-serif">$</text>
       </svg>
     )
   }
@@ -329,11 +332,9 @@ const quitarAcentos = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\
  * Los cupones de Capta (los crea el admin): los de la cuenta primero, despues
  * las ofertas a la vista. Tocar uno copia el codigo para usarlo al pedir.
  *
- * Tarjeta con forma de ticket: etiqueta arriba, el beneficio grande con su
- * dibujo, y abajo el codigo con el boton de copiar. Las muescas a los costados
- * son parte del diseno (ver .cd-cupon en el css).
+ * El beneficio y sus condiciones quedan arriba del código, en una sola tarjeta.
  */
-function OfertasParaVos({ cupones, onCopiar }) {
+function BeneficiosParaVos({ cupones, onCopiar }) {
   const lista = [
     ...cupones.billetera.map((c) => ({ ...c, propio: true })),
     ...cupones.ofertas.filter((o) => !cupones.billetera.some((b) => b.codigo === o.codigo)),
@@ -341,9 +342,9 @@ function OfertasParaVos({ cupones, onCopiar }) {
   if (!lista.length) return null
 
   return (
-    <section className="cd-tira" aria-label="Ofertas para vos">
+    <section className="cd-tira" aria-labelledby="cd-beneficios-titulo">
       <div className="cd-titulo-seccion">
-        <h2>Ofertas para vos</h2>
+        <h2 id="cd-beneficios-titulo">Beneficios para vos</h2>
       </div>
       <div className="cd-carrusel cd-carrusel-cupones">
         {lista.map((c) => {
@@ -357,27 +358,31 @@ function OfertasParaVos({ cupones, onCopiar }) {
               style={{ '--cd-marca': c.color || '#16a34a' }}
               onClick={() => onCopiar(c)}
             >
-              <em className="cd-cupon-tag">{c.propio ? 'Tuyo' : c.tipo === 'envio_gratis' ? 'Envío' : 'Descuento'}</em>
               <span className="cd-cupon-cuerpo">
+                <span className="cd-cupon-encabezado">
+                  <span className="cd-cupon-tag">
+                    {c.propio ? 'Tu beneficio' : c.tipo === 'envio_gratis' ? 'Envío' : c.tipo === 'producto' ? 'Regalo' : 'Descuento'}
+                  </span>
+                  <span className="cd-cupon-icono" aria-hidden="true"><DibujoCupon tipo={c.tipo} /></span>
+                </span>
                 <span className="cd-cupon-texto">
                   <strong>{c.texto}</strong>
                   {subtitulo ? <small>{subtitulo}</small> : null}
-                  <i>
-                    {c.minimoCompra > 0 ? `Compra mínima $${c.minimoCompra.toLocaleString('es-AR')} · ` : ''}
-                    {c.hasta ? `Hasta el ${new Date(c.hasta).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}` : 'Sin vencimiento'}
-                  </i>
                 </span>
-                <DibujoCupon tipo={c.tipo} />
+                <span className="cd-cupon-condiciones">
+                  {c.minimoCompra > 0 ? <span>{`Compra mínima $${c.minimoCompra.toLocaleString('es-AR')}`}</span> : null}
+                  <span>{c.hasta ? `Hasta el ${new Date(c.hasta).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}` : 'Sin vencimiento'}</span>
+                </span>
               </span>
               <span className="cd-cupon-codigo">
                 <b>{c.codigo}</b>
-                <u>
+                <span className="cd-cupon-copiar">
                   <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="9" y="9" width="11" height="11" rx="2.5" />
                     <path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9" />
                   </svg>
                   Copiar
-                </u>
+                </span>
               </span>
             </button>
           )
@@ -1453,7 +1458,7 @@ export default function CaptaDeliveryApp() {
               </div>
             ) : null}
 
-            <OfertasParaVos cupones={cupones} onCopiar={copiarCupon} />
+            <BeneficiosParaVos cupones={cupones} onCopiar={copiarCupon} />
 
             {/* Todos los comercios de la ciudad, abajo de las categorias: primero
                 los abiertos y despues "Abren más tarde". */}

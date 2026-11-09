@@ -2622,139 +2622,155 @@ body {
   font-weight: 600;
 }
 
-/* ---------- cupones y ofertas ---------- */
+/* ---------- beneficios ---------- */
 
 .cd-cupon {
-  --cd-corte: calc(100% - 46px);
-  position: relative;
-  isolation: isolate;
+  --cd-cupon-tono: color-mix(in srgb, var(--cd-marca, #16a34a) 12%, #fff);
+  --cd-cupon-tinta: color-mix(in srgb, var(--cd-marca, #16a34a) 36%, #211b17);
+  --cd-cupon-borde: color-mix(in srgb, var(--cd-marca, #16a34a) 22%, #f3ede7);
   flex: none;
-  width: clamp(184px, 48.5vw, 228px);
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 12px 10px;
-  border: 0;
-  background: none;
-  color: #fff;
+  width: clamp(215px, 70vw, 260px);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--cd-cupon-borde);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(48, 31, 20, 0.07);
+  color: var(--cd-tinta);
+  font: inherit;
   text-align: left;
   cursor: pointer;
   scroll-snap-align: start;
-  /* La sombra va con filter y no con box-shadow: asi sigue la forma recortada
-     del fondo (con las muescas) en vez de dibujar un rectangulo entero. */
-  filter: drop-shadow(0 8px 10px color-mix(in srgb, var(--cd-marca, #16a34a) 32%, transparent));
 }
 
-/* El fondo del ticket va aparte para poder recortarle las muescas: dos medios
-   circulos TRANSPARENTES en los costados, a la altura de la linea punteada que
-   separa el beneficio del codigo. Se ve lo que hay detras, sea lo que sea. */
-.cd-cupon::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: 22px;
-  background:
-    radial-gradient(circle at 88% 78%, rgba(255, 255, 255, 0.14) 0, rgba(255, 255, 255, 0.14) 42px, transparent 43px),
-    linear-gradient(150deg, var(--cd-marca, #16a34a), color-mix(in srgb, var(--cd-marca, #16a34a) 82%, #000));
-  -webkit-mask:
-    radial-gradient(circle 8px at 0 var(--cd-corte), #0000 97%, #000) left / 51% 100% no-repeat,
-    radial-gradient(circle 8px at 100% var(--cd-corte), #0000 97%, #000) right / 51% 100% no-repeat;
-  mask:
-    radial-gradient(circle 8px at 0 var(--cd-corte), #0000 97%, #000) left / 51% 100% no-repeat,
-    radial-gradient(circle 8px at 100% var(--cd-corte), #0000 97%, #000) right / 51% 100% no-repeat;
-}
-
-.cd-cupon-tag {
-  justify-self: start;
-  width: fit-content;
-  padding: 4px 11px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.24);
-  font: 800 10.5px / 1.2 'Manrope', system-ui, sans-serif;
-  font-style: normal;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.cd-cupon:focus-visible {
+  outline: 2px solid var(--cd-naranja);
+  outline-offset: -3px;
 }
 
 .cd-cupon-cuerpo {
-  display: flex;
+  display: grid;
   flex: 1;
+  align-content: start;
+  gap: 9px;
+  padding: 13px 14px 14px;
+  background: linear-gradient(140deg, var(--cd-cupon-tono), #fff 95%);
+}
+
+.cd-cupon-encabezado {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  min-height: 70px;
-  padding-bottom: 10px;
-  border-bottom: 1.5px dashed rgba(255, 255, 255, 0.28);
-  margin: 2px -10px 0;
-  padding-inline: 10px;
+  gap: 8px;
+}
+
+.cd-cupon-tag {
+  padding: 4px 9px;
+  border: 1px solid var(--cd-cupon-borde);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--cd-cupon-tinta);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cd-cupon-icono {
+  display: grid;
+  flex: none;
+  width: 47px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--cd-cupon-tono);
+  color: var(--cd-cupon-tinta);
+}
+
+.cd-cupon-icono .cd-icono {
+  font-size: 25px;
 }
 
 .cd-cupon-texto {
   display: grid;
-  gap: 2px;
-  align-content: center;
   min-width: 0;
+  gap: 3px;
+  overflow-wrap: anywhere;
 }
 
 .cd-cupon-texto strong {
-  font: 800 22px / 1.02 'Manrope', system-ui, sans-serif;
-  letter-spacing: -0.03em;
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
 }
 
 .cd-cupon-texto small {
-  font: 700 11.5px / 1.25 'Manrope', system-ui, sans-serif;
+  color: var(--cd-cupon-tinta);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
-.cd-cupon-texto i {
-  font: 600 10.5px / 1.3 'Manrope', system-ui, sans-serif;
-  font-style: normal;
-  opacity: 0.88;
+.cd-cupon-condiciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 10px;
+  color: #655c54;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.35;
 }
 
 .cd-cupon-dibujo {
-  flex: none;
-  width: 46px;
+  width: 26px;
   height: auto;
-  align-self: center;
-  opacity: 0.96;
 }
 
 .cd-cupon-dibujo-moto {
-  width: 58px;
+  width: 34px;
 }
 
 .cd-cupon-codigo {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  margin-top: 6px;
-  padding: 3px 3px 3px 9px;
-  border: 1.5px dashed rgba(255, 255, 255, 0.7);
-  border-radius: 12px;
+  gap: 8px;
+  min-height: 53px;
+  padding: 9px 12px 9px 14px;
+  border-top: 1px dashed var(--cd-cupon-borde);
 }
 
 .cd-cupon-codigo b {
   min-width: 0;
   overflow: hidden;
-  font: 800 10.5px / 1 'Manrope', system-ui, sans-serif;
-  letter-spacing: 0.02em;
+  color: var(--cd-cupon-tinta);
+  font: 750 12px / 1.2 ui-monospace, monospace;
+  letter-spacing: 0.025em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.cd-cupon-codigo u {
+.cd-cupon-copiar {
   display: inline-flex;
   flex: none;
   align-items: center;
-  gap: 3px;
-  padding: 6px 7px;
+  gap: 5px;
+  padding: 8px 10px;
   border-radius: 9px;
-  background: #fff;
-  color: var(--cd-marca, #16a34a);
-  font: 800 10.5px / 1 'Manrope', system-ui, sans-serif;
-  text-decoration: none;
+  background: var(--cd-cupon-tono);
+  color: var(--cd-cupon-tinta);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.cd-cupon:is(:hover, :focus-visible) .cd-cupon-copiar {
+  background: var(--cd-cupon-tinta);
+  color: #fff;
 }
 
 .cd-bienvenida {
@@ -2805,13 +2821,12 @@ body {
   to { opacity: 1; transform: translate(-50%, 0); }
 }
 
-/* Los cupones se deslizan solo de costado: sin scroll vertical propio. La
-   sombra de las tarjetas tiene su lugar abajo para que no la corte ni la
-   convierta en desborde. */
+/* La tira permite avanzar al siguiente beneficio con un gesto horizontal. */
 .cd-carrusel-cupones {
+  gap: 12px;
   overflow-y: hidden;
-  padding-bottom: 18px;
-  margin-bottom: -10px;
+  padding-bottom: 14px;
+  margin-bottom: -6px;
   overscroll-behavior-x: contain;
 }
 
