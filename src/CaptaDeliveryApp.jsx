@@ -16,6 +16,7 @@ import { almacenDelNavegador, leerDatos, olvidarDatos } from '../shared/datosDel
 import { celularValido, normalizarCelular } from '../shared/celular.js'
 import { EntradaMandados, FormularioMandado } from './MandadoCapta.jsx'
 import { leerEnCurso } from './mandadoEnCurso.js'
+import { VisorSeguimiento } from './VisorSeguimiento.jsx'
 import { Ingresar, NombreDeLaCuenta } from './CuentaCapta.jsx'
 import { borrarSesion, leerSesion, pedirCuenta, tomarBienvenida } from './sesionCapta.js'
 import { capturarInvitacion, tomarRegalo } from './invitacionCapta.js'
@@ -1618,6 +1619,8 @@ export default function CaptaDeliveryApp() {
 
         <p className="cd-pie">Los pedidos los toma cada local en su menú. Los reparte Capta Delivery.</p>
       </main>
+
+      <VisorSeguimiento />
 
       <RegaloInvitacion
         regalo={regalo}

@@ -3042,3 +3042,45 @@ body {
   font: 700 13px / 1 'Manrope', system-ui, sans-serif;
   cursor: pointer;
 }
+
+/* Seguimiento del pedido dentro de la misma pagina (VisorSeguimiento.jsx). */
+.cd-visor {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.cd-visor-barra {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+.cd-visor-barra strong {
+  font-size: 0.95rem;
+}
+
+.cd-visor-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.45rem 0.8rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.07);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cd-visor-marco {
+  flex: 1;
+  width: 100%;
+  border: 0;
+}
