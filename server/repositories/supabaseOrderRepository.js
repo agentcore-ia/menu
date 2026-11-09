@@ -398,9 +398,8 @@ export class SupabaseOrderRepository {
             ? `Pedido de ${resolvedTableName}`
             : [
                 programado ? `PROGRAMADO PARA ${programado.texto.toUpperCase()}` : null,
-                // Dos zonas posibles (no se encontro la altura exacta): se cobro
-                // la mas cara y el local lo ve para bajarla si corresponde.
-                shouldChargeDelivery ? deliveryQuote?.zonaDudosa?.aviso || null : null,
+                // Zona dudosa (dos zonas posibles): se cobra la mas cara, pero el aviso
+                // ya NO va a las notas: ni el local ni el repartidor lo tienen que leer.
                 payload.notes || null,
               ]
                 .filter(Boolean)
