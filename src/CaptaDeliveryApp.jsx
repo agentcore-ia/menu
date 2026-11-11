@@ -23,6 +23,7 @@ import { capturarInvitacion, tomarRegalo } from './invitacionCapta.js'
 import { RegaloInvitacion } from './RegaloInvitacion.jsx'
 import { leerUltimosPedidos, resumenDelPedido } from '../shared/volverAPedir.js'
 import { coincideConElRubro, normalizarTexto, palabrasDeLaBusqueda } from '../shared/busquedaProductos.js'
+import SliderComercios from './SliderComercios.jsx'
 import './CaptaDelivery.css'
 
 const CLAVE_CIUDAD = 'capta-vitrina-ciudad'
@@ -734,8 +735,8 @@ function LineaDeEstado({ local }) {
 }
 
 /** La tarjeta de un comercio en las grillas. */
-function TarjetaCerca({ local, esFavorito, onFavorito, enLista = false }) {
-  const url = `/${encodeURIComponent(local.slug)}?vitrina=1`
+export function TarjetaCerca({ local, esFavorito, onFavorito, enLista = false, href }) {
+  const url = href || `/${encodeURIComponent(local.slug)}?vitrina=1`
   return (
     <article className={`cd-cerca ${enLista ? 'cd-cerca-lista' : ''} ${local.abierto ? '' : 'cd-cerca-cerrado'}`}>
       <a className="cd-cerca-foto" href={url} aria-label={`Ver el menú de ${local.nombre}`}>
@@ -745,7 +746,7 @@ function TarjetaCerca({ local, esFavorito, onFavorito, enLista = false }) {
           <LogoLocal local={local} />
         </span>
       </a>
-      <button
+      {onFavorito ? <button
         type="button"
         className={`cd-favorito ${esFavorito ? 'cd-favorito-si' : ''}`}
         onClick={() => onFavorito(local.slug)}
@@ -753,7 +754,7 @@ function TarjetaCerca({ local, esFavorito, onFavorito, enLista = false }) {
         aria-label={esFavorito ? `Sacar ${local.nombre} de guardados` : `Guardar ${local.nombre}`}
       >
         <Icono nombre="favorite" relleno={esFavorito} />
-      </button>
+      </button> : null}
       <a className="cd-cerca-cuerpo" href={url}>
         <h3>{local.nombre}</h3>
         <p className="cd-cerca-rubro">{local.categoriaNombre}</p>
@@ -1209,7 +1210,7 @@ export default function CaptaDeliveryApp() {
     [deLaCiudad],
   )
   const abiertosEnInicio = cercaDeTi.filter((local) => local.abierto)
-  const primerosLocales = (abiertosEnInicio.length ? abiertosEnInicio : cercaDeTi).slice(0, 2)
+  const primerosLocales = abiertosEnInicio.length ? abiertosEnInicio : cercaDeTi.slice(0, 2)
 
   const grupo = GRUPOS.find((g) => g.id === grupoElegido) ?? null
   const delGrupo = useMemo(
@@ -1375,6 +1376,12 @@ export default function CaptaDeliveryApp() {
                     </div>
                   ))}
                 </div>
+              ) : abiertosEnInicio.length ? (
+                <SliderComercios key={ciudad} cantidad={abiertosEnInicio.length}>
+                  {abiertosEnInicio.map((local) => (
+                    <TarjetaCerca key={local.slug} local={local} esFavorito={favoritos.includes(local.slug)} onFavorito={alternarFavorito} enLista />
+                  ))}
+                </SliderComercios>
               ) : primerosLocales.length ? (
                 <div className="cd-grilla-cerca">
                   {primerosLocales.map((local) => (

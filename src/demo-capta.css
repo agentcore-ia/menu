@@ -1,0 +1,166 @@
+:root {
+  --demo-tinta: #241914;
+  --demo-gris: #655950;
+  --demo-acento: #a63816;
+  --demo-borde: #eee1d6;
+}
+
+.capta-demo-inicio { padding-bottom: 36px; }
+
+.capta-demo-etiqueta,
+.capta-demo-cinta,
+.capta-demo-aviso {
+  background: #fff0e3;
+  color: #8d3419;
+  font-size: .8rem;
+  font-weight: 800;
+}
+
+.capta-demo-etiqueta { display: inline-flex; padding: 6px 12px; border-radius: 99px; }
+.capta-demo-cinta { padding: 10px 14px; text-align: center; }
+.capta-demo-cinta span { margin-inline: 3px; }
+.capta-demo-aviso { margin: 0; padding: 12px 14px; border: 1px solid #f1dac8; border-radius: 14px; line-height: 1.45; }
+
+.capta-demo-portada {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(60px, 22vw, 110px);
+  align-items: center;
+  gap: 12px;
+  padding: clamp(18px, 4vw, 32px);
+  border: 1px solid #f3d8c0;
+  border-radius: 22px;
+  background: linear-gradient(115deg, #fff8ef, #ffddbf);
+  color: var(--demo-tinta);
+}
+.capta-demo-portada h1,
+.capta-demo-seguimiento h1 { margin: 0; font-size: clamp(1.48rem, 5.8vw, 2.25rem); line-height: 1.12; letter-spacing: -.045em; text-wrap: balance; }
+.capta-demo-portada p { margin: 8px 0 0; font-size: .88rem; line-height: 1.5; color: var(--demo-gris); }
+.capta-demo-portada img { width: 100%; height: auto; border-radius: 24%; box-shadow: 0 9px 22px #aa502234; }
+.cd-buscador.capta-demo-buscador { margin-top: 16px; }
+
+.capta-demo-seguimiento {
+  width: min(calc(100% - 24px), 580px);
+  margin: 0 auto;
+  padding: 16px 0 max(28px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 14px;
+  color: var(--demo-tinta);
+}
+
+.capta-demo-panel,
+.capta-demo-estado {
+  padding: 16px;
+  border: 1px solid var(--demo-borde);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 5px 16px #432b1c0a;
+}
+
+.capta-demo-panel h2 { margin: 0 0 12px; font-size: 1.08rem; letter-spacing: -.025em; }
+.capta-demo-controles { display: grid; gap: 9px; }
+.capta-demo-controles > div { display: flex; justify-content: space-between; align-items: center; gap: 9px; }
+.capta-demo-controles label { font-size: .84rem; font-weight: 800; }
+.capta-demo-controles a,
+.capta-demo-volver { color: var(--demo-acento); font-size: .82rem; font-weight: 750; text-underline-offset: 3px; }
+.capta-demo-controles select {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--demo-borde);
+  border-radius: 12px;
+  background: #fcf8f3;
+  color: inherit;
+  font: inherit;
+}
+.capta-demo-siguiente,
+.capta-demo-accion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  background: #b83d17;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.capta-demo-siguiente { width: 44px; }
+.capta-demo-estado { display: grid; gap: 12px; padding: 10px; background: #fff5eb; text-align: center; }
+.capta-demo-estado picture { display: block; overflow: hidden; aspect-ratio: 553 / 309; border-radius: 14px; background: #ffead8; }
+.capta-demo-estado picture img { display: block; width: 100%; height: auto; }
+.capta-demo-estado h1 { padding: 0 8px; }
+.capta-demo-estado p { margin: 8px 0; color: var(--demo-gris); font-size: .88rem; }
+.capta-demo-estado small { color: var(--demo-gris); font-size: .76rem; }
+.capta-demo-estado time { color: var(--demo-tinta); font-weight: 800; }
+.capta-demo-comercio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--demo-borde);
+  border-radius: 13px;
+  background: #fff;
+  text-align: left;
+  font-size: .9rem;
+}
+.capta-demo-comercio img { flex: none; width: 44px; height: 44px; object-fit: contain; border-radius: 10px; }
+.capta-demo-comercio small { display: block; margin-top: 2px; color: var(--demo-gris); font-size: .75rem; }
+.capta-demo-progreso { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.capta-demo-progreso li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 9px;
+  padding: 8px;
+  border-radius: 12px;
+  font-size: .84rem;
+}
+.capta-demo-progreso p { margin: 4px 0 0; color: var(--demo-gris); font-size: .76rem; }
+.capta-demo-progreso time { color: var(--demo-gris); font-size: .72rem; }
+.capta-demo-icono-estado {
+  position: relative;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: #f4efeb;
+  color: #60554c;
+}
+.capta-demo-icono-estado .material-symbols-outlined { font-size: 19px; }
+.capta-demo-progreso [data-etapa="actual"] { background: #fff0e3; }
+.capta-demo-progreso li:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  inset: 33px auto -12px 24px;
+  width: 2px;
+  background: #eee1d6;
+}
+.capta-demo-progreso li[data-etapa="completo"]::before { background: #d05a32; }
+.capta-demo-progreso [data-etapa="actual"] .capta-demo-icono-estado { background: #fbd9c3; color: var(--demo-acento); }
+.capta-demo-progreso [data-etapa="completo"] .capta-demo-icono-estado { background: #b83d17; color: #fff; }
+.capta-demo-detalle { display: grid; gap: 9px; margin: 0; font-size: .86rem; }
+.capta-demo-detalle > div,
+.capta-demo-total { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.capta-demo-detalle dd { margin: 0; text-align: right; font-weight: 700; white-space: nowrap; }
+.capta-demo-detalle small { display: block; color: var(--demo-gris); }
+.capta-demo-total { padding-top: 10px; border-top: 1px solid var(--demo-borde); font-weight: 800; }
+.capta-demo-confirmacion .capta-demo-panel { display: grid; gap: 12px; text-align: center; padding: 24px 16px; }
+.capta-demo-confirmacion p { margin: 0; color: var(--demo-gris); font-size: .9rem; }
+.capta-demo-confirmado {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-inline: auto;
+  border-radius: 17px;
+  background: #f9e3d4;
+  color: var(--demo-acento);
+}
+.capta-demo-confirmacion .capta-demo-volver { padding: 10px; }

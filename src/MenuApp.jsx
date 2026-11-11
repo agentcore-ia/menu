@@ -8158,7 +8158,7 @@ function BotonSubir() {
   )
 }
 
-function CaptaCabecera({ nombre, logo, portada, ficha, conVolver = true, abierto, estadoTexto, envioTexto, orderCount, onOpenSocial, onOpenCart }) {
+function CaptaCabecera({ nombre, logo, portada, ficha, conVolver = true, volverHref = '/pedi', abierto, estadoTexto, envioTexto, orderCount, onOpenSocial, onOpenCart }) {
   const inicial = String(nombre || '?').trim().charAt(0).toUpperCase()
   const datos = [ficha?.categoriaNombre, ficha?.tiempo, envioTexto].filter(Boolean)
 
@@ -8169,16 +8169,18 @@ function CaptaCabecera({ nombre, logo, portada, ficha, conVolver = true, abierto
         <div className="cu-barra">
           {/* El boton de volver lleva a la vitrina: solo tiene sentido si se vino de ella. */}
           {conVolver ? (
-            <a className="cu-boton-redondo" href="/pedi" aria-label="Volver a Capta Delivery">
+            <a className="cu-boton-redondo" href={volverHref} aria-label="Volver a Capta Delivery">
               <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
                 <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </a>
           ) : <span aria-hidden="true" />}
           <div className="cu-barra-derecha">
-            <button type="button" className="cu-boton-redondo" aria-label="Redes del negocio" onClick={onOpenSocial}>
-              <IconMenu />
-            </button>
+            {onOpenSocial ? (
+              <button type="button" className="cu-boton-redondo" aria-label="Redes del negocio" onClick={onOpenSocial}>
+                <IconMenu />
+              </button>
+            ) : null}
             <button type="button" className="cu-boton-redondo" aria-label="Ver pedido" onClick={onOpenCart}>
               <IconCart />
               {orderCount > 0 ? <span className="cu-badge">{orderCount}</span> : null}
@@ -8352,13 +8354,24 @@ function CaptaCarta({
   )
 }
 
-export default function MenuApp() {
-  const [accountId] = useState(getInitialAccountId)
+export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
+  const [accountId] = useState(() => demo?.local.slug || getInitialAccountId())
   const [qrLandingView, setQrLandingView] = useState('landing')
-  const [menu, setMenu] = useState(null)
-  const [selectedCategory, setSelectedCategory] = useState('')
+  const [menu, setMenu] = useState(() => demo ? {
+    accountId,
+    accountName: demo.local.nombre,
+    city: demo.local.ciudad,
+    categories: demo.categorias,
+    deliveryFee: demo.envio,
+    presentation: {
+      ...defaultPresentation,
+      branding: { wordmark: demo.local.nombre, logo: demo.local.logo },
+      hero: { ...defaultPresentation.hero, image: demo.local.portada },
+    },
+  } : null)
+  const [selectedCategory, setSelectedCategory] = useState(() => demo ? getInitialCategoryId(menu) : '')
   const [selectedDish, setSelectedDish] = useState(null)
-  const [status, setStatus] = useState('loading')
+  const [status, setStatus] = useState(demo ? 'ready' : 'loading')
   const [errorMessage, setErrorMessage] = useState('')
   const [cart, setCart] = useState([])
   const [rewardRedemptions, setRewardRedemptions] = useState([])
@@ -8379,6 +8392,7 @@ export default function MenuApp() {
   // "Volver a pedir" desde la vitrina (?repetir=1): se arma el carrito una sola
   // vez, cuando el menu ya cargo, y se avisa que se saco.
   const [quiereRepetir] = useState(() => {
+    if (demo) return false
     try {
       return new URLSearchParams(window.location.search).get('repetir') === '1'
     } catch {
@@ -8411,7 +8425,7 @@ export default function MenuApp() {
   // la opcion de pagar o revisar. Consultar tambien lo hace entrar al local si
   // el pago ya se acredito, sin esperar el aviso de Mercado Pago.
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (demo || typeof window === 'undefined') return
     const params = new URLSearchParams(window.location.search)
     const pedido = params.get('pedido')
     if (!pedido || !/^[0-9a-f-]{36}$/i.test(pedido)) return
@@ -8462,7 +8476,7 @@ export default function MenuApp() {
         setEsperandoPago({ orderId: pedido, orderNumber: delMismoPedido?.orderNumber ?? null, link: delMismoPedido?.paymentLink || null })
       }
     })()
-  }, [accountId])
+  }, [accountId, demo])
   // El dato de transferencia que se acaba de copiar, para decir "Copiado".
   const [datoCopiado, setDatoCopiado] = useState('')
   const copiarDatoDeTransferencia = (valor) => {
@@ -8483,7 +8497,7 @@ export default function MenuApp() {
   const [isCommunityOpen, setIsCommunityOpen] = useState(false)
   const [isSocialMenuOpen, setIsSocialMenuOpen] = useState(false)
   // Lo que el cliente cargo la ultima vez que pidio, desde SU telefono.
-  const [datosGuardados, setDatosGuardados] = useState(() => leerDatos(almacenDelNavegador()))
+  const [datosGuardados, setDatosGuardados] = useState(() => demo ? null : leerDatos(almacenDelNavegador()))
   const [favoritos, setFavoritos] = useState(() => leerFavoritos(almacenDelNavegador(), accountId))
   const [loyaltyPhone, setLoyaltyPhone] = useState(() => datosGuardados?.phone ?? '')
   const [loyaltyStatus, setLoyaltyStatus] = useState('idle')
@@ -8527,6 +8541,7 @@ export default function MenuApp() {
   // se eligieron en los anteriores.
   const [promoEnCurso, setPromoEnCurso] = useState(null)
   const [mesaId, setMesaId] = useState(() => {
+    if (demo) return null
     if (typeof window !== 'undefined') {
       const search = new URLSearchParams(window.location.search)
       return search.get('mesa') || search.get('mesa_id') || null
@@ -8621,6 +8636,18 @@ export default function MenuApp() {
   }, [closeTopOverlay])
 
   const [orderFormGuardado, setOrderForm] = useState(() => {
+    if (demo) {
+      return {
+        name: 'Cliente de ejemplo',
+        phone: '1100000000',
+        address: 'Calle de ejemplo 123',
+        neighborhood: 'Centro',
+        city: demo.local.ciudad,
+        deliveryType: 'delivery',
+        paymentMethod: 'cash',
+        notes: '',
+      }
+    }
     let deliveryType = 'delivery'
     let esMesa = false
     if (typeof window !== 'undefined') {
@@ -8651,14 +8678,16 @@ export default function MenuApp() {
   const cerrarMapaUbicacion = useCallback(() => setMapaUbicacion(null), [])
 
   useEffect(() => {
+    if (demo) return
     setDocumentFavicon(getAccountFaviconHref(accountId))
     setDocumentAppleTouchIcon(getAccountAppleTouchIconHref(accountId))
     setDocumentTitle(getAccountDocumentTitle(accountId))
     setDocumentManifest(`/api/accounts/${encodeURIComponent(accountId)}/manifest.webmanifest`)
     registerMenuServiceWorker()
-  }, [accountId])
+  }, [accountId, demo])
 
   useEffect(() => {
+    if (demo) return undefined
     const dismissKey = `install-app-dismissed-${slugify(accountId)}`
 
     function handleBeforeInstallPrompt(event) {
@@ -8686,9 +8715,10 @@ export default function MenuApp() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
       window.removeEventListener('appinstalled', handleAppInstalled)
     }
-  }, [accountId])
+  }, [accountId, demo])
 
   useEffect(() => {
+    if (demo) return undefined
     let cancelled = false
 
     async function loadMenu() {
@@ -8727,7 +8757,7 @@ export default function MenuApp() {
     return () => {
       cancelled = true
     }
-  }, [accountId])
+  }, [accountId, demo])
 
   // El stock cambia mientras el cliente mira el menu (otro pedido se lleva la ultima unidad): el menu se
   // carga una sola vez, asi que un producto que se agoto seguia viendose disponible hasta recargar. Si el
@@ -8805,7 +8835,7 @@ export default function MenuApp() {
   // Desde la vitrina de Capta Delivery el menu se ve con la plantilla unificada
   // (CaptaCabecera / CaptaCarta). Entrando directo al link no pasa nada de esto,
   // salvo que el local lo pida (theme.plantillaCapta): ahi se ve asi siempre.
-  const [desdeCapta] = useState(vinoDeLaVitrina)
+  const [desdeCapta] = useState(() => Boolean(demo) || vinoDeLaVitrina())
   const presentacionDelLocal = menu?.presentation ?? defaultPresentation
   const plantillaDelLocal = presentacionDelLocal.template ?? presentacionDelLocal.layout ?? 'editorial'
   const usaPlantillaCapta = Boolean(
@@ -8824,7 +8854,7 @@ export default function MenuApp() {
   // que ve el cliente en la tarjeta, asi la cabecera es la misma foto.
   const [fichaCapta, setFichaCapta] = useState(null)
   useEffect(() => {
-    if (!usaPlantillaCapta) return undefined
+    if (demo || !usaPlantillaCapta) return undefined
     let vivo = true
     fetch('/api/delivery/locales')
       .then((r) => (r.ok ? r.json() : null))
@@ -8836,7 +8866,7 @@ export default function MenuApp() {
     return () => {
       vivo = false
     }
-  }, [usaPlantillaCapta, accountId])
+  }, [usaPlantillaCapta, accountId, demo])
   // Las palabras de la pantalla segun el tipo de negocio. Sin rubro cargado da
   // restaurante, que es lo que decia antes para todos.
   const textosRubro = textosDelMenu(menu?.rubro)
@@ -8929,9 +8959,10 @@ export default function MenuApp() {
   )
 
   useEffect(() => {
+    if (demo) return
     setDocumentTitle(getAccountDocumentTitle(accountId, presentation, textosRubro.catalogo))
     setDocumentThemeColor(presentation.theme?.primary)
-  }, [accountId, presentation, textosRubro])
+  }, [accountId, demo, presentation, textosRubro])
 
   useEffect(() => {
     if (!pwaPromptEnabled || status !== 'ready' || isPwaInstalled || isStandalonePwa()) {
@@ -9164,8 +9195,8 @@ export default function MenuApp() {
   const [usarPuntosCapta, setUsarPuntosCapta] = useState(false)
   // La cuenta de Capta (entrar con el codigo por WhatsApp). Usar puntos exige
   // que el celular del pedido sea el verificado: lo controla el servidor.
-  const [sesionCapta, setSesionCapta] = useState(leerSesion)
-  const desdeLaVitrina = useMemo(() => vinoDeLaVitrina(), [])
+  const [sesionCapta, setSesionCapta] = useState(() => demo ? null : leerSesion())
+  const desdeLaVitrina = desdeCapta && !demo
   const celularDelPedido = celularValido(orderForm.phone) ? normalizarCelular(orderForm.phone) : ''
 
   useEffect(() => {
@@ -10609,6 +10640,18 @@ export default function MenuApp() {
 
   async function handleSubmitOrder(event) {
     event.preventDefault()
+    if (demo) {
+      if (hasOrderItems) {
+        onDemoConfirmar({
+          lineas: cartItems.map(({ name, quantity, unitPrice, notes }) => ({ name, quantity, unitPrice, notes })),
+          envio: selectedDeliveryFee,
+          total: orderTotal,
+          retiro: orderForm.deliveryType === 'retiro',
+          fecha: Date.now(),
+        })
+      }
+      return
+    }
     if (cuponProbando) return
 
     if (orderingBlocked) {
@@ -11088,8 +11131,9 @@ export default function MenuApp() {
                   ? presentacionDelLocal.hero.image
                   : '')
               }
-              ficha={fichaCapta}
+              ficha={demo?.local || fichaCapta}
               conVolver={desdeCapta}
+              volverHref={demo ? '/demo' : '/pedi'}
               abierto={!orderingBlocked && !cerradoAhora}
               estadoTexto={
                 orderingBlocked || cerradoAhora
@@ -11102,7 +11146,7 @@ export default function MenuApp() {
                 return Number(menu?.deliveryFee) > 0 ? `Envío ${formatPrice(Number(menu.deliveryFee), currencySymbol)}` : ''
               })()}
               orderCount={orderCount}
-              onOpenSocial={() => setIsSocialMenuOpen(true)}
+              onOpenSocial={demo ? undefined : () => setIsSocialMenuOpen(true)}
               onOpenCart={() => setIsCartOpen(true)}
             />
           ) : (
@@ -13035,6 +13079,7 @@ export default function MenuApp() {
               ) : null}
 
               <form className="checkout-form" onSubmit={handleSubmitOrder}>
+                {demo ? <p className="capta-demo-aviso">Usamos datos de ejemplo. El pedido y el pago se simulan.</p> : null}
                 {puedeProgramar ? (
                   <label className="checkout-field checkout-programar">
                     <span>¿Para cuándo? El local está cerrado ahora</span>
@@ -13101,13 +13146,14 @@ export default function MenuApp() {
                             value={orderForm.address}
                             onChange={(event) => updateOrderForm('address', event.target.value)}
                             placeholder="Calle 123"
+                            readOnly={Boolean(demo)}
                             required={orderForm.deliveryType === 'delivery'}
                           />
                         </label>
 
                         {/* Como en las apps de delivery: detecta la ubicacion y
                             el cliente acomoda el pin en su puerta. */}
-                        <div className="checkout-ubicacion">
+                        {!demo ? <div className="checkout-ubicacion">
                           <button
                             type="button"
                             className="checkout-ubicacion-boton"
@@ -13129,7 +13175,7 @@ export default function MenuApp() {
                           ) : (
                             <span className="checkout-ubicacion-estado">Marcá tu puerta en el mapa y el repartidor llega directo.</span>
                           )}
-                        </div>
+                        </div> : null}
                         {mapaUbicacion ? (
                           <UbicacionEnMapa
                             accountId={accountId}
@@ -13150,6 +13196,7 @@ export default function MenuApp() {
                                   value={orderForm.neighborhood}
                                   onChange={(event) => updateOrderForm('neighborhood', event.target.value)}
                                   placeholder="Barrio"
+                                  readOnly={Boolean(demo)}
                                 />
                               </label>
                             ) : null}
@@ -13227,6 +13274,7 @@ export default function MenuApp() {
                     value={orderForm.name}
                     onChange={(event) => updateOrderForm('name', event.target.value)}
                     placeholder="Tu nombre"
+                    readOnly={Boolean(demo)}
                     required
                   />
                 </label>
@@ -13239,6 +13287,7 @@ export default function MenuApp() {
                     placeholder="Ej: 2346 587122"
                     inputMode="tel"
                     autoComplete="tel"
+                    readOnly={Boolean(demo)}
                     required
                   />
                 </label>
@@ -13383,7 +13432,7 @@ export default function MenuApp() {
                       </div>
                     ) : null}
 
-                    <label className="checkout-field">
+                    {!demo ? <label className="checkout-field">
                       <span>Notas</span>
                       <textarea
                         rows="3"
@@ -13391,7 +13440,7 @@ export default function MenuApp() {
                         onChange={(event) => updateOrderForm('notes', event.target.value)}
                         placeholder="Aclaraciones del pedido"
                       />
-                    </label>
+                    </label> : null}
                   </>
                 ) : null}
 
@@ -13405,7 +13454,7 @@ export default function MenuApp() {
                   disabled={checkoutStatus === 'submitting' || orderingBlocked || deliveryZoneBlocksCheckout || cuponProbando || (vistaCapta && !hasOrderItems)}
                 >
                   <span>
-                    {orderingBlocked
+                    {demo ? 'Simular pedido' : orderingBlocked
                       ? 'Pedidos cerrados'
                       : checkoutStatus === 'submitting'
                         ? 'Enviando pedido...'

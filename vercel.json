@@ -596,6 +596,10 @@
       "destination": "/pedi.html"
     },
     {
+      "source": "/demo",
+      "destination": "/demo.html"
+    },
+    {
       "source": "/chicha",
       "destination": "/chicha.html"
     },
@@ -604,7 +608,7 @@
       "destination": "/chicha.html"
     },
     {
-      "source": "/:account((?!api|pedi|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|grupo-lea|copetin-sandwich|fratello|todo-empanadas|kiosco-9-de-julio|troka|ipplis|dallys|ambrosia|delivery-de-kiosco|florian|moli-express|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha|yo-helados).*)",
+      "source": "/:account((?!api|pedi|demo|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|grupo-lea|copetin-sandwich|fratello|todo-empanadas|kiosco-9-de-julio|troka|ipplis|dallys|ambrosia|delivery-de-kiosco|florian|moli-express|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha|yo-helados).*)",
       "destination": "/host.html"
     }
   ]

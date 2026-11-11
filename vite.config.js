@@ -19,6 +19,11 @@ export default defineConfig({
             next()
             return
           }
+          if (pathname === '/demo' || pathname === '/demo/') {
+            request.url = `/demo.html${consulta}`
+            next()
+            return
+          }
           if (!pathname.startsWith('/api/') && !pathname.startsWith('/@') && !pathname.includes('.')) {
             request.url = `/host.html${request.url?.includes('?') ? request.url.slice(request.url.indexOf('?')) : ''}`
           }
@@ -32,6 +37,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'host.html'),
         pedi: resolve(__dirname, 'pedi.html'),
+        demo: resolve(__dirname, 'demo.html'),
         almendra: resolve(__dirname, 'almendra.html'),
         kika: resolve(__dirname, 'kika.html'),
         saborapampa: resolve(__dirname, 'saborapampa.html'),
