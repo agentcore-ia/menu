@@ -443,7 +443,9 @@ export class SupabaseMenuRepository {
       return category ? category.items.filter((item) => item?.availableForOrder !== false) : []
     }
     const cartAddonItems = findCategoryItems((key) => key.includes('adicional'))
-    const cartBeverageItems = findCategoryItems((key) => key.includes('bebida'))
+    const cartBeverageItems = regularCategories
+      .filter((cat) => normalizeMenuCategoryKey(cat?.label).includes('bebida'))
+      .flatMap((cat) => cat.items.filter((item) => item?.availableForOrder !== false))
     // Los EXTRAS DE UN HELADO (salsas, cucurucho extra, tacita...): categoria
     // "Extras del helado". No van al carrito ni a la carta: se ofrecen en un paso
     // propio del armador. Cada uno es un producto del panel, asi que se apaga con

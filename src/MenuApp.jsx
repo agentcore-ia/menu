@@ -9398,12 +9398,18 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   // Un sabor no se puede "sumar" al carrito: ofrecerlo como recomendacion es
   // invitar a algo que despues no se deja hacer. Las promos tampoco: se piden
   // tocando su cartel, que es lo unico que sabe de cuantos potes son.
-  const itemsQueSeVenden = useMemo(
-    () => allItems.filter((item) => !item?.soloEleccion && !idsDePromos.has(item?.id) && !idsAdicionalesHelado.has(item?.id)),
-    [allItems, idsDePromos, idsAdicionalesHelado],
-  )
-  const cartRecommendations = buildCartRecommendations(cartItems, itemsQueSeVenden)
-  const cartPairings = buildCartPairingSuggestions(cartItems, itemsQueSeVenden)
+  const productosParaSugerir = useMemo(() => {
+    const idsBebidas = new Set(bebidasItems.map((item) => item.id))
+    return allItems.filter((item) =>
+      !item.soloEleccion &&
+      !idsDePromos.has(item.id) &&
+      !idsAdicionalesHelado.has(item.id) &&
+      !idsBebidas.has(item.id) &&
+      !slugify(item.categoryLabel ?? '').includes('bebida')
+    )
+  }, [allItems, idsDePromos, idsAdicionalesHelado, bebidasItems])
+  const cartRecommendations = buildCartRecommendations(cartItems, productosParaSugerir)
+  const cartPairings = buildCartPairingSuggestions(cartItems, productosParaSugerir)
   // En el carrito mostramos todos los productos de "Adicionales" y "Bebidas" si
   // existen; si no hay ninguna de las dos categorias, caemos a las sugerencias
   // heuristicas (una sola seccion generica).
