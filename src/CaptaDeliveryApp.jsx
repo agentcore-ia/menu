@@ -580,7 +580,7 @@ function claveDeCiudad(ciudad) {
 
 const IMAGENES_DE_CIUDAD = {
   chivilcoy: [
-    { src: '/capta/hero-chivilcoy.webp?v=2', alt: 'Tus sabores favoritos, más cerca. Apoyá lo local, pedí por Capta.' },
+    { src: '/capta/hero-chivilcoy.webp?v=3', alt: 'Tus sabores favoritos, más cerca. Apoyá lo local, pedí por Capta.' },
     { src: '/capta/banner-chivilcoy.webp?v=3', alt: 'Chivilcoy ahora tiene delivery' },
   ],
 }
