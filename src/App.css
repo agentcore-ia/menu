@@ -8157,6 +8157,13 @@ html.menu-pantalla-encima body {
   padding-bottom: 0.3rem;
 }
 
+.cart-drinks-slider {
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+}
+
+.cart-drinks-slider .mini-card { scroll-snap-align: start; }
+
 /* Dos filas deslizantes: las cards se acomodan en 2 filas y se desplazan en
    horizontal (grid-auto-flow: column) en vez de una sola fila larga. */
 .recommendation-row-2 {

@@ -8362,6 +8362,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     accountName: demo.local.nombre,
     city: demo.local.ciudad,
     categories: demo.categorias,
+    cartBeverageItems: demo.categorias.find(({ id }) => id === 'bebidas')?.items,
     deliveryFee: demo.envio,
     presentation: {
       ...defaultPresentation,
@@ -8670,6 +8671,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     // Si ya pidio antes desde este telefono, el formulario arranca completo.
     return prellenarFormulario(base, datosGuardados, { esMesa })
   })
+  const [entreCalles, setEntreCalles] = useState('')
   // La puerta que el cliente marco en el mapa ("Detectar mi ubicacion"). Manda
   // sobre la direccion escrita para calcular el envio y viaja en el pedido.
   const [ubicacionElegida, setUbicacionElegida] = useState(null)
@@ -8846,6 +8848,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   )
   const presentation = usaPlantillaCapta ? presentacionDeCapta(presentacionDelLocal) : presentacionDelLocal
   const vistaCapta = usaPlantillaCapta
+  const checkoutCapta = desdeCapta || vistaCapta || window.location.hostname === 'capta.ar'
   useEffect(() => {
     document.body.classList.toggle('cu-activo', usaPlantillaCapta)
     return () => document.body.classList.remove('cu-activo')
@@ -10292,6 +10295,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   function updateOrderForm(field, value) {
     setOrderForm((current) => ({
       ...current,
+      ...(checkoutCapta && field === 'address' && value !== current.address ? { neighborhood: '' } : {}),
       [field]: value,
     }))
 
@@ -10309,6 +10313,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     olvidarDatos(almacenDelNavegador())
     setDatosGuardados(null)
     setLoyaltyPhone('')
+    setEntreCalles('')
     // Vaciar el formulario es la unica forma de que se vea que se borraron.
     setOrderForm((current) => ({
       ...current,
@@ -10647,6 +10652,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
           envio: selectedDeliveryFee,
           total: orderTotal,
           retiro: orderForm.deliveryType === 'retiro',
+          entreCalles: orderForm.deliveryType === 'delivery' ? entreCalles.trim() : '',
           fecha: Date.now(),
         })
       }
@@ -10733,6 +10739,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     setCheckoutMessage('')
 
     const effectiveDeliveryType = isTableOrder ? 'mesa' : orderForm.deliveryType
+    const referencia = checkoutCapta && effectiveDeliveryType === 'delivery' ? entreCalles.trim() : ''
     // "Tarjeta" es el mismo cobro de Mercado Pago, cobrado aca en vez de en la
     // app: para el pedido, el recargo y el reparto es "mercado_pago". Lo unico
     // que cambia es la pantalla que ve el cliente despues de enviarlo.
@@ -10762,7 +10769,10 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
       // Despues de pagar en Mercado Pago el cliente vuelve a ESTA pagina (el
       // servidor le agrega el pedido). Antes volvia al panel del local.
       returnUrl: shouldRedirectToMercadoPago ? `${window.location.origin}${window.location.pathname}` : undefined,
-      notes: isTableOrder ? '' : orderForm.notes.trim(),
+      notes: isTableOrder ? '' : [
+        referencia ? `Entre calles: ${referencia}` : '',
+        orderForm.notes.trim(),
+      ].filter(Boolean).join('\n'),
       deliveryQuote: confirmedDeliveryQuote,
       // La puerta marcada en el mapa, aunque el local no use zonas de envio:
       // el pedido la guarda y el repartidor va directo.
@@ -10880,6 +10890,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
       setCheckoutStatus('success')
       setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
       if (cuponAplicado) elegirCupon('')
+      setEntreCalles('')
       setCart([])
       setRewardRedemptions([])
       // Tarjeta: se cobra en el menu. Si no vino la public key (el local perdio
@@ -12866,7 +12877,14 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                       <div className="section-heading compact">
                         <h2>{section.title}</h2>
                       </div>
-                      <div className="recommendation-row recommendation-row-2 pairing-mini-row">
+                      <div
+                        className={section.key === 'bebidas'
+                          ? 'recommendation-row cart-drinks-slider pairing-mini-row'
+                          : 'recommendation-row recommendation-row-2 pairing-mini-row'}
+                        tabIndex={section.key === 'bebidas' && section.items.length > 1 ? 0 : undefined}
+                        role={section.key === 'bebidas' ? 'group' : undefined}
+                        aria-label={section.key === 'bebidas' ? section.title : undefined}
+                      >
                         {section.items.map(({ label, product }) => {
                           const isAdded = pairingFeedbackId === product.id
 
@@ -13151,6 +13169,18 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                           />
                         </label>
 
+                        {checkoutCapta ? (
+                          <label className="checkout-field">
+                            <span>Entre calles</span>
+                            <input
+                              value={entreCalles}
+                              onChange={(event) => setEntreCalles(event.target.value)}
+                              placeholder="Ej. Moreno y Rivadavia"
+                              maxLength={120}
+                            />
+                          </label>
+                        ) : null}
+
                         {/* Como en las apps de delivery: detecta la ubicacion y
                             el cliente acomoda el pin en su puerta. */}
                         {!demo ? <div className="checkout-ubicacion">
@@ -13187,7 +13217,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                           />
                         ) : null}
 
-                        {!hideNeighborhoodField || (deliveryCity && !ocultarCiudadDelLocal) ? (
+                        {!checkoutCapta && (!hideNeighborhoodField || (deliveryCity && !ocultarCiudadDelLocal)) ? (
                           <div className="checkout-grid">
                             {!hideNeighborhoodField ? (
                               <label className="checkout-field">

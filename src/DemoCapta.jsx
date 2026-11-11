@@ -152,6 +152,7 @@ function SeguimientoDemo({ pedido, local }) {
             <div key={i}><dt>{quantity} × {name}{notes ? <small>{notes}</small> : null}</dt><dd>{moneda.format(quantity * unitPrice)}</dd></div>
           ))}
           <div><dt>{pedido.retiro ? 'Retiro en el local' : 'Costo de envío'}</dt><dd>{pedido.retiro ? 'Sin costo' : moneda.format(pedido.envio)}</dd></div>
+          {pedido.entreCalles ? <div><dt>Entre calles</dt><dd className="capta-demo-referencia">{pedido.entreCalles}</dd></div> : null}
           <div><dt>Pago simulado</dt><dd>Efectivo</dd></div>
           <div className="capta-demo-total"><dt>Total simulado</dt><dd>{moneda.format(pedido.total)}</dd></div>
         </dl>

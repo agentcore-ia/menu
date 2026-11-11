@@ -58,6 +58,8 @@ const locales = [
       ] },
       { id: 'bebidas', label: 'Bebidas', items: [
         producto('limonada', 'Limonada casera', 4100, 'Limón, menta y hielo.', '/dishes/lemonade.jpg'),
+        producto('gaseosa', 'Gaseosa cola', 3200, 'Botella de 500 ml.'),
+        producto('agua', 'Agua sin gas', 2300, 'Botella de 500 ml.'),
       ] },
     ],
   },

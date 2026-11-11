@@ -149,6 +149,7 @@
 .capta-demo-detalle > div,
 .capta-demo-total { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .capta-demo-detalle dd { margin: 0; text-align: right; font-weight: 700; white-space: nowrap; }
+.capta-demo-detalle .capta-demo-referencia { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
 .capta-demo-detalle small { display: block; color: var(--demo-gris); }
 .capta-demo-total { padding-top: 10px; border-top: 1px solid var(--demo-borde); font-weight: 800; }
 .capta-demo-confirmacion .capta-demo-panel { display: grid; gap: 12px; text-align: center; padding: 24px 16px; }
