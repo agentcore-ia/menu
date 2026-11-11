@@ -29,41 +29,6 @@ const CLAVE_CIUDAD = 'capta-vitrina-ciudad'
 const CLAVE_FAVORITOS = 'capta-vitrina-favoritos'
 const CLAVE_CELULAR = 'capta-vitrina-celular'
 
-/** El mismo muñeco del casco que usa el panel (public/capta/logo.svg), dibujado aca para que aparezca sin esperar una descarga. */
-function LogoCapta({ tamano = 44, className = '' }) {
-  return (
-    <svg
-      className={className}
-      width={tamano}
-      height={tamano}
-      viewBox="0 0 120 120"
-      role="img"
-      aria-label="Capta Delivery"
-    >
-      <defs>
-        <linearGradient id="cd-fondo" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#ff7a1a" />
-          <stop offset="1" stopColor="#f4511e" />
-        </linearGradient>
-        <clipPath id="cd-marco">
-          <rect width="120" height="120" rx="28" />
-        </clipPath>
-      </defs>
-      <rect width="120" height="120" rx="28" fill="url(#cd-fondo)" />
-      <g clipPath="url(#cd-marco)">
-        <path d="M22 120 C22 82 40 62 64 62 C88 62 104 82 104 120 Z" fill="#ffb300" />
-        <path d="M47 92 q5 -6 10 0" stroke="#1c1917" strokeWidth="4.5" fill="none" strokeLinecap="round" />
-        <path d="M73 92 q5 -6 10 0" stroke="#1c1917" strokeWidth="4.5" fill="none" strokeLinecap="round" />
-        <path d="M58 101 q7 6 14 0" stroke="#1c1917" strokeWidth="4.5" fill="none" strokeLinecap="round" />
-        <path d="M30 74 C30 42 46 26 66 26 C88 26 102 44 102 72 L102 78 L30 78 Z" fill="#ffffff" />
-        <rect x="28" y="72" width="76" height="9" rx="4.5" fill="#f3f0ea" />
-        <path d="M78 43 A15 15 0 1 0 78 63" stroke="#f4511e" strokeWidth="7" fill="none" strokeLinecap="round" />
-      </g>
-      <path d="M10 44 H24 M6 54 H22 M12 64 H24" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
-    </svg>
-  )
-}
-
 function Icono({ nombre, relleno = false }) {
   return (
     <span
@@ -473,32 +438,9 @@ function MisDatos({ onCerrar }) {
 /**
  * El banner de arriba de todo.
  *
- * Hay una imagen hecha por ciudad (public/capta/banner-<ciudad>.png|webp) con
- * el nombre de la ciudad impreso. La ciudad que no tiene la suya muestra el
- * banner dibujado, que arma el nombre solo: asi no puede pasar que a alguien de
- * otra ciudad le diga "CHIVILCOY".
- *
- * Para sumar una ciudad alcanza con dejar el archivo con su nombre.
+ * La portada de respaldo toma el nombre de la ciudad elegida.
  */
 function Banner({ ciudad }) {
-  const clave = ciudadPareja(ciudad).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-  const [sinImagen, setSinImagen] = useState(false)
-
-  if (clave && !sinImagen) {
-    return (
-      <section className="cd-banner cd-banner-imagen">
-        <picture>
-          <source srcSet={`/capta/banner-${clave}.webp?v=2`} type="image/webp" />
-          <img
-            src={`/capta/banner-${clave}.png?v=2`}
-            alt={`Capta Delivery en ${ciudad}: tus sabores favoritos, mas cerca`}
-            onError={() => setSinImagen(true)}
-          />
-        </picture>
-      </section>
-    )
-  }
-
   return (
     <section className="cd-banner">
       <div>
@@ -510,7 +452,7 @@ function Banner({ ciudad }) {
         </h1>
         <p className="cd-banner-texto">Apoyá lo de tu ciudad, pedí por Capta.</p>
       </div>
-      <LogoCapta tamano={104} className="cd-banner-logo" />
+      <img className="cd-banner-logo" src="/capta/logo-3d.webp" width="104" height="104" alt="" />
     </section>
   )
 }
@@ -635,6 +577,10 @@ function claveDeCiudad(ciudad) {
   return ciudadPareja(ciudad).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 }
 
+const IMAGENES_DE_CIUDAD = {
+  chivilcoy: ['/capta/hero-chivilcoy.webp?v=2', '/capta/banner-chivilcoy.webp?v=2'],
+}
+
 /**
  * El carrusel de arriba. Cada ciudad puede tener su foto principal
  * (public/capta/hero-<ciudad>.webp) y su banner (banner-<ciudad>.webp); despues
@@ -644,26 +590,27 @@ function claveDeCiudad(ciudad) {
 function Carrusel({ ciudad, promos }) {
   const clave = claveDeCiudad(ciudad)
   const [rotas, setRotas] = useState([])
-  const [actual, setActual] = useState(0)
+  const [actual, setActual] = useState({ ciudad: '', indice: 0 })
   const pistaRef = useRef(null)
   const tocandoRef = useRef(false)
 
   const slides = useMemo(() => {
-    const lista = []
-    if (clave) {
-      lista.push({ id: `hero-${clave}`, tipo: 'imagen', src: `/capta/hero-${clave}.webp?v=2` })
-      lista.push({ id: `banner-${clave}`, tipo: 'imagen', src: `/capta/banner-${clave}.webp?v=2` })
-    }
+    const lista = (IMAGENES_DE_CIUDAD[clave] || []).map((src) => ({ id: src, tipo: 'imagen', src }))
     for (const local of promos.slice(0, 3)) lista.push({ id: `promo-${local.slug}`, tipo: 'promo', local })
     const sanas = lista.filter((s) => !rotas.includes(s.id))
     return sanas.some((s) => s.tipo === 'imagen') ? sanas : [{ id: 'dibujado', tipo: 'dibujado' }, ...sanas]
   }, [clave, promos, rotas])
 
   const total = slides.length
+  const indiceActual = actual.ciudad === clave ? Math.min(total - 1, actual.indice) : 0
+
+  useEffect(() => {
+    if (pistaRef.current) pistaRef.current.scrollLeft = 0
+  }, [clave])
 
   // Pasa solo cada 5 segundos, salvo que el cliente lo este moviendo.
   useEffect(() => {
-    if (total < 2) return undefined
+    if (total < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
     const intervalo = window.setInterval(() => {
       const pista = pistaRef.current
       if (!pista || tocandoRef.current) return
@@ -671,11 +618,11 @@ function Carrusel({ ciudad, promos }) {
       pista.scrollTo({ left: siguiente * pista.clientWidth, behavior: 'smooth' })
     }, 5000)
     return () => window.clearInterval(intervalo)
-  }, [total])
+  }, [clave, total])
 
   const alMover = () => {
     const pista = pistaRef.current
-    if (pista) setActual(Math.min(total - 1, Math.round(pista.scrollLeft / Math.max(1, pista.clientWidth))))
+    if (pista) setActual({ ciudad: clave, indice: Math.round(pista.scrollLeft / Math.max(1, pista.clientWidth)) })
   }
 
   return (
@@ -686,6 +633,7 @@ function Carrusel({ ciudad, promos }) {
         onScroll={alMover}
         onPointerDown={() => (tocandoRef.current = true)}
         onPointerUp={() => (tocandoRef.current = false)}
+        onPointerCancel={() => (tocandoRef.current = false)}
         onTouchStart={() => (tocandoRef.current = true)}
         onTouchEnd={() => (tocandoRef.current = false)}
       >
@@ -719,7 +667,7 @@ function Carrusel({ ciudad, promos }) {
       {total > 1 ? (
         <div className="cd-puntos-carrusel" aria-hidden="true">
           {slides.map((slide, i) => (
-            <span key={slide.id} className={i === actual ? 'cd-punto-activo' : ''} />
+            <span key={slide.id} className={i === indiceActual ? 'cd-punto-activo' : ''} />
           ))}
         </div>
       ) : null}
@@ -1407,7 +1355,7 @@ export default function CaptaDeliveryApp() {
 
         {esInicio ? (
           <>
-            <Carrusel key={ciudad} ciudad={ciudad} promos={conPromo} />
+            <Carrusel ciudad={ciudad} promos={conPromo} />
 
             <Categorias onElegir={abrirGrupo} onVerTodas={() => setHoja('categorias')} />
 
