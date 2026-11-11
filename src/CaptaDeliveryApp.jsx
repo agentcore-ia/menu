@@ -348,8 +348,15 @@ function BeneficiosParaVos({ cupones, onCopiar }) {
       </div>
       <div className="cd-carrusel cd-carrusel-cupones">
         {lista.map((c) => {
-          // El titulo se muestra solo si dice algo mas que el cartel grande.
-          const subtitulo = quitarAcentos(c.titulo) !== quitarAcentos(c.texto) ? c.titulo : ''
+          const titulo = String(c.titulo ?? '').trim()
+          const beneficio = String(c.texto ?? '').trim()
+          const tituloNormalizado = quitarAcentos(titulo)
+          const beneficioNormalizado = quitarAcentos(beneficio)
+          const subtitulo = tituloNormalizado === beneficioNormalizado
+            ? ''
+            : tituloNormalizado.startsWith(`${beneficioNormalizado} `)
+              ? titulo.slice(beneficio.length).trim()
+              : titulo
           return (
             <button
               key={c.codigo}
@@ -359,16 +366,14 @@ function BeneficiosParaVos({ cupones, onCopiar }) {
               onClick={() => onCopiar(c)}
             >
               <span className="cd-cupon-cuerpo">
-                <span className="cd-cupon-encabezado">
+                <span className="cd-cupon-texto">
                   <span className="cd-cupon-tag">
                     {c.propio ? 'Tu beneficio' : c.tipo === 'envio_gratis' ? 'Envío' : c.tipo === 'producto' ? 'Regalo' : 'Descuento'}
                   </span>
-                  <span className="cd-cupon-icono" aria-hidden="true"><DibujoCupon tipo={c.tipo} /></span>
-                </span>
-                <span className="cd-cupon-texto">
-                  <strong>{c.texto}</strong>
+                  <strong>{beneficio}</strong>
                   {subtitulo ? <small>{subtitulo}</small> : null}
                 </span>
+                <span className="cd-cupon-icono" aria-hidden="true"><DibujoCupon tipo={c.tipo} /></span>
                 <span className="cd-cupon-condiciones">
                   {c.minimoCompra > 0 ? <span>{`Compra mínima $${c.minimoCompra.toLocaleString('es-AR')}`}</span> : null}
                   <span>{c.hasta ? `Hasta el ${new Date(c.hasta).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}` : 'Sin vencimiento'}</span>
@@ -381,7 +386,7 @@ function BeneficiosParaVos({ cupones, onCopiar }) {
                     <rect x="9" y="9" width="11" height="11" rx="2.5" />
                     <path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9" />
                   </svg>
-                  Copiar
+                  Copiar código
                 </span>
               </span>
             </button>

@@ -2625,19 +2625,19 @@ body {
 /* ---------- beneficios ---------- */
 
 .cd-cupon {
-  --cd-cupon-tono: color-mix(in srgb, var(--cd-marca, #16a34a) 12%, #fff);
-  --cd-cupon-tinta: color-mix(in srgb, var(--cd-marca, #16a34a) 36%, #211b17);
-  --cd-cupon-borde: color-mix(in srgb, var(--cd-marca, #16a34a) 22%, #f3ede7);
+  --cd-cupon-color: var(--cd-marca, #f2581b);
+  --cd-cupon-tinta: color-mix(in srgb, var(--cd-cupon-color) 36%, #211b17);
+  --cd-cupon-borde: #ebe4db;
   flex: none;
   display: flex;
   flex-direction: column;
-  width: clamp(215px, 70vw, 260px);
+  width: clamp(223px, 74vw, 294px);
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--cd-cupon-borde);
-  border-radius: 20px;
+  border-radius: 18px;
   background: #fff;
-  box-shadow: 0 4px 12px rgba(48, 31, 20, 0.07);
+  box-shadow: 0 2px 3px rgba(48, 31, 20, 0.03), 0 7px 18px rgba(48, 31, 20, 0.06);
   color: var(--cd-tinta);
   font: inherit;
   text-align: left;
@@ -2653,85 +2653,93 @@ body {
 .cd-cupon-cuerpo {
   display: grid;
   flex: 1;
+  grid-template-columns: minmax(0, 1fr) 62px;
   align-content: start;
-  gap: 9px;
-  padding: 13px 14px 14px;
-  background: linear-gradient(140deg, var(--cd-cupon-tono), #fff 95%);
-}
-
-.cd-cupon-encabezado {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 9px 12px;
+  padding: 14px 14px 12px;
 }
 
 .cd-cupon-tag {
-  padding: 4px 9px;
-  border: 1px solid var(--cd-cupon-borde);
-  border-radius: 999px;
-  background: #fff;
   color: var(--cd-cupon-tinta);
   font-size: 10px;
   font-weight: 800;
   line-height: 1.2;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
 }
 
 .cd-cupon-icono {
+  position: relative;
   display: grid;
-  flex: none;
-  width: 47px;
-  height: 38px;
+  align-self: start;
+  height: 62px;
+  overflow: hidden;
   place-items: center;
-  border-radius: 12px;
-  background: var(--cd-cupon-tono);
-  color: var(--cd-cupon-tinta);
+  border-radius: 15px;
+  background: linear-gradient(145deg, var(--cd-cupon-color), var(--cd-cupon-tinta));
+  color: #fff;
+  isolation: isolate;
+}
+
+.cd-cupon-icono::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 24px -21px -24px 27px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 50%;
+  box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.09), 0 0 0 15px rgba(255, 255, 255, 0.06);
 }
 
 .cd-cupon-icono .cd-icono {
-  font-size: 25px;
+  font-size: 31px;
 }
 
 .cd-cupon-texto {
   display: grid;
   min-width: 0;
-  gap: 3px;
+  align-content: start;
+  gap: 4px;
   overflow-wrap: anywhere;
 }
 
 .cd-cupon-texto strong {
-  font-size: 25px;
+  font-size: clamp(19px, 5.65vw, 25px);
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.04em;
 }
 
 .cd-cupon-texto small {
-  color: var(--cd-cupon-tinta);
+  color: #5f554d;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.35;
 }
 
 .cd-cupon-condiciones {
+  grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
-  gap: 3px 10px;
-  color: #655c54;
+  gap: 3px 8px;
+  color: #6e645b;
   font-size: 11px;
   font-weight: 650;
   line-height: 1.35;
 }
 
+.cd-cupon-condiciones span + span::before {
+  content: '·';
+  margin-right: 8px;
+}
+
 .cd-cupon-dibujo {
-  width: 26px;
+  width: 33px;
   height: auto;
 }
 
 .cd-cupon-dibujo-moto {
-  width: 34px;
+  width: 42px;
 }
 
 .cd-cupon-codigo {
@@ -2739,15 +2747,16 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  min-height: 53px;
-  padding: 9px 12px 9px 14px;
+  min-height: 49px;
+  padding: 8px 11px 8px 14px;
   border-top: 1px dashed var(--cd-cupon-borde);
+  background: #fdfbf8;
 }
 
 .cd-cupon-codigo b {
   min-width: 0;
   overflow: hidden;
-  color: var(--cd-cupon-tinta);
+  color: var(--cd-tinta);
   font: 750 12px / 1.2 ui-monospace, monospace;
   letter-spacing: 0.025em;
   text-overflow: ellipsis;
@@ -2759,18 +2768,17 @@ body {
   flex: none;
   align-items: center;
   gap: 5px;
-  padding: 8px 10px;
+  padding: 8px 9px;
   border-radius: 9px;
-  background: var(--cd-cupon-tono);
-  color: var(--cd-cupon-tinta);
-  font-size: 11px;
+  background: #29211b;
+  color: #fff;
+  font-size: 10.5px;
   font-weight: 800;
   line-height: 1.1;
 }
 
 .cd-cupon:is(:hover, :focus-visible) .cd-cupon-copiar {
   background: var(--cd-cupon-tinta);
-  color: #fff;
 }
 
 .cd-bienvenida {
