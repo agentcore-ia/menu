@@ -195,7 +195,7 @@ function Portada({ local }) {
         style={{ '--cd-marca': local.color || '#f97316' }}
         aria-hidden="true"
       >
-        <span>{inicial}</span>
+        {local.logo ? null : <span>{inicial}</span>}
       </div>
     )
   }
@@ -1470,7 +1470,7 @@ export default function CaptaDeliveryApp() {
             ) : null}
 
             {mandadoDeLaCiudad ? (
-              <EntradaMandados mandado={mandadoDeLaCiudad} onAbrir={() => pedirMandado('')} />
+              <EntradaMandados key={ciudad} mandado={mandadoDeLaCiudad} />
             ) : null}
 
             {!cargando && paraRepetir.length ? <VolverAPedir pedidos={paraRepetir} /> : null}

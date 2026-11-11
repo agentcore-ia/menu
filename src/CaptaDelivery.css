@@ -1897,12 +1897,14 @@ body {
 }
 
 .cd-cerca-cuerpo h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   margin: 0;
   overflow: hidden;
+  overflow-wrap: anywhere;
   font-size: 17px;
   font-weight: 800;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .cd-cerca-rubro {
@@ -2896,6 +2898,8 @@ body {
   .cd-cat { width: 62px; gap: 4px; }
   .cd-cat-circulo { width: 52px; height: 52px; }
   .cd-cat-nombre { font-size: 12px; }
+  .cd-locales-inicio .cd-grilla-cerca > .cd-cerca:only-child { grid-column: 1 / -1; }
+  .cd-locales-inicio .cd-cerca:only-child .cd-cerca-foto { aspect-ratio: 3.4; }
 }
 
 .cd-bienvenida {

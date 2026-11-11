@@ -6,7 +6,7 @@
 // /api/delivery/mandados (server/mandados.js), que busca la direccion y le
 // pasa todo al dashboard. No decide plata: el precio lo pone el servidor.
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { guardarEnCurso, leerEnCurso } from './mandadoEnCurso.js'
 import { TIPOS_MANDADO, normalizarMandado } from '../shared/mandados.js'
 import {
@@ -51,12 +51,11 @@ function Icono({ nombre }) {
   )
 }
 
-/** La tarjeta de la vitrina que abre el formulario. */
-export function EntradaMandados({ mandado, onAbrir }) {
+/** Acceso al seguimiento de un mandado en curso. */
+export function EntradaMandados({ mandado }) {
   const [enCurso] = useState(() => leerEnCurso(mandado.ciudad))
+  if (!enCurso) return null
   return (
-    <>
-    {enCurso ? (
       <a className="cd-mandados-entrada cd-mandado-en-curso" href={enCurso.seguimiento} target="_blank" rel="noopener noreferrer">
         <span className="cd-mandados-icono">
           <Icono nombre="route" />
@@ -67,21 +66,6 @@ export function EntradaMandados({ mandado, onAbrir }) {
         </span>
         <Icono nombre="chevron_right" />
       </a>
-    ) : null}
-    <button type="button" className="cd-mandados-entrada" onClick={onAbrir}>
-      <span className="cd-mandados-icono">
-        <Icono nombre="directions_bike" />
-      </span>
-      <span className="cd-mandados-textos">
-        <strong>Mandados</strong>
-        <small>
-          Te compramos lo que necesites o llevamos tu paquete
-          {mandado.envioDesde ? ` · envío desde ${pesos(mandado.envioDesde)}` : ''}
-        </small>
-      </span>
-      <Icono nombre="chevron_right" />
-    </button>
-    </>
   )
 }
 
@@ -109,6 +93,7 @@ export function FormularioMandado({ mandado, dondeInicial = '' }) {
   const ciudad = mandado.ciudad
   const [guardados] = useState(() => leerDatos(almacenDelNavegador()))
   const [paso, setPaso] = useState(1)
+  const pasosRef = useRef(null)
   const [tipo, setTipo] = useState('compra')
   const [que, setQue] = useState('')
   // Viene de un cuadrado del inicio sin locales ("La farmacia más cercana").
@@ -224,6 +209,7 @@ export function FormularioMandado({ mandado, dondeInicial = '' }) {
   const cambiarPaso = (siguiente) => {
     setError('')
     setPaso(siguiente)
+    window.requestAnimationFrame(() => pasosRef.current?.focus())
   }
 
   const continuar = (evento) => {
@@ -286,7 +272,7 @@ export function FormularioMandado({ mandado, dondeInicial = '' }) {
 
   return (
     <form className="cd-mandado-form" onSubmit={continuar} noValidate>
-      <ol className="cd-mandado-pasos" aria-label="Pasos del mandado">
+      <ol ref={pasosRef} tabIndex={-1} className="cd-mandado-pasos" aria-label="Pasos del mandado">
         {['Qué necesitás', 'Retiro y entrega', 'Precio y confirmación'].map((texto, i) => (
           <li key={texto} aria-current={paso === i + 1 ? 'step' : undefined} data-completo={paso > i + 1}>
             <span aria-hidden="true">{i + 1}</span>{texto}
@@ -367,7 +353,7 @@ export function FormularioMandado({ mandado, dondeInicial = '' }) {
       {paso === 2 ? (
         <fieldset className="cd-mandado-datos" disabled={cotizando}>
           <label>
-            <span>{tipo === 'compra' ? '¿Dónde? (opcional)' : '¿Dónde lo retiramos?'}</span>
+            <span>{tipo === 'compra' ? '¿En qué comercio lo compramos? (opcional)' : '¿Dónde lo retiramos?'}</span>
             <input
               value={donde}
               onChange={(e) => setDonde(e.target.value)}

@@ -9218,6 +9218,7 @@ export default function MenuApp() {
     : null
   const cuponAplicado = resultadoActual?.datos?.ok ? resultadoActual.datos : null
   const cuponProbando = revisarCupon && !resultadoActual
+  const beneficioPendiente = Boolean(cuponSolicitado && hasOrderItems && !resultadoActual)
   const elegirCupon = (codigo) => {
     setCuponSolicitado(codigo)
     setCuponTexto('')
@@ -9338,7 +9339,7 @@ export default function MenuApp() {
         <div className="cu-importes-descuento"><dt>Descuento</dt><dd>−{formatPrice(redemptionDiscountTotal + descuentoCupon + descuentoCapta, currencySymbol)}</dd></div>
       ) : null}
       <div className="cu-importes-total">
-        <dt>{envioPendiente ? 'Total parcial' : 'Total a pagar'}</dt>
+        <dt>{envioPendiente || beneficioPendiente ? 'Total parcial' : 'Total a pagar'}</dt>
         <dd>{formatPrice(orderTotal, currencySymbol)}</dd>
       </div>
     </dl>
@@ -13361,9 +13362,9 @@ export default function MenuApp() {
                         {/* Lo primero que busca el que va a transferir: cuanto.
                             Es el mismo total del pedido, con envio y recargo. */}
                         <span>Total a transferir</span>
-                        <strong className="checkout-transferencia-total">{envioPendiente ? 'Calculá el envío primero' : formatPrice(orderTotal, currencySymbol)}</strong>
-                        {orderForm.deliveryType === 'delivery' && deliveryZonesEnabled && deliveryQuoteStatus !== 'ready' ? (
-                          <p>El envío se suma cuando termine de calcularse. Transferí el total final.</p>
+                        <strong className="checkout-transferencia-total">{envioPendiente || beneficioPendiente ? 'Total por confirmar' : formatPrice(orderTotal, currencySymbol)}</strong>
+                        {envioPendiente || beneficioPendiente ? (
+                          <p>Completá la entrega y los datos para ver el total final antes de transferir.</p>
                         ) : null}
                         <span>Transferí a</span>
                         {datosDeTransferencia.alias ? (
