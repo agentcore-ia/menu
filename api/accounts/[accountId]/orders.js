@@ -5,6 +5,7 @@ import { estadoDelPago } from '../../../server/estadoDelPago.js'
 import { mandados } from '../../../server/mandados.js'
 import { cuenta } from '../../../server/cuenta.js'
 import { cupones } from '../../../server/cupones.js'
+import { pedidoActivo } from '../../../server/pedidoActivo.js'
 import { createOrderRepository } from '../../../server/repositories/orderRepository.js'
 
 export default async function handler(req, res) {
@@ -33,6 +34,11 @@ export default async function handler(req, res) {
   // camino y mismo motivo que los mandados.
   if (req.query?.ruta === 'cuenta') {
     await cuenta(req, res)
+    return
+  }
+
+  if (req.query?.ruta === 'pedido-activo') {
+    await pedidoActivo(req, res)
     return
   }
 

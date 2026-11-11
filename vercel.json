@@ -576,6 +576,10 @@
       "destination": "/api/accounts/capta/orders?ruta=cuenta"
     },
     {
+      "source": "/api/delivery/pedido-activo",
+      "destination": "/api/accounts/capta/orders?ruta=pedido-activo"
+    },
+    {
       "source": "/api/delivery/cupones",
       "destination": "/api/accounts/capta/orders?ruta=cupones"
     },

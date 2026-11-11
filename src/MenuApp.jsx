@@ -18,6 +18,7 @@ import BarraCapta from './BarraCapta.jsx'
 import { turnosParaProgramar } from '../shared/pedidoProgramado.js'
 import { guardarUltimoPedido, rearmarCarrito, ultimoPedidoDe } from '../shared/volverAPedir.js'
 import { guardarBeneficioElegido, leerBeneficioElegido, leerSesion } from './sesionCapta.js'
+import { guardarSeguimientoPedido } from './pedidoActivo.js'
 import { VerificarCelular } from './VerificarCelular.jsx'
 import {
   almacenDelNavegador,
@@ -10816,6 +10817,10 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
 
       if (!response.ok) {
         throw new Error(result.message ?? 'No se pudo enviar el pedido.')
+      }
+
+      if (desdeLaVitrina && !isTableOrder && !sesionCapta?.token) {
+        guardarSeguimientoPedido(result.trackingToken)
       }
 
       if (shouldRedirectToMercadoPago && !result.paymentLink) {

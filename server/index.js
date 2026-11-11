@@ -12,6 +12,7 @@ import { resolveDeliveryQuote } from './deliveryZones.js'
 import { mandados } from './mandados.js'
 import { cuenta } from './cuenta.js'
 import { cupones } from './cupones.js'
+import { pedidoActivo } from './pedidoActivo.js'
 
 const config = getServerConfig()
 const repository = createMenuRepository(config)
@@ -133,6 +134,7 @@ app.all('/api/delivery/cupones', cupones)
 app.all('/api/delivery/mandados', mandados)
 // La cuenta del cliente (server/cuenta.js): la lleva el dashboard.
 app.all('/api/delivery/cuenta', cuenta)
+app.all('/api/delivery/pedido-activo', pedidoActivo)
 
 // Buscar productos en todos los locales de la vitrina.
 app.get('/api/delivery/buscar', async (req, res) => {

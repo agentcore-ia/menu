@@ -17,6 +17,7 @@ import { celularValido, normalizarCelular } from '../shared/celular.js'
 import { EntradaMandados, FormularioMandado } from './MandadoCapta.jsx'
 import { leerEnCurso } from './mandadoEnCurso.js'
 import { VisorSeguimiento } from './VisorSeguimiento.jsx'
+import { actualizarPedidos, consultarPedidoGuardado } from './pedidoActivo.js'
 import { Ingresar, NombreDeLaCuenta } from './CuentaCapta.jsx'
 import { borrarSesion, guardarBeneficioElegido, leerBeneficioElegido, leerSesion, pedirCuenta, tomarBienvenida } from './sesionCapta.js'
 import { capturarInvitacion, tomarRegalo } from './invitacionCapta.js'
@@ -827,6 +828,25 @@ function ProductoEncontrado({ p }) {
   )
 }
 
+function TarjetaPedidoActivo({ pedido }) {
+  const detalle = [pedido.local, pedido.numero ? `Pedido #${pedido.numero}` : ''].filter(Boolean).join(' · ')
+
+  return (
+    <section className="cd-pedido-activo" aria-label="Pedido activo">
+      <span className="cd-perfil-icono">
+        <Icono nombre={pedido.estado === 'En camino' ? 'delivery_dining' : 'receipt_long'} />
+      </span>
+      <div className="cd-pedido-textos">
+        <strong aria-live="polite">{pedido.estado}</strong>
+        {detalle ? <small>{detalle}</small> : null}
+      </div>
+      <a className="cd-boton-chico" href={pedido.seguimiento}>
+        Ver seguimiento
+      </a>
+    </section>
+  )
+}
+
 /** Un pedido de su cuenta (de cualquier local, de cualquier telefono). */
 function FilaPedidoDeCuenta({ p, local, repetible }) {
   return (
@@ -1081,31 +1101,58 @@ export default function CaptaDeliveryApp() {
   }, [sesion?.token])
   // Sus pedidos de todos los locales; null mientras se cargan.
   const [pedidosCuenta, setPedidosCuenta] = useState(null)
+  const [pedidoGuardado, setPedidoGuardado] = useState(null)
 
   // Con la cuenta abierta se traen sus datos y pedidos. Si la sesion vencio
   // (o la cerro en otro lado), se sale sola.
   const token = sesion?.token || null
+  const verPedidos = vista === 'inicio' || vista === 'pedidos'
   useEffect(() => {
     if (!token) return undefined
     let vivo = true
-    pedirCuenta('GET', null, token)
-      .then((datos) => {
+    const detener = actualizarPedidos(async () => {
+      try {
+        const datos = await pedirCuenta('GET', null, token)
         if (!vivo) return
         setPedidosCuenta(Array.isArray(datos?.pedidos) ? datos.pedidos : [])
-        if (datos?.cliente) setSesion((s) => (s ? { ...s, cliente: datos.cliente } : s))
-      })
-      .catch((e) => {
+        if (datos?.cliente) setSesion((s) => (s?.token === token ? { ...s, cliente: datos.cliente } : s))
+      } catch (e) {
         if (!vivo) return
         if (e.status === 401) {
           borrarSesion()
           setSesion(null)
+          setPedidosCuenta(null)
+        } else {
+          setPedidosCuenta((anteriores) => anteriores ?? [])
         }
-        setPedidosCuenta([])
-      })
+      }
+    }, { repetir: verPedidos })
     return () => {
       vivo = false
+      detener()
     }
-  }, [token])
+  }, [token, verPedidos])
+
+  useEffect(() => {
+    if (token || vista !== 'inicio') return undefined
+    let vivo = true
+    const detener = actualizarPedidos(async () => {
+      try {
+        const pedido = await consultarPedidoGuardado()
+        if (vivo) setPedidoGuardado(pedido)
+      } catch {
+        // Un fallo temporal no cambia el último estado confirmado.
+      }
+    })
+    return () => {
+      vivo = false
+      detener()
+    }
+  }, [token, vista])
+
+  const pedidoActivo = token
+    ? pedidosCuenta?.find((p) => !p.terminado && p.seguimiento)
+    : pedidoGuardado
 
   const salir = () => {
     if (token) void pedirCuenta('POST', { accion: 'salir' }, token).catch(() => {})
@@ -1359,6 +1406,7 @@ export default function CaptaDeliveryApp() {
 
         {esInicio ? (
           <>
+            {pedidoActivo ? <TarjetaPedidoActivo pedido={pedidoActivo} /> : null}
             <Carrusel ciudad={ciudad} promos={conPromo} />
 
             <Categorias onElegir={abrirGrupo} onVerTodas={() => setHoja('categorias')} />
