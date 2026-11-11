@@ -2741,7 +2741,7 @@ body {
   white-space: nowrap;
 }
 
-.cd-cupon-copiar {
+.cd-cupon-accion {
   display: inline-flex;
   flex: none;
   align-items: center;
@@ -2755,8 +2755,147 @@ body {
   line-height: 1.1;
 }
 
-.cd-cupon:is(:hover, :focus-visible) .cd-cupon-copiar {
+.cd-cupon:is(:hover, :focus-visible, [aria-pressed="true"]) .cd-cupon-accion {
   background: var(--cd-cupon-tinta);
+}
+
+.cd-cupon-accion .cd-icono { font-size: 14px; }
+.cd-cupon[aria-pressed="true"] { border-color: var(--cd-cupon-color); }
+.cd-cupon-texto small { color: var(--cd-cupon-tinta); font-size: 13px; }
+
+.cd-accesos {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.cd-accesos .cd-buscador {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.cd-accesos .cd-buscador input { min-width: 0; }
+
+.cd-acceso-mandados {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 12px;
+  border: 1px solid #f3dece;
+  border-radius: 14px;
+  background: #fff3e8;
+  color: #9b3b1a;
+  font-family: inherit;
+  font-size: .75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cd-acceso-mandados .cd-icono { font-size: 21px; }
+
+.cd-locales-inicio { margin-top: 20px; }
+.cd-locales-inicio .cd-seccion-cabeza h2 { font-size: clamp(19px, 5.4vw, 25px); }
+.cd-seccion-cabeza .cd-enlace-seccion { flex: none; color: #a33716; font-size: .8rem; font-weight: 800; }
+.cd-enlace-seccion .cd-icono { font-size: 17px; }
+
+.cd-filtros-busqueda {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 18px;
+}
+
+.cd-filtros-busqueda > div { display: flex; gap: 6px; }
+.cd-filtros-busqueda label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  font-size: .78rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+.cd-filtros-busqueda input { width: 17px; height: 17px; accent-color: #bd3e19; }
+.cd-ingresar-form > label { display: grid; gap: 6px; }
+.cd-ingresar-etiqueta { color: #514841; font-size: .81rem; font-weight: 750; }
+
+.cd-mandado-pasos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 0 3px;
+  padding: 0;
+  list-style: none;
+}
+.cd-mandado-pasos li {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  padding: 8px 4px;
+  border-radius: 11px;
+  color: #675c54;
+  font-size: .71rem;
+  font-weight: 750;
+  text-align: center;
+}
+.cd-mandado-pasos li span {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f1ede8;
+  font-size: .68rem;
+}
+.cd-mandado-pasos li[aria-current="step"] { background: #fff0e5; color: #973517; }
+.cd-mandado-pasos li[aria-current="step"] span { background: #b93c18; color: white; }
+.cd-mandado-pasos li[data-completo="true"] span { background: #e5f4e8; color: #216741; }
+.cd-mandado-anticipo { margin: 0; text-align: center; }
+.cd-mandado-datos { display: grid; gap: 12px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.cd-mandado-acciones { display: flex; gap: 8px; }
+.cd-mandado-acciones .cd-mandado-enviar { flex: 1; }
+.cd-mandado-acciones .cd-mandado-secundario { flex: none; padding-inline: 18px; }
+.cd-mandado-resumen {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 14px;
+  border-radius: 16px;
+  background: #f9f6f1;
+  font-size: .86rem;
+}
+.cd-mandado-resumen > div { display: flex; justify-content: space-between; gap: 14px; }
+.cd-mandado-resumen dt { flex: none; color: #62564b; }
+.cd-mandado-resumen dd { margin: 0; overflow-wrap: anywhere; text-align: right; font-weight: 750; }
+
+@media (max-width: 599px) {
+  .cd-carrusel-hero { margin-top: 12px; }
+  .cd-carrusel-pista { border-radius: 17px; box-shadow: none; }
+  .cd-slide .cd-banner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 56px;
+    align-items: center;
+    min-height: 0;
+    gap: 10px;
+    padding: 8px 14px;
+  }
+  .cd-slide .cd-banner h1 { font-size: clamp(15px, 4.7vw, 22px); }
+  .cd-slide .cd-banner h1 br { display: none; }
+  .cd-slide .cd-banner h1 em { margin-left: .24em; }
+  .cd-slide .cd-banner-kicker { margin: 0 0 4px; font-size: 9px; }
+  .cd-slide .cd-banner-texto { margin: 4px 0 0; font-size: 11px; line-height: 1.25; }
+  .cd-slide .cd-banner-logo { width: 56px; height: 56px; }
+  .cd-cats { margin-top: 14px; padding-block: 10px; border-radius: 18px; }
+  .cd-cats-cabeza { margin-bottom: 6px; }
+  .cd-cats-cabeza h2 { font-size: 18px; }
+  .cd-cats-cabeza button { font-size: 13px; color: #a33716; }
+  .cd-cat { width: 62px; gap: 4px; }
+  .cd-cat-circulo { width: 52px; height: 52px; }
+  .cd-cat-nombre { font-size: 12px; }
 }
 
 .cd-bienvenida {

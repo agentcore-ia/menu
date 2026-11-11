@@ -1648,16 +1648,20 @@ export class SupabaseOrderRepository {
    * Devuelve siempre algo: un cliente que nunca pidio tiene cero puntos, no es
    * un error. Si el programa esta apagado o la tabla no esta, tambien cero.
    */
+  async configPuntosCapta() {
+    const filas = await this.request('/capta_puntos_config?id=eq.true&select=*&limit=1')
+    return configDePuntos(filas?.[0] ?? null)
+  }
+
   async puntosDeCapta(telefonoCrudo) {
     const telefono = normalizarCelular(telefonoCrudo)
     if (!/^549\d{10}$/.test(telefono)) return null
 
     try {
-      const [configFilas, cuentas] = await Promise.all([
-        this.request('/capta_puntos_config?id=eq.true&select=*&limit=1'),
+      const [config, cuentas] = await Promise.all([
+        this.configPuntosCapta(),
         this.request(`/capta_puntos_cuentas?telefono=eq.${telefono}&select=id,puntos,nombre&limit=1`),
       ])
-      const config = configDePuntos(configFilas?.[0] ?? null)
       const cuenta = cuentas?.[0] ?? null
       return {
         telefono,

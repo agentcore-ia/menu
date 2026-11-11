@@ -106,6 +106,10 @@ app.get('/api/delivery/puntos', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store, max-age=0')
 
   try {
+    if (req.query.config === '1') {
+      res.json({ config: await orderRepository.configPuntosCapta?.() ?? null })
+      return
+    }
     const cuenta = await orderRepository.puntosDeCapta?.(req.query.telefono)
     if (!cuenta) {
       res.json({ puntos: 0, pesos: 0, config: null, movimientos: [] })

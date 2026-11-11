@@ -5,6 +5,24 @@
 import { almacenDelNavegador, guardarDatos } from '../shared/datosDelCliente.js'
 
 const CLAVE = 'capta-sesion'
+const CLAVE_BENEFICIO = 'capta-beneficio-elegido'
+
+export function leerBeneficioElegido() {
+  try {
+    return almacenDelNavegador()?.getItem(CLAVE_BENEFICIO) || ''
+  } catch {
+    return ''
+  }
+}
+
+export function guardarBeneficioElegido(codigo) {
+  try {
+    if (codigo) almacenDelNavegador()?.setItem(CLAVE_BENEFICIO, codigo)
+    else almacenDelNavegador()?.removeItem(CLAVE_BENEFICIO)
+  } catch {
+    // La selección sigue disponible en la pantalla actual.
+  }
+}
 
 export function leerSesion() {
   try {

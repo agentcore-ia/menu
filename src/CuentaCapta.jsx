@@ -101,15 +101,17 @@ export function Ingresar({ onListo, titulo = 'Entrá con tu celular' }) {
             void pedirCodigo()
           }}
         >
-          <input
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            value={celular}
-            onChange={(e) => setCelular(e.target.value)}
-            placeholder="Tu celular, ej: 2346 587122"
-            aria-label="Tu celular"
-          />
+          <label>
+            <span className="cd-ingresar-etiqueta">Tu celular con característica</span>
+            <input
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              value={celular}
+              onChange={(e) => setCelular(e.target.value)}
+              placeholder="Ej. 2346 587122"
+            />
+          </label>
           <button type="submit" disabled={trabajando}>
             {trabajando ? 'Enviando…' : 'Recibir código por WhatsApp'}
           </button>

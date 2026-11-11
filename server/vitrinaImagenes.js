@@ -33,7 +33,7 @@ const IMAGENES_DEL_REPO = {
   'kiosco-9-de-julio': { portada: '/kiosco-9-de-julio/compartir.png', logo: '/kiosco-9-de-julio/icono-192.png' },
   'grupo-lea': { portada: '/grupo-lea/portada.jpg', logo: '/grupo-lea/icono-192.png' },
   'yo-helados': { portada: '/yo-helados/compartir.jpg', logo: '/yo-helados/icono-192.png' },
-  'todo-empanadas': { portada: '/todo-empanadas/compartir.png', logo: '/todo-empanadas/icono-192.png' },
+  'todo-empanadas': { logo: '/todo-empanadas/icono-192.png' },
   'punto-waffle': { logo: '/punto-waffle/logo.png' },
   ipplis: { portada: '/ipplis/compartir.jpg', logo: '/ipplis/icono-192.png' },
   dallys: { portada: '/dallys/compartir.jpg', logo: '/dallys/icono-192.png' },
@@ -63,8 +63,7 @@ export function imagenesDeVitrina(slug, { ajustes = {}, presentacion = {} } = {}
     portada: primera(
       ajustes.captaFoto,
       delRepo.portada,
-      presentacion?.hero_image_url,
-      cabeceras[0],
+      [presentacion?.hero_image_url, cabeceras[0]].find((url) => url && !/\/todo-empanadas\/compartir\.png/i.test(url)),
       overrides.heroBackground,
     ),
     logo: primera(ajustes.captaLogo, delRepo.logo, overrides.logo, overrides.logoImage, overrides.logoBanda),

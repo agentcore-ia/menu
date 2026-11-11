@@ -23,6 +23,10 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'no-store, max-age=0')
     try {
       const orderRepository = createOrderRepository(config)
+      if (req.query.config === '1') {
+        res.status(200).json({ config: await orderRepository.configPuntosCapta?.() ?? null })
+        return
+      }
       const cuenta = await orderRepository.puntosDeCapta?.(req.query.telefono)
       if (!cuenta) {
         res.status(200).json({ puntos: 0, pesos: 0, config: null, movimientos: [] })

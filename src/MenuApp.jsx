@@ -17,7 +17,7 @@ import { seguirToques, volarAlCarrito } from './animacionCarrito.js'
 import BarraCapta from './BarraCapta.jsx'
 import { turnosParaProgramar } from '../shared/pedidoProgramado.js'
 import { guardarUltimoPedido, rearmarCarrito, ultimoPedidoDe } from '../shared/volverAPedir.js'
-import { leerSesion } from './sesionCapta.js'
+import { guardarBeneficioElegido, leerBeneficioElegido, leerSesion } from './sesionCapta.js'
 import { VerificarCelular } from './VerificarCelular.jsx'
 import {
   almacenDelNavegador,
@@ -8164,7 +8164,7 @@ function CaptaCabecera({ nombre, logo, portada, ficha, conVolver = true, abierto
 
   return (
     <header className="cu-cabecera" data-menu-hero>
-      <div className="cu-portada" style={portada ? { backgroundImage: `url("${portada}")` } : undefined}>
+      <div className={portada ? 'cu-portada' : 'cu-portada cu-portada-sin-foto'} style={portada ? { backgroundImage: `url("${portada}")` } : undefined}>
         <div className="cu-portada-velo" />
         <div className="cu-barra">
           {/* El boton de volver lleva a la vitrina: solo tiene sentido si se vino de ella. */}
@@ -8213,7 +8213,7 @@ function CaptaFila({ item, onOpenDish, onAddItem, renderProductMedia }) {
         {item.description ? <p>{item.description}</p> : null}
         <strong>{item.price}</strong>
         {item.destacado ? <em className="cu-etiqueta">Más pedido</em> : null}
-        {sinStock ? <em className="cu-etiqueta gris">Sin stock</em> : null}
+        {sinStock ? <em className="cu-etiqueta gris">{item.fueraDeHorario ? `Se pide ${item.fueraDeHorario}` : 'Sin stock'}</em> : null}
       </button>
       <div className="cu-fila-lado">
         {item.hasCustomImage ? (
@@ -8241,6 +8241,10 @@ function CaptaFila({ item, onOpenDish, onAddItem, renderProductMedia }) {
 const CATALOGO_GRANDE = 300
 const FILAS_POR_CATEGORIA = 40
 const FILAS_EN_BUSQUEDA = 80
+
+function disponiblesPrimero(items) {
+  return [...items].sort((a, b) => Number(a.availableForOrder === false) - Number(b.availableForOrder === false))
+}
 
 function CaptaCarta({
   categories,
@@ -8321,7 +8325,7 @@ function CaptaCarta({
         resultados.length ? (
           <section className="cu-seccion">
             <h2>Resultados</h2>
-            {(esGrande ? resultados.slice(0, FILAS_EN_BUSQUEDA) : resultados).map((item) => <CaptaFila key={item.id} item={item} {...fila} />)}
+            {disponiblesPrimero(resultados).slice(0, esGrande ? FILAS_EN_BUSQUEDA : undefined).map((item) => <CaptaFila key={item.id} item={item} {...fila} />)}
             {esGrande && resultados.length > FILAS_EN_BUSQUEDA ? (
               <p className="cu-vacio">Mostramos {FILAS_EN_BUSQUEDA} de {resultados.length}. Escribí más para afinar la búsqueda.</p>
             ) : null}
@@ -8333,7 +8337,7 @@ function CaptaCarta({
         secciones.map((c) => (
           <section key={c.id} id={`cu-cat-${c.id}`} className="cu-seccion">
             <h2>{c.label}</h2>
-            {(esGrande && !abiertas[c.id] ? c.items.slice(0, FILAS_POR_CATEGORIA) : c.items).map((item) => (
+            {disponiblesPrimero(c.items).slice(0, esGrande && !abiertas[c.id] ? FILAS_POR_CATEGORIA : undefined).map((item) => (
               <CaptaFila key={item.id} item={item} {...fila} />
             ))}
             {esGrande && !abiertas[c.id] && c.items.length > FILAS_POR_CATEGORIA ? (
@@ -9119,7 +9123,7 @@ export default function MenuApp() {
   // primer producto. Siempre habia estado ahi, tapada.
   const barraDePedidoPideItems = templateId === 'pizzeria' || templateId === 'panaderia'
     || templateId === 'gelato'
-  const mostrarBarraDePedido = !barraDePedidoPideItems || hasOrderItems
+  const mostrarBarraDePedido = (!vistaCapta && !barraDePedidoPideItems) || hasOrderItems
   const deliveryZonesEnabled = Boolean(
     menu?.deliveryZonesEnabled &&
       Array.isArray(menu?.deliveryZones) &&
@@ -9192,51 +9196,63 @@ export default function MenuApp() {
   // app. El descuento lo calcula el SERVIDOR (/api/delivery/cupones/validar) y
   // se vuelve a validar al crear el pedido.
   const [cuponTexto, setCuponTexto] = useState('')
-  const [cuponAplicado, setCuponAplicado] = useState(null)
-  const [cuponMensaje, setCuponMensaje] = useState('')
-  const [cuponProbando, setCuponProbando] = useState(false)
+  const [cuponSolicitado, setCuponSolicitado] = useState(() => desdeLaVitrina ? leerBeneficioElegido() : '')
+  const [resultadoCupon, setResultadoCupon] = useState(null)
+  const [intentoCupon, setIntentoCupon] = useState(0)
   const [cuponesAlAlcance, setCuponesAlAlcance] = useState([])
+  const contextoCupon = useMemo(() => ({
+    codigo: cuponSolicitado,
+    slug: accountId,
+    comida: cartTotal,
+    envio: selectedDeliveryFee,
+    items: cart.map((line) => ({ productId: line.productId || null, unitPrice: line.unitPrice })),
+    telefono: celularDelPedido,
+    sesionCapta: sesionCapta?.token,
+    desdeVitrina: true,
+  }), [cuponSolicitado, accountId, cartTotal, selectedDeliveryFee, cart, celularDelPedido, sesionCapta?.token])
 
-  const probarCupon = useCallback(
-    async (codigo, { silencioso = false } = {}) => {
-      if (!codigo) return
-      if (!silencioso) {
-        setCuponProbando(true)
-        setCuponMensaje('')
-      }
+  const envioPendiente = !isTableOrder && orderForm.deliveryType === 'delivery' && deliveryZonesEnabled && deliveryQuote?.allowed !== true
+  const revisarCupon = Boolean(desdeLaVitrina && cuponSolicitado && hasOrderItems && !isTableOrder && celularDelPedido && !envioPendiente)
+  const resultadoActual = revisarCupon && resultadoCupon?.contexto === contextoCupon && resultadoCupon.intento === intentoCupon
+    ? resultadoCupon
+    : null
+  const cuponAplicado = resultadoActual?.datos?.ok ? resultadoActual.datos : null
+  const cuponProbando = revisarCupon && !resultadoActual
+  const elegirCupon = (codigo) => {
+    setCuponSolicitado(codigo)
+    setCuponTexto('')
+    setIntentoCupon((previo) => previo + 1)
+    if (leerBeneficioElegido() === cuponSolicitado && codigo !== cuponSolicitado) guardarBeneficioElegido('')
+  }
+
+  useEffect(() => {
+    if (!revisarCupon || !isCheckoutOpen) return undefined
+    const controller = new AbortController()
+    const espera = window.setTimeout(async () => {
       try {
         const respuesta = await fetch('/api/delivery/cupones', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            codigo,
-            slug: accountId,
-            comida: cartTotal,
-            envio: selectedDeliveryFee,
-            // Para el cupon de "producto gratis": que lleva el pedido.
-            items: cart.map((line) => ({ productId: line.productId || null, unitPrice: line.unitPrice })),
-            telefono: celularDelPedido,
-            sesionCapta: sesionCapta?.token,
-            desdeVitrina: true,
-          }),
+          body: JSON.stringify(contextoCupon),
+          signal: controller.signal,
         })
-        const datos = await respuesta.json().catch(() => null)
-        if (datos?.ok) {
-          setCuponAplicado({ codigo: datos.codigo, titulo: datos.titulo, tipo: datos.tipo, pesos: datos.pesos })
-          setCuponTexto('')
-          setCuponMensaje('')
-        } else {
-          setCuponAplicado(null)
-          setCuponMensaje(datos?.motivo || 'No pudimos usar ese cupón.')
-        }
+        const datos = await respuesta.json()
+        if (!controller.signal.aborted) setResultadoCupon({ contexto: contextoCupon, intento: intentoCupon, datos })
       } catch {
-        if (!silencioso) setCuponMensaje('No pudimos revisar el cupón. Probá de nuevo.')
-      } finally {
-        if (!silencioso) setCuponProbando(false)
+        if (!controller.signal.aborted) {
+          setResultadoCupon({
+            contexto: contextoCupon,
+            intento: intentoCupon,
+            datos: { motivo: 'No pudimos revisar el cupón. Probá de nuevo.' },
+          })
+        }
       }
-    },
-    [accountId, cartTotal, cart, selectedDeliveryFee, celularDelPedido, sesionCapta?.token],
-  )
+    }, 300)
+    return () => {
+      controller.abort()
+      window.clearTimeout(espera)
+    }
+  }, [contextoCupon, intentoCupon, isCheckoutOpen, revisarCupon])
 
   // Los cupones al alcance: los de la cuenta (si entro) y las ofertas a la vista.
   useEffect(() => {
@@ -9258,19 +9274,6 @@ export default function MenuApp() {
     }
   }, [desdeLaVitrina, sesionCapta?.token])
 
-  // Si cambia el pedido (productos, envio, celular), el descuento se vuelve a
-  // pedir al servidor: un cupon puede dejar de valer o valer otra cantidad.
-  const codigoDelCupon = cuponAplicado?.codigo || ''
-  useEffect(() => {
-    if (!codigoDelCupon) return undefined
-    const t = setTimeout(() => {
-      // Sin productos no hay nada que descontar: el cupon se suelta.
-      if (!hasOrderItems) setCuponAplicado(null)
-      else void probarCupon(codigoDelCupon, { silencioso: true })
-    }, 350)
-    return () => clearTimeout(t)
-  }, [codigoDelCupon, hasOrderItems, cartTotal, selectedDeliveryFee, celularDelPedido, probarCupon])
-
   // La barra de abajo de la app (Inicio, Pedidos, Guardados, Perfil) tambien se
   // ve dentro de un menu cuando el cliente entro desde la vitrina, en TODAS sus
   // pantallas: la lista, la ficha del producto, el carrito, el checkout y el
@@ -9279,6 +9282,7 @@ export default function MenuApp() {
     desdeLaVitrina &&
     status === 'ready' &&
     !isTableOrder &&
+    (!vistaCapta || (!selectedDish && !isCartOpen && !isCheckoutOpen && !gelatoBuilderOpen)) &&
     !['burger', 'blue-burger', 'host', 'kika', 'almendra', 'florian'].includes(templateId)
   useEffect(() => {
     document.body.classList.toggle('cb-activo', mostrarBarraCapta)
@@ -9311,11 +9315,35 @@ export default function MenuApp() {
     0,
     cartTotal + selectedDeliveryFee + paymentSurchargeAmount - descuentoCapta - descuentoCupon,
   )
-  const orderTotalLabel = orderTotal > 0
+  const orderTotalLabel = vistaCapta && envioPendiente && hasOrderItems
+    ? 'Envío por calcular'
+    : orderTotal > 0 || (vistaCapta && hasOrderItems)
     ? formatPrice(orderTotal, currencySymbol)
     : redemptionCount > 0
       ? 'Canje'
       : 'Sin productos'
+  const resumenCapta = (
+    <dl className="cu-importes" aria-label="Importes del pedido" aria-live="polite">
+      <div><dt>Subtotal</dt><dd>{formatPrice(cartSubtotal, currencySymbol)}</dd></div>
+      {isTableOrder ? null : (
+        <div>
+          <dt>{orderForm.deliveryType === 'delivery' ? 'Envío' : 'Retiro en el local'}</dt>
+          <dd>{envioPendiente ? 'Por calcular' : selectedDeliveryFee > 0 ? formatPrice(selectedDeliveryFee, currencySymbol) : 'Sin costo'}</dd>
+        </div>
+      )}
+      {paymentSurchargeAmount > 0 ? (
+        <div><dt>Recargo por {getPaymentSurchargeLabel(orderForm.paymentMethod)}</dt><dd>{formatPrice(paymentSurchargeAmount, currencySymbol)}</dd></div>
+      ) : null}
+      {redemptionDiscountTotal + descuentoCupon + descuentoCapta > 0 ? (
+        <div className="cu-importes-descuento"><dt>Descuento</dt><dd>−{formatPrice(redemptionDiscountTotal + descuentoCupon + descuentoCapta, currencySymbol)}</dd></div>
+      ) : null}
+      <div className="cu-importes-total">
+        <dt>{envioPendiente ? 'Total parcial' : 'Total a pagar'}</dt>
+        <dd>{formatPrice(orderTotal, currencySymbol)}</dd>
+      </div>
+    </dl>
+  )
+
   const loyaltySettings = menu?.loyalty?.settings ?? null
   const pointsName = loyaltyData?.settings?.pointsName ?? loyaltySettings?.pointsName ?? 'puntos'
   const loyaltyEarnPreview = useMemo(
@@ -10580,6 +10608,7 @@ export default function MenuApp() {
 
   async function handleSubmitOrder(event) {
     event.preventDefault()
+    if (cuponProbando) return
 
     if (orderingBlocked) {
       setCheckoutStatus('error')
@@ -10806,6 +10835,7 @@ export default function MenuApp() {
 
       setCheckoutStatus('success')
       setCheckoutMessage(`Pedido enviado. Numero #${result.orderNumber}`)
+      if (cuponAplicado) elegirCupon('')
       setCart([])
       setRewardRedemptions([])
       // Tarjeta: se cobra en el menu. Si no vino la public key (el local perdio
@@ -11046,14 +11076,14 @@ export default function MenuApp() {
   return (
     <>
       <div className="app-shell">
-        <div className={`phone-surface ${appClassName}`} style={getPresentationStyles(presentation, accountId)}>
+        <div className={`phone-surface ${appClassName}${vistaCapta && hasOrderItems ? ' cu-con-carrito' : ''}`} style={getPresentationStyles(presentation, accountId)}>
           {vistaCapta ? (
             <CaptaCabecera
               nombre={fichaCapta?.nombre || menu?.accountName || presentacionDelLocal.branding?.wordmark || ''}
               logo={fichaCapta?.logo || presentacionDelLocal.branding?.logo || presentacionDelLocal.branding?.logoBanda || ''}
               portada={
                 fichaCapta?.portada
-                || (presentacionDelLocal.hero?.image && !String(presentacionDelLocal.hero.image).includes('/dishes/')
+                || (presentacionDelLocal.hero?.image && !/\/dishes\/|\/todo-empanadas\/compartir\.png/i.test(presentacionDelLocal.hero.image)
                   ? presentacionDelLocal.hero.image
                   : '')
               }
@@ -11166,7 +11196,7 @@ export default function MenuApp() {
                   <strong>Estamos cerrados ahora</strong>
                   <p>Armá tu pedido igual y programalo: lo preparamos para la hora que elijas.</p>
                 </div>
-                <span>{orderingStatus.nextOpenText || 'Programalo para más tarde'}</span>
+                <span>Primer turno: {turnosProgramables[0].texto}</span>
               </section>
             ) : null}
 
@@ -11320,6 +11350,31 @@ export default function MenuApp() {
             ) : null}
           </main>
 
+          {vistaCapta ? (
+            <aside className="cu-carrito-escritorio" aria-label="Carrito">
+              <h2>Tu carrito</h2>
+              {hasOrderItems ? (
+                <>
+                  <ul>
+                    {cart.map((line) => (
+                      <li key={line.id}>
+                        <span>{line.quantity} × {line.name}</span>
+                        <strong>{formatPrice(line.unitPrice * line.quantity, currencySymbol)}</strong>
+                      </li>
+                    ))}
+                    {rewardRedemptions.map((line) => (
+                      <li key={line.rewardId}>
+                        <span>{line.quantity} × {line.name}</span><strong>Canje</strong>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="cu-carrito-subtotal"><span>Subtotal</span><strong>{formatPrice(cartTotal, currencySymbol)}</strong></div>
+                  <button type="button" onClick={() => setIsCartOpen(true)}>Ver carrito</button>
+                </>
+              ) : <p>Agregá algo del menú para empezar tu pedido.</p>}
+            </aside>
+          ) : null}
+
           {templateId !== 'burger' &&
           templateId !== 'blue-burger' &&
           templateId !== 'host' &&
@@ -11340,10 +11395,10 @@ export default function MenuApp() {
                     <IconCart />
                     {orderCount > 0 ? <span className="order-badge">{orderCount}</span> : null}
                   </span>
-                  <span>Ver mi pedido</span>
+                  <span>{vistaCapta ? 'Ver carrito' : 'Ver mi pedido'}</span>
                 </div>
                 <div className="order-bar-price">
-                  {orderTotalLabel}
+                  {vistaCapta ? formatPrice(cartTotal, currencySymbol) : orderTotalLabel}
                   <span className="order-arrow">{'>'}</span>
                 </div>
               </button>
@@ -12232,7 +12287,7 @@ export default function MenuApp() {
                     <div className="host-detail-copy">
                       <h2>{String(selectedDish.name ?? '').toUpperCase()}</h2>
                       <p className="host-detail-summary">{selectedDish.description}</p>
-                      {presentation.theme?.ocultarNotaDetalle ? null : (
+                  {presentation.theme?.ocultarNotaDetalle || vistaCapta ? null : (
                         <p className="host-detail-note">{getDetailNote(selectedDish)}</p>
                       )}
                     </div>
@@ -12645,7 +12700,7 @@ export default function MenuApp() {
                 </button>
                 <div>
                   <h2>Tu pedido</h2>
-                  <p>Revisa el carrito y suma algo mas antes de confirmar.</p>
+                  <p>Revisá los productos antes de elegir la entrega.</p>
                 </div>
               </div>
 
@@ -12727,6 +12782,7 @@ export default function MenuApp() {
 
               {hasOrderItems ? (
                 <>
+                  {vistaCapta ? resumenCapta : null}
                   {cartRecommendations.length && !presentation.theme?.modoKiosco ? (
                     <section className="cart-panel">
                       <div className="section-heading compact">
@@ -12797,6 +12853,7 @@ export default function MenuApp() {
                     </section>
                   ))}
 
+                  {!vistaCapta ? (
                   <div className="cart-summary-card">
                     <div>
                       <span>Total actual</span>
@@ -12824,6 +12881,7 @@ export default function MenuApp() {
                     </div>
                     <strong>{formatPrice(orderTotal, currencySymbol)}</strong>
                   </div>
+                  ) : null}
 
                   {orderingBlocked ? (
                     <p className="checkout-message error">{orderingClosedMessage}</p>
@@ -12846,8 +12904,8 @@ export default function MenuApp() {
                       setIsCheckoutOpen(true)
                     }}
                   >
-                    <span>{orderingBlocked ? 'Pedidos cerrados' : 'Continuar con tus datos'}</span>
-                    <strong>{orderTotalLabel}</strong>
+                    <span>{orderingBlocked ? 'Pedidos cerrados' : vistaCapta ? 'Continuar a entrega y pago' : 'Continuar con tus datos'}</span>
+                    {vistaCapta ? null : <strong>{orderTotalLabel}</strong>}
                   </button>
                 </>
               ) : null}
@@ -12881,7 +12939,7 @@ export default function MenuApp() {
                   <p>
                     {isTableOrder
                       ? 'Solo necesitamos tus datos para identificar el pedido en el local.'
-                      : 'Completa tus datos para terminar el pedido.'}
+                      : 'Elegí cómo recibir y pagar tu pedido.'}
                   </p>
                 </div>
               </div>
@@ -12942,7 +13000,7 @@ export default function MenuApp() {
                 ))}
               </div>
 
-              {hasOrderItems ? (
+              {hasOrderItems && !vistaCapta ? (
                 <div className="cart-summary-card checkout-points-summary">
                   <div>
                     <span>Total actual</span>
@@ -12995,146 +13053,6 @@ export default function MenuApp() {
                   </label>
                 ) : null}
 
-                {hayDatosGuardados(datosGuardados) ? (
-                  <p className="checkout-datos-guardados">
-                    <span>Completamos tus datos del último pedido.</span>
-                    <button type="button" onClick={handleOlvidarDatos}>
-                      Borrarlos
-                    </button>
-                  </p>
-                ) : null}
-
-                <label className="checkout-field">
-                  <span>Nombre</span>
-                  <input
-                    value={orderForm.name}
-                    onChange={(event) => updateOrderForm('name', event.target.value)}
-                    placeholder="Tu nombre"
-                    required
-                  />
-                </label>
-
-                <label className="checkout-field">
-                  <span>Celular (con característica)</span>
-                  <input
-                    value={orderForm.phone}
-                    onChange={(event) => updateOrderForm('phone', event.target.value)}
-                    placeholder="Ej: 2346 587122"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    required
-                  />
-                </label>
-
-                {/* El cupon de Capta (lo crea el admin y lo paga Capta). Solo si el
-                    cliente entro desde la app. */}
-                {desdeLaVitrina && !isTableOrder && hasOrderItems ? (
-                  <div className="capta-cupon-checkout">
-                    <div className="capta-cupon-cabecera">
-                      <span>Cupón de Capta</span>
-                    </div>
-                    {cuponAplicado ? (
-                      <div className="capta-cupon-aplicado">
-                        <span>
-                          <strong>{cuponAplicado.codigo}</strong>
-                          <small>
-                            {cuponAplicado.titulo} · -{formatPrice(cuponAplicado.pesos, currencySymbol)}
-                          </small>
-                        </span>
-                        <button type="button" onClick={() => setCuponAplicado(null)}>
-                          Quitar
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="capta-cupon-fila">
-                          <input
-                            value={cuponTexto}
-                            onChange={(event) => setCuponTexto(event.target.value.toUpperCase())}
-                            placeholder="Tengo un cupón"
-                            maxLength={24}
-                            autoCapitalize="characters"
-                            autoComplete="off"
-                            aria-label="Código del cupón"
-                            onKeyDown={(event) => {
-                              if (event.key === 'Enter') {
-                                event.preventDefault()
-                                void probarCupon(cuponTexto.trim())
-                              }
-                            }}
-                          />
-                          <button
-                            type="button"
-                            disabled={!cuponTexto.trim() || cuponProbando}
-                            onClick={() => void probarCupon(cuponTexto.trim())}
-                          >
-                            {cuponProbando ? '…' : 'Aplicar'}
-                          </button>
-                        </div>
-                        {cuponMensaje ? <p className="capta-cupon-error">{cuponMensaje}</p> : null}
-                        {cuponesAlAlcance.length ? (
-                          <div className="capta-cupon-chips">
-                            {cuponesAlAlcance.map((c) => (
-                              <button key={c.codigo} type="button" onClick={() => void probarCupon(c.codigo)}>
-                                <b>{c.texto}</b>
-                                <span>{c.propio ? 'Tuyo · ' : ''}{c.codigo}</span>
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
-                      </>
-                    )}
-                  </div>
-                ) : null}
-
-                {/* Los puntos de Capta Delivery. Aparecen solo si el cliente
-                    entro desde la app y tiene algo para usar. */}
-                {puntosCapta && puntosCapta.puntos > 0 ? (
-                  <div className={`capta-puntos-checkout${canjeCapta.pesos > 0 ? '' : ' capta-puntos-checkout-sin-canje'}`}>
-                    <div className="capta-puntos-checkout-cabecera">
-                      <span className="capta-puntos-checkout-marca">Puntos Capta</span>
-                      <strong>
-                        {puntosCapta.puntos} {puntosCapta.puntos === 1 ? 'punto' : 'puntos'}
-                        <small> · {formatPrice(puntosCapta.pesos, currencySymbol)}</small>
-                      </strong>
-                    </div>
-
-                    {canjeCapta.pesos > 0 && !celularVerificado ? (
-                      <VerificarCelular
-                        key={celularDelPedido}
-                        telefono={celularDelPedido}
-                        onVerificado={(sesion) => {
-                          setSesionCapta(sesion)
-                          setUsarPuntosCapta(true)
-                        }}
-                      />
-                    ) : canjeCapta.pesos > 0 ? (
-                      <>
-                        <label className="capta-puntos-checkout-usar">
-                          <input
-                            type="checkbox"
-                            checked={usarPuntosCapta}
-                            onChange={(event) => setUsarPuntosCapta(event.target.checked)}
-                          />
-                          <span>
-                            Usar {formatPrice(canjeCapta.pesos, currencySymbol)} en este pedido
-                          </span>
-                        </label>
-                        {porQueNoEntraTodo(canjeCapta.motivo, puntosCapta.config) ? (
-                          <p className="capta-puntos-checkout-nota">
-                            {porQueNoEntraTodo(canjeCapta.motivo, puntosCapta.config)}
-                          </p>
-                        ) : null}
-                      </>
-                    ) : (
-                      <p className="capta-puntos-checkout-nota">
-                        {porQueNoEntraTodo(canjeCapta.motivo, puntosCapta.config) ||
-                          'En este pedido no se pueden usar.'}
-                      </p>
-                    )}
-                  </div>
-                ) : null}
-
                 {!isTableOrder ? (
                   <>
                     <div className="checkout-grid">
@@ -13174,36 +13092,10 @@ export default function MenuApp() {
                       </div>
                     ) : null}
 
-                    {pagoElegido === 'transferencia' && datosDeTransferencia ? (
-                      <div className="checkout-transferencia">
-                        {/* Lo primero que busca el que va a transferir: cuanto.
-                            Es el mismo total del pedido, con envio y recargo. */}
-                        <span>Total a transferir</span>
-                        <strong className="checkout-transferencia-total">{formatPrice(orderTotal, currencySymbol)}</strong>
-                        {orderForm.deliveryType === 'delivery' && deliveryZonesEnabled && deliveryQuoteStatus !== 'ready' ? (
-                          <p>El envío se suma cuando termine de calcularse. Transferí el total final.</p>
-                        ) : null}
-                        <span>Transferí a</span>
-                        {datosDeTransferencia.alias ? (
-                          <strong>Alias: {datosDeTransferencia.alias}</strong>
-                        ) : null}
-                        {datosDeTransferencia.cvu ? (
-                          <strong>CBU/CVU: {datosDeTransferencia.cvu}</strong>
-                        ) : null}
-                        {datosDeTransferencia.titular ? (
-                          <em>A nombre de {datosDeTransferencia.titular}</em>
-                        ) : null}
-                        {datosDeTransferencia.banco ? <em>{datosDeTransferencia.banco}</em> : null}
-                        {datosDeTransferencia.instrucciones ? (
-                          <p>{datosDeTransferencia.instrucciones}</p>
-                        ) : null}
-                      </div>
-                    ) : null}
-
                     {orderForm.deliveryType === 'delivery' ? (
                       <>
                         <label className="checkout-field">
-                          <span>Direccion</span>
+                          <span>Dirección de entrega</span>
                           <input
                             value={orderForm.address}
                             onChange={(event) => updateOrderForm('address', event.target.value)}
@@ -13315,6 +13207,181 @@ export default function MenuApp() {
                       </>
                     ) : null}
 
+                  </>
+                ) : null}
+
+                {hasOrderItems && vistaCapta ? resumenCapta : null}
+                {hayDatosGuardados(datosGuardados) ? (
+                  <p className="checkout-datos-guardados">
+                    <span>Completamos tus datos del último pedido.</span>
+                    <button type="button" onClick={handleOlvidarDatos}>
+                      Borrarlos
+                    </button>
+                  </p>
+                ) : null}
+
+                <label className="checkout-field">
+                  <span>Nombre</span>
+                  <input
+                    value={orderForm.name}
+                    onChange={(event) => updateOrderForm('name', event.target.value)}
+                    placeholder="Tu nombre"
+                    required
+                  />
+                </label>
+
+                <label className="checkout-field">
+                  <span>Celular (con característica)</span>
+                  <input
+                    value={orderForm.phone}
+                    onChange={(event) => updateOrderForm('phone', event.target.value)}
+                    placeholder="Ej: 2346 587122"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    required
+                  />
+                </label>
+
+                {/* El cupon de Capta (lo crea el admin y lo paga Capta). Solo si el
+                    cliente entro desde la app. */}
+                {desdeLaVitrina && !isTableOrder && hasOrderItems ? (
+                  <div className="capta-cupon-checkout">
+                    <div className="capta-cupon-cabecera">
+                      <span>Cupón de Capta</span>
+                    </div>
+                    {cuponSolicitado ? (
+                      <div className="capta-cupon-aplicado" aria-live="polite">
+                        <span>
+                          <strong>{cuponAplicado?.codigo || cuponSolicitado}</strong>
+                          <small>
+                            {cuponAplicado
+                              ? `${cuponAplicado.titulo} · −${formatPrice(cuponAplicado.pesos, currencySymbol)}`
+                              : resultadoActual?.datos?.motivo || (cuponProbando
+                                ? 'Validando beneficio…'
+                                : 'Completá el celular y la entrega para usarlo.')}
+                          </small>
+                        </span>
+                        <button type="button" onClick={() => elegirCupon('')}>
+                          Quitar
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="capta-cupon-fila">
+                          <input
+                            value={cuponTexto}
+                            onChange={(event) => setCuponTexto(event.target.value.toUpperCase())}
+                            placeholder="Tengo un cupón"
+                            maxLength={24}
+                            autoCapitalize="characters"
+                            autoComplete="off"
+                            aria-label="Código del cupón"
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter') {
+                                event.preventDefault()
+                                elegirCupon(cuponTexto.trim())
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            disabled={!cuponTexto.trim() || cuponProbando}
+                            onClick={() => elegirCupon(cuponTexto.trim())}
+                          >
+                            {cuponProbando ? '…' : 'Aplicar'}
+                          </button>
+                        </div>
+                        {cuponesAlAlcance.length ? (
+                          <div className="capta-cupon-chips">
+                            {cuponesAlAlcance.map((c) => (
+                              <button key={c.codigo} type="button" onClick={() => elegirCupon(c.codigo)}>
+                                <b>{c.texto}</b>
+                                <span>{c.propio ? 'Tuyo · ' : ''}{c.codigo}</span>
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
+                      </>
+                    )}
+                  </div>
+                ) : null}
+
+                {/* Los puntos de Capta Delivery. Aparecen solo si el cliente
+                    entro desde la app y tiene algo para usar. */}
+                {puntosCapta && puntosCapta.puntos > 0 ? (
+                  <div className={`capta-puntos-checkout${canjeCapta.pesos > 0 ? '' : ' capta-puntos-checkout-sin-canje'}`}>
+                    <div className="capta-puntos-checkout-cabecera">
+                      <span className="capta-puntos-checkout-marca">Puntos Capta</span>
+                      <strong>
+                        {puntosCapta.puntos} {puntosCapta.puntos === 1 ? 'punto' : 'puntos'}
+                        <small> · {formatPrice(puntosCapta.pesos, currencySymbol)}</small>
+                      </strong>
+                    </div>
+
+                    {canjeCapta.pesos > 0 && !celularVerificado ? (
+                      <VerificarCelular
+                        key={celularDelPedido}
+                        telefono={celularDelPedido}
+                        onVerificado={(sesion) => {
+                          setSesionCapta(sesion)
+                          setUsarPuntosCapta(true)
+                        }}
+                      />
+                    ) : canjeCapta.pesos > 0 ? (
+                      <>
+                        <label className="capta-puntos-checkout-usar">
+                          <input
+                            type="checkbox"
+                            checked={usarPuntosCapta}
+                            onChange={(event) => setUsarPuntosCapta(event.target.checked)}
+                          />
+                          <span>
+                            Usar {formatPrice(canjeCapta.pesos, currencySymbol)} en este pedido
+                          </span>
+                        </label>
+                        {porQueNoEntraTodo(canjeCapta.motivo, puntosCapta.config) ? (
+                          <p className="capta-puntos-checkout-nota">
+                            {porQueNoEntraTodo(canjeCapta.motivo, puntosCapta.config)}
+                          </p>
+                        ) : null}
+                      </>
+                    ) : (
+                      <p className="capta-puntos-checkout-nota">
+                        {porQueNoEntraTodo(canjeCapta.motivo, puntosCapta.config) ||
+                          'En este pedido no se pueden usar.'}
+                      </p>
+                    )}
+                  </div>
+                ) : null}
+
+                {!isTableOrder ? (
+                  <>
+                    {pagoElegido === 'transferencia' && datosDeTransferencia ? (
+                      <div className="checkout-transferencia">
+                        {/* Lo primero que busca el que va a transferir: cuanto.
+                            Es el mismo total del pedido, con envio y recargo. */}
+                        <span>Total a transferir</span>
+                        <strong className="checkout-transferencia-total">{envioPendiente ? 'Calculá el envío primero' : formatPrice(orderTotal, currencySymbol)}</strong>
+                        {orderForm.deliveryType === 'delivery' && deliveryZonesEnabled && deliveryQuoteStatus !== 'ready' ? (
+                          <p>El envío se suma cuando termine de calcularse. Transferí el total final.</p>
+                        ) : null}
+                        <span>Transferí a</span>
+                        {datosDeTransferencia.alias ? (
+                          <strong>Alias: {datosDeTransferencia.alias}</strong>
+                        ) : null}
+                        {datosDeTransferencia.cvu ? (
+                          <strong>CBU/CVU: {datosDeTransferencia.cvu}</strong>
+                        ) : null}
+                        {datosDeTransferencia.titular ? (
+                          <em>A nombre de {datosDeTransferencia.titular}</em>
+                        ) : null}
+                        {datosDeTransferencia.banco ? <em>{datosDeTransferencia.banco}</em> : null}
+                        {datosDeTransferencia.instrucciones ? (
+                          <p>{datosDeTransferencia.instrucciones}</p>
+                        ) : null}
+                      </div>
+                    ) : null}
+
                     <label className="checkout-field">
                       <span>Notas</span>
                       <textarea
@@ -13334,7 +13401,7 @@ export default function MenuApp() {
                 <button
                   type="submit"
                   className="primary-action"
-                  disabled={checkoutStatus === 'submitting' || orderingBlocked || deliveryZoneBlocksCheckout}
+                  disabled={checkoutStatus === 'submitting' || orderingBlocked || deliveryZoneBlocksCheckout || cuponProbando || (vistaCapta && !hasOrderItems)}
                 >
                   <span>
                     {orderingBlocked

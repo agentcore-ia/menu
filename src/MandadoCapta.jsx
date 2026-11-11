@@ -108,6 +108,7 @@ async function cotizar(mandado, { direccion, barrio, punto }) {
 export function FormularioMandado({ mandado, dondeInicial = '' }) {
   const ciudad = mandado.ciudad
   const [guardados] = useState(() => leerDatos(almacenDelNavegador()))
+  const [paso, setPaso] = useState(1)
   const [tipo, setTipo] = useState('compra')
   const [que, setQue] = useState('')
   // Viene de un cuadrado del inicio sin locales ("La farmacia más cercana").
@@ -160,6 +161,7 @@ export function FormularioMandado({ mandado, dondeInicial = '' }) {
 
   const enviar = async (evento) => {
     evento.preventDefault()
+    if (paso !== 3 || enviando) return
     setError('')
 
     const revisado = normalizarMandado(
@@ -219,6 +221,45 @@ export function FormularioMandado({ mandado, dondeInicial = '' }) {
     }
   }
 
+  const cambiarPaso = (siguiente) => {
+    setError('')
+    setPaso(siguiente)
+  }
+
+  const continuar = (evento) => {
+    evento.preventDefault()
+    if (paso === 3) {
+      void enviar(evento)
+      return
+    }
+    if (paso === 1 && tipo === 'paquete' && que.trim().length < 3) {
+      setError('Contanos qué hay que llevar.')
+      return
+    }
+    if (tipo === 'compra' || paso === 2) {
+      const revisado = normalizarMandado({ tipo, que, donde, tope, contacto, pagaEn }, { tope: mandado.tope })
+      if (!revisado.ok) {
+        setError(revisado.mensaje)
+        return
+      }
+    }
+    if (paso === 2) {
+      if (!nombre.trim()) {
+        setError('Poné tu nombre.')
+        return
+      }
+      if (!celularValido(celular)) {
+        setError(MENSAJE_CELULAR_INVALIDO)
+        return
+      }
+      if (!envioListo) {
+        void pedirCotizacion()
+        return
+      }
+    }
+    cambiarPaso(paso + 1)
+  }
+
   if (listo) {
     return (
       <div className="cd-mandado-listo">
@@ -244,187 +285,219 @@ export function FormularioMandado({ mandado, dondeInicial = '' }) {
   }
 
   return (
-    <form className="cd-mandado-form" onSubmit={enviar} noValidate>
-      <div className="cd-mandado-tipos" role="radiogroup" aria-label="Qué necesitás">
-        {TIPOS_MANDADO.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="radio"
-            aria-checked={tipo === t.id}
-            className={tipo === t.id ? 'cd-mandado-tipo cd-mandado-tipo-activo' : 'cd-mandado-tipo'}
-            onClick={() => setTipo(t.id)}
-          >
-            <Icono nombre={t.id === 'compra' ? 'shopping_bag' : 'package_2'} />
-            <strong>{t.label}</strong>
-            <small>{t.detalle}</small>
-          </button>
+    <form className="cd-mandado-form" onSubmit={continuar} noValidate>
+      <ol className="cd-mandado-pasos" aria-label="Pasos del mandado">
+        {['Qué necesitás', 'Retiro y entrega', 'Precio y confirmación'].map((texto, i) => (
+          <li key={texto} aria-current={paso === i + 1 ? 'step' : undefined} data-completo={paso > i + 1}>
+            <span aria-hidden="true">{i + 1}</span>{texto}
+          </li>
         ))}
-      </div>
-
-      <div className="cd-mandado-atajos" aria-label="Atajos">
-        {ATAJOS[tipo].map(([icono, texto, valor]) => {
-          const elegido = tipo === 'compra' ? donde === valor : que === valor
-          return (
-            <button
-              key={texto}
-              type="button"
-              className={elegido ? 'cd-chip cd-chip-activo' : 'cd-chip'}
-              onClick={() => (tipo === 'compra' ? setDonde(valor) : setQue(valor))}
-            >
-              <Icono nombre={icono} /> {texto}
-            </button>
-          )
-        })}
-      </div>
-
-      <label>
-        <span>{tipo === 'compra' ? '¿Qué hay que comprar?' : '¿Qué hay que llevar?'}</span>
-        <textarea
-          value={que}
-          onChange={(e) => setQue(e.target.value)}
-          rows={3}
-          maxLength={500}
-          placeholder={
-            tipo === 'compra'
-              ? 'Ej: un cargador tipo C y una gaseosa de 1,5 L'
-              : 'Ej: unas llaves en un sobre'
-          }
-        />
-      </label>
-
-      <label>
-        <span>{tipo === 'compra' ? '¿Dónde? (opcional)' : '¿Dónde lo retiramos?'}</span>
-        <input
-          value={donde}
-          onChange={(e) => setDonde(e.target.value)}
-          maxLength={200}
-          placeholder={tipo === 'compra' ? 'Ej: kiosco de Moreno y Rivadavia' : 'Calle y altura'}
-        />
-      </label>
-
-      {tipo === 'compra' ? (
-        <label>
-          <span>¿Hasta cuánto puede salir la compra?</span>
-          <input
-            type="number"
-            inputMode="numeric"
-            min="1"
-            max={mandado.tope}
-            value={tope}
-            onChange={(e) => setTope(e.target.value)}
-            placeholder={`Hasta ${pesos(mandado.tope)}`}
-          />
-          <small className="cd-mandado-ayuda">
-            El repartidor la paga y vos se la devolvés al recibir, con el ticket.
-          </small>
-        </label>
-      ) : (
+      </ol>
+      {paso === 1 ? (
         <>
-          <label>
-            <span>¿A quién le pedimos el paquete? (opcional)</span>
-            <input
-              value={contacto}
-              onChange={(e) => setContacto(e.target.value)}
-              maxLength={120}
-              placeholder="Nombre y celular"
-            />
-          </label>
-          <div className="cd-mandado-pagaen" role="radiogroup" aria-label="Cuándo se paga el envío">
-            <span>El envío se paga</span>
-            {[
-              ['entrega', 'Al entregar'],
-              ['retiro', 'Al retirar'],
-            ].map(([id, texto]) => (
+          <p className="cd-mandado-ayuda cd-mandado-anticipo">
+            {mandado.envioDesde ? `Envío desde ${pesos(mandado.envioDesde)} · ` : ''}Pago en efectivo
+          </p>
+          <div className="cd-mandado-tipos" role="radiogroup" aria-label="Qué necesitás">
+            {TIPOS_MANDADO.map((t) => (
               <button
-                key={id}
+                key={t.id}
                 type="button"
                 role="radio"
-                aria-checked={pagaEn === id}
-                className={pagaEn === id ? 'cd-chip cd-chip-activo' : 'cd-chip'}
-                onClick={() => setPagaEn(id)}
+                aria-checked={tipo === t.id}
+                className={tipo === t.id ? 'cd-mandado-tipo cd-mandado-tipo-activo' : 'cd-mandado-tipo'}
+                onClick={() => setTipo(t.id)}
               >
-                {texto}
+                <Icono nombre={t.id === 'compra' ? 'shopping_bag' : 'package_2'} />
+                <strong>{t.label}</strong>
+                <small>{t.detalle}</small>
               </button>
             ))}
           </div>
+
+          <div className="cd-mandado-atajos" aria-label="Atajos">
+            {ATAJOS[tipo].map(([icono, texto, valor]) => {
+              const elegido = tipo === 'compra' ? donde === valor : que === valor
+              return (
+                <button
+                  key={texto}
+                  type="button"
+                  className={elegido ? 'cd-chip cd-chip-activo' : 'cd-chip'}
+                  onClick={() => (tipo === 'compra' ? setDonde(valor) : setQue(valor))}
+                >
+                  <Icono nombre={icono} /> {texto}
+                </button>
+              )
+            })}
+          </div>
+
+          <label>
+            <span>{tipo === 'compra' ? '¿Qué hay que comprar?' : '¿Qué hay que llevar?'}</span>
+            <textarea
+              value={que}
+              onChange={(e) => setQue(e.target.value)}
+              rows={3}
+              maxLength={500}
+              placeholder={
+                tipo === 'compra'
+                  ? 'Ej: un cargador tipo C y una gaseosa de 1,5 L'
+                  : 'Ej: unas llaves en un sobre'
+              }
+            />
+          </label>
+          {tipo === 'compra' ? (
+            <label>
+              <span>¿Hasta cuánto puede salir la compra?</span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min="1"
+                max={mandado.tope}
+                value={tope}
+                onChange={(e) => setTope(e.target.value)}
+                placeholder={`Hasta ${pesos(mandado.tope)}`}
+              />
+              <small className="cd-mandado-ayuda">
+                El repartidor la paga y vos se la devolvés al recibir, con el ticket.
+              </small>
+            </label>
+          ) : null}
         </>
-      )}
+      ) : null}
+      {paso === 2 ? (
+        <fieldset className="cd-mandado-datos" disabled={cotizando}>
+          <label>
+            <span>{tipo === 'compra' ? '¿Dónde? (opcional)' : '¿Dónde lo retiramos?'}</span>
+            <input
+              value={donde}
+              onChange={(e) => setDonde(e.target.value)}
+              maxLength={200}
+              placeholder={tipo === 'compra' ? 'Ej: kiosco de Moreno y Rivadavia' : 'Calle y altura'}
+            />
+          </label>
+          {tipo === 'paquete' ? (
+            <label>
+              <span>¿A quién le pedimos el paquete? (opcional)</span>
+              <input
+                value={contacto}
+                onChange={(e) => setContacto(e.target.value)}
+                maxLength={120}
+                placeholder="Nombre y celular"
+              />
+            </label>
+          ) : null}
+          <h3 className="cd-mandado-subtitulo">{tipo === 'compra' ? '¿A dónde te lo llevamos?' : '¿A dónde lo llevamos?'}</h3>
 
-      <h3 className="cd-mandado-subtitulo">{tipo === 'compra' ? '¿A dónde te lo llevamos?' : '¿A dónde lo llevamos?'}</h3>
+          <label>
+            <span>Tu nombre</span>
+            <input value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={80} autoComplete="name" />
+          </label>
+          <label>
+            <span>Tu celular</span>
+            <input
+              type="tel"
+              inputMode="tel"
+              value={celular}
+              onChange={(e) => setCelular(e.target.value)}
+              placeholder="Ej: 2346 587122"
+              autoComplete="tel"
+            />
+          </label>
+          <label>
+            <span>Dirección de entrega</span>
+            <input
+              value={direccion}
+              onChange={cambiarDireccion(setDireccion)}
+              placeholder="Calle y altura"
+              autoComplete="street-address"
+            />
+          </label>
+          <label>
+            <span>Barrio o referencia (opcional)</span>
+            <input value={barrio} onChange={cambiarDireccion(setBarrio)} maxLength={80} />
+          </label>
 
-      <label>
-        <span>Tu nombre</span>
-        <input value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={80} autoComplete="name" />
-      </label>
-      <label>
-        <span>Tu celular</span>
-        <input
-          type="tel"
-          inputMode="tel"
-          value={celular}
-          onChange={(e) => setCelular(e.target.value)}
-          placeholder="Ej: 2346 587122"
-          autoComplete="tel"
-        />
-      </label>
-      <label>
-        <span>Dirección de entrega</span>
-        <input
-          value={direccion}
-          onChange={cambiarDireccion(setDireccion)}
-          placeholder="Calle y altura"
-          autoComplete="street-address"
-        />
-      </label>
-      <label>
-        <span>Barrio o referencia (opcional)</span>
-        <input value={barrio} onChange={cambiarDireccion(setBarrio)} maxLength={80} />
-      </label>
+          {envio?.needsConfirmation && envio.candidates?.length ? (
+            <div className="cd-mandado-opciones">
+              <p>¿Cuál es tu dirección?</p>
+              {envio.candidates.map((c) => (
+                <button key={c.id ?? c.label} type="button" disabled={cotizando} onClick={() => void pedirCotizacion(c.coordinates)}>
+                  <span>{c.label}</span>
+                  <small>{c.allowed ? pesos(c.fee) : 'Fuera de zona'}</small>
+                </button>
+              ))}
+            </div>
+          ) : null}
 
-      {envio?.needsConfirmation && envio.candidates?.length ? (
-        <div className="cd-mandado-opciones">
-          <p>¿Cuál es tu dirección?</p>
-          {envio.candidates.map((c) => (
-            <button key={c.id ?? c.label} type="button" disabled={cotizando} onClick={() => void pedirCotizacion(c.coordinates)}>
-              <span>{c.label}</span>
-              <small>{c.allowed ? pesos(c.fee) : 'Fuera de zona'}</small>
+          {envioListo ? (
+            <p className="cd-mandado-envio">
+              <span>Envío{envioListo.zone?.name ? ` · ${envioListo.zone.name}` : ''}</span>
+              <strong>{pesos(envioListo.fee)}</strong>
+            </p>
+          ) : envio && !envio.needsConfirmation && envio.allowed === false ? (
+            <p className="cd-puntos-error">{envio.message || 'Esa dirección está fuera de la zona de envío.'}</p>
+          ) : null}
+
+          {!envioListo ? (
+            <button type="button" className="cd-mandado-secundario" disabled={cotizando} onClick={() => void pedirCotizacion()}>
+              {cotizando ? 'Calculando…' : 'Calcular el envío'}
             </button>
-          ))}
-        </div>
+          ) : null}
+          <label>
+            <span>Algo más que tengamos que saber (opcional)</span>
+            <input value={nota} onChange={(e) => setNota(e.target.value)} maxLength={200} placeholder="Ej: tocar timbre 2B" />
+          </label>
+        </fieldset>
       ) : null}
-
-      {envioListo ? (
-        <p className="cd-mandado-envio">
-          <span>Envío{envioListo.zone?.name ? ` · ${envioListo.zone.name}` : ''}</span>
-          <strong>{pesos(envioListo.fee)}</strong>
-        </p>
-      ) : envio && !envio.needsConfirmation && envio.allowed === false ? (
-        <p className="cd-puntos-error">{envio.message || 'Esa dirección está fuera de la zona de envío.'}</p>
+      {paso === 3 ? (
+        <>
+          <dl className="cd-mandado-resumen">
+            <div><dt>{tipo === 'compra' ? 'Compra' : 'Paquete'}</dt><dd>{que}</dd></div>
+            {tipo === 'paquete' ? <div><dt>Retiro</dt><dd>{donde}</dd></div> : null}
+            <div><dt>Entrega</dt><dd>{envioListo?.coordinates?.label || direccion}{barrio ? ` · ${barrio}` : ''}</dd></div>
+            <div><dt>Envío</dt><dd>{pesos(envioListo?.fee)}</dd></div>
+            {tipo === 'compra' ? <div><dt>Presupuesto de compra</dt><dd>Hasta {pesos(tope)}</dd></div> : null}
+          </dl>
+          {tipo === 'paquete' ? (
+            <div className="cd-mandado-pagaen" role="radiogroup" aria-label="Cuándo se paga el envío">
+              <span>El envío se paga</span>
+              {[
+                ['entrega', 'Al entregar'],
+                ['retiro', 'Al retirar'],
+              ].map(([id, texto]) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="radio"
+                  aria-checked={pagaEn === id}
+                  className={pagaEn === id ? 'cd-chip cd-chip-activo' : 'cd-chip'}
+                  onClick={() => setPagaEn(id)}
+                >
+                  {texto}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          <p className="cd-mandado-cuenta">
+            {tipo === 'compra'
+              ? 'Pagás al recibir, en efectivo: la compra (con el ticket) + el envío.'
+              : `El envío se paga en efectivo al ${pagaEn === 'retiro' ? 'retirar el paquete' : 'entregarlo'}.`}
+          </p>
+        </>
       ) : null}
-
-      {!envioListo ? (
-        <button type="button" className="cd-mandado-secundario" disabled={cotizando} onClick={() => void pedirCotizacion()}>
-          {cotizando ? 'Calculando…' : 'Calcular el envío'}
-        </button>
-      ) : null}
-
-      <label>
-        <span>Algo más que tengamos que saber (opcional)</span>
-        <input value={nota} onChange={(e) => setNota(e.target.value)} maxLength={200} placeholder="Ej: tocar timbre 2B" />
-      </label>
-
-      {error ? <p className="cd-puntos-error">{error}</p> : null}
-
-      <p className="cd-mandado-cuenta">
-        {tipo === 'compra'
-          ? 'Pagás al recibir, en efectivo: la compra (con el ticket) + el envío.'
-          : `El envío se paga en efectivo al ${pagaEn === 'retiro' ? 'retirar el paquete' : 'entregarlo'}.`}
-      </p>
-
-      <button type="submit" className="cd-mandado-enviar" disabled={enviando || !envioListo}>
-        {enviando ? 'Enviando…' : 'Pedir el mandado'}
-      </button>
+      {error ? <p className="cd-puntos-error" role="alert">{error}</p> : null}
+      <div className="cd-mandado-acciones">
+        {paso > 1 ? (
+          <button type="button" className="cd-mandado-secundario" disabled={enviando || cotizando} onClick={() => cambiarPaso(paso - 1)}>
+            Atrás
+          </button>
+        ) : null}
+        {(paso !== 2 || envioListo) ? (
+          <button type="submit" className="cd-mandado-enviar" disabled={enviando || cotizando || (paso === 3 && !envioListo)}>
+            {paso === 3 ? (enviando ? 'Enviando…' : 'Pedir el mandado') : paso === 2 ? 'Revisar mandado' : 'Continuar'}
+          </button>
+        ) : null}
+      </div>
     </form>
   )
 }
