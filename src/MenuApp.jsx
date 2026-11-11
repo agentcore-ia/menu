@@ -3387,50 +3387,48 @@ function buildCartPairingSuggestions(cartItems, allItems) {
 
   if (/(carne|bife|filete|lomo|burger|hamburguesa|milanesa|pollo)/.test(text)) {
     suggestions.push(
-      { label: 'Papas rostizadas', matchers: ['papa', 'papas', 'frita', 'fries'] },
-      { label: 'Ensalada fresca', matchers: ['ensalada'] },
-      { label: 'Gaseosa fria', matchers: ['gaseosa', 'coca', 'sprite', 'fanta', 'bebida', 'agua'] },
+      ['papa', 'papas', 'frita', 'fries'],
+      ['ensalada'],
+      ['gaseosa', 'coca', 'sprite', 'fanta', 'bebida', 'agua'],
     )
   }
 
   if (/pizza/.test(text)) {
     suggestions.push(
-      { label: 'Faina crocante', matchers: ['faina'] },
-      { label: 'Dip picante', matchers: ['dip', 'salsa'] },
-      { label: 'Limonada de la casa', matchers: ['limonada', 'bebida'] },
+      ['faina'],
+      ['dip', 'salsa'],
+      ['limonada', 'bebida'],
     )
   }
 
   if (/(pasta|raviol|sorrentino|fideo|ñoqui|noqui)/.test(text)) {
     suggestions.push(
-      { label: 'Queso extra', matchers: ['queso'] },
-      { label: 'Pan de ajo', matchers: ['pan-de-ajo', 'ajo'] },
-      { label: 'Tonica botanica', matchers: ['tonica', 'bebida', 'agua'] },
+      ['queso'],
+      ['pan-de-ajo', 'ajo'],
+      ['tonica', 'bebida', 'agua'],
     )
   }
 
   if (/(postre|torta|helado|brownie|flan)/.test(text)) {
     suggestions.push(
-      { label: 'Cafe espresso', matchers: ['cafe'] },
-      { label: 'Agua con gas', matchers: ['agua-con-gas', 'agua'] },
+      ['cafe'],
+      ['agua-con-gas', 'agua'],
     )
   }
 
   if (!suggestions.length) {
     suggestions.push(
-      { label: 'Bebida fresca', matchers: ['bebida', 'gaseosa', 'coca', 'sprite', 'agua'] },
-      { label: 'Postre del dia', matchers: ['postre', 'torta', 'helado', 'brownie', 'flan'] },
-      { label: 'Extra de salsa', matchers: ['salsa', 'dip'] },
+      ['bebida', 'gaseosa', 'coca', 'sprite', 'agua'],
+      ['postre', 'torta', 'helado', 'brownie', 'flan'],
+      ['salsa', 'dip'],
     )
   }
 
   const uniqueProducts = new Map()
 
-  suggestions.forEach((suggestion) => {
-    const product = findPairingProduct(allItems, cartItems, suggestion.matchers)
-    if (product && !uniqueProducts.has(product.id)) {
-      uniqueProducts.set(product.id, { label: suggestion.label, product })
-    }
+  suggestions.forEach((matchers) => {
+    const product = findPairingProduct(allItems, cartItems, matchers)
+    if (product) uniqueProducts.set(product.id, product)
   })
 
   return [...uniqueProducts.values()].slice(0, 4)
@@ -9408,22 +9406,19 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
       !slugify(item.categoryLabel ?? '').includes('bebida')
     )
   }, [allItems, idsDePromos, idsAdicionalesHelado, bebidasItems])
-  const cartRecommendations = buildCartRecommendations(cartItems, productosParaSugerir)
-  const cartPairings = buildCartPairingSuggestions(cartItems, productosParaSugerir)
-  // En el carrito mostramos todos los productos de "Adicionales" y "Bebidas" si
-  // existen; si no hay ninguna de las dos categorias, caemos a las sugerencias
-  // heuristicas (una sola seccion generica).
   const cartExtraSections = [
     adicionalesItems.length
-      ? { key: 'adicionales', title: 'Adicionales', items: adicionalesItems.map((product) => ({ label: product.name, product })) }
+      ? { key: 'adicionales', title: 'Adicionales', items: adicionalesItems }
       : null,
     bebidasItems.length
-      ? { key: 'bebidas', title: 'Bebidas', items: bebidasItems.map((product) => ({ label: product.name, product })) }
+      ? { key: 'bebidas', title: 'Bebidas', items: bebidasItems }
       : null,
   ].filter(Boolean)
-  if (!cartExtraSections.length && cartPairings.length) {
-    cartExtraSections.push({ key: 'pairings', title: 'Acompanamientos sugeridos', items: cartPairings })
-  }
+  const sugerenciasDelCarrito = [
+    ...(cartExtraSections.length ? [] : buildCartPairingSuggestions(cartItems, productosParaSugerir)),
+    ...buildCartRecommendations(cartItems, productosParaSugerir),
+  ]
+  const cartRecommendations = [...new Map(sugerenciasDelCarrito.map((item) => [item.id, item])).values()]
   const orderingStatus = menu?.businessHours
     ? getBusinessOpenStatus(menu.businessHours, new Date(currentTime))
     : menu?.ordering ?? {
@@ -12891,7 +12886,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                         role={section.key === 'bebidas' ? 'group' : undefined}
                         aria-label={section.key === 'bebidas' ? section.title : undefined}
                       >
-                        {section.items.map(({ label, product }) => {
+                        {section.items.map((product) => {
                           const isAdded = pairingFeedbackId === product.id
 
                           return (
@@ -12901,7 +12896,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                             >
                               {renderMiniCardMedia(product)}
                               <div className="mini-card-body">
-                                <h4>{product.name || label}</h4>
+                                <h4>{product.name}</h4>
                                 {product.categoryLabel ? <p className="mini-card-category">{product.categoryLabel}</p> : null}
                                 <div className="mini-card-footer">
                                   <strong>{textoDePrecio(product.price)}</strong>
