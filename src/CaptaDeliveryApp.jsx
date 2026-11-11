@@ -579,7 +579,10 @@ function claveDeCiudad(ciudad) {
 }
 
 const IMAGENES_DE_CIUDAD = {
-  chivilcoy: ['/capta/hero-chivilcoy.webp?v=2', '/capta/banner-chivilcoy.webp?v=2'],
+  chivilcoy: [
+    { src: '/capta/hero-chivilcoy.webp?v=2', alt: 'Tus sabores favoritos, más cerca. Apoyá lo local, pedí por Capta.' },
+    { src: '/capta/banner-chivilcoy.webp?v=3', alt: 'Chivilcoy ahora tiene delivery' },
+  ],
 }
 
 /**
@@ -596,7 +599,7 @@ function Carrusel({ ciudad, promos }) {
   const tocandoRef = useRef(false)
 
   const slides = useMemo(() => {
-    const lista = (IMAGENES_DE_CIUDAD[clave] || []).map((src) => ({ id: src, tipo: 'imagen', src }))
+    const lista = (IMAGENES_DE_CIUDAD[clave] || []).map((imagen) => ({ id: imagen.src, tipo: 'imagen', ...imagen }))
     for (const local of promos.slice(0, 3)) lista.push({ id: `promo-${local.slug}`, tipo: 'promo', local })
     const sanas = lista.filter((s) => !rotas.includes(s.id))
     return sanas.some((s) => s.tipo === 'imagen') ? sanas : [{ id: 'dibujado', tipo: 'dibujado' }, ...sanas]
@@ -643,7 +646,7 @@ function Carrusel({ ciudad, promos }) {
             {slide.tipo === 'imagen' ? (
               <img
                 src={slide.src}
-                alt={`Capta Delivery en ${ciudad}`}
+                alt={slide.alt}
                 onError={() => setRotas((previas) => [...previas, slide.id])}
               />
             ) : slide.tipo === 'promo' ? (
