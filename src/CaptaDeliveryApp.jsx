@@ -280,50 +280,11 @@ function VolverAPedir({ pedidos }) {
   )
 }
 
-/** Cada beneficio tiene un ícono para distinguirlo de un vistazo. */
-function DibujoCupon({ tipo }) {
-  const trazo = { fill: 'none', stroke: 'currentColor', strokeWidth: 3, strokeLinecap: 'round', strokeLinejoin: 'round' }
-  if (tipo === 'envio_gratis') {
-    // Un repartidor en moto con la caja de reparto atras y lineas de velocidad.
-    const fino = { fill: 'none', stroke: 'currentColor', strokeLinecap: 'round', strokeLinejoin: 'round' }
-    return (
-      <svg className="cd-cupon-dibujo cd-cupon-dibujo-moto" viewBox="0 0 92 64" aria-hidden="true">
-        <path d="M3 22h10M0 31h12M5 40h8" {...fino} strokeWidth="2.8" />
-        <g transform="translate(14 0)">
-          <circle cx="16" cy="51" r="7.5" {...fino} strokeWidth="3.6" />
-          <circle cx="62" cy="51" r="7.5" {...fino} strokeWidth="3.6" />
-          <path d="M16 51c0-6 4-9 10-9h26" {...fino} strokeWidth="3.6" />
-          <path d="M52 42l8-20M62 51l-3-14" {...fino} strokeWidth="3.4" />
-          <path d="M55 21h10" {...fino} strokeWidth="3.6" />
-          <path d="M40 17l-5 20" {...fino} strokeWidth="7" />
-          <path d="M43 22l12-1" {...fino} strokeWidth="3.4" />
-          <path d="M35 37l9 6h7" {...fino} strokeWidth="3.6" />
-          <circle cx="41" cy="9.5" r="5.8" fill="currentColor" />
-        </g>
-        <rect x="16" y="14" width="25" height="19" rx="4" {...trazo} />
-        <path d="M17 23h23" {...trazo} />
-      </svg>
-    )
-  }
-  if (tipo === 'producto') {
-    return <Icono nombre="redeem" />
-  }
-  if (tipo === 'monto') {
-    return (
-      <svg className="cd-cupon-dibujo" viewBox="0 0 76 60" aria-hidden="true">
-        <path d="M44 6l4 9M54 3l-1 10M63 8l-6 8" {...trazo} strokeWidth="2.6" />
-        <text x="22" y="52" fill="currentColor" fontSize="52" fontWeight="800" fontFamily="Manrope, system-ui, sans-serif">$</text>
-      </svg>
-    )
-  }
-  return (
-    <svg className="cd-cupon-dibujo" viewBox="0 0 76 60" aria-hidden="true">
-      <path d="M44 6l4 9M54 3l-1 10M63 8l-6 8" {...trazo} strokeWidth="2.6" />
-      <circle cx="31" cy="22" r="7.5" {...trazo} strokeWidth="5.5" />
-      <circle cx="58" cy="47" r="7.5" {...trazo} strokeWidth="5.5" />
-      <path d="M62 15 27 54" {...trazo} strokeWidth="5.5" />
-    </svg>
-  )
+const ICONOS_BENEFICIO = {
+  envio_gratis: 'delivery_dining',
+  porcentaje: 'percent',
+  monto: 'payments',
+  producto: 'redeem',
 }
 
 const quitarAcentos = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim()
@@ -373,7 +334,9 @@ function BeneficiosParaVos({ cupones, onCopiar }) {
                   <strong>{beneficio}</strong>
                   {subtitulo ? <small>{subtitulo}</small> : null}
                 </span>
-                <span className="cd-cupon-icono" aria-hidden="true"><DibujoCupon tipo={c.tipo} /></span>
+                <span className="cd-cupon-icono" aria-hidden="true">
+                  <Icono nombre={ICONOS_BENEFICIO[c.tipo] || 'local_offer'} />
+                </span>
                 <span className="cd-cupon-condiciones">
                   {c.minimoCompra > 0 ? <span>{`Compra mínima $${c.minimoCompra.toLocaleString('es-AR')}`}</span> : null}
                   <span>{c.hasta ? `Hasta el ${new Date(c.hasta).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}` : 'Sin vencimiento'}</span>
