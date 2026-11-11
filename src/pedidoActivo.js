@@ -2,6 +2,43 @@ import { almacenDelNavegador } from '../shared/datosDelCliente.js'
 
 const CLAVE = 'capta-pedidos-seguimiento'
 const VIGENCIA = 14 * 24 * 60 * 60 * 1000
+const CLAVE_PAGO = 'capta:seguimiento-pago'
+const TOKEN_PEDIDO = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i
+
+function leerSeguimientosDePago(almacen) {
+  const lista = JSON.parse(almacen?.getItem(CLAVE_PAGO) || '[]')
+  return Array.isArray(lista) ? lista.filter((p) => Date.now() - p?.at < VIGENCIA) : []
+}
+
+// Mercado Pago puede volver en otra pestaña, sin la sessionStorage del carrito.
+export function guardarSeguimientoDePago(id, token) {
+  if (!id || !TOKEN_PEDIDO.test(token)) return
+  try {
+    const almacen = almacenDelNavegador()
+    const otros = leerSeguimientosDePago(almacen).filter((p) => p.id !== id)
+    almacen?.setItem(CLAVE_PAGO, JSON.stringify([{ id, token, at: Date.now() }, ...otros].slice(0, 5)))
+  } catch {
+    // Si no hay almacenamiento, queda el pedido guardado en la pestaña original.
+  }
+}
+
+export function abrirSeguimientoDelPedido({ id, trackingToken } = {}) {
+  let token = trackingToken
+  try {
+    const almacen = almacenDelNavegador()
+    const pagos = leerSeguimientosDePago(almacen)
+    const pago = pagos.find((p) => p.id === id)
+    if (pago) {
+      if (!TOKEN_PEDIDO.test(token)) token = pago.token
+      almacen?.setItem(CLAVE_PAGO, JSON.stringify(pagos.filter((p) => p.id !== id)))
+    }
+  } catch {
+    // Todavía se puede usar el enlace que devolvió el pedido.
+  }
+  window.location.replace(TOKEN_PEDIDO.test(token)
+    ? `https://seguimiento.capta.ar/seguimiento/${token}`
+    : 'https://capta.ar/pedi?vista=pedidos')
+}
 
 function leerPedidosGuardados() {
   try {

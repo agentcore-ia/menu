@@ -18,7 +18,7 @@ import BarraCapta from './BarraCapta.jsx'
 import { turnosParaProgramar } from '../shared/pedidoProgramado.js'
 import { guardarUltimoPedido, rearmarCarrito, ultimoPedidoDe } from '../shared/volverAPedir.js'
 import { guardarBeneficioElegido, leerBeneficioElegido, leerSesion } from './sesionCapta.js'
-import { guardarSeguimientoPedido } from './pedidoActivo.js'
+import { abrirSeguimientoDelPedido, guardarSeguimientoDePago, guardarSeguimientoPedido } from './pedidoActivo.js'
 import { VerificarCelular } from './VerificarCelular.jsx'
 import {
   almacenDelNavegador,
@@ -8418,6 +8418,8 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   // Pedido con Mercado Pago que TODAVIA NO SE PAGO: no se le dice "confirmado"
   // a alguien que no pago. { orderId, orderNumber, link, verificando }
   const [esperandoPago, setEsperandoPago] = useState(null)
+  const [desdeCapta] = useState(() => Boolean(demo) || vinoDeLaVitrina())
+  const checkoutConSeguimiento = !demo && (desdeCapta || window.location.hostname === 'capta.ar')
 
   // VOLVIO DE MERCADO PAGO. La direccion de vuelta trae ?pedido=<id> (y
   // payment_id). Se pregunta si ese pedido ya esta pago: si esta, la
@@ -8453,6 +8455,10 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
           } catch {
             // nada que limpiar
           }
+          if (checkoutConSeguimiento) {
+            abrirSeguimientoDelPedido({ id: pedido, trackingToken: delMismoPedido?.trackingToken })
+            return
+          }
           // El total sale de lo guardado antes de irse a pagar; si el
           // navegador lo perdio (otra pestaña, otro celular, datos
           // borrados), del que devuelve el servidor. Poner 0 hacia que la
@@ -8476,7 +8482,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
         setEsperandoPago({ orderId: pedido, orderNumber: delMismoPedido?.orderNumber ?? null, link: delMismoPedido?.paymentLink || null })
       }
     })()
-  }, [accountId, demo])
+  }, [accountId, checkoutConSeguimiento, demo])
   // El dato de transferencia que se acaba de copiar, para decir "Copiado".
   const [datoCopiado, setDatoCopiado] = useState('')
   const copiarDatoDeTransferencia = (valor) => {
@@ -8836,7 +8842,6 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   // Desde la vitrina de Capta Delivery el menu se ve con la plantilla unificada
   // (CaptaCabecera / CaptaCarta). Entrando directo al link no pasa nada de esto,
   // salvo que el local lo pida (theme.plantillaCapta): ahi se ve asi siempre.
-  const [desdeCapta] = useState(() => Boolean(demo) || vinoDeLaVitrina())
   const presentacionDelLocal = menu?.presentation ?? defaultPresentation
   const plantillaDelLocal = presentacionDelLocal.template ?? presentacionDelLocal.layout ?? 'editorial'
   const usaPlantillaCapta = Boolean(
@@ -10748,13 +10753,14 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     const quiereTarjeta = !isTableOrder && pagoElegido === 'tarjeta'
     const effectivePaymentMethod = isTableOrder ? 'mesa' : quiereTarjeta ? 'mercado_pago' : pagoElegido
     const shouldRedirectToMercadoPago = effectivePaymentMethod === 'mercado_pago'
+    const abrirSeguimiento = checkoutConSeguimiento && !isTableOrder
     // La pestaña se abre ANTES del fetch a proposito: abrirla despues, fuera
     // del clic, la bloquea el navegador. Pero si el local no tiene WhatsApp
     // cargado no hay adonde mandar al cliente, y lo unico que pasaba era que se
     // abria una pestaña en blanco y se cerraba sola cuando volvia el pedido.
     const puedeAbrirWhatsapp = menu?.tieneWhatsappDelLocal === true
     const whatsappWindow =
-      isTableOrder || shouldRedirectToMercadoPago || !puedeAbrirWhatsapp
+      abrirSeguimiento || isTableOrder || shouldRedirectToMercadoPago || !puedeAbrirWhatsapp
         ? null
         : window.open('', '_blank')
 
@@ -10793,6 +10799,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
       })),
       // Vino desde la app de Capta Delivery: de esto dependen los puntos.
       desdeVitrina: desdeLaVitrina,
+      abrirSeguimiento,
       // Pedido para mas tarde (local cerrado). El servidor lo valida.
       programadoPara: puedeProgramar ? turnoElegido : undefined,
       // Lo que quiere usar de sus puntos, en pesos. El servidor lo vuelve a
@@ -10819,11 +10826,11 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
         throw new Error(result.message ?? 'No se pudo enviar el pedido.')
       }
 
-      if (desdeLaVitrina && !isTableOrder && !sesionCapta?.token) {
+      if (abrirSeguimiento && !sesionCapta?.token) {
         guardarSeguimientoPedido(result.trackingToken)
       }
 
-      if (shouldRedirectToMercadoPago && !result.paymentLink) {
+      if (shouldRedirectToMercadoPago && !result.paymentLink && (!abrirSeguimiento || result.status === 'pendiente_pago')) {
         throw new Error(
           result.paymentWarning ||
             'El pedido se cargo, pero no pudimos abrir Mercado Pago. El local va a coordinar el pago.',
@@ -10873,6 +10880,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
       // arranca de cero. Se guarda para mostrarle la confirmacion completa
       // (total, gustos, puntos) cuando el pago se acredita.
       if (shouldRedirectToMercadoPago) {
+        if (abrirSeguimiento && result.paymentLink) guardarSeguimientoDePago(result.id, result.trackingToken)
         try {
           window.sessionStorage.setItem('capta:pedido-en-pago', JSON.stringify(pedidoParaConfirmar))
         } catch {
@@ -10916,7 +10924,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
           email: result.customer?.email || '',
           link: result.paymentLink || '',
         })
-      } else if (shouldRedirectToMercadoPago) {
+      } else if (shouldRedirectToMercadoPago && result.paymentLink) {
         // Queda a la vista un boton para pagar ANTES de intentar ir solo. En
         // Android la redireccion automatica (llega despues del fetch, sin el
         // toque del cliente) muchas veces no abre la app de Mercado Pago: la
@@ -10930,7 +10938,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
           recienHecho: true,
         })
         window.location.assign(result.paymentLink)
-      } else if (!isTableOrder) {
+      } else if (!abrirSeguimiento && !isTableOrder) {
         openWhatsappOrderChat(result.customerWhatsapp?.url, whatsappWindow)
       }
       setLoyaltyData((current) =>
@@ -10954,7 +10962,10 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
       // formulario, lista para aparecer si lo cerraba.
       // Con Mercado Pago (tarjeta o link) la confirmacion recien va con el pago
       // aprobado.
-      if (!vaAPagarConTarjeta && !quedaEsperandoPago) setShowConfirmation(true)
+      if (!vaAPagarConTarjeta && !quedaEsperandoPago) {
+        if (abrirSeguimiento) abrirSeguimientoDelPedido(result)
+        else setShowConfirmation(true)
+      }
     } catch (error) {
       if (whatsappWindow && !whatsappWindow.closed) {
         whatsappWindow.close()
@@ -13798,7 +13809,11 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
               linkDeMercadoPago={pagoConTarjeta.link}
               onAprobado={() => {
                 setPagoConTarjeta(null)
-                setShowConfirmation(true)
+                if (checkoutConSeguimiento) {
+                  abrirSeguimientoDelPedido({ id: pagoConTarjeta.orderId, trackingToken: lastOrder?.trackingToken })
+                } else {
+                  setShowConfirmation(true)
+                }
               }}
               // Cerrar sin pagar NO confirma: antes mostraba "pedido confirmado"
               // a alguien que no habia pagado. El pedido sigue esperando el pago
@@ -13852,6 +13867,11 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                         guardado = null
                       }
                       setEsperandoPago(null)
+                      if (checkoutConSeguimiento) {
+                        const orden = lastOrder?.id === actual.orderId ? lastOrder : guardado
+                        abrirSeguimientoDelPedido({ id: actual.orderId, trackingToken: orden?.id === actual.orderId ? orden.trackingToken : null })
+                        return
+                      }
                       setLastOrder((anterior) =>
                         anterior?.id === actual.orderId
                           ? anterior

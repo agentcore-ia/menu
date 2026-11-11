@@ -631,7 +631,9 @@ export class SupabaseOrderRepository {
       id: pedido.id,
       orderNumber: pedido.order_number,
       status: pedido.status,
-      ...(payload.desdeVitrina === true && !payload.mesa_id ? { trackingToken: pedido.tracking_token } : {}),
+      ...(!payload.mesa_id && (payload.abrirSeguimiento === true || payload.desdeVitrina === true)
+        ? { trackingToken: pedido.tracking_token }
+        : {}),
       total,
       // Para la confirmacion: "Programado para hoy a las 21:00".
       programado: programado ? { para: programado.programadoPara, texto: programado.texto } : null,
