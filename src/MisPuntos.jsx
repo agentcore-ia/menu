@@ -111,20 +111,10 @@ export default function MisPuntos({
 }) {
   const [celular, setCelular] = useState(celularInicial)
   const [consultado, setConsultado] = useState(null)
-  const [reglas, setReglas] = useState(null)
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState('')
   const [ayuda, setAyuda] = useState(false)
   const [verTodo, setVerTodo] = useState(false)
-
-  useEffect(() => {
-    const controller = new AbortController()
-    fetch('/api/delivery/puntos?config=1', { signal: controller.signal })
-      .then((respuesta) => respuesta.ok ? respuesta.json() : null)
-      .then((datos) => { if (datos?.config && !controller.signal.aborted) setReglas(datos.config) })
-      .catch(() => {})
-    return () => controller.abort()
-  }, [])
 
   const buscar = async (numero) => {
     if (!celularValido(numero)) {
@@ -168,9 +158,9 @@ export default function MisPuntos({
     }
   }, [onCerrar])
 
-  const config = consultado?.config ?? reglas
+  const config = consultado?.config ?? null
   const activo = config?.activo === true
-  const conSaldo = consultado?.config?.activo === true
+  const conSaldo = Boolean(consultado) && activo
   const puntos = Number(consultado?.puntos) || 0
   const contados = useContador(conSaldo ? puntos : 0)
   const minimo = Number(config?.minimoParaCanjear) || 0
@@ -178,8 +168,6 @@ export default function MisPuntos({
   const avance = minimo > 0 ? Math.min(100, Math.round((puntos / minimo) * 100)) : 100
   const movimientos = consultado?.movimientos ?? []
   const visibles = verTodo ? movimientos : movimientos.slice(0, 3)
-  const ejemplo = activo ? Math.max(1, Math.ceil(10000 / config.pesosPorPunto)) : 0
-  const puntosDeCanje = Math.max(1, minimo)
 
   return (
     <div className="cp-pagina" role="dialog" aria-modal="true" aria-label="Mis puntos">
@@ -213,7 +201,6 @@ export default function MisPuntos({
         </ul>
       ) : null}
 
-      {conSaldo ? (
       <section className="cp-hero">
         <div className="cp-hero-saldo">
           <span className="cp-medalla">
@@ -221,11 +208,12 @@ export default function MisPuntos({
           </span>
           <div>
             <p className="cp-etiqueta">Tus puntos</p>
-            <p className="cp-numero">{contados}</p>
+            <p className="cp-numero">{conSaldo ? contados : '—'}</p>
           </div>
         </div>
-        <p className="cp-pesos">{`= ${pesos(consultado.pesos)} para usar`}</p>
+        <p className="cp-pesos">{conSaldo ? `= ${pesos(consultado.pesos)} para usar` : 'Ingresá tu celular'}</p>
 
+        {conSaldo ? (
           <div className="cp-avance">
             {puedeCanjear ? (
               <p className="cp-listo">¡Ya podés canjear!</p>
@@ -240,21 +228,8 @@ export default function MisPuntos({
               </>
             )}
           </div>
+        ) : null}
       </section>
-      ) : (
-        <section className="cp-ejemplo">
-          <span className="cp-paso-icono"><Icono nombre="canjea" /></span>
-          <div>
-            <h2>Tus pedidos suman descuentos</h2>
-            {ejemplo ? (
-              <>
-                <p>Con una compra elegible de <strong>{pesos(ejemplo * config.pesosPorPunto)}</strong> sumás <strong>{ejemplo} puntos</strong>.</p>
-                <p>Podés canjear desde <strong>{puntosDeCanje} puntos</strong>, que equivalen a <strong>{pesos(puntosDeCanje * config.valorDelPunto)}</strong> de saldo.</p>
-              </>
-            ) : <p>Acumulá puntos con tus pedidos y usalos en una próxima compra.</p>}
-          </div>
-        </section>
-      )}
 
       {!conSaldo ? (
         <form
@@ -276,7 +251,7 @@ export default function MisPuntos({
             {cargando ? 'Buscando…' : 'Ver mis puntos'}
           </button>
           {error ? <p className="cp-error">{error}</p> : null}
-          {consultado && !consultado.config?.activo ? <p className="cp-error">Los puntos de Capta todavía no están habilitados.</p> : null}
+          {consultado && !activo ? <p className="cp-error">Los puntos de Capta todavía no están habilitados.</p> : null}
         </form>
       ) : null}
 

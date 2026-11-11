@@ -130,19 +130,6 @@
   gap: 12px;
 }
 
-.cp-ejemplo {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid #f2dfcf;
-  border-radius: 19px;
-  background: #fff3e8;
-}
-.cp-ejemplo > span { flex: none; }
-.cp-ejemplo h2 { margin: 0; font-size: 1.03rem; }
-.cp-ejemplo p { margin: 6px 0 0; color: #664b3d; font-size: .86rem; line-height: 1.5; }
-
 .cp-medalla {
   display: grid;
   place-items: center;
