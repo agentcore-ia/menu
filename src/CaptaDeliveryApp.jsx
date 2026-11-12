@@ -24,7 +24,6 @@ import { capturarInvitacion, tomarRegalo } from './invitacionCapta.js'
 import { RegaloInvitacion } from './RegaloInvitacion.jsx'
 import { leerUltimosPedidos, resumenDelPedido } from '../shared/volverAPedir.js'
 import { coincideConElRubro, normalizarTexto, palabrasDeLaBusqueda } from '../shared/busquedaProductos.js'
-import SliderComercios from './SliderComercios.jsx'
 import './CaptaDelivery.css'
 
 const CLAVE_CIUDAD = 'capta-vitrina-ciudad'
@@ -1259,8 +1258,7 @@ export default function CaptaDeliveryApp() {
       ),
     [deLaCiudad],
   )
-  const abiertosEnInicio = cercaDeTi.filter((local) => local.abierto)
-  const primerosLocales = abiertosEnInicio.length ? abiertosEnInicio : cercaDeTi.slice(0, 2)
+  const hayLocalesAbiertos = cercaDeTi.some((local) => local.abierto)
 
   const grupo = GRUPOS.find((g) => g.id === grupoElegido) ?? null
   const delGrupo = useMemo(
@@ -1413,7 +1411,7 @@ export default function CaptaDeliveryApp() {
 
             <section className="cd-seccion cd-locales-inicio" aria-label="Comercios">
               <div className="cd-seccion-cabeza">
-                <h2>{abiertosEnInicio.length ? 'Abiertos ahora' : `Comercios en ${ciudad || 'tu ciudad'}`}</h2>
+                <h2>{hayLocalesAbiertos ? 'Abiertos ahora' : `Comercios en ${ciudad || 'tu ciudad'}`}</h2>
                 {cercaDeTi.length ? (
                   <button type="button" className="cd-enlace-seccion" onClick={() => irA('todos')}>Ver todos <Icono nombre="arrow_forward" /></button>
                 ) : null}
@@ -1427,18 +1425,8 @@ export default function CaptaDeliveryApp() {
                     </div>
                   ))}
                 </div>
-              ) : abiertosEnInicio.length ? (
-                <SliderComercios key={ciudad} cantidad={abiertosEnInicio.length}>
-                  {abiertosEnInicio.map((local) => (
-                    <TarjetaCerca key={local.slug} local={local} esFavorito={favoritos.includes(local.slug)} onFavorito={alternarFavorito} enLista />
-                  ))}
-                </SliderComercios>
-              ) : primerosLocales.length ? (
-                <div className="cd-grilla-cerca">
-                  {primerosLocales.map((local) => (
-                    <TarjetaCerca key={local.slug} local={local} esFavorito={favoritos.includes(local.slug)} onFavorito={alternarFavorito} enLista />
-                  ))}
-                </div>
+              ) : cercaDeTi.length ? (
+                <ListaDeLocales locales={cercaDeTi} favoritos={favoritos} onFavorito={alternarFavorito} />
               ) : !error ? (
                 <p className="cd-hoja-texto">Por ahora no hay comercios en {ciudad || 'esta ciudad'}.</p>
               ) : null}
@@ -1467,13 +1455,6 @@ export default function CaptaDeliveryApp() {
             ) : null}
 
             <BeneficiosParaVos cupones={cupones} elegido={beneficioElegido} onElegir={elegirBeneficio} />
-
-            {cercaDeTi.length > primerosLocales.length ? (
-              <section className="cd-seccion" aria-label="Más comercios">
-                <div className="cd-seccion-cabeza"><h2>Más comercios en {ciudad}</h2></div>
-                <ListaDeLocales locales={cercaDeTi.slice(primerosLocales.length)} favoritos={favoritos} onFavorito={alternarFavorito} />
-              </section>
-            ) : null}
 
             {mandadoDeLaCiudad ? (
               <EntradaMandados key={ciudad} mandado={mandadoDeLaCiudad} />
