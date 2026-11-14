@@ -12,13 +12,13 @@ import {
 import { textosDelMenu } from '../shared/rubros.js'
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../shared/celular.js'
 import { canjePosible, porQueNoEntraTodo } from '../shared/puntosCapta.js'
-import { normalizarCodigoLocal } from '../shared/codigoDescuento.js'
 import { vinoDeLaVitrina } from './vitrinaDelCliente.js'
 import { seguirToques, volarAlCarrito } from './animacionCarrito.js'
 import BarraCapta from './BarraCapta.jsx'
 import { turnosParaProgramar } from '../shared/pedidoProgramado.js'
 import { guardarUltimoPedido, rearmarCarrito, ultimoPedidoDe } from '../shared/volverAPedir.js'
 import { guardarBeneficioElegido, leerBeneficioElegido, leerSesion } from './sesionCapta.js'
+import { normalizarCodigoLocal } from '../shared/codigoDescuento.js'
 import { abrirSeguimientoDelPedido, guardarSeguimientoDePago, guardarSeguimientoPedido } from './pedidoActivo.js'
 import { VerificarCelular } from './VerificarCelular.jsx'
 import {
@@ -9235,24 +9235,9 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   // app. El descuento lo calcula el SERVIDOR (/api/delivery/cupones/validar) y
   // se vuelve a validar al crear el pedido.
   const [cuponTexto, setCuponTexto] = useState('')
-  const [cuponSolicitado, setCuponSolicitado] = useState(() => desdeLaVitrina ? leerBeneficioElegido() : '')
-  const [resultadoCupon, setResultadoCupon] = useState(null)
-  const [intentoCupon, setIntentoCupon] = useState(0)
-  const [cuponesAlAlcance, setCuponesAlAlcance] = useState([])
-<<<<<<< Updated upstream
-  const contextoCupon = useMemo(() => ({
-    codigo: cuponSolicitado,
-    slug: accountId,
-    comida: cartTotal,
-    envio: selectedDeliveryFee,
-    items: cart.map((line) => ({ productId: line.productId || null, unitPrice: line.unitPrice })),
-    telefono: celularDelPedido,
-    sesionCapta: sesionCapta?.token,
-    desdeVitrina: true,
-  }), [cuponSolicitado, accountId, cartTotal, selectedDeliveryFee, cart, celularDelPedido, sesionCapta?.token])
-=======
-  // El codigo de descuento de una campaña del LOCAL llega en el link del mensaje (?codigo=ABCD2345):
-  // se guarda mientras dure la visita y se aplica solo cuando el cliente arma el pedido.
+  // El codigo de descuento de una campaña del LOCAL (shared/codigoDescuento.js) llega en el link del
+  // mensaje (?codigo=ABCD2345): se guarda mientras dure la visita y entra solo como "cupon pedido".
+  // Usa el mismo campo y el mismo camino que el cupon de Capta; el servidor sabe cual es cual.
   const [codigoDelLink] = useState(() => {
     if (typeof window === 'undefined') return ''
     try {
@@ -9266,11 +9251,30 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
       return ''
     }
   })
-  const codigoDelLinkProbado = useRef(false)
->>>>>>> Stashed changes
+  const [cuponSolicitado, setCuponSolicitado] = useState(
+    () => (desdeLaVitrina ? leerBeneficioElegido() : '') || codigoDelLink,
+  )
+  const [resultadoCupon, setResultadoCupon] = useState(null)
+  const [intentoCupon, setIntentoCupon] = useState(0)
+  const [cuponesAlAlcance, setCuponesAlAlcance] = useState([])
+  const contextoCupon = useMemo(() => ({
+    codigo: cuponSolicitado,
+    slug: accountId,
+    comida: cartTotal,
+    envio: selectedDeliveryFee,
+    items: cart.map((line) => ({ productId: line.productId || null, unitPrice: line.unitPrice })),
+    telefono: celularDelPedido,
+    sesionCapta: sesionCapta?.token,
+    // Los cupones de Capta valen solo desde la app; los codigos del local, en su menu siempre.
+    desdeVitrina: desdeLaVitrina,
+  }), [cuponSolicitado, accountId, cartTotal, selectedDeliveryFee, cart, celularDelPedido, sesionCapta?.token, desdeLaVitrina])
 
   const envioPendiente = !isTableOrder && orderForm.deliveryType === 'delivery' && deliveryZonesEnabled && deliveryQuote?.allowed !== true
-  const revisarCupon = Boolean(desdeLaVitrina && cuponSolicitado && hasOrderItems && !isTableOrder && celularDelPedido && !envioPendiente)
+  // Desde la app hace falta el celular y el envio resuelto (los cupones de Capta dependen de eso). En
+  // el menu del local solo hay codigos del local: un porcentaje de la comida, no necesita nada mas.
+  const revisarCupon = Boolean(
+    cuponSolicitado && hasOrderItems && !isTableOrder && (!desdeLaVitrina || (celularDelPedido && !envioPendiente)),
+  )
   const resultadoActual = revisarCupon && resultadoCupon?.contexto === contextoCupon && resultadoCupon.intento === intentoCupon
     ? resultadoCupon
     : null
@@ -9282,6 +9286,14 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     setCuponTexto('')
     setIntentoCupon((previo) => previo + 1)
     if (leerBeneficioElegido() === cuponSolicitado && codigo !== cuponSolicitado) guardarBeneficioElegido('')
+    // El codigo que vino en el link se olvida al quitarlo, cambiarlo o usarlo: no vuelve solo.
+    if (codigo !== codigoDelLink) {
+      try {
+        window.sessionStorage.removeItem('capta:codigo-descuento')
+      } catch {
+        // sin almacenamiento no hay nada que borrar
+      }
+    }
   }
 
   useEffect(() => {
@@ -9292,23 +9304,8 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
         const respuesta = await fetch('/api/delivery/cupones', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-<<<<<<< Updated upstream
           body: JSON.stringify(contextoCupon),
           signal: controller.signal,
-=======
-          body: JSON.stringify({
-            codigo,
-            slug: accountId,
-            comida: cartTotal,
-            envio: selectedDeliveryFee,
-            // Para el cupon de "producto gratis": que lleva el pedido.
-            items: cart.map((line) => ({ productId: line.productId || null, unitPrice: line.unitPrice })),
-            telefono: celularDelPedido,
-            sesionCapta: sesionCapta?.token,
-            // Los cupones de Capta valen solo desde la app; los codigos del local, siempre.
-            desdeVitrina: desdeLaVitrina,
-          }),
->>>>>>> Stashed changes
         })
         const datos = await respuesta.json()
         if (!controller.signal.aborted) setResultadoCupon({ contexto: contextoCupon, intento: intentoCupon, datos })
@@ -9321,31 +9318,12 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
           })
         }
       }
-<<<<<<< Updated upstream
     }, 300)
     return () => {
       controller.abort()
       window.clearTimeout(espera)
     }
   }, [contextoCupon, intentoCupon, isCheckoutOpen, revisarCupon])
-=======
-    },
-    [accountId, cartTotal, cart, selectedDeliveryFee, celularDelPedido, sesionCapta?.token, desdeLaVitrina],
-  )
->>>>>>> Stashed changes
-
-  // El codigo que vino en el link se prueba UNA vez, apenas hay productos. Si no vale (vencido, ya
-  // usado), queda el motivo a la vista y no se insiste.
-  useEffect(() => {
-    if (!codigoDelLink || codigoDelLinkProbado.current || !hasOrderItems || isTableOrder) return
-    codigoDelLinkProbado.current = true
-    try {
-      window.sessionStorage.removeItem('capta:codigo-descuento')
-    } catch {
-      // sin almacenamiento no hay nada que borrar
-    }
-    void probarCupon(codigoDelLink)
-  }, [codigoDelLink, hasOrderItems, isTableOrder, probarCupon])
 
   // Los cupones al alcance: los de la cuenta (si entro) y las ofertas a la vista.
   useEffect(() => {
@@ -13401,8 +13379,8 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                 {/* Un solo campo para los dos descuentos con codigo: el cupon de Capta (lo paga
                     Capta; solo si el cliente entro desde la app) y el codigo de una campaña del
                     local (uno por cliente, un solo uso; solo si el local tiene codigos dando
-                    vueltas o el cliente llego con uno). */}
-                {(desdeLaVitrina || menu?.tieneCodigosDescuento || cuponAplicado || cuponMensaje) && !isTableOrder && hasOrderItems ? (
+                    vueltas o el cliente llego con uno en el link). */}
+                {(desdeLaVitrina || menu?.tieneCodigosDescuento || cuponSolicitado) && !isTableOrder && hasOrderItems ? (
                   <div className="capta-cupon-checkout">
                     <div className="capta-cupon-cabecera">
                       <span>{desdeLaVitrina ? 'Cupón o código de descuento' : 'Código de descuento'}</span>
