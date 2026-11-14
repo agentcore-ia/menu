@@ -19,6 +19,9 @@ export function createOrderRepository(config) {
     async cuponesParaLaApp() {
       return { ofertas: [], billetera: [] }
     },
+    async evaluarCodigoDelLocal() {
+      return null
+    },
     async evaluarCuponDeCapta() {
       return { ok: false, motivo: 'Los cupones no están disponibles.' }
     },

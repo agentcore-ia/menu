@@ -43,6 +43,33 @@ export async function cupones(req, res) {
       res.status(404).json({ ok: false, motivo: 'No encontramos el local.' })
       return
     }
+    // Primero: ¿es un codigo de descuento de una campaña de ESTE local? (uno por cliente, un solo
+    // uso, con vencimiento; shared/codigoDescuento.js). Vale en el menu del local, entre por donde entre.
+    const delLocal = await orderRepository.evaluarCodigoDelLocal?.({
+      codigo: b.codigo,
+      restaurant,
+      comida: Number(b.comida) || 0,
+    })
+    if (delLocal) {
+      res.status(200).json(
+        delLocal.ok
+          ? {
+              ok: true,
+              codigo: delLocal.fila.codigo,
+              titulo: `${Number(delLocal.fila.porcentaje)}% de descuento`,
+              tipo: 'codigo_local',
+              pesos: delLocal.pesos,
+            }
+          : { ok: false, motivo: delLocal.motivo },
+      )
+      return
+    }
+    // Fuera de la app de Capta solo valen los codigos del local: uno que no es de aca, no existe.
+    if (b.desdeVitrina !== true && !(await orderRepository.cuponDeCapta?.(b.codigo))) {
+      res.status(200).json({ ok: false, motivo: 'Ese código no existe.' })
+      return
+    }
+
     const r = await orderRepository.evaluarCuponDeCapta({
       codigo: b.codigo,
       restaurant,

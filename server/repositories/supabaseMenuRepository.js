@@ -459,6 +459,14 @@ export class SupabaseMenuRepository {
 
     const businessLocation = normalizeBusinessLocation(restaurant.horarios)
 
+    // ¿El local tiene codigos de descuento de sus campañas para canjear? Con eso el checkout
+    // muestra el campo "Código de descuento" (shared/codigoDescuento.js). Si falla, no se muestra.
+    const tieneCodigosDescuento = await this.request(
+      `/codigos_descuento?restaurant_id=eq.${restaurant.id}&usado_at=is.null&vence_at=gte.${encodeURIComponent(new Date().toISOString())}&select=id&limit=1`,
+    )
+      .then((filas) => Boolean(filas?.[0]))
+      .catch(() => false)
+
     const ordering = getBusinessOpenStatus(restaurant.horarios)
     const orderTakingPaused = restaurant.horarios?._settings?.orderTakingPaused === true
 
@@ -469,6 +477,7 @@ export class SupabaseMenuRepository {
       // abrir una pestaña que no va a ningun lado, necesita saber ANTES de
       // mandar el pedido si hay numero. Va el dato, no el numero.
       tieneWhatsappDelLocal: Boolean(String(restaurant.phone || '').replace(/\D/g, '')),
+      tieneCodigosDescuento,
       table_experience_enabled: restaurant.table_experience_enabled === true,
       table_welcome_text: restaurant.table_welcome_text || '',
       qr_background_url: restaurant.qr_background_url || null,

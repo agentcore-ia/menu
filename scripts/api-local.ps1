@@ -19,6 +19,11 @@ Get-Content (Join-Path $raiz ".env") -Encoding utf8 | ForEach-Object {
   }
 }
 
+# Las tablas estan cerradas a la clave publica (28/10): con ella el menu ya no carga
+# ("permission denied for table restaurants"). En produccion el menu lee con la clave
+# de servicio; aca igual, si esta en el .env.
+if ($env:CAPTA_SUPABASE_WRITE_API_KEY) { $env:CAPTA_SUPABASE_API_KEY = $env:CAPTA_SUPABASE_WRITE_API_KEY }
+
 if (-not $env:CAPTA_SUPABASE_URL) { throw "falta SUPABASE_URL en .env" }
 if (-not $env:CAPTA_SUPABASE_API_KEY) { throw "falta SUPABASE_ANON_KEY en .env" }
 

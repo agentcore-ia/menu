@@ -13,6 +13,12 @@ import { describirVigencia, normalizarPromociones, promoVigente } from '../../sh
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../../shared/celular.js'
 import { canjeElegido, configDePuntos } from '../../shared/puntosCapta.js'
 import { cuponParaElCliente, descuentoDelCupon, motivoNoAplica, normalizarCodigo } from '../../shared/cuponesCapta.js'
+import {
+  descuentoDelCodigo,
+  etiquetaDelCodigo,
+  motivoCodigoNoAplica,
+  normalizarCodigoLocal,
+} from '../../shared/codigoDescuento.js'
 import { aceptaTransferencia } from '../../shared/transferencia.js'
 import { leerHorarioMenuDelDia, menuDelDiaDisponible, textoHorarioMenuDelDia } from '../../shared/horarioMenuDelDia.js'
 import { aceptaProgramados, anticipoDelLocal, validarProgramado } from '../../shared/pedidoProgramado.js'
@@ -238,15 +244,27 @@ export class SupabaseOrderRepository {
     const surchargeAmount =
       surchargePercent > 0 ? Math.round(((discountedSubtotal + deliveryFee) * surchargePercent) / 100) : 0
 
+    // El codigo de descuento de una campaña del LOCAL (reactivacion / post-compra): uno por cliente,
+    // vale una sola vez y tiene vencimiento. Se valida ACA: el navegador solo propone. Es un
+    // porcentaje de la comida y lo pone el local (va a discount_amount, no a lo de Capta).
+    const codigoLocal = await this.aplicarCodigoDelLocal({
+      codigo: payload.codigoDescuento,
+      restaurant,
+      comida: discountedSubtotal,
+      esMesa: Boolean(payload.mesa_id),
+    })
+    const comidaTrasElCodigo = Math.max(0, discountedSubtotal - codigoLocal.pesos)
+
     // Los puntos de Capta Delivery. Lo que el cliente pidio usar se valida
     // ACA de nuevo contra su saldo real: el navegador solo propone.
     // El cupon de Capta (lo crea el admin y lo paga Capta). Se valida ACA otra
     // vez: el navegador solo propone. Va antes de los puntos, que se calculan
     // sobre lo que queda por pagar.
     const cuponCapta = await this.aplicarCuponDeCapta({
-      codigo: payload.cuponCapta,
+      // Un descuento por pedido: con el codigo del local puesto, el cupon de Capta no se suma.
+      codigo: codigoLocal.pesos > 0 ? undefined : payload.cuponCapta,
       restaurant,
-      comida: discountedSubtotal,
+      comida: comidaTrasElCodigo,
       envio: deliveryFee,
       // Lo que lleva el pedido: el cupon de "producto gratis" necesita ver el producto.
       items: orderProducts,
@@ -260,14 +278,14 @@ export class SupabaseOrderRepository {
     const canjeCapta = await this.canjearPuntosDeCapta({
       telefono: payload.customer?.phone,
       pesosPedidos: payload.puntosCapta,
-      comida: Math.max(0, discountedSubtotal - cuponEnComida),
+      comida: Math.max(0, comidaTrasElCodigo - cuponEnComida),
       envio: Math.max(0, deliveryFee - cuponEnEnvio),
       desdeVitrina: payload.desdeVitrina === true,
     })
 
     const total = Math.max(
       0,
-      discountedSubtotal + deliveryFee + surchargeAmount - canjeCapta.pesos - cuponCapta.pesos,
+      discountedSubtotal + deliveryFee + surchargeAmount - codigoLocal.pesos - canjeCapta.pesos - cuponCapta.pesos,
     )
 
     let resolvedTableId = null;
@@ -359,6 +377,11 @@ export class SupabaseOrderRepository {
         : null
     const precisionCliente = Number(payload.ubicacion?.precision)
 
+    // El codigo se TOMA justo antes de crear el pedido, en un solo paso contra la base: si dos
+    // pedidos llegan a la vez con el mismo codigo, uno solo lo consigue. Si despues el pedido no se
+    // llega a crear, se suelta.
+    const codigoTomado = await this.tomarCodigoDelLocal(codigoLocal)
+
     const [pedido] = await this.request('/pedidos', {
       method: 'POST',
       headers: {
@@ -387,10 +410,12 @@ export class SupabaseOrderRepository {
           descuento_puntos_capta: canjeCapta.pesos + cuponCapta.pesos,
           cupon_codigo: cuponCapta.pesos > 0 ? cuponCapta.codigo : null,
           descuento_cupon_capta: cuponCapta.pesos,
-          discount_amount: discountAmount,
-          discount_percent: redemptionPreview?.discountPercent ?? null,
-          discount_label: redemptionPreview?.discountLabel ?? null,
-          discount_source: discountAmount > 0 ? 'loyalty' : null,
+          // El descuento del LOCAL: canje de sus puntos + codigo de campaña.
+          discount_amount: discountAmount + codigoLocal.pesos,
+          discount_percent: redemptionPreview?.discountPercent ?? (codigoLocal.pesos > 0 ? codigoLocal.porcentaje : null),
+          discount_label:
+            [redemptionPreview?.discountLabel, codigoLocal.pesos > 0 ? codigoLocal.etiqueta : null].filter(Boolean).join(' + ') || null,
+          discount_source: codigoLocal.pesos > 0 ? 'codigo' : discountAmount > 0 ? 'loyalty' : null,
           total,
           // El programado va primero y en mayusculas: es lo que la cocina
           // tiene que leer en la comanda.
@@ -428,6 +453,9 @@ export class SupabaseOrderRepository {
             customer: payload.customer,
             items: orderProducts,
             redemptions: redemptionPreview?.allRedemptions ?? redemptionPreview?.lineItems ?? [],
+            ...(codigoLocal.pesos > 0
+              ? { codigoDescuento: { codigo: codigoLocal.codigo, porcentaje: codigoLocal.porcentaje, pesos: codigoLocal.pesos } }
+              : {}),
             deliveryQuote,
             ...(ubicacionCliente
               ? {
@@ -451,6 +479,9 @@ export class SupabaseOrderRepository {
           },
         },
       ]),
+    }).catch(async (error) => {
+      await this.soltarCodigoDelLocal(codigoTomado)
+      throw error
     })
 
     const orderItems = [
@@ -487,15 +518,21 @@ export class SupabaseOrderRepository {
           Prefer: 'return=minimal',
         },
       }).catch(() => null)
+      await this.soltarCodigoDelLocal(codigoTomado)
       throw error
     }
+
+    // El codigo queda atado a este pedido (si el pedido se cancela, vuelve a valer).
+    await this.anotarPedidoDelCodigo(codigoTomado, pedido)
 
     // Recien aca se le descuentan los puntos: el pedido ya existe con sus
     // items. Si algo hubiera fallado antes, el cliente no perdio nada.
     if (canjeCapta.pesos > 0) {
       await this.anotarCanjeDePuntos({ pedido, canje: canjeCapta })
-      await this.anotarUsoDeCupon({ pedido, cupon: cuponCapta, telefono: payload.customer?.phone, restaurantId: restaurant.id })
     }
+    // El uso del cupon se anota SIEMPRE que haya cupon. Estaba adentro del "si uso puntos": un cupon
+    // usado sin puntos no quedaba anotado y se podia repetir sin limite.
+    await this.anotarUsoDeCupon({ pedido, cupon: cuponCapta, telefono: payload.customer?.phone, restaurantId: restaurant.id })
 
     const mercadoPagoPreference = await this.createMercadoPagoPreferenceForOrder({
       pedido,
@@ -1735,6 +1772,126 @@ export class SupabaseOrderRepository {
     )
     if (canje.pesos <= 0) return vacio
     return { ...canje, cuentaId: cuenta.cuentaId, telefono: cuenta.telefono, saldoPrevio: cuenta.puntos }
+  }
+
+  // ------------------------------------------- codigos de descuento del local
+  //
+  // Los crea el dashboard al mandar una campaña (tabla codigos_descuento). Reglas del canje:
+  // shared/codigoDescuento.js.
+
+  /**
+   * Mira un codigo para un pedido de ESTE local.
+   * Devuelve null si no es un codigo del local (puede ser un cupon de Capta), o
+   * { ok: true, fila, pesos } / { ok: false, motivo }.
+   */
+  async evaluarCodigoDelLocal({ codigo, restaurant, comida }) {
+    const limpio = normalizarCodigoLocal(codigo)
+    if (limpio.length < 6 || !restaurant?.id) return null
+    const filas = await this.request(
+      `/codigos_descuento?restaurant_id=eq.${restaurant.id}&codigo=eq.${encodeURIComponent(limpio)}&select=*&limit=1`,
+    )
+    const fila = filas?.[0]
+    if (!fila) return null
+
+    // Ya usado: puede haber quedado libre si ese pedido se cancelo o nunca se pago.
+    let pedido = null
+    if (fila.usado_at && fila.pedido_id) {
+      const pedidos = await this.request(`/pedidos?id=eq.${fila.pedido_id}&select=status&limit=1`)
+      pedido = pedidos?.[0] ?? null
+    }
+    const motivo = motivoCodigoNoAplica(fila, { pedido, comida })
+    if (motivo) return { ok: false, motivo }
+    return { ok: true, fila, pesos: descuentoDelCodigo(fila, comida) }
+  }
+
+  /** Para crear el pedido: sin codigo no hay descuento; con codigo malo se rechaza. */
+  async aplicarCodigoDelLocal({ codigo, restaurant, comida, esMesa }) {
+    const vacio = { pesos: 0, codigo: null, porcentaje: null, etiqueta: null, fila: null }
+    if (!normalizarCodigoLocal(codigo)) return vacio
+
+    const r = esMesa
+      ? { ok: false, motivo: 'Los códigos de descuento valen para pedidos con envío o para retirar.' }
+      : (await this.evaluarCodigoDelLocal({ codigo, restaurant, comida })) ?? { ok: false, motivo: 'Ese código no existe.' }
+    if (!r.ok) {
+      const error = new Error(r.motivo)
+      error.code = 'CUPON_INVALIDO'
+      error.statusCode = 422
+      throw error
+    }
+    if (!(r.pesos > 0)) return vacio
+    return {
+      pesos: r.pesos,
+      codigo: r.fila.codigo,
+      porcentaje: Number(r.fila.porcentaje),
+      etiqueta: etiquetaDelCodigo(r.fila),
+      fila: r.fila,
+    }
+  }
+
+  /**
+   * Marca el codigo como usado, en UN paso: el filtro pide que siga como lo vimos (sin usar, o con el
+   * mismo uso viejo que ya quedo libre). Si otro pedido lo tomo en el medio, no cambia ninguna fila y
+   * este pedido se rechaza. Devuelve la fila tomada, o null si no habia codigo.
+   */
+  async tomarCodigoDelLocal(codigoLocal) {
+    const fila = codigoLocal?.fila
+    if (!fila || !(codigoLocal.pesos > 0)) return null
+    const comoEstaba = fila.usado_at ? `usado_at=eq.${encodeURIComponent(fila.usado_at)}` : 'usado_at=is.null'
+    const tomadas = await this.request(`/codigos_descuento?id=eq.${fila.id}&${comoEstaba}`, {
+      method: 'PATCH',
+      headers: { Prefer: 'return=representation' },
+      body: JSON.stringify({ usado_at: new Date().toISOString(), pedido_id: null, monto_descontado: codigoLocal.pesos }),
+    })
+    if (!tomadas?.[0]) {
+      const error = new Error('Ese código ya se usó.')
+      error.code = 'CUPON_INVALIDO'
+      error.statusCode = 422
+      throw error
+    }
+    return tomadas[0]
+  }
+
+  /** El pedido no se llego a crear: el codigo vuelve a quedar sin usar. */
+  async soltarCodigoDelLocal(tomado) {
+    if (!tomado?.id) return
+    try {
+      await this.request(
+        `/codigos_descuento?id=eq.${tomado.id}&pedido_id=is.null&usado_at=eq.${encodeURIComponent(tomado.usado_at)}`,
+        {
+          method: 'PATCH',
+          headers: { Prefer: 'return=minimal' },
+          body: JSON.stringify({ usado_at: null, monto_descontado: null }),
+        },
+      )
+    } catch (error) {
+      // Queda tomado sin pedido: se libera solo a los pocos minutos (GRACIA_SIN_PEDIDO_MS).
+      console.error('No se pudo soltar el codigo de descuento:', error?.message)
+    }
+  }
+
+  async anotarPedidoDelCodigo(tomado, pedido) {
+    if (!tomado?.id || !pedido?.id) return
+    try {
+      await this.request(`/codigos_descuento?id=eq.${tomado.id}`, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({ pedido_id: pedido.id }),
+      })
+    } catch (error) {
+      console.error('No se pudo anotar el pedido del codigo de descuento:', error?.message)
+    }
+  }
+
+  /** ¿El local tiene codigos para canjear? De eso depende que el checkout muestre el campo. */
+  async tieneCodigosVigentes(restaurantId) {
+    try {
+      const filas = await this.request(
+        `/codigos_descuento?restaurant_id=eq.${restaurantId}&usado_at=is.null&vence_at=gte.${encodeURIComponent(new Date().toISOString())}&select=id&limit=1`,
+      )
+      return Boolean(filas?.[0])
+    } catch {
+      return false
+    }
   }
 
   // ---------------------------------------------------------------- cupones

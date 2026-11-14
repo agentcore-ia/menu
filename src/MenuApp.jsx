@@ -12,6 +12,7 @@ import {
 import { textosDelMenu } from '../shared/rubros.js'
 import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../shared/celular.js'
 import { canjePosible, porQueNoEntraTodo } from '../shared/puntosCapta.js'
+import { normalizarCodigoLocal } from '../shared/codigoDescuento.js'
 import { vinoDeLaVitrina } from './vitrinaDelCliente.js'
 import { seguirToques, volarAlCarrito } from './animacionCarrito.js'
 import BarraCapta from './BarraCapta.jsx'
@@ -9238,6 +9239,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   const [resultadoCupon, setResultadoCupon] = useState(null)
   const [intentoCupon, setIntentoCupon] = useState(0)
   const [cuponesAlAlcance, setCuponesAlAlcance] = useState([])
+<<<<<<< Updated upstream
   const contextoCupon = useMemo(() => ({
     codigo: cuponSolicitado,
     slug: accountId,
@@ -9248,6 +9250,24 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     sesionCapta: sesionCapta?.token,
     desdeVitrina: true,
   }), [cuponSolicitado, accountId, cartTotal, selectedDeliveryFee, cart, celularDelPedido, sesionCapta?.token])
+=======
+  // El codigo de descuento de una campaña del LOCAL llega en el link del mensaje (?codigo=ABCD2345):
+  // se guarda mientras dure la visita y se aplica solo cuando el cliente arma el pedido.
+  const [codigoDelLink] = useState(() => {
+    if (typeof window === 'undefined') return ''
+    try {
+      const delLink = normalizarCodigoLocal(new URLSearchParams(window.location.search).get('codigo'))
+      if (delLink) {
+        window.sessionStorage.setItem('capta:codigo-descuento', delLink)
+        return delLink
+      }
+      return normalizarCodigoLocal(window.sessionStorage.getItem('capta:codigo-descuento'))
+    } catch {
+      return ''
+    }
+  })
+  const codigoDelLinkProbado = useRef(false)
+>>>>>>> Stashed changes
 
   const envioPendiente = !isTableOrder && orderForm.deliveryType === 'delivery' && deliveryZonesEnabled && deliveryQuote?.allowed !== true
   const revisarCupon = Boolean(desdeLaVitrina && cuponSolicitado && hasOrderItems && !isTableOrder && celularDelPedido && !envioPendiente)
@@ -9272,8 +9292,23 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
         const respuesta = await fetch('/api/delivery/cupones', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+<<<<<<< Updated upstream
           body: JSON.stringify(contextoCupon),
           signal: controller.signal,
+=======
+          body: JSON.stringify({
+            codigo,
+            slug: accountId,
+            comida: cartTotal,
+            envio: selectedDeliveryFee,
+            // Para el cupon de "producto gratis": que lleva el pedido.
+            items: cart.map((line) => ({ productId: line.productId || null, unitPrice: line.unitPrice })),
+            telefono: celularDelPedido,
+            sesionCapta: sesionCapta?.token,
+            // Los cupones de Capta valen solo desde la app; los codigos del local, siempre.
+            desdeVitrina: desdeLaVitrina,
+          }),
+>>>>>>> Stashed changes
         })
         const datos = await respuesta.json()
         if (!controller.signal.aborted) setResultadoCupon({ contexto: contextoCupon, intento: intentoCupon, datos })
@@ -9286,12 +9321,31 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
           })
         }
       }
+<<<<<<< Updated upstream
     }, 300)
     return () => {
       controller.abort()
       window.clearTimeout(espera)
     }
   }, [contextoCupon, intentoCupon, isCheckoutOpen, revisarCupon])
+=======
+    },
+    [accountId, cartTotal, cart, selectedDeliveryFee, celularDelPedido, sesionCapta?.token, desdeLaVitrina],
+  )
+>>>>>>> Stashed changes
+
+  // El codigo que vino en el link se prueba UNA vez, apenas hay productos. Si no vale (vencido, ya
+  // usado), queda el motivo a la vista y no se insiste.
+  useEffect(() => {
+    if (!codigoDelLink || codigoDelLinkProbado.current || !hasOrderItems || isTableOrder) return
+    codigoDelLinkProbado.current = true
+    try {
+      window.sessionStorage.removeItem('capta:codigo-descuento')
+    } catch {
+      // sin almacenamiento no hay nada que borrar
+    }
+    void probarCupon(codigoDelLink)
+  }, [codigoDelLink, hasOrderItems, isTableOrder, probarCupon])
 
   // Los cupones al alcance: los de la cuenta (si entro) y las ofertas a la vista.
   useEffect(() => {
@@ -10806,7 +10860,9 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
       // validar contra su saldo real.
       puntosCapta: descuentoCapta,
       // El cupon de Capta (el servidor lo vuelve a validar y calcula el descuento).
-      cuponCapta: cuponAplicado?.codigo,
+      cuponCapta: cuponAplicado && cuponAplicado.tipo !== 'codigo_local' ? cuponAplicado.codigo : undefined,
+      // El codigo de descuento de una campaña del local (uno por cliente, un solo uso).
+      codigoDescuento: cuponAplicado?.tipo === 'codigo_local' ? cuponAplicado.codigo : undefined,
       // La sesion verificada: sin ella el servidor no deja usar los puntos ni
       // los cupones que piden cuenta.
       sesionCapta: descuentoCapta > 0 || cuponAplicado ? sesionCapta?.token : undefined,
@@ -13102,7 +13158,10 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                       </small>
                     ) : null}
                     {descuentoCupon > 0 ? (
-                      <small>Cupón {cuponAplicado?.codigo}: -{formatPrice(descuentoCupon, currencySymbol)}</small>
+                      <small>
+                        {cuponAplicado?.tipo === 'codigo_local' ? 'Código' : 'Cupón'} {cuponAplicado?.codigo}: -
+                        {formatPrice(descuentoCupon, currencySymbol)}
+                      </small>
                     ) : null}
                     {descuentoCapta > 0 ? (
                       <small>Puntos Capta: -{formatPrice(descuentoCapta, currencySymbol)}</small>
@@ -13339,12 +13398,14 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                   />
                 </label>
 
-                {/* El cupon de Capta (lo crea el admin y lo paga Capta). Solo si el
-                    cliente entro desde la app. */}
-                {desdeLaVitrina && !isTableOrder && hasOrderItems ? (
+                {/* Un solo campo para los dos descuentos con codigo: el cupon de Capta (lo paga
+                    Capta; solo si el cliente entro desde la app) y el codigo de una campaña del
+                    local (uno por cliente, un solo uso; solo si el local tiene codigos dando
+                    vueltas o el cliente llego con uno). */}
+                {(desdeLaVitrina || menu?.tieneCodigosDescuento || cuponAplicado || cuponMensaje) && !isTableOrder && hasOrderItems ? (
                   <div className="capta-cupon-checkout">
                     <div className="capta-cupon-cabecera">
-                      <span>Cupón de Capta</span>
+                      <span>{desdeLaVitrina ? 'Cupón o código de descuento' : 'Código de descuento'}</span>
                     </div>
                     {cuponSolicitado ? (
                       <div className="capta-cupon-aplicado" aria-live="polite">
@@ -13368,11 +13429,11 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                           <input
                             value={cuponTexto}
                             onChange={(event) => setCuponTexto(event.target.value.toUpperCase())}
-                            placeholder="Tengo un cupón"
+                            placeholder={desdeLaVitrina ? 'Tengo un cupón' : 'Tengo un código'}
                             maxLength={24}
                             autoCapitalize="characters"
                             autoComplete="off"
-                            aria-label="Código del cupón"
+                            aria-label="Código de descuento"
                             onKeyDown={(event) => {
                               if (event.key === 'Enter') {
                                 event.preventDefault()
