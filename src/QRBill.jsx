@@ -6,6 +6,8 @@ export default function QRBill({
   restaurantName,
   logoUrl,
   primaryColor,
+  // El local puede ocultar la propina (Ajustes > Experiencia QR en Mesa).
+  conPropina = true,
   onBack,
   onFeedback
 }) {
@@ -118,10 +120,10 @@ export default function QRBill({
         </div>
 
         <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#000', margin: '8px 24px 32px 24px', letterSpacing: '-0.5px', lineHeight: '1.2' }}>
-          ¿Cuánto te gustaría dejar de propina?
+          {conPropina ? '¿Cuánto te gustaría dejar de propina?' : '¿Cómo querés pagar?'}
         </h1>
 
-        <div style={{ padding: '0 24px' }}>
+        <div style={{ padding: '0 24px', display: conPropina ? 'block' : 'none' }}>
           {/* Top row with fixed tips */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '12px' }}>
             {fixedTips.map((tip, idx) => (

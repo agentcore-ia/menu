@@ -34,6 +34,9 @@ import {
 import PagoTarjeta from './PagoTarjeta.jsx'
 import UbicacionEnMapa from './UbicacionEnMapa.jsx'
 import QRLanding from './QRLanding.jsx'
+import { MozoFlotante } from './LlamarMozo.jsx'
+import { coloresDeMesa, useLlamadoDeMesa } from './llamadoDeMesa.js'
+import { nombreDeMesa, opcionesMesaQr } from '../shared/mesaQr.js'
 import QRBill from './QRBill.jsx'
 import QRFeedback from './QRFeedback.jsx'
 
@@ -8555,6 +8558,16 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     }
     return null
   })
+  // EXPERIENCIA QR EN MESA: que se muestra lo elige el local en el panel
+  // (shared/mesaQr.js). El llamado al mozo vive aca arriba porque lo comparten
+  // la pantalla de inicio de la mesa y el boton que flota sobre el menu.
+  const experienciaDeMesa = Boolean(menu?.table_experience_enabled && mesaId)
+  const opcionesDeMesa = useMemo(() => menu?.mesaQr || opcionesMesaQr(null, menu || {}), [menu])
+  const llamadaDeMesa = useLlamadoDeMesa({
+    accountId,
+    mesaId,
+    activo: experienciaDeMesa,
+  })
 
   // --- Boton "atras" del navegador: cerrar la vista abierta en vez de salir ---
   // Los overlays (detalle de producto, carrito, checkout, buscador, etc.) se
@@ -11133,18 +11146,22 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     return <MenuLoadingScreen accountId={accountId} />
   }
 
-  if (menu?.table_experience_enabled && mesaId) {
+  // El color del local para la pantalla de la mesa (el del tema del menu).
+  const coloresDeLaMesa = coloresDeMesa(presentation?.theme?.primary)
+
+  if (experienciaDeMesa) {
     if (qrLandingView === 'landing') {
       return (
-        <QRLanding 
-          accountId={accountId}
+        <QRLanding
           mesaId={mesaId}
           restaurantName={menu.accountName}
           logoUrl={presentation?.branding?.logo}
           welcomeText={menu.table_welcome_text}
-          primaryColor={presentation?.branding?.primaryColor}
           qrBackgroundUrl={menu.qr_background_url}
           reviewGoogleUrl={menu.review_google_url}
+          opciones={opcionesDeMesa}
+          colores={coloresDeLaMesa}
+          llamada={llamadaDeMesa}
           onVerMenu={() => setQrLandingView('menu')}
           onPagarCuenta={() => setQrLandingView('bill')}
           onDejarCalificacion={() => setQrLandingView('feedback')}
@@ -11152,7 +11169,8 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
       )
     }
 
-    if (qrLandingView === 'bill') {
+    // Lo que el local oculto no se abre, aunque quede una pantalla a medio camino.
+    if (qrLandingView === 'bill' && opcionesDeMesa.pagar) {
       return (
         <QRBill
           accountId={accountId}
@@ -11160,13 +11178,14 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
           restaurantName={menu.accountName}
           logoUrl={presentation?.branding?.logo}
           primaryColor={presentation?.branding?.primaryColor}
+          conPropina={opcionesDeMesa.propina}
           onBack={() => setQrLandingView('landing')}
-          onFeedback={() => setQrLandingView('feedback')}
+          onFeedback={() => setQrLandingView(opcionesDeMesa.resena ? 'feedback' : 'landing')}
         />
       )
     }
 
-    if (qrLandingView === 'feedback') {
+    if (qrLandingView === 'feedback' && opcionesDeMesa.resena) {
       return (
         <QRFeedback
           accountId={accountId}
@@ -11181,6 +11200,16 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
 
   return (
     <>
+      {/* En la mesa: el mozo a un toque mientras se mira la carta, y la vuelta al inicio de la mesa. */}
+      {experienciaDeMesa && !anyOverlayOpen ? (
+        <MozoFlotante
+          opciones={opcionesDeMesa}
+          mesa={llamadaDeMesa.mesaNombre || nombreDeMesa(mesaId) || 'Tu mesa'}
+          colores={coloresDeLaMesa}
+          llamada={llamadaDeMesa}
+          onIrAlInicio={() => setQrLandingView('landing')}
+        />
+      ) : null}
       <div className="app-shell">
         <div className={`phone-surface ${appClassName}${vistaCapta && hasOrderItems ? ' cu-con-carrito' : ''}`} style={getPresentationStyles(presentation, accountId)}>
           {vistaCapta ? (

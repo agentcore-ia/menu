@@ -20,6 +20,7 @@ import {
 } from '../../shared/vitrinaCapta.js'
 import { aceptaProgramados, anticipoDelLocal, turnosParaProgramar } from '../../shared/pedidoProgramado.js'
 import { buscarProductos, normalizarTexto } from '../../shared/busquedaProductos.js'
+import { opcionesMesaQr } from '../../shared/mesaQr.js'
 
 // Los productos de la vitrina para buscar, guardados un minuto: mientras el
 // cliente escribe se busca varias veces y no hace falta ir a la base cada vez.
@@ -479,6 +480,8 @@ export class SupabaseMenuRepository {
       tieneWhatsappDelLocal: Boolean(String(restaurant.phone || '').replace(/\D/g, '')),
       tieneCodigosDescuento,
       table_experience_enabled: restaurant.table_experience_enabled === true,
+      // Que se muestra en la pantalla de la mesa (shared/mesaQr.js).
+      mesaQr: opcionesMesaQr(restaurant.horarios?._settings, restaurant),
       table_welcome_text: restaurant.table_welcome_text || '',
       qr_background_url: restaurant.qr_background_url || null,
       review_google_url: restaurant.review_google_url || null,

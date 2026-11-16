@@ -13,6 +13,7 @@ import { mandados } from './mandados.js'
 import { cuenta } from './cuenta.js'
 import { cupones } from './cupones.js'
 import { pedidoActivo } from './pedidoActivo.js'
+import { atenderLlamadoDeMesa } from './llamadosDeMesa.js'
 
 const config = getServerConfig()
 const repository = createMenuRepository(config)
@@ -658,6 +659,19 @@ function isValidOrderItem(item) {
 
 
 // ---- TABLE QR EXPERIENCE ENDPOINTS ----
+// Llamar al mozo (server/llamadosDeMesa.js): la misma logica que usa Vercel.
+app.all('/api/accounts/:accountId/tables/:mesaId/call', express.json(), async (req, res) => {
+  const r = await atenderLlamadoDeMesa(config, {
+    metodo: req.method,
+    accountId: req.params.accountId,
+    mesaParam: req.params.mesaId,
+    cuerpo: req.body || {},
+    consulta: req.query || {},
+  });
+  res.setHeader('Cache-Control', 'no-store');
+  res.status(r.status).json(r.cuerpo);
+});
+
 app.get('/api/accounts/:accountId/tables/:mesaId/session', async (req, res) => {
   try {
     const { accountId, mesaId } = req.params;

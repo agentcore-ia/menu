@@ -1,4 +1,5 @@
 import { getServerConfig } from '../../../../../server/config.js'
+import { atenderLlamadoDeMesa } from '../../../../../server/llamadosDeMesa.js'
 
 async function resolveMesaId(config, restaurantId, mesaIdParam) {
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(mesaIdParam)) {
@@ -54,6 +55,19 @@ export default async function handler(req, res) {
   try {
     const config = getServerConfig();
     const { accountId, mesaId, action } = req.query;
+
+    // Llamar al mozo (server/llamadosDeMesa.js): resuelve el local y la mesa por su cuenta.
+    if (action === 'call') {
+      const r = await atenderLlamadoDeMesa(config, {
+        metodo: req.method,
+        accountId,
+        mesaParam: mesaId,
+        cuerpo: req.body || {},
+        consulta: req.query || {},
+      });
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(r.status).json(r.cuerpo);
+    }
 
     const restRes = await fetch(`${config.supabaseUrl}/rest/v1/restaurants?slug=eq.${encodeURIComponent(accountId)}&select=id`, {
       headers: { apikey: config.supabaseApiKey, Authorization: `Bearer ${config.supabaseApiKey}` }
@@ -164,12 +178,15 @@ export default async function handler(req, res) {
           Authorization: `Bearer ${config.supabaseWriteApiKey}`,
           'Content-Type': 'application/json'
         },
+        // La columna es table_session_id: con "session_id" la base rechazaba la
+        // fila y la reseña de la mesa no se guardaba nunca.
         body: JSON.stringify({
           restaurant_id: restaurantId,
           table_id: realTableId,
-          session_id: sessionId,
-          rating,
-          comment
+          table_session_id: sessionId,
+          rating: Math.min(5, Math.max(1, Math.round(Number(rating)) || 0)) || null,
+          comment: String(comment || '').slice(0, 1000) || null,
+          experience_type: Number(rating) >= 4 ? 'positive' : Number(rating) === 3 ? 'neutral' : 'negative'
         })
       });
       return res.json({ success: true });
