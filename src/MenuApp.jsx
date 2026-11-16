@@ -4658,6 +4658,20 @@ function TemplateHero({ templateId, presentation, heroDish, onCommunityAction, t
 }
 
 function MenuLoadingScreen({ accountId }) {
+  if (slugify(accountId) === 'dolce') {
+    return (
+      <main className="dolce-loading">
+        <div className="dolce-loading-content" role="status">
+          <span className="dolce-loading-logo">
+            <img src="/dolce/logo.jpg" alt="Dolce" width="120" height="120" />
+          </span>
+          <p>Cargando menú…</p>
+          <span className="dolce-loading-track" aria-hidden="true" />
+        </div>
+      </main>
+    )
+  }
+
   const loadingTemplate = getLoadingTemplate(accountId)
   const loadingCopy = {
     burger: {

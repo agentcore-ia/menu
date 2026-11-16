@@ -13669,6 +13669,71 @@ button:focus-visible {
   }
 }
 
+/* ============================ CARGA: DOLCE ============================== */
+.dolce-loading {
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  padding: 24px;
+  background: radial-gradient(circle at 50% 42%, #ffe3ca, #fff7ee 60%);
+  color: #5b2a19;
+}
+
+.dolce-loading-content {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+}
+
+.dolce-loading-logo {
+  display: grid;
+  width: 120px;
+  aspect-ratio: 1;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #f7783b;
+  box-shadow: 0 12px 32px rgba(142, 58, 20, .18);
+}
+
+.dolce-loading-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: scale(1.1);
+}
+
+.dolce-loading-content p {
+  margin: 0;
+  font-weight: 750;
+}
+
+.dolce-loading-track {
+  width: 88px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f4d5bf;
+}
+
+.dolce-loading-track::after {
+  display: block;
+  width: 40%;
+  height: 100%;
+  border-radius: inherit;
+  background: #c74c19;
+  content: '';
+  animation: dolce-cargando 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes dolce-cargando {
+  to { transform: translateX(150%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dolce-loading-track::after { animation: none; }
+}
+
 /* ============================ CARGA: TROKA ============================== */
 /* El sello de Troka es un circulo verde sobre marron (#532711, medido del
    archivo del logo). El fondo va del MISMO marron pero mas oscuro: asi el
