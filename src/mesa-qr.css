@@ -409,6 +409,54 @@
 }
 .mq-flotante.mq-listo { background: #16a34a; color: #fff; }
 
+/* --- El Wi-Fi del local --- */
+.mq-wifi {
+  width: 100%;
+  margin-top: 18px;
+  border: 1.5px solid #ecebe6;
+  border-radius: 20px;
+  overflow: hidden;
+  text-align: left;
+}
+.mq-wifi-fila { display: flex; align-items: center; gap: 10px; padding: 13px 14px 13px 16px; }
+.mq-wifi-fila + .mq-wifi-fila { border-top: 1.5px solid #ecebe6; }
+.mq-wifi-dato { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mq-wifi-etiqueta { font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mq-gris); }
+.mq-wifi-valor { font-size: 17px; font-weight: 750; overflow-wrap: anywhere; user-select: all; -webkit-user-select: all; }
+.mq-wifi-clave { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 19px; letter-spacing: 0.02em; }
+.mq-wifi-suave { color: var(--mq-gris); font-weight: 600; user-select: none; -webkit-user-select: none; }
+.mq-wifi-copiar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 13px;
+  background: #f1efea;
+  color: var(--mq-tinta);
+  cursor: pointer;
+}
+.mq-wifi-copiar svg { width: 19px; height: 19px; }
+.mq-wifi-qr {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 20px;
+  background: #faf9f6;
+  text-align: left;
+}
+.mq-wifi-qr p { margin: 0; font-size: 13px; line-height: 1.4; color: var(--mq-gris); }
+.mq-wifi-qr strong { display: block; margin-bottom: 2px; font-size: 14px; color: var(--mq-tinta); }
+.mq-qr { flex-shrink: 0; width: 112px; height: 112px; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08); }
+.mq-qr svg { display: block; width: 100%; height: 100%; }
+.mq-qr-cargando { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, #f1efea, #faf9f6, #f1efea); }
+
 @keyframes mq-aparecer { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes mq-velo { from { opacity: 0; } to { opacity: 1; } }
 @keyframes mq-subir { from { transform: translateY(100%); } to { transform: none; } }

@@ -10,7 +10,7 @@ import {
   topeDeSabores,
 } from '../shared/heladeria.js'
 import { textosDelMenu } from '../shared/rubros.js'
-import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../shared/celular.js'
+import { celularDelPedidoValido, celularValido, MENSAJE_CELULAR_DE_MESA, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../shared/celular.js'
 import { canjePosible, porQueNoEntraTodo } from '../shared/puntosCapta.js'
 import { vinoDeLaVitrina } from './vitrinaDelCliente.js'
 import { seguirToques, volarAlCarrito } from './animacionCarrito.js'
@@ -10781,9 +10781,10 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     // Obligatorio en todos los menus, y completo: con la caracteristica. Antes
     // alcanzaban 8 numeros cualesquiera y quedaban pedidos a los que no se
     // podia llamar (shared/celular.js; el servidor aplica la misma regla).
-    if (!celularValido(rawPhone)) {
+    // En la MESA es opcional: el cliente esta en el local. Si lo deja, completo.
+    if (!celularDelPedidoValido(rawPhone, isTableOrder)) {
       setCheckoutStatus('error')
-      setCheckoutMessage(MENSAJE_CELULAR_INVALIDO)
+      setCheckoutMessage(isTableOrder ? MENSAJE_CELULAR_DE_MESA : MENSAJE_CELULAR_INVALIDO)
       return
     }
 
@@ -11148,11 +11149,16 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
 
   // El color del local para la pantalla de la mesa (el del tema del menu).
   const coloresDeLaMesa = coloresDeMesa(presentation?.theme?.primary)
+  // Pedido hecho desde el QR de una mesa (Kika y Almendra tienen su propia confirmacion).
+  const pedidoEnLaMesa = isTableOrder && templateId !== 'kika' && templateId !== 'almendra'
+  const mesaDelPedido = llamadaDeMesa.mesaNombre || nombreDeMesa(mesaId)
+  const aLaMesa = mesaDelPedido ? (/^mesa(\s|\d|$)/i.test(mesaDelPedido) ? `la ${mesaDelPedido}` : mesaDelPedido) : 'tu mesa'
 
   if (experienciaDeMesa) {
     if (qrLandingView === 'landing') {
       return (
         <QRLanding
+          accountId={accountId}
           mesaId={mesaId}
           restaurantName={menu.accountName}
           logoUrl={presentation?.branding?.logo}
@@ -11203,6 +11209,8 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
       {/* En la mesa: el mozo a un toque mientras se mira la carta, y la vuelta al inicio de la mesa. */}
       {experienciaDeMesa && !anyOverlayOpen ? (
         <MozoFlotante
+          accountId={accountId}
+          mesaId={mesaId}
           opciones={opcionesDeMesa}
           mesa={llamadaDeMesa.mesaNombre || nombreDeMesa(mesaId) || 'Tu mesa'}
           colores={coloresDeLaMesa}
@@ -13393,15 +13401,16 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                 </label>
 
                 <label className="checkout-field">
-                  <span>Celular (con característica)</span>
+                  {/* En la mesa es opcional: solo sirve para mandarle el detalle por WhatsApp. */}
+                  <span>{isTableOrder ? 'Celular (opcional)' : 'Celular (con característica)'}</span>
                   <input
                     value={orderForm.phone}
                     onChange={(event) => updateOrderForm('phone', event.target.value)}
-                    placeholder="Ej: 2346 587122"
+                    placeholder={isTableOrder ? 'Si querés el detalle por WhatsApp' : 'Ej: 2346 587122'}
                     inputMode="tel"
                     autoComplete="tel"
                     readOnly={Boolean(demo)}
-                    required
+                    required={!isTableOrder}
                   />
                 </label>
 
@@ -14092,7 +14101,9 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
               )}
             </div>
             <span className="confirmation-kicker">
-              {templateId === 'gelato'
+              {pedidoEnLaMesa
+                ? 'Pedido en la mesa'
+                : templateId === 'gelato'
                 ? 'Listo para preparar'
                 : templateId === 'burger'
                   ? (marcaConfirmacionPropia ? 'Pedido enviado' : 'Hecho a la parrilla')
@@ -14105,7 +14116,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                       : 'Pedido enviado'}
             </span>
             <h3>
-              {templateId === 'kika' || templateId === 'almendra' || lastOrder.status === 'por_aceptar'
+              {pedidoEnLaMesa || templateId === 'kika' || templateId === 'almendra' || lastOrder.status === 'por_aceptar'
                 ? `Pedido #${lastOrder.orderNumber} recibido`
                 : `Pedido #${lastOrder.orderNumber} confirmado`}
             </h3>
@@ -14113,7 +14124,11 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
               {/* El local tiene que aceptarlo: la confirmacion con la demora le
                   llega por WhatsApp cuando lo acepta. */}
               {lastOrder.status === 'por_aceptar'
-                ? 'El local está revisando tu pedido. En unos minutos te confirmamos por WhatsApp con la demora.'
+                ? (pedidoEnLaMesa
+                    ? 'El local está revisando tu pedido. Enseguida lo empiezan a preparar.'
+                    : 'El local está revisando tu pedido. En unos minutos te confirmamos por WhatsApp con la demora.')
+                : pedidoEnLaMesa
+                ? `¡Listo! Tu pedido ya está en la cocina y te lo llevamos a ${aLaMesa}. La cuenta la pagás al final.`
                 : templateId === 'sabor-pampa'
                 ? (presentation.theme?.modoKiosco
                     ? 'Ya recibimos tu pedido. Te avisamos por WhatsApp cuando esté listo.'
@@ -14134,7 +14149,12 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                 <span>Total</span>
                 <strong>{formatPrice(lastOrder.total ?? 0, currencySymbol)}</strong>
               </div>
-              {templateId === 'kika' || templateId === 'almendra' ? (
+              {pedidoEnLaMesa ? (
+                <div>
+                  <span>Mesa</span>
+                  <strong>{mesaDelPedido ? mesaDelPedido.replace(/^mesa\s*/i, '') || mesaDelPedido : 'La tuya'}</strong>
+                </div>
+              ) : templateId === 'kika' || templateId === 'almendra' ? (
                 <div>
                   <span>Modalidad</span>
                   <strong>Mesa</strong>
@@ -14183,7 +14203,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                 <span />
                 <div>
                   <strong>Pedido recibido</strong>
-                  <small>Ya quedo cargado correctamente.</small>
+                  <small>{pedidoEnLaMesa ? 'Ya le llegó a la cocina.' : 'Ya quedo cargado correctamente.'}</small>
                 </div>
               </div>
               <div className="confirmation-step">
@@ -14198,7 +14218,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                   </strong>
                   <small>
                     {isTableOrder
-                      ? 'El equipo del local ya recibió tu pedido y lo está preparando.'
+                      ? (pedidoEnLaMesa ? `Cuando esté listo te lo llevamos a ${aLaMesa}.` : 'El equipo del local ya recibió tu pedido y lo está preparando.')
                       : templateId === 'kika' || templateId === 'almendra'
                       ? `El equipo de ${templateId === 'almendra' ? 'Almendra' : 'Kika'} lo verá desde el local para prepararlo.`
                       /* Decirle "envio" a alguien que eligio retirar es

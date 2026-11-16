@@ -27,3 +27,15 @@ test('valido solo si queda un celular completo', () => {
   assert.equal(celularValido(''), false)
   assert.equal(celularValido('menu-sin-telefono-troka-1789'), false)
 })
+
+test('en la mesa el celular es opcional, pero si se deja tiene que estar completo', async () => {
+  const { celularDelPedidoValido } = await import('./celular.js')
+  assert.equal(celularDelPedidoValido('', true), true)
+  assert.equal(celularDelPedidoValido('   ', true), true)
+  assert.equal(celularDelPedidoValido(undefined, true), true)
+  assert.equal(celularDelPedidoValido('1234', true), false)
+  assert.equal(celularDelPedidoValido('2346 587122', true), true)
+  // Fuera de la mesa sigue siendo obligatorio.
+  assert.equal(celularDelPedidoValido('', false), false)
+  assert.equal(celularDelPedidoValido('2346 587122', false), true)
+})

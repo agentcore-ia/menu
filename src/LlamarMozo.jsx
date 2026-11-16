@@ -5,6 +5,7 @@
 // server/llamadosDeMesa.js y las reglas, shared/mesaQr.js.
 import { useEffect, useState } from 'react'
 import { haceCuanto } from '../shared/mesaQr.js'
+import { HojaDeWifi, IconoWifi } from './WifiDeMesa.jsx'
 import './mesa-qr.css'
 
 // --- Iconos (dibujados aca: no dependen de que cargue una fuente) -----------
@@ -96,7 +97,7 @@ export function AvisoDeLlamado({ llamada }) {
  * `motivo` fijo ('mozo' | 'cuenta') abre directo la confirmacion. Sin motivo
  * (desde el boton que flota en el menu) primero se elige que hacer.
  */
-export function HojaDeMesa({ abierta, motivo: motivoInicial = null, opciones, mesa, colores, llamada, onCerrar, onIrAlInicio }) {
+export function HojaDeMesa({ abierta, motivo: motivoInicial = null, opciones, mesa, colores, llamada, onCerrar, onIrAlInicio, onWifi = null }) {
   const [motivo, setMotivo] = useState(motivoInicial)
   const [elegidas, setElegidas] = useState([])
   const [nota, setNota] = useState('')
@@ -181,6 +182,16 @@ export function HojaDeMesa({ abierta, motivo: motivoInicial = null, opciones, me
               <IconoFlecha className="mq-accion-flecha" />
             </button>
           ) : null}
+          {opciones.wifi && onWifi ? (
+            <button type="button" className="mq-accion" onClick={onWifi}>
+              <span className="mq-accion-icono"><IconoWifi /></span>
+              <span className="mq-accion-texto">
+                <span className="mq-accion-titulo">Wi-Fi</span>
+                <span className="mq-accion-detalle">Conectate a la red del local</span>
+              </span>
+              <IconoFlecha className="mq-accion-flecha" />
+            </button>
+          ) : null}
           {onIrAlInicio ? (
             <button type="button" className="mq-accion" onClick={onIrAlInicio}>
               <span className="mq-accion-icono"><IconoInicio /></span>
@@ -245,8 +256,9 @@ export function HojaDeMesa({ abierta, motivo: motivoInicial = null, opciones, me
 
 // --- El boton que flota sobre el menu -------------------------------------------
 
-export function MozoFlotante({ opciones, mesa, colores, llamada, onIrAlInicio }) {
+export function MozoFlotante({ accountId, mesaId, opciones, mesa, colores, llamada, onIrAlInicio }) {
   const [abierta, setAbierta] = useState(false)
+  const [wifiAbierto, setWifiAbierto] = useState(false)
   // La hoja se arma de nuevo en cada apertura: asi arranca siempre limpia.
   const [vuelta, setVuelta] = useState(0)
   const puedeLlamar = opciones.llamarMozo || opciones.pedirCuenta
@@ -277,7 +289,9 @@ export function MozoFlotante({ opciones, mesa, colores, llamada, onIrAlInicio })
         llamada={llamada}
         onCerrar={() => setAbierta(false)}
         onIrAlInicio={onIrAlInicio ? () => { setAbierta(false); onIrAlInicio() } : null}
+        onWifi={() => { setAbierta(false); setWifiAbierto(true) }}
       />
+      <HojaDeWifi abierta={wifiAbierto} accountId={accountId} mesaId={mesaId} colores={colores} onCerrar={() => setWifiAbierto(false)} />
     </>
   )
 }

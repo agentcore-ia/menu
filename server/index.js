@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { celularValido, MENSAJE_CELULAR_INVALIDO } from '../shared/celular.js'
+import { celularDelPedidoValido, MENSAJE_CELULAR_DE_MESA, MENSAJE_CELULAR_INVALIDO } from '../shared/celular.js'
 import express from 'express'
 import { getServerConfig } from './config.js'
 import { createMenuRepository } from './repositories/menuRepository.js'
@@ -13,7 +13,8 @@ import { mandados } from './mandados.js'
 import { cuenta } from './cuenta.js'
 import { cupones } from './cupones.js'
 import { pedidoActivo } from './pedidoActivo.js'
-import { atenderLlamadoDeMesa } from './llamadosDeMesa.js'
+import { atenderLlamadoDeMesa, wifiDeLaMesa } from './llamadosDeMesa.js'
+import { menuParaElCliente } from './menuPublico.js'
 
 const config = getServerConfig()
 const repository = createMenuRepository(config)
@@ -176,7 +177,8 @@ app.get('/api/accounts/:accountId/menu', async (req, res) => {
       return
     }
 
-    res.json(menu)
+    // Sin los ajustes internos del local (server/menuPublico.js).
+    res.json(menuParaElCliente(menu))
   } catch (error) {
     res.status(500).json({
       error: 'MENU_LOAD_FAILED',
@@ -280,10 +282,12 @@ app.post('/api/accounts/:accountId/orders', async (req, res) => {
       return
     }
 
-    if (!isValidCustomerPhone(payload.customer?.phone)) {
+    // En la mesa el celular es opcional (shared/celular.js).
+    const esPedidoDeMesa = payload.deliveryType === 'mesa'
+    if (!celularDelPedidoValido(payload.customer?.phone, esPedidoDeMesa)) {
       res.status(400).json({
         error: 'CUSTOMER_PHONE_REQUIRED',
-        message: MENSAJE_CELULAR_INVALIDO,
+        message: esPedidoDeMesa ? MENSAJE_CELULAR_DE_MESA : MENSAJE_CELULAR_INVALIDO,
       })
       return
     }
@@ -635,11 +639,6 @@ app.listen(config.port, () => {
   console.log(`capta menu API listening on http://127.0.0.1:${config.port}`)
 })
 
-// Un celular argentino completo, con caracteristica (shared/celular.js). Con
-// "8 numeros cualesquiera" entraban pedidos a los que no se podia llamar.
-function isValidCustomerPhone(value) {
-  return celularValido(value)
-}
 
 function isValidOrderItem(item) {
   if (!item || typeof item !== 'object') return false
@@ -668,6 +667,13 @@ app.all('/api/accounts/:accountId/tables/:mesaId/call', express.json(), async (r
     cuerpo: req.body || {},
     consulta: req.query || {},
   });
+  res.setHeader('Cache-Control', 'no-store');
+  res.status(r.status).json(r.cuerpo);
+});
+
+// El Wi-Fi del local, para la pantalla de la mesa.
+app.get('/api/accounts/:accountId/tables/:mesaId/wifi', async (req, res) => {
+  const r = await wifiDeLaMesa(config, { accountId: req.params.accountId, mesaParam: req.params.mesaId });
   res.setHeader('Cache-Control', 'no-store');
   res.status(r.status).json(r.cuerpo);
 });

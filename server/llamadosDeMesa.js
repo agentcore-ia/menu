@@ -8,7 +8,7 @@
 // (Vercel) y server/index.js (local).
 import {
   LLAMADOS_ABIERTOS_POR_LOCAL, LLAMADOS_POR_MESA_EN_10_MIN, LLAMADO_VENCE_MIN,
-  estadoDelLlamado, mesaDelQr, motivoDeLlamado, motivoHabilitado, nombreDeMesa, notaLimpia, opcionesMesaQr,
+  datosDelWifi, estadoDelLlamado, mesaDelQr, motivoDeLlamado, motivoHabilitado, nombreDeMesa, notaLimpia, opcionesMesaQr,
 } from '../shared/mesaQr.js'
 
 const ES_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -79,6 +79,26 @@ async function contexto(config, accountId, mesaParam) {
   if (!nombre) return { fallo: error(404, 'sin_mesa', 'No encontramos esa mesa.') }
 
   return { local, opciones, mesa: { id: mesa?.id || null, nombre } }
+}
+
+/**
+ * El Wi-Fi del local, para la pantalla de la mesa. No viaja con el menu (que
+ * es publico): se pide aparte y solo se entrega con la experiencia de mesa
+ * prendida, el Wi-Fi a la vista y una mesa que exista.
+ */
+export async function wifiDeLaMesa(config, { accountId, mesaParam }) {
+  try {
+    const ctx = await contexto(config, accountId, mesaParam)
+    if (ctx.fallo) return ctx.fallo
+    const wifi = datosDelWifi(ctx.local.horarios?._settings)
+    if (ctx.local.table_experience_enabled !== true || !ctx.opciones.wifi || !wifi) {
+      return error(404, 'sin_wifi', 'Este local no comparte su Wi-Fi desde la mesa.')
+    }
+    return { status: 200, cuerpo: wifi }
+  } catch (e) {
+    console.error('[wifi-de-mesa]', e)
+    return error(500, 'error', 'No pudimos traer los datos del Wi-Fi.')
+  }
 }
 
 const desdeHace = (minutos) => encodeURIComponent(new Date(Date.now() - minutos * 60_000).toISOString())

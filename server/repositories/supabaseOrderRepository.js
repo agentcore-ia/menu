@@ -10,7 +10,7 @@ import { esElCentroPorDefecto } from '../../shared/ubicacionCliente.js'
 import { resolveDeliveryQuote } from '../deliveryZones.js'
 import { describirDias, diaDeHoyEnArgentina, diasDelTexto } from '../../shared/diasDisponibles.js'
 import { describirVigencia, normalizarPromociones, promoVigente } from '../../shared/promociones.js'
-import { celularValido, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../../shared/celular.js'
+import { celularDelPedidoValido, MENSAJE_CELULAR_DE_MESA, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../../shared/celular.js'
 import { canjeElegido, configDePuntos } from '../../shared/puntosCapta.js'
 import { cuponParaElCliente, descuentoDelCupon, motivoNoAplica, normalizarCodigo } from '../../shared/cuponesCapta.js'
 import {
@@ -140,8 +140,11 @@ export class SupabaseOrderRepository {
     // checkout ya lo pide, pero la regla va aca: un pedido armado a mano o de
     // una pestaña vieja entraba con "menu-sin-telefono" y nadie podia avisarle
     // al cliente ni el repartidor llamarlo.
-    if (!celularValido(payload.customer?.phone)) {
-      const error = new Error(MENSAJE_CELULAR_INVALIDO)
+    // En la MESA es opcional: el cliente esta en el local. Sin celular el
+    // pedido entra igual y no se le manda nada por WhatsApp.
+    const esPedidoDeMesa = payload.deliveryType === 'mesa'
+    if (!celularDelPedidoValido(payload.customer?.phone, esPedidoDeMesa)) {
+      const error = new Error(esPedidoDeMesa ? MENSAJE_CELULAR_DE_MESA : MENSAJE_CELULAR_INVALIDO)
       error.code = 'PHONE_REQUIRED'
       error.statusCode = 422
       throw error
@@ -435,7 +438,8 @@ export class SupabaseOrderRepository {
           customer_name: esTelefonoPrueba
             ? `PRUEBA - ${customer.name || payload.customer.name || 'Cliente'}`
             : (customer.name || payload.customer.name || null),
-          customer_phone: customer.phone,
+          // El relleno de "sin celular" no es un telefono: en el pedido queda vacio.
+          customer_phone: this.hasRealCustomerPhone(customer.phone) ? customer.phone : null,
           source: payload.mesa_id ? 'qr_mesa' : 'menu_digital',
           table_id: resolvedTableId,
           transcription: {
@@ -596,6 +600,7 @@ export class SupabaseOrderRepository {
           loyalty: loyaltyEarn,
           paymentLink: mercadoPagoPreference?.paymentLink,
           programado: programado?.texto || null,
+          mesa: resolvedTableName,
         })
       : ''
 
@@ -775,7 +780,10 @@ export class SupabaseOrderRepository {
     const rawPhone = String(customer.phone ?? '').trim()
     const normalizedPhone = rawPhone
       ? normalizePhone(rawPhone)
-      : `menu-sin-telefono-${restaurant.slug}-${Date.now()}`
+      // Sin celular (pedido de mesa): un relleno unico, para que cada pedido tenga su
+      // ficha. CORTO: clientes.phone admite 30 caracteres y con el nombre del local y
+      // la hora completa se pasaba ("value too long"): el pedido sin celular no entraba.
+      : `menu-sin-telefono-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
 
     const existingRows = await this.request(
       `/clientes?restaurant_id=eq.${restaurant.id}&phone=eq.${encodeURIComponent(normalizedPhone)}&select=*&limit=1`,
@@ -1351,6 +1359,7 @@ export class SupabaseOrderRepository {
     loyalty,
     paymentLink,
     programado = null,
+    mesa = null,
   }) {
     const isMenuOnlyPlan = restaurant.plan_code === 'menu'
     const lines = items.map((item) => {
@@ -1371,6 +1380,32 @@ export class SupabaseOrderRepository {
           : 'Entrega: Retiro en local'
 
     const paymentLabel = this.getPaymentLabel(paymentMethod)
+
+    // EN LA MESA el mensaje es otro: no hay entrega, ni forma de pago elegida,
+    // ni "te avisamos cuando avance". Salia el mismo texto que para un delivery.
+    if (deliveryType === 'mesa') {
+      const nombreMesa = String(mesa || '').trim()
+      const adonde = nombreMesa ? (/^mesa(\s|\d|$)/i.test(nombreMesa) ? `la ${nombreMesa}` : nombreMesa) : 'tu mesa'
+      return [
+        `Hola ${customer.name || ''}`.trim() + `, recibimos tu pedido #${orderNumber} en ${restaurant.name}.`,
+        nombreMesa ? `Mesa: ${nombreMesa.replace(/^mesa\s*/i, '') || nombreMesa}` : null,
+        'Detalle:',
+        ...lines,
+        rewardLines.length ? 'Canjes:' : null,
+        ...rewardLines,
+        discountLines.length ? 'Descuentos:' : null,
+        ...discountLines,
+        notes ? `Notas: ${notes}` : null,
+        `Total: $${this.formatMoney(total)}`,
+        loyalty?.pointsEarned
+          ? `Ganaste ${loyalty.pointsEarned} ${loyalty.pointsEarned === 1 ? 'punto' : 'puntos'}.`
+          : null,
+        typeof loyalty?.balance === 'number' ? `Saldo actual: ${loyalty.balance} puntos.` : null,
+        `Ya lo estamos preparando y te lo llevamos a ${adonde}. La cuenta la pagás al final.`,
+      ]
+        .filter(Boolean)
+        .join('\n')
+    }
 
     return [
       `Hola ${customer.name || 'cliente'}, recibimos tu pedido #${orderNumber} en ${restaurant.name}.`,

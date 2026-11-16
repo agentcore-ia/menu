@@ -1,5 +1,5 @@
 import { getServerConfig } from '../../../../../server/config.js'
-import { atenderLlamadoDeMesa } from '../../../../../server/llamadosDeMesa.js'
+import { atenderLlamadoDeMesa, wifiDeLaMesa } from '../../../../../server/llamadosDeMesa.js'
 
 async function resolveMesaId(config, restaurantId, mesaIdParam) {
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(mesaIdParam)) {
@@ -65,6 +65,13 @@ export default async function handler(req, res) {
         cuerpo: req.body || {},
         consulta: req.query || {},
       });
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(r.status).json(r.cuerpo);
+    }
+
+    // El Wi-Fi del local (solo desde una mesa, con la experiencia prendida).
+    if (action === 'wifi' && req.method === 'GET') {
+      const r = await wifiDeLaMesa(config, { accountId, mesaParam: mesaId });
       res.setHeader('Cache-Control', 'no-store');
       return res.status(r.status).json(r.cuerpo);
     }

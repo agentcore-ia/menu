@@ -1,6 +1,7 @@
 import { getServerConfig } from '../../../server/config.js'
 import { createMenuRepository } from '../../../server/repositories/menuRepository.js'
 import { createOrderRepository } from '../../../server/repositories/orderRepository.js'
+import { menuParaElCliente } from '../../../server/menuPublico.js'
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0')
@@ -89,7 +90,8 @@ export default async function handler(req, res) {
       return
     }
 
-    res.status(200).json(menu)
+    // Sin los ajustes internos del local (server/menuPublico.js).
+    res.status(200).json(menuParaElCliente(menu))
   } catch (error) {
     res.status(500).json({
       error: 'MENU_LOAD_FAILED',

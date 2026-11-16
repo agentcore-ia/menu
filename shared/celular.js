@@ -55,3 +55,15 @@ export function celularValido(valor) {
 
 export const MENSAJE_CELULAR_INVALIDO =
   'Poné tu celular con la característica, por ejemplo 2346 587122. Lo necesitamos para avisarte de tu pedido.'
+
+/**
+ * El celular de un pedido. En la MESA es opcional: el cliente esta sentado en
+ * el local y no hace falta llamarlo ni mandarle nada. Si lo deja, tiene que
+ * estar completo (sirve para avisarle por WhatsApp); vacio, tambien vale.
+ */
+export function celularDelPedidoValido(telefono, esMesa) {
+  if (esMesa && !String(telefono ?? '').trim()) return true
+  return celularValido(telefono)
+}
+
+export const MENSAJE_CELULAR_DE_MESA = 'Revisá el celular (con característica) o dejalo vacío: en la mesa es opcional.'

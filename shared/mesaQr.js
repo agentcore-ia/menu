@@ -10,7 +10,7 @@
 //   node --test shared/mesaQr.test.mjs
 
 /** Cada parte de la pantalla de la mesa que se puede mostrar u ocultar. */
-export const OPCIONES_MESA_QR = ['bienvenida', 'verMenu', 'llamarMozo', 'pedirCuenta', 'pagar', 'propina', 'resena']
+export const OPCIONES_MESA_QR = ['bienvenida', 'verMenu', 'llamarMozo', 'pedirCuenta', 'pagar', 'propina', 'wifi', 'resena']
 
 /**
  * Lo que se muestra. `restaurante` trae las columnas viejas: feedback_enabled
@@ -26,13 +26,43 @@ export function opcionesMesaQr(settings, restaurante = {}) {
     pedirCuenta: valor('pedirCuenta', true),
     pagar: valor('pagar', true),
     propina: valor('propina', true),
+    // El Wi-Fi se muestra solo si el local cargo el nombre de la red.
+    wifi: valor('wifi', true) && Boolean(datosDelWifi(settings)),
     resena: valor('resena', restaurante.feedback_enabled !== false),
   }
   // Sin nada para tocar la pantalla queda vacia: el menu se muestra igual.
-  if (!opciones.verMenu && !opciones.llamarMozo && !opciones.pedirCuenta && !opciones.pagar && !opciones.resena) {
+  if (!opciones.verMenu && !opciones.llamarMozo && !opciones.pedirCuenta && !opciones.pagar && !opciones.wifi && !opciones.resena) {
     opciones.verMenu = true
   }
   return opciones
+}
+
+// ---------------------------------------------------------------------------
+// El Wi-Fi del local
+// ---------------------------------------------------------------------------
+
+/**
+ * La red que el local cargo en el panel (horarios._settings.mesaWifi). Null si
+ * no cargo el nombre. Sin contraseña es una red abierta.
+ */
+export function datosDelWifi(settings) {
+  const guardado = settings && typeof settings.mesaWifi === 'object' && settings.mesaWifi ? settings.mesaWifi : {}
+  const red = String(guardado.red ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 32)
+  if (!red) return null
+  const clave = String(guardado.clave ?? '').replace(/[\u0000-\u001f\u007f]/g, '').slice(0, 63)
+  return { red, clave, abierta: !clave }
+}
+
+/**
+ * El texto del codigo QR que conecta al Wi-Fi: lo entienden la camara del
+ * iPhone y la de Android. Los caracteres especiales se escapan con barra.
+ */
+export function textoQrDelWifi(wifi) {
+  const escapar = (texto) => String(texto ?? '').replace(/([\\;,:"])/g, '\\$1')
+  if (!wifi?.red) return ''
+  return wifi.clave
+    ? `WIFI:T:WPA;S:${escapar(wifi.red)};P:${escapar(wifi.clave)};;`
+    : `WIFI:T:nopass;S:${escapar(wifi.red)};;`
 }
 
 // ---------------------------------------------------------------------------

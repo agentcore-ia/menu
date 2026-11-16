@@ -8,6 +8,7 @@ import {
   AvisoDeLlamado, HojaDeMesa, IconoCampana, IconoCorazon, IconoCuenta, IconoEstrella, IconoFlecha, IconoMenu,
   IconoMesa, IconoTarjeta,
 } from './LlamarMozo.jsx'
+import { HojaDeWifi, IconoWifi } from './WifiDeMesa.jsx'
 import './mesa-qr.css'
 
 function Accion({ icono, titulo, detalle, principal = false, activa = false, onClick }) {
@@ -24,6 +25,7 @@ function Accion({ icono, titulo, detalle, principal = false, activa = false, onC
 }
 
 export default function QRLanding({
+  accountId,
   mesaId,
   restaurantName,
   logoUrl,
@@ -39,6 +41,7 @@ export default function QRLanding({
 }) {
   // Que se esta por pedir: 'mozo' | 'cuenta' | null (la hoja cerrada).
   const [hoja, setHoja] = useState(null)
+  const [wifiAbierto, setWifiAbierto] = useState(false)
   const mesa = llamada.mesaNombre || nombreDeMesa(mesaId) || 'Tu mesa'
   const nombre = restaurantName || 'Bienvenidos'
   const motivoEnCurso = llamada.estado === 'llamando' ? llamada.llamado?.motivo : null
@@ -65,6 +68,9 @@ export default function QRLanding({
     },
     opciones.pagar && {
       clave: 'pagar', icono: <IconoTarjeta />, titulo: 'Pagar la cuenta', detalle: 'Revisá y pagá desde el celular', onClick: onPagarCuenta,
+    },
+    opciones.wifi && {
+      clave: 'wifi', icono: <IconoWifi />, titulo: 'Wi-Fi', detalle: 'Conectate a la red del local', onClick: () => setWifiAbierto(true),
     },
     opciones.resena && {
       clave: 'resena', icono: <IconoEstrella />, titulo: 'Dejar una reseña', detalle: 'Contanos cómo estuvo todo', onClick: dejarResena,
@@ -115,6 +121,7 @@ export default function QRLanding({
         llamada={llamada}
         onCerrar={() => setHoja(null)}
       />
+      <HojaDeWifi abierta={wifiAbierto} accountId={accountId} mesaId={mesaId} colores={colores} onCerrar={() => setWifiAbierto(false)} />
     </div>
   )
 }

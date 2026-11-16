@@ -1,13 +1,33 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  estadoDelLlamado, haceCuanto, mesaDelQr, motivoDeLlamado, motivoHabilitado, nombreDeMesa, notaLimpia, opcionesMesaQr,
+  datosDelWifi, estadoDelLlamado, haceCuanto, mesaDelQr, motivoDeLlamado, motivoHabilitado, nombreDeMesa, notaLimpia, opcionesMesaQr,
+  textoQrDelWifi,
 } from './mesaQr.js'
 
 test('sin nada guardado se muestra todo', () => {
   assert.deepEqual(opcionesMesaQr(undefined), {
-    bienvenida: true, verMenu: true, llamarMozo: true, pedirCuenta: true, pagar: true, propina: true, resena: true,
+    bienvenida: true, verMenu: true, llamarMozo: true, pedirCuenta: true, pagar: true, propina: true, wifi: false, resena: true,
   })
+})
+
+test('el Wi-Fi se muestra solo con la red cargada y el interruptor prendido', () => {
+  assert.equal(opcionesMesaQr({ mesaWifi: { red: 'Totta Clientes', clave: 'pizza2026' } }).wifi, true)
+  assert.equal(opcionesMesaQr({ mesaWifi: { red: '  ', clave: 'x' } }).wifi, false)
+  assert.equal(opcionesMesaQr({ mesaQr: { wifi: false }, mesaWifi: { red: 'Totta' } }).wifi, false)
+  assert.deepEqual(datosDelWifi({ mesaWifi: { red: ' Totta Clientes ', clave: 'pizza2026' } }), { red: 'Totta Clientes', clave: 'pizza2026', abierta: false })
+  assert.deepEqual(datosDelWifi({ mesaWifi: { red: 'Libre' } }), { red: 'Libre', clave: '', abierta: true })
+  assert.equal(datosDelWifi({}), null)
+  // Solo el Wi-Fi a la vista alcanza: la pantalla no queda vacia.
+  const soloWifi = opcionesMesaQr({ mesaQr: { verMenu: false, llamarMozo: false, pedirCuenta: false, pagar: false, resena: false }, mesaWifi: { red: 'Totta' } })
+  assert.equal(soloWifi.verMenu, false)
+})
+
+test('el codigo QR del Wi-Fi escapa los simbolos', () => {
+  assert.equal(textoQrDelWifi({ red: 'Totta Clientes', clave: 'pizza2026' }), 'WIFI:T:WPA;S:Totta Clientes;P:pizza2026;;')
+  assert.equal(textoQrDelWifi({ red: 'Bar;Uno', clave: 'a:b,c"d\\e' }), 'WIFI:T:WPA;S:Bar\\;Uno;P:a\\:b\\,c\\"d\\\\e;;')
+  assert.equal(textoQrDelWifi({ red: 'Libre', clave: '' }), 'WIFI:T:nopass;S:Libre;;')
+  assert.equal(textoQrDelWifi(null), '')
 })
 
 test('lo que el local oculta, se oculta; lo demas queda', () => {
