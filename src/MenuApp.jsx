@@ -961,6 +961,7 @@ const CUENTA_POR_DOMINIO = {
   'deliverykiosco.capta.ar': 'delivery-de-kiosco',
   'ambrosia.capta.ar': 'ambrosia',
   'florian.capta.ar': 'florian',
+  'dolce.capta.ar': 'dolce',
 }
 
 function getInitialAccountId() {
@@ -8441,7 +8442,9 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   // a alguien que no pago. { orderId, orderNumber, link, verificando }
   const [esperandoPago, setEsperandoPago] = useState(null)
   const [desdeCapta] = useState(() => Boolean(demo) || vinoDeLaVitrina())
-  const checkoutConSeguimiento = !demo && (desdeCapta || window.location.hostname === 'capta.ar')
+  const checkoutConSeguimiento = !demo && (
+    desdeCapta || ['capta.ar', 'dolce.capta.ar'].includes(window.location.hostname)
+  )
 
   // VOLVIO DE MERCADO PAGO. La direccion de vuelta trae ?pedido=<id> (y
   // payment_id). Se pregunta si ese pedido ya esta pago: si esta, la

@@ -27,6 +27,11 @@
   "rewrites": [
     {
       "source": "/",
+      "has": [{ "type": "host", "value": "dolce.capta.ar" }],
+      "destination": "/host.html"
+    },
+    {
+      "source": "/",
       "has": [
         {
           "type": "host",
