@@ -156,7 +156,14 @@ export function enrichMenu(menu) {
   const presentationConfig = sanitizePresentationConfig(preset, menu.presentationConfig, {
     protectPreset: Boolean(inheritedPreset || accountPreset || !usesExplicitLayoutPreset),
   })
-  const presentation = presentationConfig ? mergeDeep(preset, presentationConfig) : preset
+  let presentation = presentationConfig ? mergeDeep(preset, presentationConfig) : preset
+
+  if (menu.accountId === 'dolce' && presentation.theme?.plantillaCapta == null) {
+    presentation = {
+      ...presentation,
+      theme: { ...presentation.theme, plantillaCapta: true },
+    }
+  }
 
   // theme.ocultarBajadaHero: el local no quiere frase debajo del titulo. Un texto
   // vacio no pisa al del preset (los vacios se descartan arriba), asi que se
