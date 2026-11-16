@@ -8161,13 +8161,17 @@ function BotonSubir() {
   )
 }
 
-function CaptaCabecera({ nombre, logo, portada, ficha, conVolver = true, volverHref = '/pedi', abierto, estadoTexto, envioTexto, orderCount, onOpenSocial, onOpenCart }) {
+function CaptaCabecera({ nombre, logo, portada, proporcionPortada, ficha, conVolver = true, volverHref = '/pedi', abierto, estadoTexto, envioTexto, orderCount, onOpenSocial, onOpenCart }) {
   const inicial = String(nombre || '?').trim().charAt(0).toUpperCase()
   const datos = [ficha?.categoriaNombre, ficha?.tiempo, envioTexto].filter(Boolean)
+  const estiloPortada = portada ? {
+    backgroundImage: `url("${portada}")`,
+    ...(proporcionPortada ? { height: 'auto', aspectRatio: proporcionPortada } : {}),
+  } : undefined
 
   return (
     <header className="cu-cabecera" data-menu-hero>
-      <div className={portada ? 'cu-portada' : 'cu-portada cu-portada-sin-foto'} style={portada ? { backgroundImage: `url("${portada}")` } : undefined}>
+      <div className={portada ? 'cu-portada' : 'cu-portada cu-portada-sin-foto'} style={estiloPortada}>
         <div className="cu-portada-velo" />
         <div className="cu-barra">
           {/* El boton de volver lleva a la vitrina: solo tiene sentido si se vino de ella. */}
@@ -11225,11 +11229,13 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
               nombre={fichaCapta?.nombre || menu?.accountName || presentacionDelLocal.branding?.wordmark || ''}
               logo={fichaCapta?.logo || presentacionDelLocal.branding?.logo || presentacionDelLocal.branding?.logoBanda || ''}
               portada={
-                fichaCapta?.portada
+                (presentacionDelLocal.hero?.aspectRatio ? presentacionDelLocal.hero.image : '')
+                || fichaCapta?.portada
                 || (presentacionDelLocal.hero?.image && !/\/dishes\/|\/todo-empanadas\/compartir\.png/i.test(presentacionDelLocal.hero.image)
                   ? presentacionDelLocal.hero.image
                   : '')
               }
+              proporcionPortada={presentacionDelLocal.hero?.aspectRatio}
               ficha={demo?.local || fichaCapta}
               conVolver={desdeCapta}
               volverHref={demo ? '/demo' : '/pedi'}

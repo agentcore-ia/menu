@@ -158,10 +158,12 @@ export function enrichMenu(menu) {
   })
   let presentation = presentationConfig ? mergeDeep(preset, presentationConfig) : preset
 
-  if (menu.accountId === 'dolce' && presentation.theme?.plantillaCapta == null) {
+  if (menu.accountId === 'dolce') {
     presentation = {
       ...presentation,
-      theme: { ...presentation.theme, plantillaCapta: true },
+      branding: { ...presentation.branding, logo: '/dolce/logo.jpg' },
+      hero: { ...presentation.hero, image: '/dolce/portada.webp', aspectRatio: '2 / 1' },
+      theme: { plantillaCapta: true, ...presentation.theme },
     }
   }
 
