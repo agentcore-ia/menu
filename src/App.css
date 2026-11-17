@@ -22592,7 +22592,7 @@ button.gelato-adicional-salsa {
   background: linear-gradient(135deg, var(--primary, #163059), var(--accent, #2f5f96));
   box-shadow: 0 12px 28px rgba(22, 48, 89, 0.26);
 }
-.lp-entrada-icono { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(255, 255, 255, 0.18); }
+.lp-entrada-icono { color: #fff; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(255, 255, 255, 0.18); }
 .lp-entrada-icono svg { width: 34px; height: 34px; }
 .lp-entrada-hero h2 { margin: 8px 0 0; font-size: 26px; line-height: 1.1; }
 .lp-entrada-hero p { margin: 0; font-size: 14.5px; opacity: 0.9; max-width: 260px; }
