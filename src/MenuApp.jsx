@@ -13774,6 +13774,64 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
             onClick={(event) => event.stopPropagation()}
           >
             <section className="checkout-sheet loyalty-sheet">
+              {templateId === 'pizzeria' && loyaltyStatus !== 'ready' ? (
+                <div className="lp-entrada">
+                  <button
+                    type="button"
+                    className="floating-button light lp-entrada-volver"
+                    onClick={() => setIsLoyaltyOpen(false)}
+                    aria-label="Cerrar puntos"
+                  >
+                    <IconBack />
+                  </button>
+                  <div className="lp-entrada-hero">
+                    <span className="lp-entrada-icono"><IconAward /></span>
+                    <h2>Mis {pointsName}</h2>
+                    <p>Sumás con cada compra y los canjeás por premios.</p>
+                  </div>
+                  <ol className="lp-entrada-pasos">
+                    <li>
+                      <b>1</b>
+                      <span>Pedís como siempre</span>
+                    </li>
+                    <li>
+                      <b>2</b>
+                      <span>
+                        {loyaltySettings?.pointsPerStep && loyaltySettings?.spendAmountStep
+                          ? `Sumás ${loyaltySettings.pointsPerStep} ${pointsName} por cada ${formatPrice(loyaltySettings.spendAmountStep, currencySymbol)}`
+                          : `Sumás ${pointsName} con cada compra`}
+                      </span>
+                    </li>
+                    <li>
+                      <b>3</b>
+                      <span>Canjeás por comida y descuentos</span>
+                    </li>
+                  </ol>
+                  <form className="lp-entrada-form" onSubmit={handleCheckLoyalty}>
+                    <label htmlFor="lp-celular">Tu celular</label>
+                    <div className="lp-entrada-campo">
+                      <span aria-hidden="true">+54 9</span>
+                      <input
+                        id="lp-celular"
+                        value={loyaltyPhone}
+                        onChange={(event) => setLoyaltyPhone(event.target.value)}
+                        placeholder="2346 123456"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        required
+                      />
+                    </div>
+                    <small>Con el número que usás para pedir. Sin 0 ni 15.</small>
+                    {loyaltyMessage ? (
+                      <p className={`lp-entrada-error${loyaltyStatus === 'error' ? ' es-error' : ''}`} role="alert">{loyaltyMessage}</p>
+                    ) : null}
+                    <button type="submit" className="lp-entrada-boton" disabled={loyaltyStatus === 'loading'}>
+                      {loyaltyStatus === 'loading' ? 'Consultando...' : 'Ver mis puntos'}
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                <>
               <div className="checkout-head">
                 <button
                   type="button"
@@ -13832,6 +13890,8 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                   </strong>
                 </button>
               </form>
+                </>
+              )}
 
               {loyaltyStatus === 'ready' && loyaltyData ? (
                 <div className="loyalty-result">
