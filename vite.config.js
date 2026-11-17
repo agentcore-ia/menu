@@ -58,6 +58,7 @@ export default defineConfig({
         florian: resolve(__dirname, 'florian.html'),
         'delivery-de-kiosco': resolve(__dirname, 'delivery-de-kiosco.html'),
         'moli-express': resolve(__dirname, 'moli-express.html'),
+        dolce: resolve(__dirname, 'dolce.html'),
         panacea: resolve(__dirname, 'panacea.html'),
         racing: resolve(__dirname, 'racing.html'),
         boutiquecian: resolve(__dirname, 'boutique-cian.html'),
