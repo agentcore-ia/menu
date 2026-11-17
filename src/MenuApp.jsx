@@ -7456,17 +7456,6 @@ function TemplateMenuCollection({
 
     return (
       <>
-        {/* Sin esto el cliente no tenia por donde entrar a sus puntos: la plantilla
-            no tiene barra inferior como las otras. */}
-        {loyaltySettings?.enabled && onOpenLoyalty ? (
-          <button type="button" className="pizzeria-puntos-boton" onClick={onOpenLoyalty}>
-            <IconAward />
-            <span>
-              <strong>Mis puntos</strong>
-              <small>Consultá tu saldo y canjeá premios</small>
-            </span>
-          </button>
-        ) : null}
         {secciones.map((seccion) => (
       <section key={seccion.id} className="section-block section-block-pizzeria">
         {seccion.label ? <h2 className="pizzeria-section-title">{seccion.label}</h2> : null}
@@ -11414,6 +11403,18 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
 
             {status === 'ready' ? (
               <>
+                {/* La plantilla de pizzeria no tiene barra inferior: sin este boton el
+                    cliente no tenia por donde entrar a sus puntos. */}
+                {templateId === 'pizzeria' && loyaltySettings?.enabled ? (
+                  <button type="button" className="pizzeria-puntos-boton" onClick={handleOpenLoyalty}>
+                    <span className="pizzeria-puntos-icono"><IconAward /></span>
+                    <span className="pizzeria-puntos-texto">
+                      <strong>Mis {pointsName}</strong>
+                      <small>Canjeá premios con tus compras</small>
+                    </span>
+                    <span className="pizzeria-puntos-flecha" aria-hidden="true">›</span>
+                  </button>
+                ) : null}
                 {templateId === 'pizzeria' ||
                 templateId === 'burger' ||
                 templateId === 'host' ||
