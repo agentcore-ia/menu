@@ -11374,13 +11374,20 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
             {status === 'ready' && orderingBlocked ? (
               <section className="closed-order-banner" role="status" aria-live="polite">
                 <div>
-                  <strong>Estamos cerrados ahora</strong>
-                  <p>Podes mirar el menu, pero los pedidos se habilitan en horario de atencion.</p>
+                  {/* Pausa manual (un temporal, por ejemplo): se muestra el mensaje del local tal cual. */}
+                  <strong>{orderingStatus.paused ? 'Pedidos pausados' : 'Estamos cerrados ahora'}</strong>
+                  <p>
+                    {orderingStatus.paused
+                      ? orderingStatus.message
+                      : 'Podes mirar el menu, pero los pedidos se habilitan en horario de atencion.'}
+                  </p>
                 </div>
-                <span>
-                  {orderingStatus.nextOpenText ||
-                    (orderingStatus.scheduleText ? `Hoy: ${orderingStatus.scheduleText}` : 'Pedidos pausados')}
-                </span>
+                {orderingStatus.paused ? null : (
+                  <span>
+                    {orderingStatus.nextOpenText ||
+                      (orderingStatus.scheduleText ? `Hoy: ${orderingStatus.scheduleText}` : 'Pedidos pausados')}
+                  </span>
+                )}
               </section>
             ) : null}
 
