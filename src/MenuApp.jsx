@@ -7456,6 +7456,17 @@ function TemplateMenuCollection({
 
     return (
       <>
+        {/* Sin esto el cliente no tenia por donde entrar a sus puntos: la plantilla
+            no tiene barra inferior como las otras. */}
+        {loyaltySettings?.enabled && onOpenLoyalty ? (
+          <button type="button" className="pizzeria-puntos-boton" onClick={onOpenLoyalty}>
+            <IconAward />
+            <span>
+              <strong>Mis puntos</strong>
+              <small>Consultá tu saldo y canjeá premios</small>
+            </span>
+          </button>
+        ) : null}
         {secciones.map((seccion) => (
       <section key={seccion.id} className="section-block section-block-pizzeria">
         {seccion.label ? <h2 className="pizzeria-section-title">{seccion.label}</h2> : null}
