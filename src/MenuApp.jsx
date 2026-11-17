@@ -9491,7 +9491,11 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     ...buildCartRecommendations(cartItems, productosParaSugerir),
   ]
   const cartRecommendations = [...new Map(sugerenciasDelCarrito.map((item) => [item.id, item])).values()]
-  const orderingStatus = menu?.businessHours
+  // Pausa manual del local (por ejemplo, un temporal): el servidor la manda en menu.ordering y gana
+  // sobre los horarios. Sin esto el menu se veia abierto y recien al enviar el pedido avisaba.
+  const orderingStatus = menu?.ordering?.paused === true
+    ? { configured: true, isOpen: false, paused: true, message: menu.ordering.message || '', nextOpenText: '', scheduleText: '' }
+    : menu?.businessHours
     ? getBusinessOpenStatus(menu.businessHours, new Date(currentTime))
     : menu?.ordering ?? {
         configured: false,
