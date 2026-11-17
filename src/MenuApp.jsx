@@ -11361,6 +11361,16 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
               </section>
             ) : null}
 
+            {/* Aviso del local con el menu abierto (menu.aviso): no bloquea nada, solo avisa. */}
+            {status === 'ready' && menu?.aviso && !orderingBlocked ? (
+              <section className="closed-order-banner closed-order-banner-aviso" role="status" aria-live="polite">
+                <div>
+                  <strong>Aviso</strong>
+                  <p>{menu.aviso}</p>
+                </div>
+              </section>
+            ) : null}
+
             {status === 'ready' && puedeProgramar ? (
               <section className="closed-order-banner closed-order-banner-programar" role="status" aria-live="polite">
                 <div>

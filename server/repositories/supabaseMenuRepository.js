@@ -479,6 +479,8 @@ export class SupabaseMenuRepository {
       // mandar el pedido si hay numero. Va el dato, no el numero.
       tieneWhatsappDelLocal: Boolean(String(restaurant.phone || '').replace(/\D/g, '')),
       tieneCodigosDescuento,
+      // Aviso del local sobre el menu abierto (horarios._settings.menuAviso): por ejemplo, demoras por un temporal.
+      aviso: String(restaurant.horarios?._settings?.menuAviso ?? '').replace(/s+/g, ' ').trim().slice(0, 240) || null,
       table_experience_enabled: restaurant.table_experience_enabled === true,
       // Que se muestra en la pantalla de la mesa (shared/mesaQr.js).
       mesaQr: opcionesMesaQr(restaurant.horarios?._settings, restaurant),
