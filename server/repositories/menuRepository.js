@@ -34,5 +34,11 @@ export function createMenuRepository(config) {
       if (typeof repository.buscarEnVitrina !== 'function') return { productos: [] }
       return repository.buscarEnVitrina(q, ciudad)
     },
+
+    // "Explora": productos con foto de distintos comercios para el slider.
+    async explorarVitrina(ciudad) {
+      if (typeof repository.explorarVitrina !== 'function') return { productos: [] }
+      return repository.explorarVitrina(ciudad)
+    },
   }
 }
