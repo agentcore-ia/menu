@@ -577,6 +577,10 @@
       "destination": "/api/accounts/capta/menu?accion=puntos"
     },
     {
+      "source": "/api/delivery/explora",
+      "destination": "/api/accounts/capta/menu?accion=explora"
+    },
+    {
       "source": "/api/delivery/buscar",
       "destination": "/api/accounts/capta/menu?accion=buscar"
     },

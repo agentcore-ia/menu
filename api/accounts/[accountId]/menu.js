@@ -64,6 +64,17 @@ export default async function handler(req, res) {
     return
   }
 
+  // "Explora" (/api/delivery/explora): el slider de productos de la pantalla principal.
+  if (req.query.accion === 'explora') {
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300')
+    try {
+      res.status(200).json(await repository.explorarVitrina(String(req.query.ciudad ?? '')))
+    } catch {
+      res.status(200).json({ productos: [] })
+    }
+    return
+  }
+
   if (req.query.accion === 'vitrina') {
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300')
 
