@@ -147,6 +147,16 @@ app.get('/api/delivery/buscar', async (req, res) => {
   }
 })
 
+// "Explora": productos con foto de distintos comercios (slider de la pantalla principal).
+app.get('/api/delivery/explora', async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300')
+  try {
+    res.json(await repository.explorarVitrina(String(req.query.ciudad ?? '')))
+  } catch {
+    res.json({ productos: [] })
+  }
+})
+
 // La vitrina de Capta Delivery: los locales que reparten con Capta. Publica y
 // sin datos de nadie (server/repositories -> listarVitrinaCapta).
 app.get('/api/delivery/locales', async (_req, res) => {

@@ -704,7 +704,7 @@ export class SupabaseMenuRepository {
       const ids = [...localPorId.keys()]
       const productos = ids.length
         ? await this.requestAll(
-            `/products?restaurant_id=in.(${ids.map((id) => `"${id}"`).join(',')})&available=eq.true&select=id,restaurant_id,name,description,price,category,image_url,aliases&order=id.asc`,
+            `/products?restaurant_id=in.(${ids.map((id) => `"${id}"`).join(',')})&available=eq.true&select=id,restaurant_id,name,description,price,category,image_url,aliases,destacado&order=id.asc`,
           )
         : []
       const vendibles = (Array.isArray(productos) ? productos : []).filter(
@@ -737,6 +737,89 @@ export class SupabaseMenuRepository {
           descripcion: String(p.description || '').slice(0, 140),
           precio: Number(p.price) || 0,
           foto: p.image_url || null,
+          local: {
+            slug: local.slug,
+            nombre: local.nombre,
+            abierto: local.abierto,
+            programable: local.programable,
+            proximaApertura: local.proximaApertura,
+            tiempo: local.tiempo,
+            logo: local.logo,
+            color: local.color,
+          },
+        }
+      }),
+    }
+  }
+
+  /**
+   * "Explora": productos con foto de distintos comercios de la vitrina, para el
+   * slider de la pantalla principal. Sale solo lo que el cliente podria pedir
+   * (mismo filtro que la busqueda).
+   *
+   * Prioridad: lo que el comercio marco como destacado, despues el resto con
+   * foto. Se reparte entre comercios (maximo 2 por comercio, 3 si son
+   * destacados) y se mezcla por dia, para que no salgan siempre los mismos ni
+   * un solo comercio se coma el slider. Abiertos primero.
+   */
+  async explorarVitrina(ciudad = '', limite = 16) {
+    // Carga (o reutiliza) los productos de la vitrina que guarda la busqueda.
+    await this.buscarEnVitrina('xx')
+    const cache = productosDeLaVitrina.datos
+    if (!cache) return { productos: [] }
+    const { vendibles, localPorId } = cache
+    const ciudadPedida = normalizarTexto(ciudad)
+    const dia = new Date().toISOString().slice(0, 10)
+    const mezcla = (texto) => {
+      let h = 2166136261
+      for (const c of String(texto)) h = Math.imul(h ^ c.charCodeAt(0), 16777619)
+      return (h >>> 0) / 4294967295
+    }
+
+    const candidatos = vendibles.filter((p) => {
+      const local = localPorId.get(p.restaurant_id)
+      if (!local || !p.image_url) return false
+      if (ciudadPedida && normalizarTexto(local.ciudad) !== ciudadPedida) return false
+      return local.abierto === true || local.programable === true
+    })
+
+    const porLocal = new Map()
+    for (const p of candidatos) {
+      if (!porLocal.has(p.restaurant_id)) porLocal.set(p.restaurant_id, [])
+      porLocal.get(p.restaurant_id).push(p)
+    }
+    for (const lista of porLocal.values()) {
+      lista.sort(
+        (a, b) => Number(b.destacado === true) - Number(a.destacado === true) || mezcla(dia + a.id) - mezcla(dia + b.id),
+      )
+    }
+
+    // Una vuelta por comercio: el primero de cada uno, despues el segundo...
+    const locales = [...porLocal.keys()].sort(
+      (a, b) =>
+        Number(localPorId.get(b).abierto) - Number(localPorId.get(a).abierto) || mezcla(dia + a) - mezcla(dia + b),
+    )
+    const elegidos = []
+    for (let ronda = 0; elegidos.length < limite && ronda < 3; ronda++) {
+      for (const id of locales) {
+        const p = porLocal.get(id)[ronda]
+        if (!p) continue
+        if (ronda === 2 && p.destacado !== true) continue
+        elegidos.push(p)
+        if (elegidos.length >= limite) break
+      }
+    }
+
+    return {
+      productos: elegidos.map((p) => {
+        const local = localPorId.get(p.restaurant_id)
+        return {
+          id: p.id,
+          nombre: p.name,
+          descripcion: String(p.description || '').slice(0, 100),
+          precio: Number(p.price) || 0,
+          foto: p.image_url,
+          destacado: p.destacado === true,
           local: {
             slug: local.slug,
             nombre: local.nombre,

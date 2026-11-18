@@ -357,6 +357,68 @@ function PromosDeHoy({ locales }) {
   )
 }
 
+/**
+ * "Explorá": un slider con productos destacados de distintos comercios. Tocar
+ * uno abre su ficha en el menu del comercio. Si no hay nada para mostrar (sin
+ * fotos, ciudad sin comercios abiertos) la seccion no aparece.
+ */
+function Explora({ ciudad }) {
+  const [productos, setProductos] = useState([])
+  useEffect(() => {
+    let vivo = true
+    fetch(`/api/delivery/explora?ciudad=${encodeURIComponent(ciudad || '')}`)
+      .then((respuesta) => (respuesta.ok ? respuesta.json() : { productos: [] }))
+      .then((datos) => {
+        if (vivo) setProductos(Array.isArray(datos?.productos) ? datos.productos : [])
+      })
+      .catch(() => {
+        if (vivo) setProductos([])
+      })
+    return () => {
+      vivo = false
+    }
+  }, [ciudad])
+
+  if (productos.length < 3) return null
+  return (
+    <section className="cd-tira cd-explora" aria-label="Explorá">
+      <div className="cd-titulo-seccion">
+        <h2>Explorá</h2>
+      </div>
+      <div className="cd-carrusel">
+        {productos.map((p) => (
+          <ProductoExplora key={`${p.local.slug}-${p.id}`} p={p} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function ProductoExplora({ p }) {
+  const [sinFoto, setSinFoto] = useState(false)
+  if (sinFoto) return null
+  const local = p.local
+  return (
+    <a
+      className={`cd-explora-card ${local.abierto ? '' : 'cd-explora-cerrado'}`}
+      href={`/${encodeURIComponent(local.slug)}?vitrina=1&producto=${encodeURIComponent(p.id)}`}
+    >
+      <span className="cd-explora-foto">
+        <img src={p.foto} alt="" loading="lazy" onError={() => setSinFoto(true)} />
+        <span className="cd-explora-precio">{pesos(p.precio)}</span>
+      </span>
+      <strong>{p.nombre}</strong>
+      <span className="cd-explora-local">
+        <MiniLogo local={local} />
+        <span>
+          <b>{local.nombre}</b>
+          <small>{estadoCorto(local)}</small>
+        </span>
+      </span>
+    </a>
+  )
+}
+
 function Hoja({ titulo, children, onCerrar, clase = '' }) {
   useEffect(() => {
     const alTeclear = (evento) => {
@@ -1452,6 +1514,8 @@ export default function CaptaDeliveryApp() {
             <BeneficiosParaVos cupones={cupones} elegido={beneficioElegido} onElegir={elegirBeneficio} />
 
             {!cargando && paraRepetir.length ? <VolverAPedir pedidos={paraRepetir} /> : null}
+
+            {!cargando ? <Explora ciudad={ciudad} /> : null}
 
             {!cargando && conPromo.length ? <PromosDeHoy locales={conPromo} /> : null}
           </>

@@ -3320,3 +3320,53 @@ body {
     overscroll-behavior-y: contain;
   }
 }
+
+/* ---- Explora: slider de productos de distintos comercios ---- */
+.cd-explora-card {
+  display: grid;
+  flex: 0 0 auto;
+  align-content: start;
+  gap: 8px;
+  width: min(44vw, 190px);
+  color: inherit;
+  text-decoration: none;
+  scroll-snap-align: start;
+}
+.cd-explora-foto {
+  position: relative;
+  display: block;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #f1ece8;
+}
+.cd-explora-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.cd-explora-precio {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+.cd-explora-card > strong {
+  font-size: 14px;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cd-explora-local { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cd-explora-local > span:last-child { display: grid; min-width: 0; }
+.cd-explora-local b { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cd-explora-local small { font-size: 11.5px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cd-explora-cerrado .cd-explora-foto { filter: saturate(0.6); }
