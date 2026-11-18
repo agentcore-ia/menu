@@ -1466,6 +1466,9 @@ export default function CaptaDeliveryApp() {
 
             <Categorias onElegir={abrirGrupo} onVerTodas={() => setHoja('categorias')} />
 
+            {/* Justo debajo de las categorias y antes de la lista de comercios: asi se ve sin bajar. */}
+            {!cargando ? <Explora ciudad={ciudad} /> : null}
+
             <section className="cd-seccion cd-locales-inicio" aria-label="Comercios">
               <div className="cd-seccion-cabeza">
                 <h2>{hayLocalesAbiertos ? 'Abiertos ahora' : `Comercios en ${ciudad || 'tu ciudad'}`}</h2>
@@ -1514,8 +1517,6 @@ export default function CaptaDeliveryApp() {
             <BeneficiosParaVos cupones={cupones} elegido={beneficioElegido} onElegir={elegirBeneficio} />
 
             {!cargando && paraRepetir.length ? <VolverAPedir pedidos={paraRepetir} /> : null}
-
-            {!cargando ? <Explora ciudad={ciudad} /> : null}
 
             {!cargando && conPromo.length ? <PromosDeHoy locales={conPromo} /> : null}
           </>
