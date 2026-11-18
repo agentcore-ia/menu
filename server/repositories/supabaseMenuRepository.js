@@ -690,11 +690,13 @@ export class SupabaseMenuRepository {
       const slugs = [...porSlug.keys()]
       if (!slugs.length) return { productos: [] }
       const restaurantes = await this.request(
-        `/restaurants?slug=in.(${slugs.map((s) => `"${s}"`).join(',')})&select=id,slug,horarios`,
+        `/restaurants?slug=in.(${slugs.map((s) => `"${s}"`).join(',')})&select=id,slug,horarios,stock_strict_mode`,
       )
       const localPorId = new Map()
       const ocultosPorId = new Map()
+      const conStockEstricto = []
       for (const r of restaurantes) {
+        if (r.stock_strict_mode) conStockEstricto.push(r.id)
         const local = porSlug.get(r.slug)
         if (!local) continue
         localPorId.set(r.id, local)
@@ -707,8 +709,21 @@ export class SupabaseMenuRepository {
             `/products?restaurant_id=in.(${ids.map((id) => `"${id}"`).join(',')})&available=eq.true&select=id,restaurant_id,name,description,price,category,image_url,aliases,destacado&order=id.asc`,
           )
         : []
+      // Sin stock no se muestra: en los locales que controlan el stock, un producto
+      // con stock cargado y cero disponible no se puede pedir (mismo criterio que
+      // availableForOrder del menu del local).
+      const sinStock = new Set()
+      await Promise.all(
+        conStockEstricto.map(async (restaurantId) => {
+          const filas = await this.fetchStockAvailability(restaurantId).catch(() => [])
+          for (const fila of Array.isArray(filas) ? filas : []) {
+            if (fila?.is_stock_tracked && Number(fila.max_available ?? 0) <= 0) sinStock.add(fila.product_id)
+          }
+        }),
+      )
       const vendibles = (Array.isArray(productos) ? productos : []).filter(
         (p) =>
+          !sinStock.has(p.id) &&
           Number(p.price) > 0 &&
           !ocultosPorId.get(p.restaurant_id)?.has(String(p.id)) &&
           !ADDON_CATEGORY_PATTERN.test(normalizeMenuCategoryKey(p.category)) &&
