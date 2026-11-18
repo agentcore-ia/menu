@@ -28,7 +28,7 @@ const IMAGENES_DEL_REPO = {
   'sabor-a-pampa': { logo: '/sabor-a-pampa/logo.png' },
   almendra: { portada: '/almendra/header.png', logo: '/almendra/logo.png' },
   kika: { portada: '/kika/banner.png' },
-  'la-argenta': { portada: '/la-argenta/portada.jpg', logo: '/la-argenta/icono-192.png' },
+  'la-argenta': { portada: '/la-argenta/portada.jpg', logo: '/la-argenta/logo.jpg' },
   fratello: { portada: '/fratello/portada.jpg', logo: '/fratello/logo.png' },
   'kiosco-9-de-julio': { portada: '/kiosco-9-de-julio/compartir.png', logo: '/kiosco-9-de-julio/icono-192.png' },
   'grupo-lea': { portada: '/grupo-lea/portada.jpg', logo: '/grupo-lea/icono-192.png' },
@@ -37,7 +37,7 @@ const IMAGENES_DEL_REPO = {
   'punto-waffle': { logo: '/punto-waffle/logo.png' },
   ipplis: { portada: '/ipplis/compartir.jpg', logo: '/ipplis/icono-192.png' },
   dallys: { portada: '/dallys/compartir.jpg', logo: '/dallys/icono-192.png' },
-  'copetin-sandwich': { portada: '/copetin-sandwich/portada.jpg', logo: '/copetin-sandwich/icono-192.png' },
+  'copetin-sandwich': { portada: '/copetin-sandwich/portada.jpg', logo: '/copetin-sandwich/logo.jpg' },
   // Solo el logo: la portada sale de la cabecera del menu (punto 3 de la lista de arriba).
   dolce: { logo: '/dolce/icono.png' },
   florian: { logo: '/florian/icono-192.png' },
