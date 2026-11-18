@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CATEGORIAS, ciudadPareja, GRUPOS, localCoincideCon } from '../shared/vitrinaCapta.js'
 import { almacenDelNavegador, leerDatos, olvidarDatos } from '../shared/datosDelCliente.js'
 import { celularValido, normalizarCelular } from '../shared/celular.js'
-import { EntradaMandados, FormularioMandado } from './MandadoCapta.jsx'
+import { FormularioMandado } from './MandadoCapta.jsx'
 import { leerEnCurso } from './mandadoEnCurso.js'
 import { VisorSeguimiento } from './VisorSeguimiento.jsx'
 import { actualizarPedidos, consultarPedidoGuardado } from './pedidoActivo.js'
@@ -1384,11 +1384,6 @@ export default function CaptaDeliveryApp() {
               </button>
             ) : null}
           </div>
-          {esInicio && mandadoDeLaCiudad ? (
-            <button type="button" className="cd-acceso-mandados" onClick={() => pedirMandado('')}>
-              <Icono nombre="directions_bike" /> Mandados
-            </button>
-          ) : null}
         </div>
       ) : null}
 
@@ -1455,10 +1450,6 @@ export default function CaptaDeliveryApp() {
             ) : null}
 
             <BeneficiosParaVos cupones={cupones} elegido={beneficioElegido} onElegir={elegirBeneficio} />
-
-            {mandadoDeLaCiudad ? (
-              <EntradaMandados key={ciudad} mandado={mandadoDeLaCiudad} />
-            ) : null}
 
             {!cargando && paraRepetir.length ? <VolverAPedir pedidos={paraRepetir} /> : null}
 
