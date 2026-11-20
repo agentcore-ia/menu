@@ -348,6 +348,12 @@ export class SupabaseMenuRepository {
       return null
     }
 
+    // Opt-in por local (theme.ordenDeCarga): los productos salen en el orden en que se cargaron,
+    // no alfabetico. Para cartas que siguen un orden propio, como la de un flyer.
+    if (presentationConfig?.theme?.ordenDeCarga === true && Array.isArray(products)) {
+      products.sort((x, y) => String(x.created_at || '').localeCompare(String(y.created_at || '')))
+    }
+
     this.accountIdForFallback =
       presentationConfig?.theme?.inheritPreset || presentationConfig?.layout || restaurant.slug
     const stockByProductId = new Map(stockAvailability.map((entry) => [entry.product_id, entry]))

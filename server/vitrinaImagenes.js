@@ -41,6 +41,7 @@ const IMAGENES_DEL_REPO = {
   'copetin-sandwich': { logo: '/copetin-sandwich/logo.jpg' },
   // Solo el logo: la portada sale de la cabecera del menu (punto 3 de la lista de arriba).
   dolce: { logo: '/dolce/icono.png' },
+  'roll-y-va': { portada: '/roll-y-va/portada.jpg', logo: '/roll-y-va/icono-192.png' },
   florian: { logo: '/florian/icono-192.png' },
 }
 
