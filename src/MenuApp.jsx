@@ -962,6 +962,7 @@ const CUENTA_POR_DOMINIO = {
   'ambrosia.capta.ar': 'ambrosia',
   'florian.capta.ar': 'florian',
   'dolce.capta.ar': 'dolce',
+  'rollyva.capta.ar': 'roll-y-va',
 }
 
 function getInitialAccountId() {
@@ -8443,7 +8444,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   const [esperandoPago, setEsperandoPago] = useState(null)
   const [desdeCapta] = useState(() => Boolean(demo) || vinoDeLaVitrina())
   const checkoutConSeguimiento = !demo && (
-    desdeCapta || ['capta.ar', 'dolce.capta.ar'].includes(window.location.hostname)
+    desdeCapta || ['capta.ar', 'dolce.capta.ar', 'rollyva.capta.ar'].includes(window.location.hostname)
   )
 
   // VOLVIO DE MERCADO PAGO. La direccion de vuelta trae ?pedido=<id> (y

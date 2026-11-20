@@ -32,6 +32,11 @@
     },
     {
       "source": "/",
+      "has": [{ "type": "host", "value": "rollyva.capta.ar" }],
+      "destination": "/roll-y-va.html"
+    },
+    {
+      "source": "/",
       "has": [
         {
           "type": "host",
