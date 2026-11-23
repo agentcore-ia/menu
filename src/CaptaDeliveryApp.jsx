@@ -766,7 +766,7 @@ function Categorias({ onElegir, onVerTodas }) {
             onClick={() => onElegir(grupo.id)}
           >
             <span className="cd-cat-circulo" style={{ background: grupo.circulo || grupo.fondo }}>
-              <img src={`/capta/categorias/${grupo.id}.webp?v=2`} alt="" width="300" height="300" decoding="async" />
+              <img src={`/capta/categorias/${grupo.id}.webp?v=3`} alt="" width="300" height="300" decoding="async" />
             </span>
             <span className="cd-cat-nombre">{grupo.label}</span>
           </button>
@@ -1576,7 +1576,7 @@ export default function CaptaDeliveryApp() {
                       if (c.grupo.categorias.length > 1) setSubcategoria(c.id)
                     }}
                   >
-                    <img src={`/capta/categorias/${c.grupo.id}.webp?v=2`} alt="" style={{ background: c.grupo.fondo }} />
+                    <img src={`/capta/categorias/${c.grupo.id}.webp?v=3`} alt="" style={{ background: c.grupo.fondo }} />
                     <span>
                       <strong>{c.label}</strong>
                       <small>{c.cuantos ? `${c.cuantos} local${c.cuantos === 1 ? '' : 'es'}` : 'Con mandados'}</small>
@@ -1612,7 +1612,7 @@ export default function CaptaDeliveryApp() {
             ) : esBusqueda && categoriasDeLaBusqueda.length ? null : (
               <div className="cd-vacio">
                 {vista === 'grupo' && grupo ? (
-                  <img className="cd-vacio-icono" src={`/capta/categorias/${grupo.id}.webp?v=2`} alt="" style={{ background: grupo.fondo }} />
+                  <img className="cd-vacio-icono" src={`/capta/categorias/${grupo.id}.webp?v=3`} alt="" style={{ background: grupo.fondo }} />
                 ) : (
                   <img className="cd-vacio-logo" src="/capta/logo-3d.webp" alt="" width="64" height="64" />
                 )}
@@ -1718,7 +1718,7 @@ export default function CaptaDeliveryApp() {
               return (
                 <li key={g.id}>
                   <button type="button" onClick={() => abrirGrupo(g.id)}>
-                    <img src={`/capta/categorias/${g.id}.webp?v=2`} alt="" style={{ background: g.fondo }} />
+                    <img src={`/capta/categorias/${g.id}.webp?v=3`} alt="" style={{ background: g.fondo }} />
                     <span>{g.label}</span>
                     <small>{cuantos ? `${cuantos} local${cuantos === 1 ? '' : 'es'}` : g.mandado && mandadoDeLaCiudad ? 'Con mandados' : 'Próximamente'}</small>
                   </button>
