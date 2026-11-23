@@ -15,7 +15,7 @@
  * `label` va en plural porque es un filtro ("Heladerias"), y `singular` es lo
  * que dice la tarjeta de un local ("Heladeria").
  */
-const CATEGORIAS = [
+const CATEGORIAS_BASE = [
   { id: 'comida', label: 'Casas de comida', singular: 'Casa de comida' },
   { id: 'sushi', label: 'Sushi', singular: 'Sushi' },
   { id: 'restobar', label: 'Resto bares', singular: 'Resto bar' },
@@ -39,7 +39,7 @@ const CATEGORIAS = [
  * `mandado`: si no hay locales de eso en la ciudad, se ofrece comprarlo con un
  * mandado, empezando por ese lugar (src/MandadoCapta.jsx).
  */
-const GRUPOS = [
+const GRUPOS_BASE = [
   { id: 'comida', label: 'Comida', categorias: ['comida', 'hamburgueseria', 'pizzeria', 'rotiseria', 'cafeteria'], fondo: '#fdebde', circulo: '#fde9d9' },
   { id: 'sushi', label: 'Sushi', categorias: ['sushi'], fondo: '#fde4d6', circulo: '#fdeadf' },
   { id: 'restobar', label: 'Resto bar', categorias: ['restobar'], fondo: '#fbecd0', circulo: '#fdf0d6' },
@@ -52,12 +52,168 @@ const GRUPOS = [
   { id: 'mascotas', label: 'Mascotas', categorias: ['mascotas'], fondo: '#fdebd1', circulo: '#fdeed6', mandado: 'El pet shop más cercano' },
 ]
 
+// Las listas que usa el resto del codigo. Se modifican EN EL LUGAR (aplicarConfigVitrina) cuando el
+// panel de admin cambia algo, asi cualquier archivo que las importo ve lo nuevo sin tocar nada.
+const CATEGORIAS = CATEGORIAS_BASE.map((c) => ({ ...c }))
+const GRUPOS = GRUPOS_BASE.map((g) => ({ ...g, categorias: [...g.categorias], imagen: '', visible: true }))
+
 /** El grupo del inicio al que pertenece una categoria. */
 export function grupoDeCategoria(categoria) {
   return GRUPOS.find((g) => g.categorias.includes(categoria)) ?? GRUPOS[0]
 }
 
-const IDS = new Set(CATEGORIAS.map((c) => c.id))
+/** Los cuadrados que se dibujan en el inicio: los que el admin no oculto. */
+export function gruposVisibles() {
+  return GRUPOS.filter((g) => g.visible !== false)
+}
+
+let IDS = new Set(CATEGORIAS.map((c) => c.id))
+
+// ---- Lo que se edita desde el panel de admin (Capta Delivery > Vitrina) ----------------------------
+
+export const TEXTOS_BASE = {
+  explora: 'Explorá',
+  categorias: 'Categorías',
+  buscador: 'Buscá qué pedir',
+  promoHoy: 'Promo de hoy',
+}
+export const SECCIONES_BASE = { explora: true, categorias: true, promos: true }
+
+const TEXTOS = { ...TEXTOS_BASE }
+const SECCIONES = { ...SECCIONES_BASE }
+let BANNERS = null // null = los de fabrica de cada ciudad
+
+/** Un texto de la pantalla, con el que escribio el admin o el de fabrica. */
+export function textoVitrina(clave) {
+  return TEXTOS[clave] ?? TEXTOS_BASE[clave] ?? ''
+}
+
+/** Si una seccion del inicio se muestra. */
+export function seccionVitrina(clave) {
+  return SECCIONES[clave] !== false
+}
+
+/** Los banners elegidos por el admin, o null si se usan los de fabrica. */
+export function bannersVitrina() {
+  return BANNERS
+}
+
+const ID_VALIDO = /^[a-z0-9][a-z0-9-]{1,29}$/
+const COLOR = /^#[0-9a-fA-F]{6}$/
+
+function cadena(valor, max) {
+  return String(valor ?? '').replace(/\s+/g, ' ').trim().slice(0, max)
+}
+
+/** Una direccion de imagen o de link: https o una ruta del propio sitio. Nada de javascript:. */
+function direccion(valor) {
+  const v = String(valor ?? '').trim()
+  if (!v || v.length > 600) return ''
+  return /^https:\/\//i.test(v) || (v.startsWith('/') && !v.startsWith('//')) ? v : ''
+}
+
+/**
+ * Deja la configuracion en una forma segura: cualquier cosa rara se descarta o se corrige. Es lo que
+ * corren tanto el panel (al guardar) como el menu (al leer), asi una fila mal escrita nunca rompe la
+ * pantalla.
+ */
+export function normalizarConfigVitrina(crudo) {
+  const c = crudo && typeof crudo === 'object' && !Array.isArray(crudo) ? crudo : {}
+  const salida = { categorias: null, grupos: null, banners: null, textos: {}, secciones: {} }
+
+  if (Array.isArray(c.categorias)) {
+    const vistos = new Set()
+    salida.categorias = []
+    for (const x of c.categorias.slice(0, 60)) {
+      const id = cadena(x?.id, 30).toLowerCase()
+      if (!ID_VALIDO.test(id) || vistos.has(id)) continue
+      const label = cadena(x?.label, 40)
+      const singular = cadena(x?.singular, 40) || label
+      if (!label) continue
+      vistos.add(id)
+      salida.categorias.push({ id, label, singular })
+    }
+  }
+
+  if (Array.isArray(c.grupos)) {
+    const vistos = new Set()
+    salida.grupos = []
+    for (const x of c.grupos.slice(0, 30)) {
+      const id = cadena(x?.id, 30).toLowerCase()
+      const label = cadena(x?.label, 30)
+      if (!ID_VALIDO.test(id) || vistos.has(id) || !label) continue
+      vistos.add(id)
+      const categorias = [...new Set((Array.isArray(x?.categorias) ? x.categorias : []).map((v) => cadena(v, 30).toLowerCase()).filter(Boolean))]
+      const grupo = {
+        id,
+        label,
+        categorias,
+        imagen: direccion(x?.imagen),
+        fondo: COLOR.test(String(x?.fondo ?? '')) ? String(x.fondo) : '#fdebde',
+        circulo: COLOR.test(String(x?.circulo ?? '')) ? String(x.circulo) : '#fde9d9',
+        visible: x?.visible !== false,
+      }
+      const mandado = cadena(x?.mandado, 60)
+      if (mandado) grupo.mandado = mandado
+      salida.grupos.push(grupo)
+    }
+  }
+
+  if (Array.isArray(c.banners)) {
+    salida.banners = []
+    for (const x of c.banners.slice(0, 12)) {
+      const imagen = direccion(x?.imagen)
+      if (!imagen) continue
+      salida.banners.push({
+        id: cadena(x?.id, 40) || `banner-${salida.banners.length + 1}`,
+        imagen,
+        alt: cadena(x?.alt, 120),
+        link: direccion(x?.link),
+        activo: x?.activo !== false,
+      })
+    }
+  }
+
+  for (const clave of Object.keys(TEXTOS_BASE)) {
+    const v = cadena(c.textos?.[clave], 60)
+    if (v) salida.textos[clave] = v
+  }
+  for (const clave of Object.keys(SECCIONES_BASE)) {
+    if (typeof c.secciones?.[clave] === 'boolean') salida.secciones[clave] = c.secciones[clave]
+  }
+  return salida
+}
+
+/**
+ * Aplica la configuracion a las listas de arriba. Las categorias y cuadrados de fabrica nunca se
+ * pierden (un local puede estar guardado en una): lo que el admin no nombra se conserva como esta.
+ */
+export function aplicarConfigVitrina(crudo) {
+  const c = normalizarConfigVitrina(crudo)
+
+  const categorias = []
+  for (const x of c.categorias ?? []) categorias.push({ id: x.id, label: x.label, singular: x.singular })
+  for (const x of CATEGORIAS_BASE) if (!categorias.some((y) => y.id === x.id)) categorias.push({ ...x })
+  CATEGORIAS.splice(0, CATEGORIAS.length, ...categorias)
+  IDS = new Set(CATEGORIAS.map((x) => x.id))
+
+  const grupos = (c.grupos ?? GRUPOS_BASE.map((g) => ({ ...g, imagen: '', visible: true }))).map((g) => ({
+    ...g,
+    categorias: g.categorias.filter((id) => IDS.has(id)),
+  }))
+  // Un cuadrado sin categorias no lleva a ningun lado.
+  GRUPOS.splice(0, GRUPOS.length, ...grupos.filter((g) => g.categorias.length > 0))
+  if (GRUPOS.length === 0) {
+    GRUPOS.push(...GRUPOS_BASE.map((g) => ({ ...g, categorias: [...g.categorias], imagen: '', visible: true })))
+  }
+
+  for (const k of Object.keys(TEXTOS)) delete TEXTOS[k]
+  Object.assign(TEXTOS, TEXTOS_BASE, c.textos)
+  for (const k of Object.keys(SECCIONES)) delete SECCIONES[k]
+  Object.assign(SECCIONES, SECCIONES_BASE, c.secciones)
+  BANNERS = c.banners
+  return c
+}
 
 // Lo que cargo el local al darse de alta (restaurants.business_type) o lo que
 // eligio despues en ajustes (_settings.rubro). "restaurant" y "otro" no dicen

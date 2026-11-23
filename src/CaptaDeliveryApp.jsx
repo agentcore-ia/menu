@@ -11,7 +11,22 @@
 
 import MisPuntos from './MisPuntos.jsx'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { CATEGORIAS, ciudadPareja, GRUPOS, localCoincideCon } from '../shared/vitrinaCapta.js'
+import {
+  aplicarConfigVitrina,
+  bannersVitrina,
+  CATEGORIAS,
+  ciudadPareja,
+  GRUPOS,
+  gruposVisibles,
+  localCoincideCon,
+  seccionVitrina,
+  textoVitrina,
+} from '../shared/vitrinaCapta.js'
+
+/** La imagen del cuadrado de una categoria: la que subio el admin o la de fabrica. */
+function imagenDeGrupo(grupo) {
+  return grupo?.imagen || `/capta/categorias/${grupo?.id}.webp?v=3`
+}
 import { almacenDelNavegador, leerDatos, olvidarDatos } from '../shared/datosDelCliente.js'
 import { celularValido, normalizarCelular } from '../shared/celular.js'
 import { FormularioMandado } from './MandadoCapta.jsx'
@@ -90,6 +105,8 @@ function useVitrina() {
       })
       .then((datos) => {
         if (!vivo) return
+        // Nombres, cuadrados, banners y textos que el admin cambio desde el panel.
+        aplicarConfigVitrina(datos?.config)
         setEstado({
           cargando: false,
           error: '',
@@ -381,9 +398,9 @@ function Explora({ ciudad }) {
 
   if (productos.length < 3) return null
   return (
-    <section className="cd-tira cd-explora" aria-label="Explorá">
+    <section className="cd-tira cd-explora" aria-label={textoVitrina('explora')}>
       <div className="cd-titulo-seccion">
-        <h2>Explorá</h2>
+        <h2>{textoVitrina('explora')}</h2>
       </div>
       <div className="cd-carrusel">
         {productos.map((p) => (
@@ -661,8 +678,13 @@ function Carrusel({ ciudad, promos }) {
   const tocandoRef = useRef(false)
 
   const slides = useMemo(() => {
-    const lista = (IMAGENES_DE_CIUDAD[clave] || []).map((imagen) => ({ id: imagen.src, tipo: 'imagen', ...imagen }))
-    for (const local of promos.slice(0, 3)) lista.push({ id: `promo-${local.slug}`, tipo: 'promo', local })
+    // Si el admin cargo banners en el panel, esos reemplazan a los de fabrica de la ciudad.
+    const delAdmin = bannersVitrina()
+    const imagenes = delAdmin
+      ? delAdmin.filter((b) => b.activo).map((b) => ({ src: b.imagen, alt: b.alt || 'Capta Delivery', link: b.link }))
+      : IMAGENES_DE_CIUDAD[clave] || []
+    const lista = imagenes.map((imagen) => ({ id: imagen.src, tipo: 'imagen', ...imagen }))
+    if (seccionVitrina('promos')) for (const local of promos.slice(0, 3)) lista.push({ id: `promo-${local.slug}`, tipo: 'promo', local })
     const sanas = lista.filter((s) => !rotas.includes(s.id))
     return sanas.some((s) => s.tipo === 'imagen') ? sanas : [{ id: 'dibujado', tipo: 'dibujado' }, ...sanas]
   }, [clave, promos, rotas])
@@ -706,18 +728,20 @@ function Carrusel({ ciudad, promos }) {
         {slides.map((slide) => (
           <div key={slide.id} className="cd-slide">
             {slide.tipo === 'imagen' ? (
-              <img
-                src={slide.src}
-                alt={slide.alt}
-                onError={() => setRotas((previas) => [...previas, slide.id])}
-              />
+              slide.link ? (
+                <a href={slide.link} aria-label={slide.alt}>
+                  <img src={slide.src} alt={slide.alt} onError={() => setRotas((previas) => [...previas, slide.id])} />
+                </a>
+              ) : (
+                <img src={slide.src} alt={slide.alt} onError={() => setRotas((previas) => [...previas, slide.id])} />
+              )
             ) : slide.tipo === 'promo' ? (
               <a
                 className="cd-slide-promo"
                 href={`/${encodeURIComponent(slide.local.slug)}?vitrina=1`}
                 style={{ '--cd-marca': slide.local.color || '#f4511e' }}
               >
-                <span className="cd-slide-promo-etiqueta">Promo de hoy</span>
+                <span className="cd-slide-promo-etiqueta">{textoVitrina('promoHoy')}</span>
                 <strong>{slide.local.promo}</strong>
                 <span className="cd-slide-promo-local">
                   <MiniLogo local={slide.local} />
@@ -752,13 +776,13 @@ function Categorias({ onElegir, onVerTodas }) {
   return (
     <section className="cd-cats" aria-label="Categorías">
       <div className="cd-cats-cabeza">
-        <h2>Categorías</h2>
+        <h2>{textoVitrina('categorias')}</h2>
         <button type="button" onClick={onVerTodas}>
           Ver todas <Icono nombre="arrow_forward" />
         </button>
       </div>
       <div className="cd-cats-fila">
-        {GRUPOS.map((grupo) => (
+        {gruposVisibles().map((grupo) => (
           <button
             key={grupo.id}
             type="button"
@@ -766,7 +790,7 @@ function Categorias({ onElegir, onVerTodas }) {
             onClick={() => onElegir(grupo.id)}
           >
             <span className="cd-cat-circulo" style={{ background: grupo.circulo || grupo.fondo }}>
-              <img src={`/capta/categorias/${grupo.id}.webp?v=3`} alt="" width="300" height="300" decoding="async" />
+              <img src={imagenDeGrupo(grupo)} alt="" width="300" height="300" decoding="async" />
             </span>
             <span className="cd-cat-nombre">{grupo.label}</span>
           </button>
@@ -1437,7 +1461,7 @@ export default function CaptaDeliveryApp() {
               type="search"
               value={busqueda}
               onChange={(evento) => setBusqueda(evento.target.value)}
-              placeholder="Buscá qué pedir"
+              placeholder={textoVitrina('buscador')}
               aria-label="Buscar productos o comercios"
             />
             {busqueda ? (
@@ -1464,10 +1488,10 @@ export default function CaptaDeliveryApp() {
             {pedidoActivo ? <TarjetaPedidoActivo pedido={pedidoActivo} /> : null}
             <Carrusel ciudad={ciudad} promos={conPromo} />
 
-            <Categorias onElegir={abrirGrupo} onVerTodas={() => setHoja('categorias')} />
+            {seccionVitrina('categorias') ? <Categorias onElegir={abrirGrupo} onVerTodas={() => setHoja('categorias')} /> : null}
 
             {/* Justo debajo de las categorias y antes de la lista de comercios: asi se ve sin bajar. */}
-            {!cargando ? <Explora ciudad={ciudad} /> : null}
+            {!cargando && seccionVitrina('explora') ? <Explora ciudad={ciudad} /> : null}
 
             <section className="cd-seccion cd-locales-inicio" aria-label="Comercios">
               <div className="cd-seccion-cabeza">
@@ -1576,7 +1600,7 @@ export default function CaptaDeliveryApp() {
                       if (c.grupo.categorias.length > 1) setSubcategoria(c.id)
                     }}
                   >
-                    <img src={`/capta/categorias/${c.grupo.id}.webp?v=3`} alt="" style={{ background: c.grupo.fondo }} />
+                    <img src={imagenDeGrupo(c.grupo)} alt="" style={{ background: c.grupo.fondo }} />
                     <span>
                       <strong>{c.label}</strong>
                       <small>{c.cuantos ? `${c.cuantos} local${c.cuantos === 1 ? '' : 'es'}` : 'Con mandados'}</small>
@@ -1612,7 +1636,7 @@ export default function CaptaDeliveryApp() {
             ) : esBusqueda && categoriasDeLaBusqueda.length ? null : (
               <div className="cd-vacio">
                 {vista === 'grupo' && grupo ? (
-                  <img className="cd-vacio-icono" src={`/capta/categorias/${grupo.id}.webp?v=3`} alt="" style={{ background: grupo.fondo }} />
+                  <img className="cd-vacio-icono" src={imagenDeGrupo(grupo)} alt="" style={{ background: grupo.fondo }} />
                 ) : (
                   <img className="cd-vacio-logo" src="/capta/logo-3d.webp" alt="" width="64" height="64" />
                 )}
@@ -1711,14 +1735,14 @@ export default function CaptaDeliveryApp() {
       ) : null}
 
       {hoja === 'categorias' ? (
-        <Hoja titulo="Categorías" onCerrar={() => setHoja(null)}>
+        <Hoja titulo={textoVitrina('categorias')} onCerrar={() => setHoja(null)}>
           <ul className="cd-lista-categorias">
-            {GRUPOS.map((g) => {
+            {gruposVisibles().map((g) => {
               const cuantos = deLaCiudad.filter((l) => g.categorias.includes(l.categoria)).length
               return (
                 <li key={g.id}>
                   <button type="button" onClick={() => abrirGrupo(g.id)}>
-                    <img src={`/capta/categorias/${g.id}.webp?v=3`} alt="" style={{ background: g.fondo }} />
+                    <img src={imagenDeGrupo(g)} alt="" style={{ background: g.fondo }} />
                     <span>{g.label}</span>
                     <small>{cuantos ? `${cuantos} local${cuantos === 1 ? '' : 'es'}` : g.mandado && mandadoDeLaCiudad ? 'Con mandados' : 'Próximamente'}</small>
                   </button>

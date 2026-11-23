@@ -10,6 +10,7 @@ import { productoDisponibleHoy } from '../../shared/diasDisponibles.js'
 import { normalizarPromociones, promoVigente as promoEnHorario } from '../../shared/promociones.js'
 import { normalizeBusinessLocation, normalizeDeliveryZones } from '../deliveryZones.js'
 import {
+  aplicarConfigVitrina,
   ajustesDelLocal,
   categoriaDeVitrina,
   envioDesde,
@@ -25,6 +26,10 @@ import { opcionesMesaQr } from '../../shared/mesaQr.js'
 // Los productos de la vitrina para buscar, guardados un minuto: mientras el
 // cliente escribe se busca varias veces y no hace falta ir a la base cada vez.
 let productosDeLaVitrina = { at: 0, datos: null }
+
+// La configuracion de capta.ar que se edita desde el panel (tabla capta_vitrina_config), un minuto en
+// memoria. Si la base no responde se sigue con la ultima conocida (o con lo de fabrica).
+let configDeLaVitrina = { at: 0, valor: null }
 
 /**
  * Cuanto tarda cada local de verdad (lo mide el dashboard con las entregas de
@@ -577,14 +582,28 @@ export class SupabaseMenuRepository {
    * Quien se muestra lo decide el servidor (shared/vitrinaCapta.js): si un
    * local no entra en esta lista, no hay forma de que aparezca en la pantalla.
    */
+  async cargarConfigVitrina() {
+    if (configDeLaVitrina.valor && Date.now() - configDeLaVitrina.at < 60 * 1000) return configDeLaVitrina.valor
+    try {
+      const filas = await this.request('/capta_vitrina_config?id=eq.1&select=config')
+      configDeLaVitrina = { at: Date.now(), valor: aplicarConfigVitrina(filas?.[0]?.config ?? null) }
+    } catch {
+      // Sin la tabla o sin conexion: se queda lo ultimo aplicado.
+      configDeLaVitrina = { at: Date.now() - 50 * 1000, valor: configDeLaVitrina.valor ?? aplicarConfigVitrina(null) }
+    }
+    return configDeLaVitrina.valor
+  }
+
   async listarVitrinaCapta() {
+    // Antes de armar la lista: los nombres de las categorias salen de la configuracion.
+    const config = await this.cargarConfigVitrina()
     const restaurantes = await this.request(
       '/restaurants?select=id,name,slug,city,business_type,horarios,hace_delivery,tiempo_entrega&limit=500',
     )
     const candidatos = restaurantes.filter((r) => ajustesDelLocal(r.horarios).deliveryCapta === true)
 
     if (!candidatos.length) {
-      return { locales: [], ciudades: [] }
+      return { locales: [], ciudades: [], config }
     }
 
     const enLista = `in.(${candidatos.map((r) => `"${r.id}"`).join(',')})`
@@ -677,7 +696,7 @@ export class SupabaseMenuRepository {
       .map(([nombre, locales]) => ({ nombre, locales }))
       .sort((a, b) => b.locales - a.locales || a.nombre.localeCompare(b.nombre))
 
-    return { locales, ciudades }
+    return { locales, ciudades, config }
   }
 
   /**
