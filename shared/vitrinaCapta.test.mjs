@@ -115,13 +115,14 @@ test('la promo se ve hasta su ultimo dia, en hora argentina', () => {
 })
 
 test('los cuadrados del inicio juntan las categorias parecidas', () => {
-  assert.equal(GRUPOS.length, 9)
+  assert.equal(GRUPOS.length, 10)
+  assert.equal(grupoDeCategoria('sushi').id, 'sushi')
   assert.equal(grupoDeCategoria('restobar').id, 'restobar')
   assert.equal(grupoDeCategoria('pizzeria').id, 'comida')
   assert.equal(grupoDeCategoria('heladeria').id, 'helados')
   assert.equal(grupoDeCategoria('dietetica').id, 'super')
   // Toda categoria cae en algun cuadrado.
-  for (const c of ['comida', 'restobar', 'hamburgueseria', 'pizzeria', 'rotiseria', 'heladeria', 'panaderia', 'cafeteria', 'kiosco', 'dietetica', 'farmacia', 'super', 'licoreria', 'mascotas']) {
+  for (const c of ['comida', 'sushi', 'restobar', 'hamburgueseria', 'pizzeria', 'rotiseria', 'heladeria', 'panaderia', 'cafeteria', 'kiosco', 'dietetica', 'farmacia', 'super', 'licoreria', 'mascotas']) {
     assert.ok(GRUPOS.some((g) => g.categorias.includes(c)), c)
   }
   assert.equal(categoriaDeVitrina({ rubro: 'petshop' }), 'mascotas')

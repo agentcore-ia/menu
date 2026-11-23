@@ -17,6 +17,7 @@
  */
 const CATEGORIAS = [
   { id: 'comida', label: 'Casas de comida', singular: 'Casa de comida' },
+  { id: 'sushi', label: 'Sushi', singular: 'Sushi' },
   { id: 'restobar', label: 'Resto bares', singular: 'Resto bar' },
   { id: 'hamburgueseria', label: 'Hamburgueserías', singular: 'Hamburguesería' },
   { id: 'pizzeria', label: 'Pizzerías', singular: 'Pizzería' },
@@ -40,6 +41,7 @@ const CATEGORIAS = [
  */
 const GRUPOS = [
   { id: 'comida', label: 'Comida', categorias: ['comida', 'hamburgueseria', 'pizzeria', 'rotiseria', 'cafeteria'], fondo: '#fdebde', circulo: '#fde9d9' },
+  { id: 'sushi', label: 'Sushi', categorias: ['sushi'], fondo: '#fde4d6', circulo: '#fdeadf' },
   { id: 'restobar', label: 'Resto bar', categorias: ['restobar'], fondo: '#fbecd0', circulo: '#fdf0d6' },
   { id: 'super', label: 'Súper', categorias: ['super', 'dietetica'], fondo: '#fde8d4', circulo: '#e5f2e1', mandado: 'El supermercado más cercano' },
   { id: 'helados', label: 'Helados', categorias: ['heladeria'], fondo: '#fbdfd6', circulo: '#fde3e7' },
@@ -62,6 +64,7 @@ const IDS = new Set(CATEGORIAS.map((c) => c.id))
 // nada util: son el descarte y se resuelven mirando la plantilla del menu.
 const POR_RUBRO = {
   heladeria: 'heladeria',
+  sushi: 'sushi',
   panaderia: 'panaderia',
   cafeteria: 'cafeteria',
   kiosco: 'kiosco',
