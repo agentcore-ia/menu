@@ -1,6 +1,7 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import './capta-unificado.css'
+import { cambiarCantidad, gruposConCantidades } from '../shared/opcionesCantidad.js'
 import { getBusinessOpenStatus } from '../shared/businessHours.js'
 import {
   configuracionDeHeladeria,
@@ -3084,6 +3085,11 @@ function buildSelectionSummary(groups, selections) {
       const options = group.options.map(normalizeOptionEntry)
 
       if (Array.isArray(value)) {
+        if (group.kind === 'cantidades') {
+          return value.length ? `${group.title}: ${[...new Set(value)].map((entry) =>
+            `${value.filter((v) => v === entry).length}× ${options.find((o) => o.value === entry)?.label ?? entry}`
+          ).join(', ')}` : null
+        }
         const labels = value
           .map((entry) => options.find((option) => option.value === entry)?.label ?? entry)
           .filter(Boolean)
@@ -3158,7 +3164,10 @@ function isSelectionValid(group, value) {
 }
 
 function areSelectionsValid(groups, selections) {
-  return groups.every((group) => isSelectionValid(group, selections[group.id]))
+  return groups.every((group) => (
+    (group.kind !== 'cantidades' || group.cantidadObjetivo > 0)
+    && isSelectionValid(group, selections[group.id])
+  ))
 }
 
 function getDetailNote(dish) {
@@ -9919,10 +9928,13 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     setSelectedOptions(buildInitialSelections(getSelectableOptionGroups(groups)))
   }
 
-  function handleSelectDetailOption(group, optionValue) {
+  function handleSelectDetailOption(group, optionValue, cambio = 1) {
     const limit = getGroupSelectionLimit(group)
 
     setSelectedOptions((current) => {
+      if (group.kind === 'cantidades') {
+        return { ...current, [group.id]: cambiarCantidad(current[group.id], optionValue, cambio, group.cantidadObjetivo) }
+      }
       if (isGroupMultiple(group)) {
         const currentValues = Array.isArray(current[group.id]) ? current[group.id] : []
 
@@ -9947,6 +9959,11 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
 
       return {
         ...current,
+        ...Object.fromEntries(
+          getSelectableOptionGroups(getTemplateProductOptionGroups(templateId, selectedDish, allItems))
+            .filter((g) => g.kind === 'cantidades' && g.cantidadPorSeleccion?.grupo === group.id)
+            .map((g) => [g.id, []]),
+        ),
         [group.id]: current[group.id] === optionValue && !group.required ? '' : optionValue,
       }
     })
@@ -11054,7 +11071,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     ? getTemplateProductOptionGroups(templateId, selectedDish, allItems)
     : []
   const detailIncludedGroups = getIncludedOptionGroups(detailOptionGroups)
-  const detailSelectableGroups = getSelectableOptionGroups(detailOptionGroups)
+  const detailSelectableGroups = gruposConCantidades(getSelectableOptionGroups(detailOptionGroups), selectedOptions)
   const detailExtraTotal = selectedDish
     ? calculateSelectionsExtraTotal(detailSelectableGroups, selectedOptions)
     : 0
@@ -12678,7 +12695,11 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                     <div key={group.id} className="option-group">
                       <h3>{group.title}</h3>
                       <p>
-                        {isGroupMultiple(group)
+                        {group.kind === 'cantidades'
+                          ? group.cantidadObjetivo
+                            ? `${(selectedOptions[group.id] || []).length} de ${group.cantidadObjetivo} facturas elegidas`
+                            : 'Elegí media docena o una docena para empezar.'
+                          : isGroupMultiple(group)
                           ? group.required
                             ? `Obligatorio: elige ${group.minSelect || 1}${getGroupSelectionLimit(group) ? ` a ${getGroupSelectionLimit(group)}` : ' o más'}`
                             : `Opcional${getGroupSelectionLimit(group) ? `: hasta ${getGroupSelectionLimit(group)}` : ''}`
@@ -12694,6 +12715,25 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                             ? selectedValue.includes(option.value)
                             : selectedValue === option.value
                           const optionMedia = renderDetailOptionMedia(option, presentation)
+
+                          if (group.kind === 'cantidades') {
+                            const elegidas = Array.isArray(selectedValue) ? selectedValue : []
+                            const cantidad = elegidas.filter((v) => v === option.value).length
+                            return (
+                              <div key={option.value} className={`option-card factura-variedad ${cantidad ? 'selected' : ''}`}>
+                                <button type="button" className="factura-sumar"
+                                  disabled={!group.cantidadObjetivo || elegidas.length >= group.cantidadObjetivo}
+                                  onClick={() => handleSelectDetailOption(group, option.value)}>
+                                  <span>{option.label}</span><span aria-hidden="true">+</span>
+                                </button>
+                                <div className="factura-cantidad">
+                                  <button type="button" aria-label={`Quitar una ${option.label}`} disabled={!cantidad}
+                                    onClick={() => handleSelectDetailOption(group, option.value, -1)}>−</button>
+                                  <output aria-label={`Cantidad de ${option.label}`}>{cantidad}</output>
+                                </div>
+                              </div>
+                            )
+                          }
 
                           return (
                             <button

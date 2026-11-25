@@ -5493,6 +5493,16 @@ html.menu-pantalla-encima body {
   color: var(--theme-muted);
 }
 
+.factura-variedad { padding: 0; overflow: hidden; }
+.factura-sumar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; min-height: 60px; padding: 12px;
+  border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.factura-cantidad { display: flex; align-items: center; gap: 12px; padding: 0 12px 10px; }
+.factura-cantidad button { width: 36px; height: 36px; border: 1px solid currentColor; border-radius: 50%; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.factura-cantidad output { font-weight: 800; }
+.factura-sumar:disabled, .factura-cantidad button:disabled { opacity: .5; cursor: default; }
 .option-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -219,6 +219,7 @@ function parseProductOptionGroups(product) {
         // `kind` y `day` marcan los grupos que representan un dia de la semana,
         // para que el menu los muestre como planificador en vez de lista de chips.
         kind: String(group?.kind || '').trim() || undefined,
+        cantidadPorSeleccion: group?.kind === 'cantidades' ? group.cantidadPorSeleccion : undefined,
         day: String(group?.day || '').trim() || undefined,
         display: String(group?.display || '').trim() || undefined,
         // Opciones que son el precio completo de cada presentacion (Docena, Media
