@@ -12,7 +12,7 @@ import { resolveDeliveryQuote } from '../deliveryZones.js'
 import { describirDias, diaDeHoyEnArgentina, diasDelTexto } from '../../shared/diasDisponibles.js'
 import { describirVigencia, normalizarPromociones, promoVigente } from '../../shared/promociones.js'
 import { celularDelPedidoValido, MENSAJE_CELULAR_DE_MESA, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../../shared/celular.js'
-import { canjeElegido, configDePuntos } from '../../shared/puntosCapta.js'
+import { canjeConRegalos, configDePuntos } from '../../shared/puntosCapta.js'
 import { cuponParaElCliente, descuentoDelCupon, motivoNoAplica, normalizarCodigo } from '../../shared/cuponesCapta.js'
 import {
   descuentoDelCodigo,
@@ -311,7 +311,15 @@ export class SupabaseOrderRepository {
       comida: Math.max(0, comidaTrasElCodigo - cuponEnComida),
       envio: Math.max(0, deliveryFee - cuponEnEnvio),
       desdeVitrina: payload.desdeVitrina === true,
+      // Para los puntos de regalo: en que local y sobre que productos.
+      restaurant,
+      items: orderProducts,
     })
+    // Quien pone la plata de cada regalo. Lo de Capta sale de su comision (el local cobra lo mismo);
+    // lo del local es un descuento suyo, como sus codigos.
+    const cuponDeCapta = cuponCapta.paga === 'local' ? 0 : cuponCapta.pesos
+    const cuponDelLocal = cuponCapta.pesos - cuponDeCapta
+    const regaloDelLocal = cuponDelLocal + (canjeCapta.pesosLocal || 0)
 
     const total = Math.max(
       0,
@@ -437,15 +445,20 @@ export class SupabaseOrderRepository {
           // discount_amount, que es el descuento del LOCAL.
           // TODO lo que puso Capta (puntos + cupon): de ahi sale la comision
           // del envio (dashboard: solicitarEnvio). El detalle va aparte.
-          descuento_puntos_capta: canjeCapta.pesos + cuponCapta.pesos,
+          descuento_puntos_capta: (canjeCapta.pesosCapta || 0) + cuponDeCapta,
           cupon_codigo: cuponCapta.pesos > 0 ? cuponCapta.codigo : null,
-          descuento_cupon_capta: cuponCapta.pesos,
-          // El descuento del LOCAL: canje de sus puntos + codigo de campaña.
-          discount_amount: discountAmount + codigoLocal.pesos,
+          descuento_cupon_capta: cuponDeCapta,
+          // El descuento del LOCAL: canje de sus puntos + codigo de campaña + regalos de Capta que paga el.
+          discount_amount: discountAmount + codigoLocal.pesos + regaloDelLocal,
           discount_percent: redemptionPreview?.discountPercent ?? (codigoLocal.pesos > 0 ? codigoLocal.porcentaje : null),
           discount_label:
-            [redemptionPreview?.discountLabel, codigoLocal.pesos > 0 ? codigoLocal.etiqueta : null].filter(Boolean).join(' + ') || null,
-          discount_source: codigoLocal.pesos > 0 ? 'codigo' : discountAmount > 0 ? 'loyalty' : null,
+            [
+              redemptionPreview?.discountLabel,
+              codigoLocal.pesos > 0 ? codigoLocal.etiqueta : null,
+              cuponDelLocal > 0 ? `Cupón ${cuponCapta.codigo}` : null,
+              canjeCapta.pesosLocal > 0 ? 'Puntos de regalo' : null,
+            ].filter(Boolean).join(' + ') || null,
+          discount_source: codigoLocal.pesos > 0 ? 'codigo' : regaloDelLocal > 0 ? 'regalo_capta' : discountAmount > 0 ? 'loyalty' : null,
           total,
           // El programado va primero y en mayusculas: es lo que la cocina
           // tiene que leer en la comanda.
@@ -1798,10 +1811,13 @@ export class SupabaseOrderRepository {
       }
     }
 
+    const regalos = await this.regalosParaElCliente(cuenta.telefono, config.valorDelPunto)
+
     return {
       telefono: cuenta.telefono,
       puntos: cuenta.puntos,
       pesos,
+      regalos,
       config: {
         activo: config.activo,
         pesosPorPunto: config.pesosPorPunto,
@@ -1819,21 +1835,97 @@ export class SupabaseOrderRepository {
    * Lo que manda el navegador es una propuesta: aca se vuelve a mirar el saldo
    * real y los topes. Solo cuenta si el pedido entro DESDE la app de Capta.
    */
-  async canjearPuntosDeCapta({ telefono, pesosPedidos, comida, envio, desdeVitrina }) {
-    const vacio = { pesos: 0, puntos: 0, cuentaId: null }
+  async canjearPuntosDeCapta({ telefono, pesosPedidos, comida, envio, desdeVitrina, restaurant, items }) {
+    const vacio = { pesos: 0, puntos: 0, pesosCapta: 0, pesosLocal: 0, comun: { puntos: 0, pesos: 0 }, regalos: [], cuentaId: null }
     if (!desdeVitrina) return vacio
     if (!(Number(pesosPedidos) > 0)) return vacio
 
     const cuenta = await this.puntosDeCapta(telefono)
-    if (!cuenta || !cuenta.config.activo || cuenta.puntos <= 0) return vacio
+    if (!cuenta) return vacio
+    const regalos = await this.regalosDePuntos(cuenta.telefono)
+    if (!regalos.length && (!cuenta.config.activo || cuenta.puntos <= 0)) return vacio
 
-    const canje = canjeElegido(
-      { puntos: cuenta.puntos, comida, envio },
-      pesosPedidos,
+    const canje = canjeConRegalos(
+      { puntos: cuenta.puntos, regalos, local: [restaurant?.id, restaurant?.slug].filter(Boolean), items, comida, envio },
       cuenta.config,
+      pesosPedidos,
     )
     if (canje.pesos <= 0) return vacio
     return { ...canje, cuentaId: cuenta.cuentaId, telefono: cuenta.telefono, saldoPrevio: cuenta.puntos }
+  }
+
+  /** Los puntos de regalo que le quedan a un celular (donde valen y quien los paga). */
+  async regalosDePuntos(telefono) {
+    try {
+      const filas = await this.request(
+        `/capta_puntos_bonos?telefono=eq.${telefono}&restantes=gt.0&select=id,restantes,restaurant_ids,producto_ids,productos_nombre,paga,vence_at,detalle&order=creado_at.asc&limit=50`,
+      )
+      const ahora = Date.now()
+      return (Array.isArray(filas) ? filas : [])
+        .filter((f) => !f.vence_at || Date.parse(f.vence_at) > ahora)
+        .map((f) => ({
+          id: f.id,
+          restantes: Number(f.restantes) || 0,
+          locales: f.restaurant_ids || [],
+          productos: f.producto_ids || [],
+          productosNombre: f.productos_nombre || '',
+          paga: f.paga === 'local' ? 'local' : 'capta',
+          venceAt: f.vence_at || null,
+          detalle: f.detalle || '',
+        }))
+    } catch (error) {
+      // Son un extra: si no se pueden leer, el pedido sigue.
+      console.warn('No se pudieron leer los puntos de regalo:', error?.message)
+      return []
+    }
+  }
+
+  /** Los regalos como se le muestran al cliente: con el nombre de cada local en vez de su id. */
+  async regalosParaElCliente(telefono, valorDelPunto) {
+    const regalos = await this.regalosDePuntos(telefono)
+    const ids = [...new Set(regalos.flatMap((r) => r.locales))]
+    let locales = []
+    if (ids.length) {
+      try {
+        locales = await this.request(`/restaurants?id=in.(${ids.map((id) => `"${id}"`).join(',')})&select=id,name,slug`)
+      } catch {
+        locales = []
+      }
+    }
+    const porId = new Map((locales || []).map((l) => [l.id, l]))
+    return regalos.map((r) => ({
+      ...r,
+      // El menu reconoce al local por su direccion (slug).
+      locales: r.locales.map((id) => porId.get(id)?.slug || id),
+      localesNombre: r.locales.map((id) => porId.get(id)?.name).filter(Boolean).join(', '),
+      pesos: r.restantes * valorDelPunto,
+    }))
+  }
+
+  /** Descuenta de cada regalo lo que se uso en el pedido y lo deja anotado (para poder devolverlo). */
+  async anotarUsoDeRegalos({ pedido, regalos }) {
+    for (const uso of regalos || []) {
+      try {
+        const filas = await this.request(`/capta_puntos_bonos?id=eq.${uso.id}&select=restantes&limit=1`)
+        const antes = Number(filas?.[0]?.restantes) || 0
+        const usados = Math.min(uso.puntos, antes)
+        if (usados <= 0) continue
+        // Solo si sigue como se leyo: dos pedidos a la vez no gastan lo mismo dos veces.
+        const hecho = await this.request(`/capta_puntos_bonos?id=eq.${uso.id}&restantes=eq.${antes}`, {
+          method: 'PATCH',
+          headers: { Prefer: 'return=representation' },
+          body: JSON.stringify({ restantes: antes - usados }),
+        })
+        if (!hecho?.length) continue
+        await this.request('/capta_puntos_bonos_usos', {
+          method: 'POST',
+          headers: { Prefer: 'return=minimal' },
+          body: JSON.stringify([{ bono_id: uso.id, pedido_id: pedido.id, puntos: usados, pesos: uso.pesos }]),
+        })
+      } catch (error) {
+        console.error('No se pudo anotar el uso de un regalo de puntos:', error?.message)
+      }
+    }
   }
 
   // ------------------------------------------- codigos de descuento del local
@@ -2034,7 +2126,7 @@ export class SupabaseOrderRepository {
       error.statusCode = 422
       throw error
     }
-    return { pesos: r.pesos, codigo: r.cupon.codigo, tipo: r.cupon.tipo, cuponId: r.cupon.id }
+    return { pesos: r.pesos, codigo: r.cupon.codigo, tipo: r.cupon.tipo, cuponId: r.cupon.id, paga: r.cupon.paga === 'local' ? 'local' : 'capta' }
   }
 
   /** Anota el uso (historial, tope total y, si lo tenia regalado, lo marca usado). */
@@ -2100,14 +2192,18 @@ export class SupabaseOrderRepository {
 
   /** Descuenta los puntos usados y lo deja anotado en el historial del cliente. */
   async anotarCanjeDePuntos({ pedido, canje }) {
-    if (!canje?.cuentaId || !(canje.pesos > 0)) return
+    if (!(canje?.pesos > 0)) return
+    await this.anotarUsoDeRegalos({ pedido, regalos: canje.regalos })
+    // Lo que salio del saldo comun (sin regalos, todo el canje).
+    const comun = canje.comun ?? { puntos: canje.puntos, pesos: canje.pesos }
+    if (!canje.cuentaId || !(comun.pesos > 0)) return
 
     try {
       // Se vuelve a leer el saldo por si entraron dos pedidos juntos: el que
       // llega segundo usa lo que quedo.
       const filas = await this.request(`/capta_puntos_cuentas?id=eq.${canje.cuentaId}&select=puntos,canjeados_total&limit=1`)
       const actual = Number(filas?.[0]?.puntos) || 0
-      const usados = Math.min(canje.puntos, actual)
+      const usados = Math.min(comun.puntos, actual)
       if (usados <= 0) return
 
       const saldo = actual - usados
@@ -2121,7 +2217,7 @@ export class SupabaseOrderRepository {
             tipo: 'canje',
             puntos: -usados,
             saldo_despues: saldo,
-            pesos: canje.pesos,
+            pesos: comun.pesos,
             detalle: `Descuento en el pedido${pedido.order_number ? ` #${pedido.order_number}` : ''}`,
           },
         ]),

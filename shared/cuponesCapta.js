@@ -27,8 +27,11 @@ export function descuentoDelCupon(cupon, { comida, envio, items }) {
   const total = c + e
   let pesos = 0
 
-  if (cupon.tipo === 'porcentaje') pesos = Math.round((c * num(cupon.valor)) / 100)
-  else if (cupon.tipo === 'monto') pesos = Math.round(num(cupon.valor))
+  // Con productos elegidos, el porcentaje o el monto salen solo de lo que cuestan esos productos.
+  const elegidos = productosDelCupon(cupon)
+  const base = elegidos.length ? Math.min(c, loQueCuestan(items, elegidos)) : c
+  if (cupon.tipo === 'porcentaje') pesos = Math.round((base * num(cupon.valor)) / 100)
+  else if (cupon.tipo === 'monto') pesos = elegidos.length ? Math.min(Math.round(num(cupon.valor)), Math.round(base)) : Math.round(num(cupon.valor))
   else if (cupon.tipo === 'envio_gratis') pesos = e
   else if (cupon.tipo === 'producto') {
     // Una unidad del producto: lo que cuesta en este pedido. Sin el producto, nada.
@@ -41,10 +44,27 @@ export function descuentoDelCupon(cupon, { comida, envio, items }) {
   return Math.max(0, Math.min(pesos, total))
 }
 
+/** Los productos sobre los que vale un descuento (vacio = todo el pedido). */
+export function productosDelCupon(cupon) {
+  if (cupon.tipo !== 'porcentaje' && cupon.tipo !== 'monto') return []
+  return Array.isArray(cupon.producto_ids) ? cupon.producto_ids.filter(Boolean).map(String) : []
+}
+
+/** Cuanto suman en el pedido las lineas de esos productos. */
+export function loQueCuestan(items, productos) {
+  const set = new Set(productos.map(String))
+  return (items || []).reduce(
+    (total, i) => (set.has(String(i.productId || '')) ? total + Math.max(0, num(i.unitPrice)) * Math.max(1, num(i.quantity, 1)) : total),
+    0,
+  )
+}
+
 /** Por que este cupon NO entra en este pedido, o null si entra. */
 export function motivoNoAplica(cupon, ctx) {
   const ahora = ctx.ahora ?? Date.now()
   if (!cupon.activo) return 'Este cupón no está activo.'
+  // Los regalos de puntos no se usan con codigo: se suman solos a la cuenta.
+  if (cupon.tipo === 'puntos') return 'Esos puntos se suman a tu cuenta: no se usan con código.'
   if (cupon.desde && Date.parse(cupon.desde) > ahora) return 'Este cupón todavía no empezó.'
   if (cupon.hasta && Date.parse(cupon.hasta) < ahora) return 'Este cupón venció.'
 
@@ -62,14 +82,20 @@ export function motivoNoAplica(cupon, ctx) {
   if (cupon.tipo === 'producto' && descuentoDelCupon(cupon, { comida: ctx.comida, envio: ctx.envio, items: ctx.items }) <= 0) {
     return `Para usar este cupón agregá ${cupon.producto_nombre || 'el producto'} a tu pedido.`
   }
+  const elegidos = productosDelCupon(cupon)
+  if (elegidos.length && loQueCuestan(ctx.items, elegidos) <= 0) {
+    return `Para usar este cupón agregá ${cupon.productos_nombre || 'alguno de sus productos'} a tu pedido.`
+  }
   if (descuentoDelCupon(cupon, { comida: ctx.comida, envio: ctx.envio, items: ctx.items }) <= 0) return 'Este cupón no descuenta nada en este pedido.'
   return null
 }
 
 /** El cartel corto del cupon: "30% OFF", "$2.000 OFF", "Envío gratis". */
 export function textoDelCupon(cupon) {
-  if (cupon.tipo === 'porcentaje') return `${Math.round(num(cupon.valor))}% OFF`
-  if (cupon.tipo === 'monto') return `$${Math.round(num(cupon.valor)).toLocaleString('es-AR')} OFF`
+  const en = productosDelCupon(cupon).length ? ` en ${cupon.productos_nombre || 'productos elegidos'}` : ''
+  if (cupon.tipo === 'puntos') return `${Math.round(num(cupon.valor)).toLocaleString('es-AR')} puntos`
+  if (cupon.tipo === 'porcentaje') return `${Math.round(num(cupon.valor))}% OFF${en}`
+  if (cupon.tipo === 'monto') return `$${Math.round(num(cupon.valor)).toLocaleString('es-AR')} OFF${en}`
   if (cupon.tipo === 'producto') return `${cupon.producto_nombre || 'Producto'} gratis`
   return 'Envío gratis'
 }

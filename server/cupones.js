@@ -79,6 +79,7 @@ export async function cupones(req, res) {
       items: (Array.isArray(b.items) ? b.items : []).slice(0, 100).map((i) => ({
         productId: i?.productId ? String(i.productId) : null,
         unitPrice: Number(i?.unitPrice) || 0,
+        quantity: Math.max(1, Math.round(Number(i?.quantity) || 1)),
       })),
       telefono: b.telefono,
       sesionCapta: b.sesionCapta,

@@ -231,6 +231,31 @@ export default function MisPuntos({
         ) : null}
       </section>
 
+      {consultado?.regalos?.length ? (
+        <section className="cp-regalos" aria-label="Puntos de regalo">
+          <h2>Puntos de regalo</h2>
+          <ul>
+            {consultado.regalos.map((r) => (
+              <li key={r.id}>
+                <strong>
+                  {r.restantes} puntos · {pesos(r.pesos)}
+                </strong>
+                <span>
+                  {r.localesNombre ? `Solo en ${r.localesNombre}` : 'En todos los locales'}
+                  {r.productosNombre ? ` · para ${r.productosNombre}` : ''}
+                </span>
+                <small>
+                  {r.venceAt
+                    ? `Vencen el ${new Date(r.venceAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })}. `
+                    : ''}
+                  Se usan solos al pedir, marcando “Usar puntos”.
+                </small>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       {!conSaldo ? (
         <form
           className="cp-form"

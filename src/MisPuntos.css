@@ -539,3 +539,48 @@
 .cp-volver {
   width: 30px;
 }
+
+/* Puntos de regalo: los que valen en algunos locales o productos, o que paga el local. */
+.cp-regalos {
+  margin: 14px 0 0;
+}
+
+.cp-regalos h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.cp-regalos ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cp-regalos li {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px dashed #ff9a57;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.cp-regalos strong {
+  color: #e2540b;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.cp-regalos span {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.cp-regalos small {
+  color: #78716c;
+  font-size: 12px;
+  font-weight: 600;
+}

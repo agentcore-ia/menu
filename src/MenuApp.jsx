@@ -12,7 +12,7 @@ import {
 } from '../shared/heladeria.js'
 import { textosDelMenu } from '../shared/rubros.js'
 import { celularDelPedidoValido, celularValido, MENSAJE_CELULAR_DE_MESA, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../shared/celular.js'
-import { canjePosible, porQueNoEntraTodo } from '../shared/puntosCapta.js'
+import { canjeConRegalos, porQueNoEntraTodo } from '../shared/puntosCapta.js'
 import { vinoDeLaVitrina } from './vitrinaDelCliente.js'
 import { useAppSinPedidos } from './estadoDeLaApp.js'
 import { esDominioDeLaApp, MENSAJE_APP_SIN_LANZAR } from '../shared/appCapta.js'
@@ -9276,7 +9276,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     fetch(`/api/delivery/puntos?telefono=${encodeURIComponent(celularDelPedido)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((datos) => {
-        if (vivo && datos?.config?.activo) setPuntosTraidos(datos)
+        if (vivo && (datos?.config?.activo || datos?.regalos?.length)) setPuntosTraidos(datos)
       })
       .catch(() => {
         // Los puntos son un extra: si no se pueden leer, el pedido sigue igual.
@@ -9324,7 +9324,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     slug: accountId,
     comida: cartTotal,
     envio: selectedDeliveryFee,
-    items: cart.map((line) => ({ productId: line.productId || null, unitPrice: line.unitPrice })),
+    items: cart.map((line) => ({ productId: line.productId || null, unitPrice: line.unitPrice, quantity: line.quantity })),
     telefono: celularDelPedido,
     sesionCapta: sesionCapta?.token,
     // Los cupones de Capta valen solo desde la app; los codigos del local, en su menu siempre.
@@ -9432,15 +9432,24 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   // despues del cupon.
   const canjeCapta = useMemo(() => {
     if (!puntosCapta || !hasOrderItems) return { pesos: 0, puntos: 0, motivo: '' }
-    return canjePosible(
+    return canjeConRegalos(
       {
         puntos: puntosCapta.puntos,
+        regalos: puntosCapta.regalos || [],
+        local: [menu?.accountId, accountId].filter(Boolean),
+        items: cart.map((line) => ({ productId: line.productId || null, unitPrice: line.unitPrice, quantity: line.quantity })),
         comida: Math.max(0, cartTotal - cuponEnComida),
         envio: Math.max(0, selectedDeliveryFee - cuponEnEnvio),
       },
       puntosCapta.config,
     )
-  }, [puntosCapta, hasOrderItems, cartTotal, selectedDeliveryFee, cuponEnComida, cuponEnEnvio])
+  }, [puntosCapta, hasOrderItems, cart, menu?.accountId, accountId, cartTotal, selectedDeliveryFee, cuponEnComida, cuponEnEnvio])
+  // Los puntos que tiene para ESTE local: el saldo comun mas los regalos que valen aca.
+  const regalosDeEsteLocal = (puntosCapta?.regalos || []).filter(
+    (r) => !r.locales?.length || r.locales.includes(menu?.accountId) || r.locales.includes(accountId),
+  )
+  const puntosDeRegaloAca = regalosDeEsteLocal.reduce((total, r) => total + (r.restantes || 0), 0)
+  const puntosParaMostrar = (puntosCapta?.puntos || 0) + puntosDeRegaloAca
 
   const celularVerificado = Boolean(celularDelPedido && sesionCapta?.cliente?.telefono === celularDelPedido)
   const descuentoCapta = usarPuntosCapta && celularVerificado ? canjeCapta.pesos : 0
@@ -13605,13 +13614,13 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
 
                 {/* Los puntos de Capta Delivery. Aparecen solo si el cliente
                     entro desde la app y tiene algo para usar. */}
-                {puntosCapta && puntosCapta.puntos > 0 ? (
+                {puntosCapta && puntosParaMostrar > 0 ? (
                   <div className={`capta-puntos-checkout${canjeCapta.pesos > 0 ? '' : ' capta-puntos-checkout-sin-canje'}`}>
                     <div className="capta-puntos-checkout-cabecera">
                       <span className="capta-puntos-checkout-marca">Puntos Capta</span>
                       <strong>
-                        {puntosCapta.puntos} {puntosCapta.puntos === 1 ? 'punto' : 'puntos'}
-                        <small> · {formatPrice(puntosCapta.pesos, currencySymbol)}</small>
+                        {puntosParaMostrar} {puntosParaMostrar === 1 ? 'punto' : 'puntos'}
+                        <small> · {formatPrice(puntosParaMostrar * (puntosCapta.config?.valorDelPunto || 0), currencySymbol)}</small>
                       </strong>
                     </div>
 

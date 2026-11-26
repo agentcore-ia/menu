@@ -111,3 +111,108 @@ export function porQueNoEntraTodo(motivo, config) {
   if (motivo === 'tope_capta') return 'Es lo máximo que entra en este pedido.'
   return ''
 }
+
+// ------------------------------------------------------------------ puntos de regalo
+//
+// Ademas del saldo comun, un cliente puede tener puntos REGALADOS (tabla capta_puntos_bonos): valen
+// en todos los locales o solo en algunos locales o productos, y cada regalo dice quien lo paga.
+//   - Se usan antes que el saldo comun, primero los mas especificos y los que vencen antes.
+//   - No piden el minimo para canjear.
+//   - Lo que paga Capta (comun o regalo) nunca supera lo que Capta gana en ese pedido; lo que paga el
+//     local solo tiene el limite de lo que cuestan los productos.
+
+const texto = (v) => String(v ?? '')
+
+function seAplica(regalo, locales, ahora) {
+  if (!(num(regalo.restantes) > 0)) return false
+  if (regalo.venceAt && Date.parse(regalo.venceAt) < ahora) return false
+  const donde = (regalo.locales || []).map(texto)
+  return donde.length === 0 || donde.some((d) => locales.includes(d))
+}
+
+const especificidad = (r) => ((r.productos || []).length ? 0 : (r.locales || []).length ? 1 : 2)
+const vencimiento = (r) => (r.venceAt ? Date.parse(r.venceAt) : Number.POSITIVE_INFINITY)
+
+/**
+ * Cuanto se puede descontar en este pedido juntando regalos y saldo comun.
+ *
+ * `local`: como se puede nombrar al local (su id, su direccion). `items`: [{ productId, unitPrice,
+ * quantity }]. `pesosPedidos`: lo que pidio usar el cliente (sin pasarlo: todo lo posible).
+ */
+export function canjeConRegalos({ puntos, regalos = [], local = [], items = [], comida, envio, ahora = Date.now() }, config, pesosPedidos) {
+  const c = configDePuntos(config)
+  const v = c.valorDelPunto
+  const plata = Math.max(0, Math.round(num(comida)))
+  const nombres = (Array.isArray(local) ? local : [local]).map(texto).filter(Boolean)
+
+  let quedaComida = plata
+  let quedaCapta = loQueGanaCapta(plata, envio)
+  // Lo que queda sin descontar de cada producto del pedido.
+  const porProducto = new Map()
+  for (const i of items || []) {
+    const id = texto(i.productId)
+    if (id) porProducto.set(id, (porProducto.get(id) || 0) + Math.max(0, num(i.unitPrice)) * Math.max(1, num(i.quantity, 1)))
+  }
+
+  const usados = []
+  const candidatos = regalos
+    .filter((r) => seAplica(r, nombres, ahora))
+    .sort((a, b) => especificidad(a) - especificidad(b) || vencimiento(a) - vencimiento(b))
+  for (const r of candidatos) {
+    const productos = (r.productos || []).map(texto)
+    const deSusProductos = productos.reduce((t, id) => t + (porProducto.get(id) || 0), 0)
+    const paga = r.paga === 'local' ? 'local' : 'capta'
+    let tope = Math.min(num(r.restantes) * v, quedaComida)
+    if (productos.length) tope = Math.min(tope, deSusProductos)
+    if (paga === 'capta') tope = Math.min(tope, quedaCapta)
+    const cuantos = Math.floor(tope / v)
+    if (cuantos <= 0) continue
+    const pesos = cuantos * v
+    usados.push({ id: r.id, puntos: cuantos, pesos, paga })
+    quedaComida -= pesos
+    if (paga === 'capta') quedaCapta -= pesos
+    let porRestar = pesos
+    for (const id of productos.length ? productos : [...porProducto.keys()]) {
+      const resta = Math.min(porRestar, porProducto.get(id) || 0)
+      porProducto.set(id, (porProducto.get(id) || 0) - resta)
+      porRestar -= resta
+    }
+  }
+
+  // El saldo comun, sobre lo que quedo. Con sus reglas de siempre.
+  const tiene = Math.max(0, Math.floor(num(puntos)))
+  let comun = { puntos: 0, pesos: 0 }
+  if (c.activo && tiene > 0 && tiene >= c.minimoParaCanjear) {
+    const tope = Math.min(tiene * v, quedaComida, quedaCapta, c.topePorPedido > 0 ? c.topePorPedido : Number.POSITIVE_INFINITY)
+    const cuantos = Math.max(0, Math.floor(tope / v))
+    comun = { puntos: cuantos, pesos: cuantos * v }
+  }
+
+  // Si pidio usar menos, se recorta primero el saldo comun y despues los ultimos regalos.
+  if (pesosPedidos !== undefined) {
+    const quiere = Math.max(0, Math.round(num(pesosPedidos)))
+    let sobra = comun.pesos + usados.reduce((t, u) => t + u.pesos, 0) - quiere
+    for (const tramo of [comun, ...[...usados].reverse()]) {
+      if (sobra <= 0) break
+      const nuevos = Math.max(0, Math.floor((tramo.pesos - sobra) / v))
+      sobra -= tramo.pesos - nuevos * v
+      tramo.puntos = nuevos
+      tramo.pesos = nuevos * v
+    }
+  }
+
+  const deRegalo = usados.filter((u) => u.pesos > 0)
+  const pesosLocal = deRegalo.filter((u) => u.paga === 'local').reduce((t, u) => t + u.pesos, 0)
+  const pesosCapta = comun.pesos + deRegalo.filter((u) => u.paga === 'capta').reduce((t, u) => t + u.pesos, 0)
+  const pesos = pesosCapta + pesosLocal
+  const motivo = candidatos.length === 0 ? canjePosible({ puntos, comida, envio }, config).motivo : ''
+  return {
+    pesos,
+    puntos: comun.puntos + deRegalo.reduce((t, u) => t + u.puntos, 0),
+    pesosCapta,
+    pesosLocal,
+    comun,
+    regalos: deRegalo,
+    motivo,
+  }
+}
