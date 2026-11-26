@@ -7,9 +7,10 @@
 //   POST { accion: "invitacion", codigo }   -> lo que ofrece un link de invitacion
 //   GET  (Authorization: Bearer <token>)              -> { cliente, pedidos }
 //   POST { accion: "actualizar" | "salir" } (con token)
+//   POST { accion: "ruleta" | "girar" } (con token)  -> la ruleta de bienvenida
 import { getServerConfig } from './config.js'
 
-const ACCIONES = new Set(['pedir_codigo', 'verificar', 'invitacion', 'actualizar', 'salir'])
+const ACCIONES = new Set(['pedir_codigo', 'verificar', 'invitacion', 'actualizar', 'salir', 'ruleta', 'girar'])
 
 export async function cuenta(req, res) {
   res.setHeader('Cache-Control', 'no-store')

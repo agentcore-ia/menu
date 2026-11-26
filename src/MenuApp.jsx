@@ -24,6 +24,7 @@ import { guardarBeneficioElegido, leerBeneficioElegido, leerSesion } from './ses
 import { normalizarCodigoLocal } from '../shared/codigoDescuento.js'
 import { abrirSeguimientoDelPedido, guardarSeguimientoDePago, guardarSeguimientoPedido } from './pedidoActivo.js'
 import { VerificarCelular } from './VerificarCelular.jsx'
+import { RuletaCapta } from './RuletaCapta.jsx'
 import {
   almacenDelNavegador,
   coordenadasGuardadas,
@@ -9263,6 +9264,8 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   // La cuenta de Capta (entrar con el codigo por WhatsApp). Usar puntos exige
   // que el celular del pedido sea el verificado: lo controla el servidor.
   const [sesionCapta, setSesionCapta] = useState(() => demo ? null : leerSesion())
+  // Sube cuando gana algo en la ruleta: hay que volver a pedir sus cupones.
+  const [vueltaRuleta, setVueltaRuleta] = useState(0)
   const desdeLaVitrina = desdeCapta && !demo
   const celularDelPedido = celularValido(orderForm.phone) ? normalizarCelular(orderForm.phone) : ''
 
@@ -9402,7 +9405,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     return () => {
       vivo = false
     }
-  }, [desdeLaVitrina, sesionCapta?.token])
+  }, [desdeLaVitrina, sesionCapta?.token, vueltaRuleta])
 
   // La barra de abajo de la app (Inicio, Pedidos, Guardados, Perfil) tambien se
   // ve dentro de un menu cuando el cliente entro desde la vitrina, en TODAS sus
@@ -11708,6 +11711,9 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
           <p>{orderingNotice?.texto || orderingNotice}</p>
         </div>
       ) : null}
+
+      {/* La ruleta de bienvenida, si abrio su cuenta de Capta mientras pedia. */}
+      {desdeLaVitrina ? <RuletaCapta token={sesionCapta?.token} onGano={() => setVueltaRuleta((v) => v + 1)} /> : null}
 
       <InstallAppPrompt
         open={pwaPromptEnabled && installPromptOpen}

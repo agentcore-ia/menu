@@ -40,6 +40,7 @@ import { Ingresar, NombreDeLaCuenta } from './CuentaCapta.jsx'
 import { borrarSesion, guardarBeneficioElegido, leerBeneficioElegido, leerSesion, pedirCuenta, tomarBienvenida } from './sesionCapta.js'
 import { capturarInvitacion, tomarRegalo } from './invitacionCapta.js'
 import { RegaloInvitacion } from './RegaloInvitacion.jsx'
+import { RuletaCapta } from './RuletaCapta.jsx'
 import { leerUltimosPedidos, resumenDelPedido } from '../shared/volverAPedir.js'
 import { coincideConElRubro, normalizarTexto, palabrasDeLaBusqueda } from '../shared/busquedaProductos.js'
 import './CaptaDelivery.css'
@@ -1159,6 +1160,8 @@ export default function CaptaDeliveryApp() {
     setAvisoCupon(elegido ? 'Beneficio elegido. Lo vamos a aplicar cuando tu pedido cumpla las condiciones.' : 'Beneficio quitado.')
   }
   const [avisoCupon, setAvisoCupon] = useState('')
+  // Sube cuando gana algo en la ruleta: hay que volver a pedir sus cupones.
+  const [vueltaRuleta, setVueltaRuleta] = useState(0)
   useEffect(() => {
     if (!avisoCupon) return undefined
     const t = setTimeout(() => setAvisoCupon(''), 3200)
@@ -1177,7 +1180,7 @@ export default function CaptaDeliveryApp() {
     return () => {
       vivo = false
     }
-  }, [sesion?.token])
+  }, [sesion?.token, vueltaRuleta])
   useEffect(() => {
     // Una cuenta que se acaba de abrir (desde el perfil): se muestra el regalo.
     if (!sesion?.token) return undefined
@@ -1711,6 +1714,9 @@ export default function CaptaDeliveryApp() {
       </main>
 
       <VisorSeguimiento />
+
+      {/* La ruleta de bienvenida: despues del regalo de la invitacion, si lo hay. */}
+      <RuletaCapta token={sesion?.token} activa={!regalo} onGano={() => setVueltaRuleta((v) => v + 1)} />
 
       <RegaloInvitacion
         regalo={regalo}
