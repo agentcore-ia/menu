@@ -1,4 +1,5 @@
 import { getServerConfig } from './config.js'
+import { pedidoVencido } from '../shared/pedidoVencido.js'
 
 const ESTADOS = {
   new: 'Pedido recibido',
@@ -31,7 +32,8 @@ export async function pedidoActivo(req, res) {
 
     const { order } = await respuesta.json()
     if (!order) return res.status(502).json({})
-    if (['delivered', 'completed', 'cancelled', 'pago_vencido'].includes(order.status)) {
+    // Terminado, o tan viejo que ya no se muestra aunque nadie lo haya cerrado.
+    if (['delivered', 'completed', 'cancelled', 'pago_vencido'].includes(order.status) || pedidoVencido(order.created_at)) {
       return res.json({ terminado: true })
     }
     return res.json({

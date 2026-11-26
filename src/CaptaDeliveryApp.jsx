@@ -35,6 +35,7 @@ import { VisorSeguimiento } from './VisorSeguimiento.jsx'
 import { useAppSinPedidos } from './estadoDeLaApp.js'
 import { MENSAJE_APP_SIN_LANZAR } from '../shared/appCapta.js'
 import { actualizarPedidos, consultarPedidoGuardado } from './pedidoActivo.js'
+import { cerrarPedidosVencidos } from '../shared/pedidoVencido.js'
 import { Ingresar, NombreDeLaCuenta } from './CuentaCapta.jsx'
 import { borrarSesion, guardarBeneficioElegido, leerBeneficioElegido, leerSesion, pedirCuenta, tomarBienvenida } from './sesionCapta.js'
 import { capturarInvitacion, tomarRegalo } from './invitacionCapta.js'
@@ -1203,7 +1204,7 @@ export default function CaptaDeliveryApp() {
       try {
         const datos = await pedirCuenta('GET', null, token)
         if (!vivo) return
-        setPedidosCuenta(Array.isArray(datos?.pedidos) ? datos.pedidos : [])
+        setPedidosCuenta(cerrarPedidosVencidos(datos?.pedidos))
         if (datos?.cliente) setSesion((s) => (s?.token === token ? { ...s, cliente: datos.cliente } : s))
       } catch (e) {
         if (!vivo) return
