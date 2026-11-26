@@ -3387,8 +3387,18 @@ body {
 .cd-explora-cerrado .cd-explora-foto { filter: saturate(0.6); }
 
 /* El logo es redondo y con fondo transparente: la sombra tiene que seguir el circulo. */
-.cd-marca-logo,
 .cd-banner-logo,
 .cd-vacio-logo {
   border-radius: 50%;
+}
+
+/* En la cabecera va la mascota sola, sin circulo: la sombra sigue su forma y despega el casco
+   blanco del fondo claro. */
+.cd-marca-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 0 1px rgba(110, 55, 20, 0.4)) drop-shadow(0 3px 5px rgba(110, 55, 20, 0.25));
 }

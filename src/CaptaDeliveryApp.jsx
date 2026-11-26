@@ -1434,7 +1434,7 @@ export default function CaptaDeliveryApp() {
     <div className="cd-app">
       <header className="cd-cabecera">
         <a className="cd-marca" href="/pedi" aria-label="Capta Delivery">
-          <img className="cd-marca-logo" src="/capta/marca/logo-redondo.webp" alt="" width="56" height="56" />
+          <img className="cd-marca-logo" src="/capta/marca/mascota.webp" alt="" width="56" height="56" />
           <span>
             <strong>Capta</strong>
             <em>Delivery</em>

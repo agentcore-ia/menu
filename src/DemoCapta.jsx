@@ -37,7 +37,7 @@ function InicioDemo() {
     <div className="cd-app capta-demo-inicio">
       <header className="cd-cabecera">
         <a className="cd-marca" href={DEMO} aria-label="Capta Delivery">
-          <img className="cd-marca-logo" src="/capta/marca/logo-redondo.webp" alt="" width="56" height="56" />
+          <img className="cd-marca-logo" src="/capta/marca/mascota.webp" alt="" width="56" height="56" />
           <span><strong>Capta</strong><em>Delivery</em></span>
         </a>
         <span className="capta-demo-etiqueta">Demo</span>
