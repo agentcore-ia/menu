@@ -35,7 +35,7 @@
 .capta-demo-portada h1,
 .capta-demo-seguimiento h1 { margin: 0; font-size: clamp(1.48rem, 5.8vw, 2.25rem); line-height: 1.12; letter-spacing: -.045em; text-wrap: balance; }
 .capta-demo-portada p { margin: 8px 0 0; font-size: .88rem; line-height: 1.5; color: var(--demo-gris); }
-.capta-demo-portada img { width: 100%; height: auto; border-radius: 24%; box-shadow: 0 9px 22px #aa502234; }
+.capta-demo-portada img { width: 100%; height: auto; border-radius: 50%; box-shadow: 0 9px 22px #aa502234; }
 .cd-buscador.capta-demo-buscador { margin-top: 16px; }
 
 .capta-demo-seguimiento {

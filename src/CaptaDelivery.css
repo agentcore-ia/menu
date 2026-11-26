@@ -3385,3 +3385,10 @@ body {
 .cd-explora-local b { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cd-explora-local small { font-size: 11.5px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cd-explora-cerrado .cd-explora-foto { filter: saturate(0.6); }
+
+/* El logo es redondo y con fondo transparente: la sombra tiene que seguir el circulo. */
+.cd-marca-logo,
+.cd-banner-logo,
+.cd-vacio-logo {
+  border-radius: 50%;
+}

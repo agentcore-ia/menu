@@ -535,7 +535,7 @@ function Banner({ ciudad }) {
         </h1>
         <p className="cd-banner-texto">Apoyá lo de tu ciudad, pedí por Capta.</p>
       </div>
-      <img className="cd-banner-logo" src="/capta/logo-3d.webp" width="104" height="104" alt="" />
+      <img className="cd-banner-logo" src="/capta/marca/logo-redondo.webp" width="104" height="104" alt="" />
     </section>
   )
 }
@@ -1013,7 +1013,7 @@ function MisPedidos({ locales, ultimos, mandadoEnCurso, sesion, pedidosCuenta, o
           </>
         ) : (
           <div className="cd-vacio">
-            <img className="cd-vacio-logo" src="/capta/logo-3d.webp" alt="" width="64" height="64" />
+            <img className="cd-vacio-logo" src="/capta/marca/logo-redondo.webp" alt="" width="64" height="64" />
             <p>Todavía no hay pedidos con tu celular. Cuando pidas, los vas a ver acá.</p>
             <button type="button" className="cd-boton-chico" onClick={onIrAlInicio}>
               Ver locales
@@ -1434,7 +1434,7 @@ export default function CaptaDeliveryApp() {
     <div className="cd-app">
       <header className="cd-cabecera">
         <a className="cd-marca" href="/pedi" aria-label="Capta Delivery">
-          <img className="cd-marca-logo" src="/capta/logo-3d.webp" alt="" width="56" height="56" />
+          <img className="cd-marca-logo" src="/capta/marca/logo-redondo.webp" alt="" width="56" height="56" />
           <span>
             <strong>Capta</strong>
             <em>Delivery</em>
@@ -1652,7 +1652,7 @@ export default function CaptaDeliveryApp() {
                 {vista === 'grupo' && grupo ? (
                   <img className="cd-vacio-icono" src={imagenDeGrupo(grupo)} alt="" style={{ background: grupo.fondo }} />
                 ) : (
-                  <img className="cd-vacio-logo" src="/capta/logo-3d.webp" alt="" width="64" height="64" />
+                  <img className="cd-vacio-logo" src="/capta/marca/logo-redondo.webp" alt="" width="64" height="64" />
                 )}
                 <p>
                   {vista === 'guardados'
