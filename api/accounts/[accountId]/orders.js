@@ -107,7 +107,8 @@ export default async function handler(req, res) {
 
     const config = getServerConfig()
     const repository = createOrderRepository(config)
-    const order = await repository.createOrder(req.query.accountId, payload)
+    // La direccion por la que entro la pone el servidor, no el cliente.
+    const order = await repository.createOrder(req.query.accountId, { ...payload, hostDelPedido: req.headers.host })
 
     if (!order) {
       res.status(404).json({

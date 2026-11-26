@@ -14,6 +14,8 @@ import { textosDelMenu } from '../shared/rubros.js'
 import { celularDelPedidoValido, celularValido, MENSAJE_CELULAR_DE_MESA, MENSAJE_CELULAR_INVALIDO, normalizarCelular } from '../shared/celular.js'
 import { canjePosible, porQueNoEntraTodo } from '../shared/puntosCapta.js'
 import { vinoDeLaVitrina } from './vitrinaDelCliente.js'
+import { useAppSinPedidos } from './estadoDeLaApp.js'
+import { esDominioDeLaApp, MENSAJE_APP_SIN_LANZAR } from '../shared/appCapta.js'
 import { seguirToques, volarAlCarrito } from './animacionCarrito.js'
 import BarraCapta from './BarraCapta.jsx'
 import { turnosParaProgramar } from '../shared/pedidoProgramado.js'
@@ -8995,6 +8997,10 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
     ? orderForm.paymentMethod
     : 'cash'
   const isTableOrder = mesaId != null || templateId === 'kika' || templateId === 'almendra'
+  // Entrando por la app (capta.ar), que todavia no se lanzo: se mira, no se pide.
+  const appSinPedidos = useAppSinPedidos(
+    !demo && mesaId == null && (desdeCapta || esDominioDeLaApp(window.location.hostname)),
+  )
   const pwaPromptEnabled = presentation.theme?.pwaInstallPromptEnabled === true
   const rawCategories = menu?.categories ?? emptyCategories
   const categories = useMemo(
@@ -9503,7 +9509,9 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   const cartRecommendations = [...new Map(sugerenciasDelCarrito.map((item) => [item.id, item])).values()]
   // Pausa manual del local (por ejemplo, un temporal): el servidor la manda en menu.ordering y gana
   // sobre los horarios. Sin esto el menu se veia abierto y recien al enviar el pedido avisaba.
-  const orderingStatus = menu?.ordering?.paused === true
+  const orderingStatus = appSinPedidos
+    ? { configured: true, isOpen: false, paused: true, titulo: 'Muy pronto', message: MENSAJE_APP_SIN_LANZAR, nextOpenText: '', scheduleText: '' }
+    : menu?.ordering?.paused === true
     ? { configured: true, isOpen: false, paused: true, message: menu.ordering.message || '', nextOpenText: '', scheduleText: '' }
     : menu?.businessHours
     ? getBusinessOpenStatus(menu.businessHours, new Date(currentTime))
@@ -9519,9 +9527,10 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   const programadosDelLocal = menu?.programados ?? null
   const cerradoAhora = Boolean(orderingStatus.configured && !orderingStatus.isOpen)
   const turnosProgramables = useMemo(() => {
-    if (!cerradoAhora || !programadosDelLocal || !menu?.businessHours || isTableOrder) return []
+    // Pausado no es "cerrado por horario": tampoco se puede dejar programado.
+    if (!cerradoAhora || orderingStatus.paused || !programadosDelLocal || !menu?.businessHours || isTableOrder) return []
     return turnosParaProgramar(menu.businessHours, new Date(currentTime), { anticipo: programadosDelLocal.anticipo })
-  }, [cerradoAhora, programadosDelLocal, menu?.businessHours, isTableOrder, currentTime])
+  }, [cerradoAhora, orderingStatus.paused, programadosDelLocal, menu?.businessHours, isTableOrder, currentTime])
   const puedeProgramar = turnosProgramables.length > 0
   // Si el horario elegido se paso (la pagina quedo abierta), hay que elegir otro.
   const turnoElegido = turnosProgramables.some((t) => t.iso === programadoPara) ? programadoPara : ''
@@ -9718,7 +9727,9 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
   ])
 
   function showOrderingClosedNotice() {
-    setOrderingNotice(orderingClosedMessage)
+    setOrderingNotice(
+      orderingStatus.titulo ? { titulo: orderingStatus.titulo, texto: orderingClosedMessage } : orderingClosedMessage,
+    )
   }
 
   function handleCloseInstallPrompt() {
@@ -11281,7 +11292,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
               abierto={!orderingBlocked && !cerradoAhora}
               estadoTexto={
                 orderingBlocked || cerradoAhora
-                  ? (orderingStatus.nextOpenText || 'Cerrado ahora')
+                  ? (orderingStatus.titulo || orderingStatus.nextOpenText || 'Cerrado ahora')
                   : (orderingStatus.scheduleText ? `Abierto · ${orderingStatus.scheduleText}` : 'Abierto')
               }
               envioTexto={(() => {
@@ -11403,7 +11414,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
               <section className="closed-order-banner" role="status" aria-live="polite">
                 <div>
                   {/* Pausa manual (un temporal, por ejemplo): se muestra el mensaje del local tal cual. */}
-                  <strong>{orderingStatus.paused ? 'Pedidos pausados' : 'Estamos cerrados ahora'}</strong>
+                  <strong>{orderingStatus.paused ? orderingStatus.titulo || 'Pedidos pausados' : 'Estamos cerrados ahora'}</strong>
                   <p>
                     {orderingStatus.paused
                       ? orderingStatus.message

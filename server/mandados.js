@@ -14,6 +14,8 @@
 //   POST /api/delivery/mandados  { ciudad, cliente, mandado, punto, notas }
 import { getServerConfig } from './config.js'
 import { geocodeDeliveryCandidates } from './deliveryZones.js'
+import { createOrderRepository } from './repositories/orderRepository.js'
+import { MENSAJE_APP_SIN_LANZAR } from '../shared/appCapta.js'
 
 /** Lejos de esto del centro de la ciudad no es una direccion de la ciudad. */
 const KM_MAXIMO_DEL_CENTRO = 25
@@ -138,6 +140,11 @@ async function cotizar(req, res) {
 }
 
 async function crear(req, res) {
+  // Los mandados son de la app: cerrados hasta que se lance.
+  if ((await createOrderRepository(getServerConfig()).appTomaPedidos?.()) === false) {
+    res.status(409).json({ message: MENSAJE_APP_SIN_LANZAR })
+    return
+  }
   const b = req.body ?? {}
   const datos = await alDashboard('/api/delivery/capta/mandados', {
     method: 'POST',

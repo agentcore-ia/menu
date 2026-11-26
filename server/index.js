@@ -157,6 +157,12 @@ app.get('/api/delivery/explora', async (req, res) => {
   }
 })
 
+// Si la app (capta.ar) ya toma pedidos, para avisarle al cliente antes de que arme uno.
+app.get('/api/delivery/estado', async (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store, max-age=0')
+  res.json({ pedidos: (await orderRepository.appTomaPedidos?.()) ?? true })
+})
+
 // La vitrina de Capta Delivery: los locales que reparten con Capta. Publica y
 // sin datos de nadie (server/repositories -> listarVitrinaCapta).
 app.get('/api/delivery/locales', async (_req, res) => {
@@ -321,7 +327,8 @@ app.post('/api/accounts/:accountId/orders', async (req, res) => {
       return
     }
 
-    const order = await orderRepository.createOrder(req.params.accountId, payload)
+    // La direccion por la que entro la pone el servidor, no el cliente.
+    const order = await orderRepository.createOrder(req.params.accountId, { ...payload, hostDelPedido: req.headers.host })
 
     if (!order) {
       res.status(404).json({

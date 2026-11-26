@@ -45,6 +45,13 @@ export default async function handler(req, res) {
     return
   }
 
+  // Si la app (capta.ar) ya toma pedidos (/api/delivery/estado): mismo camino.
+  if (req.query.accion === 'estado-app') {
+    res.setHeader('Cache-Control', 'no-store, max-age=0')
+    res.status(200).json({ pedidos: (await createOrderRepository(config).appTomaPedidos?.()) ?? true })
+    return
+  }
+
   // La vitrina de Capta Delivery (/api/delivery/locales) entra por ESTA misma
   // funcion: vercel.json la reescribe hasta aca con accion=vitrina. No tiene
   // que ver con la cuenta de la direccion, que se ignora.

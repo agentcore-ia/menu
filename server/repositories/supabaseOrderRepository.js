@@ -1,3 +1,4 @@
+import { appHabilitada, CLAVE_AJUSTE_APP, esPedidoDeLaApp, MENSAJE_APP_SIN_LANZAR } from '../../shared/appCapta.js'
 import {
   calculateEarnedPoints,
   isMissingSupabaseRelationError,
@@ -29,11 +30,37 @@ export class SupabaseOrderRepository {
     this.config = config
   }
 
+  /** Si capta.ar ya toma pedidos. Sin la fila, o si no se puede leer, no. */
+  async appTomaPedidos() {
+    try {
+      const filas = await this.request(`/capta_ajustes?clave=eq.${CLAVE_AJUSTE_APP}&select=valor`)
+      return appHabilitada(filas?.[0]?.valor)
+    } catch (error) {
+      console.error('No se pudo leer si la app de Capta toma pedidos:', error?.message)
+      return false
+    }
+  }
+
   async createOrder(accountId, payload) {
     const restaurant = await this.fetchRestaurant(accountId)
 
     if (!restaurant) {
       return null
+    }
+
+    // La app (capta.ar) todavia no se lanzo: lo que entra por ahi no pasa hasta que el dueño la
+    // habilite. El menu propio de cada local sigue igual (shared/appCapta.js).
+    const deLaApp = esPedidoDeLaApp({
+      host: payload.hostDelPedido,
+      desdeVitrina: payload.desdeVitrina,
+      mesa: payload.deliveryType === 'mesa',
+    })
+    if (deLaApp && !(await this.appTomaPedidos())) {
+      const error = new Error(MENSAJE_APP_SIN_LANZAR)
+      error.code = 'ORDER_TAKING_PAUSED'
+      error.statusCode = 409
+      error.ordering = { configured: true, isOpen: false, paused: true, message: error.message }
+      throw error
     }
 
     if (restaurant.horarios?._settings?.orderTakingPaused === true) {

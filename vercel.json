@@ -590,6 +590,10 @@
       "destination": "/api/accounts/capta/menu?accion=puntos"
     },
     {
+      "source": "/api/delivery/estado",
+      "destination": "/api/accounts/capta/menu?accion=estado-app"
+    },
+    {
       "source": "/api/delivery/explora",
       "destination": "/api/accounts/capta/menu?accion=explora"
     },

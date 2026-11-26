@@ -516,6 +516,15 @@ body {
   font-weight: 700;
 }
 
+.cd-aviso-pronto {
+  justify-content: flex-start;
+}
+
+.cd-aviso-pronto p {
+  margin: 0;
+  line-height: 1.45;
+}
+
 .cd-aviso button {
   padding: 8px 14px;
   border: 0;

@@ -32,6 +32,8 @@ import { celularValido, normalizarCelular } from '../shared/celular.js'
 import { FormularioMandado } from './MandadoCapta.jsx'
 import { leerEnCurso } from './mandadoEnCurso.js'
 import { VisorSeguimiento } from './VisorSeguimiento.jsx'
+import { useAppSinPedidos } from './estadoDeLaApp.js'
+import { MENSAJE_APP_SIN_LANZAR } from '../shared/appCapta.js'
 import { actualizarPedidos, consultarPedidoGuardado } from './pedidoActivo.js'
 import { Ingresar, NombreDeLaCuenta } from './CuentaCapta.jsx'
 import { borrarSesion, guardarBeneficioElegido, leerBeneficioElegido, leerSesion, pedirCuenta, tomarBienvenida } from './sesionCapta.js'
@@ -1088,6 +1090,8 @@ function Perfil({ ciudad, sesion, onSesion, onSalir, onPuntos, onDatos, onCiudad
 export default function CaptaDeliveryApp() {
   const { cargando, error, locales, ciudades: ciudadesConLocales, recargar } = useVitrina()
   const mandados = useMandados()
+  // La app todavia no se lanzo: se puede mirar, pero no pedir.
+  const sinPedidos = useAppSinPedidos(true)
   const [ciudadElegida, setCiudadElegida] = useState(() => leerPreferencia(CLAVE_CIUDAD, ''))
   const [busqueda, setBusqueda] = useState('')
   const [tipoDeResultado, setTipoDeResultado] = useState('productos')
@@ -1474,6 +1478,15 @@ export default function CaptaDeliveryApp() {
       ) : null}
 
       <main className="cd-contenido">
+        {sinPedidos ? (
+          <div className="cd-aviso cd-aviso-pronto" role="status">
+            <p>
+              <strong>¡Muy pronto!</strong> Todavía no estamos tomando pedidos. Ya podés mirar los comercios y sus
+              productos.
+            </p>
+          </div>
+        ) : null}
+
         {error ? (
           <div className="cd-aviso">
             <p>{error}</p>
@@ -1755,7 +1768,11 @@ export default function CaptaDeliveryApp() {
 
       {hoja === 'mandado' && mandadoDeLaCiudad ? (
         <Hoja titulo="Pedí un mandado" onCerrar={() => setHoja(null)}>
-          <FormularioMandado key={dondeDelMandado} mandado={mandadoDeLaCiudad} dondeInicial={dondeDelMandado} />
+          {sinPedidos ? (
+            <p className="cd-hoja-texto">{MENSAJE_APP_SIN_LANZAR}</p>
+          ) : (
+            <FormularioMandado key={dondeDelMandado} mandado={mandadoDeLaCiudad} dondeInicial={dondeDelMandado} />
+          )}
         </Hoja>
       ) : null}
 
