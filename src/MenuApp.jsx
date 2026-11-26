@@ -1093,7 +1093,16 @@ function getAccountFaviconHref(accountId) {
     return conIconoPropio[1]
   }
 
-  return key === 'host' || key.startsWith('host-') ? '/assets/host-favicon.png' : '/favicon.svg'
+  if (key === 'host' || key.startsWith('host-')) return '/assets/host-favicon.png'
+
+  return iconoDeLaPagina('icon') || '/favicon.svg'
+}
+
+// El icono que ya trae el HTML de esta direccion (dolce.html, capta-menu.html...), salvo que sea
+// el generico. Sin esto el menu lo pisaba con el icono de fabrica del proyecto.
+function iconoDeLaPagina(rel) {
+  const href = document.querySelector(`link[rel="${rel}"]`)?.getAttribute('href') || ''
+  return ['/favicon.png', '/favicon.svg', '/assets/capta-pwa-icon.png'].includes(href) ? '' : href
 }
 
 // iOS ignora los icons del manifest.webmanifest al hacer "Agregar a inicio":
@@ -1143,7 +1152,7 @@ function getAccountAppleTouchIconHref(accountId) {
     return conIconoPropio[1]
   }
 
-  return '/assets/capta-pwa-icon.png'
+  return iconoDeLaPagina('apple-touch-icon') || '/assets/capta-pwa-icon.png'
 }
 
 function getAccountDocumentTitle(accountId, presentation, catalogo = 'Menu digital') {

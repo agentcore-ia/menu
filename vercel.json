@@ -646,6 +646,26 @@
       "destination": "/chicha.html"
     },
     {
+      "source": "/favicon.ico",
+      "has": [
+        {
+          "type": "host",
+          "value": "capta.ar"
+        }
+      ],
+      "destination": "/capta/marca/favicon.ico"
+    },
+    {
+      "source": "/:account((?!api|pedi|demo|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|grupo-lea|copetin-sandwich|fratello|todo-empanadas|kiosco-9-de-julio|troka|ipplis|dallys|ambrosia|delivery-de-kiosco|florian|moli-express|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha|yo-helados|dolce|roll-y-va).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "capta.ar"
+        }
+      ],
+      "destination": "/capta-menu.html"
+    },
+    {
       "source": "/:account((?!api|pedi|demo|capta|assets|dishes|favicon\\.svg|favicon\\.png|icons\\.svg|service-worker\\.js|sabor-a-pampa|kika|almendra|lodetoto|babson|punto-waffle|la-argenta|grupo-lea|copetin-sandwich|fratello|todo-empanadas|kiosco-9-de-julio|troka|ipplis|dallys|ambrosia|delivery-de-kiosco|florian|moli-express|panacea|racing|bruderpizza|craft-burguer|boutique-cian|chicha|yo-helados|dolce|roll-y-va).*)",
       "destination": "/host.html"
     }

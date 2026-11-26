@@ -38,6 +38,7 @@ export default defineConfig({
         main: resolve(__dirname, 'host.html'),
         pedi: resolve(__dirname, 'pedi.html'),
         demo: resolve(__dirname, 'demo.html'),
+        'capta-menu': resolve(__dirname, 'capta-menu.html'),
         almendra: resolve(__dirname, 'almendra.html'),
         kika: resolve(__dirname, 'kika.html'),
         saborapampa: resolve(__dirname, 'saborapampa.html'),
