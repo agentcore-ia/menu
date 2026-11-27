@@ -1,3 +1,4 @@
+import { envioLoPagaElLocal } from '../../shared/envioDelLocal.js'
 import { appHabilitada, CLAVE_AJUSTE_APP, esPedidoDeLaApp, MENSAJE_APP_SIN_LANZAR } from '../../shared/appCapta.js'
 import {
   calculateEarnedPoints,
@@ -240,7 +241,8 @@ export class SupabaseOrderRepository {
       throw error
     }
 
-    const deliveryFee = shouldChargeDelivery ? Number(deliveryQuote?.fee ?? restaurant.delivery_fee ?? 0) : 0
+    // El precio del viaje segun la zona. Mas abajo se separa quien lo paga.
+    const envioDeLaZona = shouldChargeDelivery ? Number(deliveryQuote?.fee ?? restaurant.delivery_fee ?? 0) : 0
 
     // Con Capta Delivery el envio es la plata del viaje: en $0 el repartidor no
     // cobra y Capta no factura. Paso cuando un local tenia las zonas apagadas:
@@ -249,7 +251,7 @@ export class SupabaseOrderRepository {
     if (
       shouldChargeDelivery &&
       restaurant.horarios?._settings?.deliveryCapta === true &&
-      !(deliveryFee > 0)
+      !(envioDeLaZona > 0)
     ) {
       const error = new Error(
         'No pudimos calcular el envío a esa dirección. Revisala o elegí retirar en el local.',
@@ -258,6 +260,11 @@ export class SupabaseOrderRepository {
       error.statusCode = 422
       throw error
     }
+
+    // Envio a cargo del local (shared/envioDelLocal.js): al cliente no se le cobra y queda anotado
+    // aparte para que Capta se lo cobre al local.
+    const envioDelLocal = envioLoPagaElLocal(restaurant.horarios?._settings) ? envioDeLaZona : 0
+    const deliveryFee = envioDeLaZona - envioDelLocal
 
     // Recargo por metodo de pago (dashboard > Ajustes > horarios._settings.
     // paymentSurcharge = { methods: ['transferencia','mercado_pago'], percent }),
@@ -438,6 +445,7 @@ export class SupabaseOrderRepository {
           delivery_lng: ubicacionCliente?.lng ?? null,
           subtotal,
           delivery_fee: deliveryFee,
+          ...(envioDelLocal > 0 ? { envio_a_cargo_local: envioDelLocal } : {}),
           // Entro desde la app de Capta Delivery: es lo que decide si el
           // pedido suma puntos (lib/server/puntosCapta.ts del dashboard).
           desde_vitrina: payload.desdeVitrina === true,

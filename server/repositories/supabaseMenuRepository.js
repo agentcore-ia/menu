@@ -1,3 +1,4 @@
+import { envioLoPagaElLocal } from '../../shared/envioDelLocal.js'
 import {
   isMissingSupabaseRelationError,
   mapLoyaltySettingsRow,
@@ -492,7 +493,7 @@ export class SupabaseMenuRepository {
       tieneWhatsappDelLocal: Boolean(String(restaurant.phone || '').replace(/\D/g, '')),
       tieneCodigosDescuento,
       // Aviso del local sobre el menu abierto (horarios._settings.menuAviso): por ejemplo, demoras por un temporal.
-      aviso: String(restaurant.horarios?._settings?.menuAviso ?? '').replace(/s+/g, ' ').trim().slice(0, 240) || null,
+      aviso: String(restaurant.horarios?._settings?.menuAviso ?? '').replace(/\s+/g, ' ').trim().slice(0, 240) || null,
       table_experience_enabled: restaurant.table_experience_enabled === true,
       // Que se muestra en la pantalla de la mesa (shared/mesaQr.js).
       mesaQr: opcionesMesaQr(restaurant.horarios?._settings, restaurant),
@@ -502,10 +503,14 @@ export class SupabaseMenuRepository {
       feedback_enabled: restaurant.feedback_enabled !== false,
       allow_item_payment: restaurant.allow_item_payment !== false,
       allow_split_bill: restaurant.allow_split_bill !== false,
-      deliveryFee: Number(restaurant.delivery_fee ?? 0),
+      // Si el envio lo paga el local, al cliente se le muestra gratis.
+      envioGratis: envioLoPagaElLocal(restaurant.horarios?._settings),
+      deliveryFee: envioLoPagaElLocal(restaurant.horarios?._settings) ? 0 : Number(restaurant.delivery_fee ?? 0),
       deliveryZones:
         restaurant.horarios?._settings?.deliveryZonesEnabled === true
-          ? restaurant.horarios?._settings?.deliveryZones ?? []
+          ? (restaurant.horarios?._settings?.deliveryZones ?? []).map((zona) =>
+              envioLoPagaElLocal(restaurant.horarios?._settings) ? { ...zona, fee: 0 } : zona,
+            )
           : [],
       deliveryZonesEnabled: restaurant.horarios?._settings?.deliveryZonesEnabled === true,
       city: restaurant.city || '',

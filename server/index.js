@@ -4,6 +4,7 @@ import express from 'express'
 import { getServerConfig } from './config.js'
 import { createMenuRepository } from './repositories/menuRepository.js'
 import { createOrderRepository } from './repositories/orderRepository.js'
+import { cotizacionSinCosto } from '../shared/envioDelLocal.js'
 import { createLoyaltyRepository } from './repositories/loyaltyRepository.js'
 import { createAdminRepository } from './admin/createAdminRepository.js'
 import { assertAdminToken } from './admin/requireAdminToken.js'
@@ -277,7 +278,7 @@ app.get('/api/accounts/:accountId/delivery-zone', async (req, res) => {
           : null,
     })
 
-    res.json(quote)
+    res.json(menu.envioGratis ? cotizacionSinCosto(quote) : quote)
   } catch (error) {
     res.status(500).json({
       error: 'DELIVERY_ZONE_FAILED',

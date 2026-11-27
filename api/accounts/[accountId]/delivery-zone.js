@@ -1,6 +1,7 @@
 import { resolveDeliveryQuote, reverseGeocodeDelivery } from '../../../server/deliveryZones.js'
 import { getServerConfig } from '../../../server/config.js'
 import { createMenuRepository } from '../../../server/repositories/menuRepository.js'
+import { cotizacionSinCosto } from '../../../shared/envioDelLocal.js'
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0')
@@ -68,7 +69,7 @@ export default async function handler(req, res) {
           : null,
     })
 
-    res.status(200).json(quote)
+    res.status(200).json(menu.envioGratis ? cotizacionSinCosto(quote) : quote)
   } catch (error) {
     res.status(500).json({
       error: 'DELIVERY_ZONE_FAILED',

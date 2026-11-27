@@ -9470,7 +9470,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
       {isTableOrder ? null : (
         <div>
           <dt>{orderForm.deliveryType === 'delivery' ? 'Envío' : 'Retiro en el local'}</dt>
-          <dd>{envioPendiente ? 'Por calcular' : selectedDeliveryFee > 0 ? formatPrice(selectedDeliveryFee, currencySymbol) : 'Sin costo'}</dd>
+          <dd>{envioPendiente ? 'Por calcular' : selectedDeliveryFee > 0 ? formatPrice(selectedDeliveryFee, currencySymbol) : menu?.envioGratis ? 'Gratis' : 'Sin costo'}</dd>
         </div>
       )}
       {paymentSurchargeAmount > 0 ? (
@@ -11317,6 +11317,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                   : (orderingStatus.scheduleText ? `Abierto · ${orderingStatus.scheduleText}` : 'Abierto')
               }
               envioTexto={(() => {
+                if (menu?.envioGratis) return 'Envío gratis'
                 const zonas = Array.isArray(menu?.deliveryZones) ? menu.deliveryZones.filter((z) => z?.active !== false && Number(z?.fee) > 0) : []
                 if (zonas.length) return `Envío desde ${formatPrice(Math.min(...zonas.map((z) => Number(z.fee))), currencySymbol)}`
                 return Number(menu?.deliveryFee) > 0 ? `Envío ${formatPrice(Number(menu.deliveryFee), currencySymbol)}` : ''
@@ -13467,7 +13468,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                               {deliveryQuoteStatus === 'checking'
                                 ? 'Calculando zona de entrega...'
                                 : deliveryQuote?.allowed
-                                  ? `${deliveryQuote.zone?.name || 'Zona habilitada'} - Envio ${formatPrice(Number(deliveryQuote.fee || 0), currencySymbol)}`
+                                  ? `${deliveryQuote.zone?.name || 'Zona habilitada'} - ${menu?.envioGratis ? 'Envío gratis' : `Envio ${formatPrice(Number(deliveryQuote.fee || 0), currencySymbol)}`}`
                                   : deliveryQuote?.message || 'Ingresa tu direccion para validar el area de entrega.'}
                             </strong>
                             <span>
@@ -13496,7 +13497,7 @@ export default function MenuApp({ demo = null, onDemoConfirmar } = {}) {
                                     <span>{candidate.label}</span>
                                     <small>
                                       {candidate.allowed
-                                        ? `${candidate.zone?.name || 'Zona habilitada'} - ${formatPrice(Number(candidate.fee || 0), currencySymbol)}`
+                                        ? `${candidate.zone?.name || 'Zona habilitada'} - ${menu?.envioGratis ? 'Envío gratis' : formatPrice(Number(candidate.fee || 0), currencySymbol)}`
                                         : 'Fuera del area'}
                                     </small>
                                   </button>
